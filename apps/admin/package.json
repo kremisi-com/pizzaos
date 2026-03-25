@@ -3,15 +3,16 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --port 3002",
+    "dev": "next dev --hostname 127.0.0.1 --port 3002",
     "build": "next build",
-    "start": "next start --port 3002",
+    "start": "next start --hostname 127.0.0.1 --port 3002",
     "lint": "eslint . --max-warnings 0",
     "typecheck": "tsc --project tsconfig.json --noEmit",
     "test": "vitest run src/test --passWithNoTests"
   },
   "dependencies": {
     "@pizzaos/brand": "workspace:*",
+    "@pizzaos/domain": "workspace:*",
     "@pizzaos/mock-data": "workspace:*",
     "@pizzaos/ui": "workspace:*",
     "next": "^15.2.4",

@@ -1,4 +1,5 @@
 import { getThemeClass } from "@pizzaos/brand";
+import { getDemoStateStorageKey } from "@pizzaos/mock-data";
 import { describe, expect, it } from "vitest";
 import { createElement } from "react";
 import { renderToString } from "react-dom/server";
@@ -11,5 +12,7 @@ describe("landing shell", () =>
     const markup = renderToString(createElement(LandingShell));
 
     expect(markup).toContain(getThemeClass("landing"));
+    expect(markup).toContain(getDemoStateStorageKey("landing"));
+    expect(markup).toContain("Reset demo");
   });
 });

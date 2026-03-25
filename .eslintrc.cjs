@@ -6,6 +6,7 @@ module.exports = {
   ignorePatterns: [
     ".next",
     "dist",
-    "node_modules"
+    "node_modules",
+    "**/next-env.d.ts"
   ]
 };

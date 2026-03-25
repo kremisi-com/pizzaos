@@ -7,7 +7,7 @@
 - [X] Step 3: Build the shared brand package and surface themes.
 - [X] Step 4: Implement shared domain models, mock data seeds, and reset logic.
 - [X] Step 5: Build shared UI primitives and shared testing utilities.
-- [ ] Step 6: Wire the three app shells to the shared platform and verify cross-workspace quality gates.
+- [X] Step 6: Wire the three app shells to the shared platform and verify cross-workspace quality gates.
 
 ## Step 1: Bootstrap the Turborepo workspace and shared toolchain
 

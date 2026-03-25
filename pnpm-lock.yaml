@@ -50,6 +50,9 @@ importers:
       '@pizzaos/brand':
         specifier: workspace:*
         version: link:../../packages/brand
+      '@pizzaos/domain':
+        specifier: workspace:*
+        version: link:../../packages/domain
       '@pizzaos/mock-data':
         specifier: workspace:*
         version: link:../../packages/mock-data
@@ -78,6 +81,9 @@ importers:
       '@pizzaos/brand':
         specifier: workspace:*
         version: link:../../packages/brand
+      '@pizzaos/domain':
+        specifier: workspace:*
+        version: link:../../packages/domain
       '@pizzaos/mock-data':
         specifier: workspace:*
         version: link:../../packages/mock-data
@@ -106,6 +112,9 @@ importers:
       '@pizzaos/brand':
         specifier: workspace:*
         version: link:../../packages/brand
+      '@pizzaos/domain':
+        specifier: workspace:*
+        version: link:../../packages/domain
       '@pizzaos/mock-data':
         specifier: workspace:*
         version: link:../../packages/mock-data

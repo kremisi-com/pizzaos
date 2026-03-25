@@ -1,4 +1,5 @@
 import { getThemeClass } from "@pizzaos/brand";
+import { getDemoStateStorageKey } from "@pizzaos/mock-data";
 import { describe, expect, it } from "vitest";
 import { createElement } from "react";
 import { renderToString } from "react-dom/server";
@@ -11,5 +12,7 @@ describe("admin shell", () =>
     const markup = renderToString(createElement(AdminShell));
 
     expect(markup).toContain(getThemeClass("admin"));
+    expect(markup).toContain(getDemoStateStorageKey("admin"));
+    expect(markup).toContain("Reset demo");
   });
 });
