@@ -1,25 +1,29 @@
-import type { AppShellSeed } from "@pizzaos/domain";
+export {
+  createAdminSeed,
+  createClientSeed,
+  createLandingSeed,
+  ADMIN_STORE_IDS
+} from "./seeds";
 
-function createSeed(surface: AppShellSeed["surface"], title: string, subtitle: string): AppShellSeed
-{
-  return {
-    surface,
-    title,
-    subtitle
-  };
-}
+export {
+  getDemoStateStorageKey,
+  loadDemoState,
+  recoverPersistedDemoState,
+  reseedDemoState,
+  resetDemoState
+} from "./persistence";
 
-export function createLandingSeed(): AppShellSeed
-{
-  return createSeed("landing", "PizzaOS Landing", "Esperienza editoriale premium in italiano.");
-}
+export { advanceOrderSimulation, SUPPORTED_ORDER_STATUSES } from "./simulation";
 
-export function createClientSeed(): AppShellSeed
-{
-  return createSeed("client", "PizzaOS Client", "Ordinazione mobile-first, rapida e chiara.");
-}
-
-export function createAdminSeed(): AppShellSeed
-{
-  return createSeed("admin", "PizzaOS Admin", "Dashboard operativa desktop-first.");
-}
+export type {
+  AdminSeed,
+  AdminStoreDataset,
+  ClientSeed,
+  DemoAppId,
+  DemoStateByApp,
+  DemoStorage,
+  LandingSeed,
+  OrderSimulationState,
+  PersistOptions,
+  SeedOptions
+} from "./types";

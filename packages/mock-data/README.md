@@ -10,6 +10,8 @@ This package owns:
 
 - seed factories for app demo starting states
 - shared mock helpers used by app surfaces
+- deterministic reset and reseed persistence helpers
+- deterministic order simulation stepping helpers
 
 This package does not own rendering or app route composition.
 
@@ -19,9 +21,21 @@ Entry point: `@pizzaos/mock-data`
 
 Current exports from `src/index.ts`:
 
-- `createLandingSeed()`
-- `createClientSeed()`
-- `createAdminSeed()`
+- seed factories:
+  - `createLandingSeed()`
+  - `createClientSeed()`
+  - `createAdminSeed(storeId?)`
+- storage and recovery helpers:
+  - `getDemoStateStorageKey(appId)`
+  - `loadDemoState(appId, options?)`
+  - `recoverPersistedDemoState(appId, persistedState, options?)`
+  - `reseedDemoState(appId, options?)`
+  - `resetDemoState(appId, options?)`
+- deterministic simulation:
+  - `advanceOrderSimulation(state, now)`
+- constants:
+  - `ADMIN_STORE_IDS`
+  - `SUPPORTED_ORDER_STATUSES`
 
 ## Import Rules
 
