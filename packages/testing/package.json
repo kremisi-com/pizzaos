@@ -1,0 +1,17 @@
+{
+  "name": "@pizzaos/testing",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": "./src/index.ts",
+  "scripts": {
+    "build": "tsc --project tsconfig.json --noEmit",
+    "lint": "eslint src --max-warnings 0",
+    "typecheck": "tsc --project tsconfig.json --noEmit",
+    "test": "vitest run --passWithNoTests"
+  },
+  "devDependencies": {
+    "@pizzaos/eslint-config": "workspace:*",
+    "@pizzaos/typescript-config": "workspace:*"
+  }
+}

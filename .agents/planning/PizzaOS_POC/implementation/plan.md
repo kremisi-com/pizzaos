@@ -2,7 +2,7 @@
 
 ## Checklist
 
-- [ ] Step 1: Bootstrap the Turborepo workspace and shared toolchain.
+- [X] Step 1: Bootstrap the Turborepo workspace and shared toolchain.
 - [ ] Step 2: Establish repository documentation and package boundaries.
 - [ ] Step 3: Build the shared brand package and surface themes.
 - [ ] Step 4: Implement shared domain models, mock data seeds, and reset logic.

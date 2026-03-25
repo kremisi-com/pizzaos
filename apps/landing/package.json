@@ -1,0 +1,25 @@
+{
+  "name": "@pizzaos/landing",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --port 3000",
+    "build": "next build",
+    "start": "next start --port 3000",
+    "lint": "eslint . --max-warnings 0",
+    "typecheck": "tsc --project tsconfig.json --noEmit",
+    "test": "vitest run src/test --passWithNoTests"
+  },
+  "dependencies": {
+    "@pizzaos/brand": "workspace:*",
+    "@pizzaos/mock-data": "workspace:*",
+    "@pizzaos/ui": "workspace:*",
+    "next": "^15.2.4",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0"
+  },
+  "devDependencies": {
+    "@pizzaos/eslint-config": "workspace:*",
+    "@pizzaos/typescript-config": "workspace:*"
+  }
+}

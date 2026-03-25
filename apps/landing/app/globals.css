@@ -1,0 +1,16 @@
+html,
+body
+{
+  margin: 0;
+  padding: 0;
+  font-family: "Avenir Next", "Segoe UI", sans-serif;
+  background: linear-gradient(160deg, #fff6ea 0%, #f7f8ff 100%);
+  color: #1f1f1f;
+}
+
+main
+{
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 48px 24px;
+}

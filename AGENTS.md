@@ -208,6 +208,10 @@ When working on a task:
 4. Add or update tests in the same change.
 5. Verify the step is demoable.
 6. Update documentation if public behavior, structure, or commands changed.
+7. After everything is done, run a final check that the change matches the plan, tests pass, and the demo works.
+8. Mark the task as complete in the implementation plan document, and optionally add a note if there were any deviations or discoveries during implementation that are worth recording for future reference.
+9. Run `git status` to confirm only expected files are changed, and the changes are properly staged for commit. If necessary, update the `.gitignore` to avoid accidentally including files that should not be committed.
+10. Commit the changes after each task, using the git standard commit message format, providing a clear short title, a thorough description of the changes and referencing any relevant issue or task IDs.
 
 ## What Not To Do
 
