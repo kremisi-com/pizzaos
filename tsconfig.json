@@ -1,0 +1,29 @@
+{
+  "files": [],
+  "references": [
+    {
+      "path": "./packages/domain"
+    },
+    {
+      "path": "./packages/brand"
+    },
+    {
+      "path": "./packages/mock-data"
+    },
+    {
+      "path": "./packages/testing"
+    },
+    {
+      "path": "./packages/ui"
+    },
+    {
+      "path": "./apps/landing"
+    },
+    {
+      "path": "./apps/client"
+    },
+    {
+      "path": "./apps/admin"
+    }
+  ]
+}
