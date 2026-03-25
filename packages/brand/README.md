@@ -19,7 +19,11 @@ Entry point: `@pizzaos/brand`
 
 Current exports from `src/index.ts`:
 
+- `SURFACE_THEME_CLASS`
+- `SURFACE_THEME_TOKENS`
 - `getThemeClass(surface: AppSurface): string`
+- `getSurfaceThemeTokens(surface: AppSurface): SurfaceThemeTokens`
+- `getThemeStyleVariables(surface: AppSurface): Record<\`--pizzaos-${string}\`, string>`
 
 ## Import Rules
 

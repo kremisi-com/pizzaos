@@ -1,5 +1,6 @@
+import { getThemeClass, getThemeStyleVariables } from "@pizzaos/brand";
 import type { Metadata } from "next";
-import type { ReactElement, ReactNode } from "react";
+import type { CSSProperties, ReactElement, ReactNode } from "react";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -14,9 +15,16 @@ interface RootLayoutProps
 
 export default function RootLayout(props: RootLayoutProps): ReactElement
 {
+  const surface = "client";
+
   return (
     <html lang="it">
-      <body>{props.children}</body>
+      <body
+        className={getThemeClass(surface)}
+        style={getThemeStyleVariables(surface) as CSSProperties}
+      >
+        {props.children}
+      </body>
     </html>
   );
 }

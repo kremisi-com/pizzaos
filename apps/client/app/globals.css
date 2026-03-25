@@ -3,14 +3,37 @@ body
 {
   margin: 0;
   padding: 0;
-  font-family: "Nunito Sans", "Segoe UI", sans-serif;
-  background: linear-gradient(180deg, #fff8f0 0%, #eef8ff 100%);
-  color: #1f2530;
+  font-family: var(--pizzaos-font-family);
+  color: var(--pizzaos-color-foreground);
+  background: linear-gradient(
+    180deg,
+    var(--pizzaos-color-background) 0%,
+    var(--pizzaos-color-background-accent) 100%
+  );
+}
+
+body
+{
+  min-height: 100vh;
+}
+
+h1,
+h2,
+h3
+{
+  font-weight: var(--pizzaos-font-weight-heading);
+}
+
+p
+{
+  font-weight: var(--pizzaos-font-weight-body);
+  color: var(--pizzaos-color-foreground-muted);
 }
 
 main
 {
   max-width: 520px;
   margin: 0 auto;
-  padding: 28px 16px 36px;
+  padding: calc(var(--pizzaos-spacing-page-y) * 0.7) calc(var(--pizzaos-spacing-page-x) * 0.65)
+    var(--pizzaos-spacing-page-y);
 }

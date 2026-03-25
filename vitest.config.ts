@@ -2,6 +2,10 @@ import { defineConfig } from "vitest/config";
 import { fileURLToPath } from "node:url";
 
 export default defineConfig({
+  esbuild: {
+    jsx: "automatic",
+    jsxImportSource: "react"
+  },
   resolve: {
     alias: {
       "@pizzaos/domain": fileURLToPath(new URL("./packages/domain/src/index.ts", import.meta.url)),
@@ -13,8 +17,14 @@ export default defineConfig({
   },
   test: {
     include: [
+      "src/**/*.test.ts",
+      "src/**/*.test.tsx",
       "tests/**/*.test.ts",
-      "apps/**/src/test/**/*.test.ts"
+      "tests/**/*.test.tsx",
+      "apps/**/src/test/**/*.test.ts",
+      "apps/**/src/test/**/*.test.tsx",
+      "packages/**/src/**/*.test.ts",
+      "packages/**/src/**/*.test.tsx"
     ],
     passWithNoTests: false
   }
