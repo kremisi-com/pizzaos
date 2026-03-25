@@ -19,7 +19,14 @@ Entry point: `@pizzaos/testing`
 
 Current exports from `src/index.ts`:
 
-- `resetStorage(storage: Storage): void`
+- `StorageAdapter`
+- `InMemoryStorage`
+- `createInMemoryStorage(initialData?)`
+- `resetStorage(storage)`
+- `resetStorageKeys(storage, keys)`
+- `renderForTest(element)`
+- `withFrozenDateNow(isoTimestamp, callback)`
+- `createDeterministicClock(startIso, stepMilliseconds)`
 
 ## Import Rules
 

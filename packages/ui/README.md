@@ -20,6 +20,16 @@ Entry point: `@pizzaos/ui`
 Current exports from `src/index.tsx`:
 
 - `ShellCard`
+- `Button`
+- `Input`
+- `Dialog`
+- `Card`
+- `Tabs`
+- `Toast`
+- `Badge`
+- `DataList`
+- `Table`
+- `StatusIndicator`
 
 ## Import Rules
 

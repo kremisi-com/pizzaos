@@ -167,6 +167,13 @@ importers:
         version: link:../typescript-config
 
   packages/testing:
+    dependencies:
+      react:
+        specifier: ^19.1.0
+        version: 19.2.4
+      react-dom:
+        specifier: ^19.1.0
+        version: 19.2.4(react@19.2.4)
     devDependencies:
       '@pizzaos/eslint-config':
         specifier: workspace:*
@@ -182,6 +189,9 @@ importers:
       react:
         specifier: ^19.1.0
         version: 19.2.4
+      react-dom:
+        specifier: ^19.1.0
+        version: 19.2.4(react@19.2.4)
     devDependencies:
       '@pizzaos/eslint-config':
         specifier: workspace:*

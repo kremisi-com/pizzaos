@@ -10,6 +10,10 @@
     "typecheck": "tsc --project tsconfig.json --noEmit",
     "test": "vitest run --passWithNoTests"
   },
+  "dependencies": {
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0"
+  },
   "devDependencies": {
     "@pizzaos/eslint-config": "workspace:*",
     "@pizzaos/typescript-config": "workspace:*"
