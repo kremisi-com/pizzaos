@@ -40,7 +40,8 @@ const MOCK_PRODUCTS: Product[] = [
         description: "",
         basePrice: { amountCents: 1000, currencyCode: "EUR" },
         status: "available",
-        tags: []
+        tags: [],
+        allergens: []
     },
     {
         id: "DRINK-COKE",
@@ -49,7 +50,8 @@ const MOCK_PRODUCTS: Product[] = [
         description: "",
         basePrice: { amountCents: 300, currencyCode: "EUR" },
         status: "available",
-        tags: []
+        tags: [],
+        allergens: []
     }
 ];
 

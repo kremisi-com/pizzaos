@@ -13,10 +13,12 @@ export default defineConfig({
       "@pizzaos/mock-data": fileURLToPath(new URL("./packages/mock-data/src/index.ts", import.meta.url)),
       "@pizzaos/ui": fileURLToPath(new URL("./packages/ui/src/index.tsx", import.meta.url)),
       "@pizzaos/testing": fileURLToPath(new URL("./packages/testing/src/index.ts", import.meta.url)),
+      "@testing-library/react": fileURLToPath(new URL("./packages/testing/node_modules/@testing-library/react/dist/index.js", import.meta.url)),
       "@/": fileURLToPath(new URL("./apps/admin/src/", import.meta.url))
     }
   },
   test: {
+    environment: "jsdom",
     include: [
       "src/**/*.test.ts",
       "src/**/*.test.tsx",

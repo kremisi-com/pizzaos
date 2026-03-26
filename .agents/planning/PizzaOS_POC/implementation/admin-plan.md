@@ -5,7 +5,7 @@
 - [x] Step 1: Build the admin shell, seeded operator state, store switching, and reset flow.
 - [x] Step 2: Implement the live-feeling orders dashboard.
 - [x] Step 3: Implement order detail and kitchen or bar routing views.
-- [ ] Step 4: Implement menu and product management with multi-menu support.
+- [x] Step 4: Implement menu and product management with multi-menu support.
 - [ ] Step 5: Implement dynamic pricing controls and inventory visibility.
 - [ ] Step 6: Implement marketing tools, coupon creation, and loyalty overview.
 - [ ] Step 7: Implement analytics, heatmap, AI insights, and local simulated update loops.

@@ -196,6 +196,50 @@ export const ADMIN_DATASET_TEMPLATES: Readonly<Record<EntityIdentifier, AdminDat
         }
       ]
     },
+    menus: [
+      {
+        id: "menu-roma-pranzo",
+        storeId: "store-roma-centro",
+        name: "Menu Pranzo Centro",
+        status: "active",
+        sections: [
+          {
+            id: "roma-classiche",
+            name: "Classiche",
+            productRefs: [
+              { productId: "product-margherita", isFeatured: true },
+              { productId: "product-capricciosa", isFeatured: true },
+              { productId: "product-diavola", isFeatured: false }
+            ]
+          },
+          {
+            id: "roma-veloci",
+            name: "Pronte In 10 Minuti",
+            productRefs: [
+              { productId: "product-focaccia-rosmarino", isFeatured: true },
+              { productId: "product-calzone", isFeatured: false }
+            ]
+          }
+        ]
+      },
+      {
+        id: "menu-roma-cena",
+        storeId: "store-roma-centro",
+        name: "Menu Serale Centro",
+        status: "scheduled",
+        sections: [
+          {
+            id: "roma-pizze-speciali",
+            name: "Pizze Speciali",
+            productRefs: [
+              { productId: "product-4-formaggi", isFeatured: true },
+              { productId: "product-tonno-cipolla", isFeatured: true },
+              { productId: "product-vegetariana", isFeatured: false }
+            ]
+          }
+        ]
+      }
+    ],
     orders: [
       createOrder(
         "order-roma-001",
@@ -293,6 +337,33 @@ export const ADMIN_DATASET_TEMPLATES: Readonly<Record<EntityIdentifier, AdminDat
         }
       ]
     },
+    menus: [
+      {
+        id: "menu-milano-sera",
+        storeId: "store-milano-navigli",
+        name: "Menu Navigli Sera",
+        status: "scheduled",
+        sections: [
+          {
+            id: "milano-firme",
+            name: "Signature Navigli",
+            productRefs: [
+              { productId: "product-vegetariana", isFeatured: true },
+              { productId: "product-4-formaggi", isFeatured: true },
+              { productId: "product-tonno-cipolla", isFeatured: true }
+            ]
+          },
+          {
+            id: "milano-popolari",
+            name: "Le Piu Richieste",
+            productRefs: [
+              { productId: "product-margherita", isFeatured: false },
+              { productId: "product-diavola", isFeatured: true }
+            ]
+          }
+        ]
+      }
+    ],
     orders: [
       createOrder(
         "order-milano-101",
@@ -387,6 +458,30 @@ export const ADMIN_DATASET_TEMPLATES: Readonly<Record<EntityIdentifier, AdminDat
         }
       ]
     },
+    menus: [
+      {
+        id: "menu-torino-special",
+        storeId: "store-torino-porta-nuova",
+        name: "Menu Stagionale Torino",
+        status: "draft",
+        sections: [
+          {
+            id: "torino-stagionali",
+            name: "Stagionali",
+            productRefs: [
+              { productId: "product-vegetariana", isFeatured: true },
+              { productId: "product-calzone", isFeatured: true },
+              { productId: "product-margherita", isFeatured: false }
+            ]
+          },
+          {
+            id: "torino-forno",
+            name: "Forno e Snack",
+            productRefs: [{ productId: "product-focaccia-rosmarino", isFeatured: true }]
+          }
+        ]
+      }
+    ],
     orders: [
       createOrder(
         "order-torino-201",

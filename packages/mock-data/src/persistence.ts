@@ -167,6 +167,7 @@ function hasRequiredAdminStoreDatasetFields(dataset: unknown): boolean
   return (
     isRecord(dataset.store) &&
     isRecord(dataset.menu) &&
+    Array.isArray(dataset.menus) &&
     Array.isArray(dataset.products) &&
     Array.isArray(dataset.orders) &&
     Array.isArray(dataset.inventory) &&

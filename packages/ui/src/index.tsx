@@ -177,6 +177,7 @@ export interface DialogProps
   readonly description?: string;
   readonly footer?: ReactNode;
   readonly children?: ReactNode;
+  readonly onClose?: () => void;
 }
 
 export function Dialog(props: DialogProps): ReactElement | null
@@ -188,12 +189,17 @@ export function Dialog(props: DialogProps): ReactElement | null
   const descriptionId = props.description ? `${props.dialogId}-description` : undefined;
 
   return (
-    <div role="presentation" style={{ inset: 0, position: "fixed", backgroundColor: "rgba(15, 23, 36, 0.45)" }}>
+    <div
+      role="presentation"
+      onClick={props.onClose}
+      style={{ inset: 0, position: "fixed", backgroundColor: "rgba(15, 23, 36, 0.45)", zIndex: 100 }}
+    >
       <div
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
         aria-describedby={descriptionId}
+        onClick={(e) => e.stopPropagation()}
         style={{
           width: "min(520px, calc(100vw - 32px))",
           margin: "10vh auto",
@@ -201,9 +207,26 @@ export function Dialog(props: DialogProps): ReactElement | null
           backgroundColor: "var(--pizzaos-color-background)",
           border: "1px solid var(--pizzaos-color-border)",
           boxShadow: "var(--pizzaos-elevation-overlay)",
-          padding: "20px"
+          padding: "20px",
+          position: "relative"
         }}
       >
+        <button
+          onClick={props.onClose}
+          style={{
+            position: "absolute",
+            top: "16px",
+            right: "16px",
+            background: "none",
+            border: "none",
+            fontSize: "1.5rem",
+            cursor: "pointer",
+            color: "var(--pizzaos-color-foreground-muted)"
+          }}
+          aria-label="Chiudi"
+        >
+          &times;
+        </button>
         <h2 id={titleId} style={{ marginTop: 0 }}>{props.title}</h2>
         {props.description ? <p id={descriptionId}>{props.description}</p> : null}
         <div>{props.children}</div>

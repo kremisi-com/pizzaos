@@ -9,10 +9,12 @@ import {
   ADMIN_SIMULATION_INTERVAL_MS,
   type AdminSeed
 } from "@pizzaos/mock-data";
+import { type OrderStatus, type Product, type Menu } from "@pizzaos/domain";
 import { Button, Card, StatusIndicator } from "@pizzaos/ui";
 import { useState, type ReactElement, useEffect } from "react";
 import { OrdersDashboard } from "../../orders/components/orders-dashboard";
 import { StoreSwitcher } from "../../store-switch/components/store-switcher";
+import { CatalogManager } from "../../catalog/components/catalog-manager";
 import styles from "./admin-shell.module.css";
 
 const APP_ID = "admin" as const;
@@ -31,7 +33,7 @@ export function AdminShell(): ReactElement
 {
   const [seed, setSeed] = useState<AdminSeed>(() => loadDemoState(APP_ID, { storage: resolveStorage() }));
 
-  const [activeTab, setActiveTab] = useState<"dashboard" | "orders">("dashboard");
+  const [activeTab, setActiveTab] = useState<"dashboard" | "orders" | "catalog">("dashboard");
 
   const activeDataset = seed.datasetsByStoreId[seed.activeStoreId];
 
@@ -115,6 +117,51 @@ export function AdminShell(): ReactElement
     });
   }
 
+  function handleUpdateMenu(updatedMenu: Menu): void {
+    setSeed((currentSeed) => {
+      const activeStoreId = currentSeed.activeStoreId;
+      const currentDataset = currentSeed.datasetsByStoreId[activeStoreId];
+
+      const updatedMenus = currentDataset.menus.map((m) =>
+        m.id === updatedMenu.id ? updatedMenu : m
+      );
+
+      return {
+        ...currentSeed,
+        datasetsByStoreId: {
+          ...currentSeed.datasetsByStoreId,
+          [activeStoreId]: {
+            ...currentDataset,
+            menus: updatedMenus,
+            menu: updatedMenu.id === currentDataset.menu.id ? updatedMenu : currentDataset.menu,
+          },
+        },
+      };
+    });
+  }
+
+  function handleUpdateProduct(updatedProduct: Product): void {
+    setSeed((currentSeed) => {
+      const activeStoreId = currentSeed.activeStoreId;
+      const currentDataset = currentSeed.datasetsByStoreId[activeStoreId];
+
+      const updatedProducts = currentDataset.products.map((p) =>
+        p.id === updatedProduct.id ? updatedProduct : p
+      );
+
+      return {
+        ...currentSeed,
+        datasetsByStoreId: {
+          ...currentSeed.datasetsByStoreId,
+          [activeStoreId]: {
+            ...currentDataset,
+            products: updatedProducts,
+          },
+        },
+      };
+    });
+  }
+
   return (
     <div className={styles.shell}>
       <aside className={styles.sidebar}>
@@ -133,9 +180,12 @@ export function AdminShell(): ReactElement
           >
             Ordini
           </button>
-          <a href="#" className={styles.navItem}>
+          <button
+            onClick={() => setActiveTab("catalog")}
+            className={`${styles.navButton} ${activeTab === "catalog" ? styles.navItemActive : ""}`}
+          >
             Menu
-          </a>
+          </button>
           <a href="#" className={styles.navItem}>
             Magazzino
           </a>
@@ -198,12 +248,19 @@ export function AdminShell(): ReactElement
               </ul>
             </Card>
           </div>
-        ) : (
+        ) : activeTab === "orders" ? (
           <OrdersDashboard
             orders={activeDataset.orders}
             lastUpdateIso={activeDataset.simulationCursorIso}
             allProducts={activeDataset.products}
             onOrderStatusUpdate={handleOrderStatusUpdate}
+          />
+        ) : (
+          <CatalogManager
+             menus={activeDataset.menus}
+             products={activeDataset.products}
+             onUpdateMenu={handleUpdateMenu}
+             onUpdateProduct={handleUpdateProduct}
           />
         )}
       </main>

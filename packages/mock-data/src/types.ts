@@ -36,6 +36,7 @@ export interface AdminStoreDataset
 {
   readonly store: StoreProfile;
   readonly menu: Menu;
+  readonly menus: readonly Menu[];
   readonly products: readonly Product[];
   readonly orders: readonly Order[];
   readonly inventory: readonly InventoryItem[];
@@ -87,6 +88,7 @@ export interface DemoStateByApp
 export interface AdminDatasetTemplate
 {
   readonly menu: Menu;
+  readonly menus: readonly Menu[];
   readonly orders: readonly Order[];
   readonly inventory: readonly InventoryItem[];
   readonly analytics: AnalyticsSnapshot;
