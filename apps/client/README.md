@@ -18,7 +18,8 @@ This app does not own shared package APIs or admin and landing code paths.
 
 - `app/layout.tsx`: root metadata and layout shell
 - `app/page.tsx`: client route entry
-- `src/features/home`: initial client shell composition
+- `src/features/home`: mobile-first home shell, seeded demo state, and reset flow
+- `src/features/home/client-demo-state.ts`: local storage hydration and reset helpers
 
 ## Shared Dependencies
 

@@ -2,7 +2,7 @@
 
 ## Checklist
 
-- [ ] Step 1: Build the client shell, seeded home state, and demo reset flow.
+- [X] Step 1: Build the client shell, seeded home state, and demo reset flow.
 - [ ] Step 2: Implement menu browsing with availability and slot visibility.
 - [ ] Step 3: Implement product detail and pizza customization.
 - [ ] Step 4: Implement cart, checkout, mock payment, and tip flow.
