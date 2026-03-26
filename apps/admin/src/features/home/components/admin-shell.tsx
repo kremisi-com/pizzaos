@@ -15,6 +15,7 @@ import { useState, type ReactElement, useEffect } from "react";
 import { OrdersDashboard } from "../../orders/components/orders-dashboard";
 import { StoreSwitcher } from "../../store-switch/components/store-switcher";
 import { CatalogManager } from "../../catalog/components/catalog-manager";
+import { InventoryManager } from "../../inventory/components/inventory-manager";
 import styles from "./admin-shell.module.css";
 
 const APP_ID = "admin" as const;
@@ -33,7 +34,7 @@ export function AdminShell(): ReactElement
 {
   const [seed, setSeed] = useState<AdminSeed>(() => loadDemoState(APP_ID, { storage: resolveStorage() }));
 
-  const [activeTab, setActiveTab] = useState<"dashboard" | "orders" | "catalog">("dashboard");
+  const [activeTab, setActiveTab] = useState<"dashboard" | "orders" | "catalog" | "inventory">("dashboard");
 
   const activeDataset = seed.datasetsByStoreId[seed.activeStoreId];
 
@@ -162,6 +163,46 @@ export function AdminShell(): ReactElement
     });
   }
 
+  function handleToggleDynamicPricing(): void {
+    setSeed((currentSeed) => {
+      const activeStoreId = currentSeed.activeStoreId;
+      const currentDataset = currentSeed.datasetsByStoreId[activeStoreId];
+
+      return {
+        ...currentSeed,
+        datasetsByStoreId: {
+          ...currentSeed.datasetsByStoreId,
+          [activeStoreId]: {
+            ...currentDataset,
+            isDynamicPricingEnabled: !currentDataset.isDynamicPricingEnabled,
+          },
+        },
+      };
+    });
+  }
+
+  function handleUpdateInventoryItem(itemId: string, status: "in_stock" | "low_stock" | "out_of_stock", availableUnits: number): void {
+    setSeed((currentSeed) => {
+      const activeStoreId = currentSeed.activeStoreId;
+      const currentDataset = currentSeed.datasetsByStoreId[activeStoreId];
+
+      const updatedInventory = currentDataset.inventory.map((item) =>
+        item.id === itemId ? { ...item, status, availableUnits } : item
+      );
+
+      return {
+        ...currentSeed,
+        datasetsByStoreId: {
+          ...currentSeed.datasetsByStoreId,
+          [activeStoreId]: {
+            ...currentDataset,
+            inventory: updatedInventory,
+          },
+        },
+      };
+    });
+  }
+
   return (
     <div className={styles.shell}>
       <aside className={styles.sidebar}>
@@ -186,9 +227,12 @@ export function AdminShell(): ReactElement
           >
             Menu
           </button>
-          <a href="#" className={styles.navItem}>
+          <button
+            onClick={() => setActiveTab("inventory")}
+            className={`${styles.navButton} ${activeTab === "inventory" ? styles.navItemActive : ""}`}
+          >
             Magazzino
-          </a>
+          </button>
           <a href="#" className={styles.navItem}>
             Marketing
           </a>
@@ -255,12 +299,20 @@ export function AdminShell(): ReactElement
             allProducts={activeDataset.products}
             onOrderStatusUpdate={handleOrderStatusUpdate}
           />
-        ) : (
+        ) : activeTab === "catalog" ? (
           <CatalogManager
              menus={activeDataset.menus}
              products={activeDataset.products}
              onUpdateMenu={handleUpdateMenu}
              onUpdateProduct={handleUpdateProduct}
+          />
+        ) : (
+          <InventoryManager
+            inventory={activeDataset.inventory}
+            products={activeDataset.products}
+            isDynamicPricingEnabled={activeDataset.isDynamicPricingEnabled}
+            onToggleDynamicPricing={handleToggleDynamicPricing}
+            onUpdateInventoryItem={handleUpdateInventoryItem}
           />
         )}
       </main>

@@ -42,6 +42,7 @@ export interface AdminStoreDataset
   readonly inventory: readonly InventoryItem[];
   readonly analytics: AnalyticsSnapshot;
   readonly insights: readonly AiInsight[];
+  readonly isDynamicPricingEnabled: boolean;
   readonly simulationCursorIso: string;
 }
 
@@ -93,4 +94,5 @@ export interface AdminDatasetTemplate
   readonly inventory: readonly InventoryItem[];
   readonly analytics: AnalyticsSnapshot;
   readonly insights: readonly AiInsight[];
+  readonly isDynamicPricingEnabled: boolean;
 }

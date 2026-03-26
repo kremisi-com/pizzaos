@@ -433,7 +433,8 @@ export const ADMIN_DATASET_TEMPLATES: Readonly<Record<EntityIdentifier, AdminDat
         status: "dismissed",
         generatedAtIso: "2026-03-25T17:58:00.000Z"
       }
-    ]
+    ],
+    isDynamicPricingEnabled: true
   },
   "store-torino-porta-nuova": {
     menu: {
@@ -557,7 +558,8 @@ export const ADMIN_DATASET_TEMPLATES: Readonly<Record<EntityIdentifier, AdminDat
         status: "new",
         generatedAtIso: "2026-03-25T09:28:00.000Z"
       }
-    ]
+    ],
+    isDynamicPricingEnabled: false
   }
 };
 
