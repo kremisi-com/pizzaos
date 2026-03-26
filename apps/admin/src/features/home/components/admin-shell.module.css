@@ -1,0 +1,68 @@
+.shell
+{
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  min-height: 100vh;
+}
+
+.sidebar
+{
+  background-color: var(--pizzaos-color-background-accent);
+  border-right: 1px solid var(--pizzaos-color-border);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.content
+{
+  padding: var(--pizzaos-spacing-page-y) var(--pizzaos-spacing-page-x);
+  background-color: var(--pizzaos-color-background);
+}
+
+.logo
+{
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--pizzaos-color-primary);
+  margin: 0;
+  letter-spacing: -0.02em;
+}
+
+.nav
+{
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+}
+
+.navItem
+{
+  padding: 10px 12px;
+  border-radius: var(--pizzaos-radius-control);
+  text-decoration: none;
+  color: var(--pizzaos-color-foreground-muted);
+  font-weight: 500;
+  transition: all var(--pizzaos-motion-duration-fast) var(--pizzaos-motion-ease-standard);
+}
+
+.navItem:hover
+{
+  background-color: rgba(0, 0, 0, 0.04);
+  color: var(--pizzaos-color-foreground);
+}
+
+.navItemActive
+{
+  background-color: var(--pizzaos-color-primary);
+  color: var(--pizzaos-color-primary-foreground) !important;
+}
+
+.sidebarFooter
+{
+  margin-top: auto;
+  padding-top: 16px;
+  border-top: 1px solid var(--pizzaos-color-border);
+}

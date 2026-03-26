@@ -2,7 +2,7 @@
 
 ## Checklist
 
-- [ ] Step 1: Build the admin shell, seeded operator state, store switching, and reset flow.
+- [x] Step 1: Build the admin shell, seeded operator state, store switching, and reset flow.
 - [ ] Step 2: Implement the live-feeling orders dashboard.
 - [ ] Step 3: Implement order detail and kitchen or bar routing views.
 - [ ] Step 4: Implement menu and product management with multi-menu support.

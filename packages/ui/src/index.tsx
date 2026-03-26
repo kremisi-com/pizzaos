@@ -414,7 +414,7 @@ export interface StatusIndicatorProps
 export function StatusIndicator(props: StatusIndicatorProps): ReactElement
 {
   return (
-    <span role="status" aria-label={props.label} data-tone={props.tone} style={{ display: "inline-flex", gap: "8px" }}>
+    <span role="status" aria-label={props.label} data-tone={props.tone} style={{ display: "inline-flex", alignItems: "center", gap: "8px" }}>
       <span
         aria-hidden="true"
         style={{

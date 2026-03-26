@@ -32,8 +32,6 @@ p
 
 main
 {
-  max-width: 980px;
-  margin: 0 auto;
-  padding: var(--pizzaos-spacing-page-y) calc(var(--pizzaos-spacing-page-x) * 1.15)
-    calc(var(--pizzaos-spacing-page-y) * 1.2);
+  margin: 0;
+  padding: 0;
 }
