@@ -9,9 +9,10 @@ const MOCK_PRODUCTS: Product[] = [
     name: "Pizza Margherita",
     description: "Classic",
     basePrice: { amountCents: 900, currencyCode: "EUR" },
-    status: "active",
+    status: "available",
     tags: ["best-seller"],
-    allergens: []
+    allergens: [],
+    sku: "SKU1"
   }
 ];
 

@@ -6,7 +6,6 @@ import type {
   Menu,
   Order,
   Product,
-  Rider,
   StoreProfile
 } from "@pizzaos/domain";
 import { DEFAULT_CLIENT_STORE_ID } from "./constants";
@@ -299,6 +298,27 @@ export const ADMIN_DATASET_TEMPLATES: Readonly<Record<EntityIdentifier, AdminDat
         "2026-03-25T11:22:00.000Z",
         [createLine("product-diavola", 1, 1150, "Extra piccante")],
         200
+      ),
+      createOrder(
+        "order-roma-004",
+        "store-roma-centro",
+        "customer-roma-032",
+        "confirmed",
+        "2026-03-25T12:05:00.000Z",
+        "2026-03-25T12:25:00.000Z",
+        [createLine("product-margherita", 2, 900, "")],
+        150
+      ),
+      createOrder(
+        "order-roma-005",
+        "store-roma-centro",
+        "customer-roma-045",
+        "out_for_delivery",
+        "2026-03-25T11:55:00.000Z",
+        "2026-03-25T12:15:00.000Z",
+        [createLine("product-4-formaggi", 1, 1300, "")],
+        180,
+        "rider-roma-2"
       )
     ],
     inventory: [

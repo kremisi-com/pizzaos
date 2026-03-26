@@ -13,6 +13,7 @@ describe("admin shell", () =>
     expect(markup).toContain("Dashboard");
     expect(markup).toContain("Ordini");
     expect(markup).toContain("Reset Demo");
+    expect(markup).toContain("Avanza Simulazione");
     expect(markup).toContain("Stato Negozio");
   });
 });

@@ -83,6 +83,13 @@
   margin-top: auto;
   padding-top: 16px;
   border-top: 1px solid var(--pizzaos-color-border);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.advanceButton {
+  width: 100%;
 }
 
 .resetButton {

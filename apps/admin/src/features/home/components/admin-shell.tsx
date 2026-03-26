@@ -6,7 +6,6 @@ import {
   reseedDemoState,
   advanceOrderSimulation,
   getDemoStateStorageKey,
-  ADMIN_SIMULATION_INTERVAL_MS,
   type AdminSeed
 } from "@pizzaos/mock-data";
 import { type OrderStatus, type Product, type Menu } from "@pizzaos/domain";
@@ -51,36 +50,32 @@ export function AdminShell(): ReactElement
     }
   }, [seed]);
 
-  useEffect(() => {
-    const intervalId = setInterval(() => {
-      setSeed((currentSeed) => {
-        const activeStoreId = currentSeed.activeStoreId;
-        const currentDataset = currentSeed.datasetsByStoreId[activeStoreId];
-        const now = new Date();
-
-        const updatedDataset = advanceOrderSimulation(currentDataset, now);
-
-        if (updatedDataset === currentDataset) {
-          return currentSeed;
-        }
-
-        return {
-          ...currentSeed,
-          datasetsByStoreId: {
-            ...currentSeed.datasetsByStoreId,
-            [activeStoreId]: updatedDataset,
-          },
-        };
-      });
-    }, ADMIN_SIMULATION_INTERVAL_MS);
-
-    return () => clearInterval(intervalId);
-  }, []);
-
   function handleResetClick(): void
   {
     const resetSeed = resetDemoState(APP_ID, { storage: resolveStorage() });
     setSeed(resetSeed);
+  }
+
+  function handleAdvanceSimulation(): void {
+    setSeed((currentSeed) => {
+      const activeStoreId = currentSeed.activeStoreId;
+      const currentDataset = currentSeed.datasetsByStoreId[activeStoreId];
+      const now = new Date();
+
+      const updatedDataset = advanceOrderSimulation(currentDataset, now);
+
+      if (updatedDataset === currentDataset) {
+        return currentSeed;
+      }
+
+      return {
+        ...currentSeed,
+        datasetsByStoreId: {
+          ...currentSeed.datasetsByStoreId,
+          [activeStoreId]: updatedDataset,
+        },
+      };
+    });
   }
 
   function handleStoreChange(storeId: string): void
@@ -288,6 +283,9 @@ export function AdminShell(): ReactElement
         />
 
         <div className={styles.sidebarFooter}>
+          <Button onClick={handleAdvanceSimulation} variant="primary" className={styles.advanceButton}>
+            Avanza Simulazione
+          </Button>
           <Button onClick={handleResetClick} variant="secondary" className={styles.resetButton}>
             Reset Demo
           </Button>
@@ -350,7 +348,7 @@ export function AdminShell(): ReactElement
               <ul className={styles.infoList}>
                 <li>Persistenza: localStorage</li>
                 <li>Multi-store: Abilitato</li>
-                <li>Simulation loop: Attivo (5s)</li>
+                <li>Simulation loop: Manuale</li>
               </ul>
             </Card>
           </div>
