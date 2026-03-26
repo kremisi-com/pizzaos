@@ -35,6 +35,13 @@ export interface ProductAllergen
   readonly label: string;
 }
 
+export const PREPARATION_MODES = [
+  "cotto",
+  "crudo"
+] as const;
+
+export type PreparationMode = (typeof PREPARATION_MODES)[number];
+
 export interface Product
 {
   readonly id: EntityIdentifier;
@@ -45,6 +52,7 @@ export interface Product
   readonly status: ProductStatus;
   readonly tags: readonly string[];
   readonly allergens: readonly ProductAllergen[];
+  readonly preparationMode?: PreparationMode;
 }
 
 export interface MenuProductRef
@@ -76,6 +84,22 @@ export interface Menu
   readonly name: string;
   readonly status: MenuStatus;
   readonly sections: readonly MenuSection[];
+}
+
+export const SLOT_AVAILABILITY_STATUSES = [
+  "available",
+  "limited",
+  "sold_out"
+] as const;
+
+export type SlotAvailabilityStatus = (typeof SLOT_AVAILABILITY_STATUSES)[number];
+
+export interface SlotAvailability
+{
+  readonly slotId: EntityIdentifier;
+  readonly label: string;
+  readonly status: SlotAvailabilityStatus;
+  readonly etaMinutes: number;
 }
 
 export const ORDER_STATUS = [

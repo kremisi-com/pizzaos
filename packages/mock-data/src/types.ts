@@ -12,6 +12,7 @@ import type {
   Order,
   Product,
   Rider,
+  SlotAvailability,
   StoreProfile
 } from "@pizzaos/domain";
 
@@ -29,6 +30,7 @@ export interface ClientSeed extends AppShellSeed
   readonly products: readonly Product[];
   readonly loyalty: LoyaltyState;
   readonly coupons: readonly Coupon[];
+  readonly slots: readonly SlotAvailability[];
   readonly activeOrders: readonly Order[];
   readonly orderHistory: readonly Order[];
   readonly simulationCursorIso: string;

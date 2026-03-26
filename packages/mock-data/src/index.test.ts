@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   APP_SURFACES,
   ORDER_STATUS,
+  SLOT_AVAILABILITY_STATUSES,
   getNextOrderStatuses
 } from "@pizzaos/domain";
 import {
@@ -70,10 +71,49 @@ describe("seed factories", () =>
       expect(ORDER_STATUS).toContain(order.status);
     }
 
+    for (const slot of clientSeed.slots)
+    {
+      expect(SLOT_AVAILABILITY_STATUSES).toContain(slot.status);
+    }
+
     for (const storeId of ADMIN_STORE_IDS)
     {
       expect(adminSeed.datasetsByStoreId[storeId]).toBeDefined();
     }
+  });
+
+  it("provides deterministic client slots and browse edge cases", () =>
+  {
+    const clientSeed = createClientSeed();
+
+    expect(clientSeed.slots).toEqual([
+      {
+        slotId: "slot-2026-03-25T19:10",
+        label: "Oggi, 19:10",
+        status: "available",
+        etaMinutes: 25
+      },
+      {
+        slotId: "slot-2026-03-25T19:30",
+        label: "Oggi, 19:30",
+        status: "limited",
+        etaMinutes: 40
+      },
+      {
+        slotId: "slot-2026-03-25T19:50",
+        label: "Oggi, 19:50",
+        status: "sold_out",
+        etaMinutes: 55
+      },
+      {
+        slotId: "slot-2026-03-25T20:10",
+        label: "Oggi, 20:10",
+        status: "available",
+        etaMinutes: 70
+      }
+    ]);
+    expect(clientSeed.products.some((product) => product.status === "sold_out")).toBe(true);
+    expect(clientSeed.products.some((product) => product.preparationMode === "crudo")).toBe(true);
   });
 });
 
@@ -245,14 +285,14 @@ describe("order simulation", () =>
         {
           ...dataset.orders[0],
           status: "out_for_delivery" as const,
-          total: { amountCents: 2500, currencyCode: "EUR" }
+          total: { amountCents: 2500, currencyCode: "EUR" as const }
         }
       ],
       analytics: {
         ...dataset.analytics,
         ordersToday: 10,
-        revenueToday: { amountCents: 20000, currencyCode: "EUR" },
-        averageOrderValue: { amountCents: 2000, currencyCode: "EUR" }
+        revenueToday: { amountCents: 20000, currencyCode: "EUR" as const },
+        averageOrderValue: { amountCents: 2000, currencyCode: "EUR" as const }
       },
       simulationCursorIso: "2026-03-25T18:00:00.000Z"
     };

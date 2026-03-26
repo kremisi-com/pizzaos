@@ -48,6 +48,7 @@ export const PRODUCTS: readonly Product[] = [
     basePrice: toMoney(900),
     status: "available",
     tags: ["classica", "vegetariana"],
+    preparationMode: "cotto",
     allergens: [
       { code: "GLU", label: "Glutine" },
       { code: "LAT", label: "Lattosio" }
@@ -113,6 +114,7 @@ export const PRODUCTS: readonly Product[] = [
     basePrice: toMoney(1220),
     status: "available",
     tags: ["mare"],
+    preparationMode: "crudo",
     allergens: [
       { code: "GLU", label: "Glutine" },
       { code: "PES", label: "Pesce" }
@@ -124,7 +126,7 @@ export const PRODUCTS: readonly Product[] = [
     name: "Calzone Tradizione",
     description: "Ripieno con ricotta, salame dolce e provola.",
     basePrice: toMoney(1280),
-    status: "available",
+    status: "sold_out",
     tags: ["ripieno"],
     allergens: [
       { code: "GLU", label: "Glutine" },
@@ -165,6 +167,14 @@ export const CLIENT_MENU: Menu = {
         { productId: "product-vegetariana", isFeatured: true },
         { productId: "product-4-formaggi", isFeatured: false },
         { productId: "product-tonno-cipolla", isFeatured: false }
+      ]
+    },
+    {
+      id: "section-forno-espresso",
+      name: "Forno Espresso",
+      productRefs: [
+        { productId: "product-focaccia-rosmarino", isFeatured: true },
+        { productId: "product-calzone", isFeatured: false }
       ]
     }
   ]
@@ -722,3 +732,30 @@ export const DEFAULT_CLIENT_LOYALTY: LoyaltyState = {
   currentTierId: "tier-silver",
   pointsBalance: 740
 };
+
+export const DEFAULT_CLIENT_SLOTS = [
+  {
+    slotId: "slot-2026-03-25T19:10",
+    label: "Oggi, 19:10",
+    status: "available",
+    etaMinutes: 25
+  },
+  {
+    slotId: "slot-2026-03-25T19:30",
+    label: "Oggi, 19:30",
+    status: "limited",
+    etaMinutes: 40
+  },
+  {
+    slotId: "slot-2026-03-25T19:50",
+    label: "Oggi, 19:50",
+    status: "sold_out",
+    etaMinutes: 55
+  },
+  {
+    slotId: "slot-2026-03-25T20:10",
+    label: "Oggi, 20:10",
+    status: "available",
+    etaMinutes: 70
+  }
+] as const;

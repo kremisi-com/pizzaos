@@ -1,9 +1,12 @@
 import { createElement } from "react";
 import { describe, expect, it } from "vitest";
 import {
+  cleanupDom,
   createDeterministicClock,
   createInMemoryStorage,
+  domScreen,
   renderForTest,
+  renderDom,
   resetStorage,
   resetStorageKeys,
   withFrozenDateNow
@@ -40,6 +43,15 @@ describe("@pizzaos/testing", () =>
 
     expect(markup).toContain("<section");
     expect(markup).toContain("Contenuto");
+  });
+
+  it("renders react elements into the DOM helper", () =>
+  {
+    renderDom(createElement("button", { type: "button" }, "Apri menu"));
+
+    expect(domScreen.getByRole("button", { name: "Apri menu" }).textContent).toBe("Apri menu");
+
+    cleanupDom();
   });
 
   it("freezes Date.now for a callback and restores the original value", () =>

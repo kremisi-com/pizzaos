@@ -17,7 +17,7 @@ describe("client shell", () =>
     expect(markup).toContain("Riordino rapido");
     expect(markup).toContain("Promo di stagione");
     expect(markup).toContain("Reset demo");
-    expect(markup).toContain('href="#riordino-rapido"');
-    expect(markup).toContain('href="#costruisci-la-tua-pizza"');
+    expect(markup).toContain('href="/menu"');
+    expect(markup).toContain('href="/menu?section=section-speciali"');
   });
 });

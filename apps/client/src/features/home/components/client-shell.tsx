@@ -68,10 +68,13 @@ export function ClientShell(): ReactElement
         </p>
 
         <div className={styles.heroActions}>
-          <a className={`${styles.actionLink} ${styles.primaryActionLink}`} href="#riordino-rapido">
+          <a className={`${styles.actionLink} ${styles.primaryActionLink}`} href="/menu">
             Riordina ora
           </a>
-          <a className={`${styles.actionLink} ${styles.secondaryActionLink}`} href="#costruisci-la-tua-pizza">
+          <a
+            className={`${styles.actionLink} ${styles.secondaryActionLink}`}
+            href="/menu?section=section-speciali"
+          >
             Crea la tua pizza
           </a>
         </div>

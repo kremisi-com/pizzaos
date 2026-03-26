@@ -21,6 +21,7 @@
   },
   "devDependencies": {
     "@pizzaos/eslint-config": "workspace:*",
+    "@pizzaos/testing": "workspace:*",
     "@pizzaos/typescript-config": "workspace:*"
   }
 }

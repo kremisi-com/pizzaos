@@ -22,10 +22,12 @@ Current exports from `src/index.ts`:
 
 - app shell primitives: `APP_SURFACES`, `AppSurface`, `AppShellSeed`
 - shared entity contracts: `Money`, `Product`, `Menu`, `Order`, `StoreProfile`, `InventoryItem`, `Coupon`,
-  `LoyaltyState`, `AnalyticsSnapshot`, `AiInsight`
+  `LoyaltyState`, `AnalyticsSnapshot`, `AiInsight`, `SlotAvailability`
 - status constants and unions:
   - `PRODUCT_STATUS`, `ProductStatus`
+  - `PREPARATION_MODES`, `PreparationMode`
   - `MENU_STATUS`, `MenuStatus`
+  - `SLOT_AVAILABILITY_STATUSES`, `SlotAvailabilityStatus`
   - `ORDER_STATUS`, `OrderStatus`
   - `INVENTORY_STATUS`, `InventoryStatus`
   - `COUPON_STATUS`, `CouponStatus`
