@@ -42,12 +42,18 @@
   gap: 20px;
 }
 
-.orderCard {
+.orderCardWrapper {
+  cursor: pointer;
   transition: transform 0.2s ease;
 }
 
-.orderCard:hover {
+.orderCardWrapper:hover {
   transform: translateY(-2px);
+}
+
+.orderCardWrapper:focus-visible {
+  outline: 2px solid var(--pizzaos-color-primary);
+  border-radius: var(--pizzaos-radius-card);
 }
 
 .orderHeader {

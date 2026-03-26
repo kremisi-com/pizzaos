@@ -9,6 +9,7 @@ import {
   ORDER_STATUS,
   ORDER_STATUS_TRANSITIONS,
   PRODUCT_STATUS,
+  deriveRoutingStation,
   getNextOrderStatuses,
   isOrderStatusTransitionAllowed,
   progressOrderStatus,
@@ -130,5 +131,19 @@ describe("order status helpers", () =>
     expect(progressOrderStatus("cancelled")).toBe("cancelled");
     expect(ORDER_STATUS_TRANSITIONS.delivered).toHaveLength(0);
     expect(ORDER_STATUS_TRANSITIONS.cancelled).toHaveLength(0);
+  });
+
+  describe("deriveRoutingStation", () => {
+    test("routes PIZ-* and FOC-* to kitchen", () => {
+      const pizza: any = { sku: "PIZ-MARG-01" };
+      const focaccia: any = { sku: "FOC-ROSM-08" };
+      expect(deriveRoutingStation(pizza)).toBe("kitchen");
+      expect(deriveRoutingStation(focaccia)).toBe("kitchen");
+    });
+
+    test("routes other items to bar", () => {
+      const drink: any = { sku: "DRINK-COKE-01" };
+      expect(deriveRoutingStation(drink)).toBe("bar");
+    });
   });
 });

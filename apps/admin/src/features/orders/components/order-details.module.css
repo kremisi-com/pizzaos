@@ -1,0 +1,120 @@
+.details {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--pizzaos-color-border);
+  padding-bottom: 12px;
+}
+
+.orderId {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--pizzaos-color-foreground);
+}
+
+.customerInfo {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  background-color: var(--pizzaos-color-background-accent);
+  padding: 12px;
+  border-radius: var(--pizzaos-radius-control);
+}
+
+.infoBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--pizzaos-color-foreground-muted);
+}
+
+.value {
+  font-weight: 600;
+}
+
+.stations {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.station {
+  border: 1px solid var(--pizzaos-color-border);
+  border-radius: var(--pizzaos-radius-control);
+  padding: 12px;
+}
+
+.stationHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--pizzaos-color-border);
+}
+
+.stationTitle {
+  font-weight: 700;
+  text-transform: capitalize;
+}
+
+.lineItem {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px 0;
+}
+
+.lineItem:not(:last-child) {
+  border-bottom: 1px dashed var(--pizzaos-color-border);
+}
+
+.lineMain {
+  display: flex;
+  justify-content: space-between;
+  font-weight: 600;
+}
+
+.lineNotes {
+  font-size: 0.875rem;
+  color: var(--pizzaos-color-critical);
+  font-style: italic;
+}
+
+.footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 12px;
+  padding-top: 16px;
+  border-top: 1px solid var(--pizzaos-color-border);
+}
+
+.totalLabel {
+  font-size: 1.125rem;
+  font-weight: 700;
+}
+
+.totalValue {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--pizzaos-color-primary);
+}
+
+.actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}

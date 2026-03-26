@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { createElement } from "react";
 import { renderToString } from "react-dom/server";
-import { OrdersDashboard } from "../components/orders-dashboard";
+import { OrdersDashboard } from "@/features/orders/components/orders-dashboard";
 import type { Order } from "@pizzaos/domain";
 
 const MOCK_ORDERS: Order[] = [
@@ -34,6 +34,7 @@ describe("OrdersDashboard", () => {
       createElement(OrdersDashboard, {
         orders: MOCK_ORDERS,
         lastUpdateIso: new Date().toISOString(),
+        allProducts: [],
       })
     );
 
@@ -51,6 +52,7 @@ describe("OrdersDashboard", () => {
       createElement(OrdersDashboard, {
         orders: [],
         lastUpdateIso: new Date().toISOString(),
+        allProducts: [],
       })
     );
 

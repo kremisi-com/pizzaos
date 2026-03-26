@@ -250,3 +250,20 @@ export function progressOrderStatus(currentStatus: OrderStatus): OrderStatus
 
   return nextStatuses[0];
 }
+
+export type RoutingStation = "kitchen" | "bar";
+
+/**
+ * Derives the operational station for a given order line.
+ * In this POC, we use a simple rule: if it contains "focaccia" or has "forno" tag, it goes to kitchen.
+ * Actually, everything food-related goes to kitchen. Drinks would go to bar.
+ * Since we don't have drinks yet, we'll simulate by checking for "focaccia" as kitchen and maybe
+ * something else as bar, or just add a "drink" tag if we were to have drinks.
+ * For now, let's say all PIZ-* and FOC-* products go to kitchen.
+ */
+export function deriveRoutingStation(product: Product): RoutingStation {
+  if (product.sku.startsWith("PIZ-") || product.sku.startsWith("FOC-")) {
+    return "kitchen";
+  }
+  return "bar";
+}

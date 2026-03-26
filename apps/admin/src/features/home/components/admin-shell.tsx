@@ -86,6 +86,35 @@ export function AdminShell(): ReactElement
     setSeed(updatedSeed);
   }
 
+  function handleOrderStatusUpdate(orderId: string, nextStatus: OrderStatus): void {
+    setSeed((currentSeed) => {
+      const activeStoreId = currentSeed.activeStoreId;
+      const currentDataset = currentSeed.datasetsByStoreId[activeStoreId];
+
+      const updatedOrders = currentDataset.orders.map((order) => {
+        if (order.id === orderId) {
+          return {
+            ...order,
+            status: nextStatus,
+            updatedAtIso: new Date().toISOString(),
+          };
+        }
+        return order;
+      });
+
+      return {
+        ...currentSeed,
+        datasetsByStoreId: {
+          ...currentSeed.datasetsByStoreId,
+          [activeStoreId]: {
+            ...currentDataset,
+            orders: updatedOrders,
+          },
+        },
+      };
+    });
+  }
+
   return (
     <div className={styles.shell}>
       <aside className={styles.sidebar}>
@@ -173,6 +202,8 @@ export function AdminShell(): ReactElement
           <OrdersDashboard
             orders={activeDataset.orders}
             lastUpdateIso={activeDataset.simulationCursorIso}
+            allProducts={activeDataset.products}
+            onOrderStatusUpdate={handleOrderStatusUpdate}
           />
         )}
       </main>

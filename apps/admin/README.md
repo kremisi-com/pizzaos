@@ -19,7 +19,7 @@ This app does not own shared package internals or other app surfaces.
 - `app/layout.tsx`: root metadata and layout shell
 - `app/page.tsx`: admin route entry
 - `src/features/home`: initial admin shell composition
-- `src/features/orders`: live orders dashboard and simulation logic
+- `src/features/orders`: live orders dashboard, order details, and kitchen/bar routing
 
 ## Shared Dependencies
 
