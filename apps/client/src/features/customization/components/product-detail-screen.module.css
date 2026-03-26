@@ -1,0 +1,458 @@
+.screen
+{
+  min-height: 100vh;
+  display: grid;
+  gap: 18px;
+  padding: 22px 16px 112px;
+  background:
+    radial-gradient(circle at top left, rgba(209, 73, 46, 0.14), transparent 34%),
+    linear-gradient(180deg, rgba(255, 246, 235, 0.98), rgba(243, 249, 255, 0.94));
+}
+
+.hero
+{
+  display: grid;
+  gap: 12px;
+  padding: 18px;
+  border-radius: calc(var(--pizzaos-radius-card) + 4px);
+  border: 1px solid rgba(31, 37, 48, 0.12);
+  background: rgba(255, 255, 255, 0.86);
+  box-shadow: var(--pizzaos-elevation-card);
+}
+
+.heroTopRow
+{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.backLink
+{
+  color: var(--pizzaos-color-foreground);
+  text-decoration: none;
+  font-weight: 700;
+}
+
+.heroTitle
+{
+  margin: 0;
+  font-size: clamp(1.8rem, 7vw, 2.6rem);
+  line-height: 0.95;
+  letter-spacing: -0.05em;
+}
+
+.heroCopy
+{
+  margin: 0;
+  color: var(--pizzaos-color-foreground-muted);
+}
+
+.heroMetaRow
+{
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.heroMetaLabel
+{
+  margin: 0;
+  color: var(--pizzaos-color-foreground-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.76rem;
+}
+
+.heroMetaValue
+{
+  margin: 0;
+  font-size: 1.16rem;
+  font-weight: 800;
+}
+
+.priceSection
+{
+  display: grid;
+}
+
+.priceBox
+{
+  display: grid;
+  gap: 12px;
+}
+
+.priceTotal
+{
+  margin: 0;
+  font-size: 1.55rem;
+  font-weight: 800;
+}
+
+.breakdownGrid
+{
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 6px 12px;
+}
+
+.breakdownGrid p
+{
+  margin: 0;
+}
+
+.flowSection
+{
+  display: grid;
+  gap: 14px;
+}
+
+.flowHeader
+{
+  display: grid;
+  gap: 4px;
+}
+
+.flowEyebrow
+{
+  margin: 0;
+  font-size: 0.76rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--pizzaos-color-foreground-muted);
+}
+
+.flowTitle
+{
+  margin: 0;
+  font-size: 1.4rem;
+  letter-spacing: -0.03em;
+}
+
+.stepProgress
+{
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.stepButton
+{
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-align: left;
+  padding: 10px 12px;
+  border: 1px solid rgba(31, 37, 48, 0.12);
+  border-radius: var(--pizzaos-radius-control);
+  background: rgba(255, 255, 255, 0.75);
+  color: var(--pizzaos-color-foreground);
+}
+
+.stepButton span
+{
+  width: 24px;
+  height: 24px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(31, 37, 48, 0.1);
+  font-weight: 700;
+}
+
+.stepButton small
+{
+  font-size: 0.85rem;
+}
+
+.stepButtonActive
+{
+  border-color: rgba(209, 73, 46, 0.5);
+  background: linear-gradient(120deg, rgba(209, 73, 46, 0.16), rgba(255, 255, 255, 0.96));
+}
+
+.optionGrid
+{
+  display: grid;
+  gap: 10px;
+}
+
+.optionCard
+{
+  display: grid;
+  gap: 6px;
+  padding: 14px;
+  border-radius: var(--pizzaos-radius-card);
+  border: 1px solid rgba(31, 37, 48, 0.12);
+  background: rgba(255, 255, 255, 0.88);
+}
+
+.optionCard input
+{
+  margin: 0 0 2px;
+}
+
+.optionTitle
+{
+  font-weight: 700;
+}
+
+.optionDescription
+{
+  color: var(--pizzaos-color-foreground-muted);
+  font-size: 0.92rem;
+}
+
+.optionDelta
+{
+  font-weight: 700;
+  color: var(--pizzaos-color-primary);
+}
+
+.ingredientStack
+{
+  display: grid;
+  gap: 10px;
+}
+
+.ingredientCard
+{
+  display: grid;
+  gap: 10px;
+  padding: 14px;
+  border-radius: var(--pizzaos-radius-card);
+  border: 1px solid rgba(31, 37, 48, 0.12);
+  background: rgba(255, 255, 255, 0.88);
+}
+
+.ingredientTopRow
+{
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.ingredientTitle
+{
+  margin: 0 0 4px;
+  font-size: 1rem;
+}
+
+.ingredientDescription
+{
+  margin: 0;
+  color: var(--pizzaos-color-foreground-muted);
+  font-size: 0.9rem;
+}
+
+.ingredientMeta
+{
+  font-size: 0.85rem;
+  color: var(--pizzaos-color-foreground-muted);
+}
+
+.ingredientModes
+{
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.modeOption
+{
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  border: 1px solid rgba(31, 37, 48, 0.12);
+  border-radius: var(--pizzaos-radius-control);
+  padding: 8px;
+  background: rgba(255, 255, 255, 0.94);
+}
+
+.extraStack
+{
+  display: grid;
+  gap: 10px;
+}
+
+.extraOption
+{
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: start;
+  gap: 10px;
+  padding: 12px;
+  border-radius: var(--pizzaos-radius-card);
+  border: 1px solid rgba(31, 37, 48, 0.12);
+  background: rgba(255, 255, 255, 0.88);
+}
+
+.summaryCard
+{
+  display: grid;
+  gap: 10px;
+  padding: 14px;
+  border-radius: var(--pizzaos-radius-card);
+  border: 1px solid rgba(31, 37, 48, 0.12);
+  background: rgba(255, 255, 255, 0.88);
+}
+
+.summaryTitle
+{
+  margin: 0;
+}
+
+.summaryCopy
+{
+  margin: 0;
+  color: var(--pizzaos-color-foreground-muted);
+}
+
+.summaryList
+{
+  margin: 0;
+  padding-left: 18px;
+  display: grid;
+  gap: 4px;
+}
+
+.flowActions
+{
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.flowActions button
+{
+  flex: 1;
+}
+
+.supportSection
+{
+  display: grid;
+  gap: 12px;
+}
+
+.supportLead
+{
+  margin: 0 0 10px;
+  color: var(--pizzaos-color-foreground-muted);
+}
+
+.supportList
+{
+  margin: 0;
+  padding-left: 18px;
+  display: grid;
+  gap: 4px;
+}
+
+.pairingList
+{
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 10px;
+}
+
+.pairingItem
+{
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.pairingTitle
+{
+  margin: 0 0 2px;
+  font-weight: 700;
+}
+
+.pairingDescription
+{
+  margin: 0;
+  color: var(--pizzaos-color-foreground-muted);
+  font-size: 0.9rem;
+}
+
+.pairingPrice
+{
+  margin: 0;
+  white-space: nowrap;
+  font-weight: 700;
+}
+
+.totalBar
+{
+  position: fixed;
+  left: 12px;
+  right: 12px;
+  bottom: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 12px 14px;
+  border-radius: var(--pizzaos-radius-card);
+  border: 1px solid rgba(31, 37, 48, 0.14);
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: var(--pizzaos-elevation-card);
+  z-index: 10;
+}
+
+.toastWrap
+{
+  position: fixed;
+  left: 12px;
+  right: 12px;
+  bottom: 84px;
+  z-index: 11;
+}
+
+@media (min-width: 900px)
+{
+  .screen
+  {
+    max-width: 980px;
+    margin: 0 auto;
+    grid-template-columns: minmax(0, 1.65fr) minmax(280px, 0.9fr);
+    align-items: start;
+    column-gap: 16px;
+    padding: 28px 22px 120px;
+  }
+
+  .hero,
+  .priceSection,
+  .flowSection
+  {
+    grid-column: 1;
+  }
+
+  .supportSection
+  {
+    grid-column: 2;
+    grid-row: 1 / span 3;
+    position: sticky;
+    top: 18px;
+  }
+
+  .stepProgress
+  {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .optionGrid
+  {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

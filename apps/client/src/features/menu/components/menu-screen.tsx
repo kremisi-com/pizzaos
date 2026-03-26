@@ -36,7 +36,7 @@ export function MenuScreen(props: MenuScreenProps): ReactElement
   const [seed, setSeed] = useState<ClientSeed>(() => loadClientDemoState());
   const [selectedSectionId, setSelectedSectionId] = useState(props.initialSectionId ?? "");
   const [selectedSlotId, setSelectedSlotId] = useState("");
-  const slots = Array.isArray(seed.slots) ? seed.slots : [];
+  const slots = seed.slots;
 
   useEffect(() =>
   {
@@ -215,12 +215,14 @@ export function MenuScreen(props: MenuScreenProps): ReactElement
                   <div className={styles.cardFooter}>
                     <p className={styles.footerHint}>
                       {availability.isOrderable
-                        ? "Navigazione pronta. La personalizzazione arriva nello step successivo."
+                        ? "Apri il dettaglio per configurare impasto, varianti, ingredienti ed extra."
                         : "Prodotto visibile per chiarezza, ma non ordinabile in questo momento."}
                     </p>
 
                     {availability.isOrderable ? (
-                      <Badge tone="neutral">Dettaglio nello step 3</Badge>
+                      <a href={`/product/${product.id}`} className={styles.detailLink}>
+                        Personalizza pizza
+                      </a>
                     ) : (
                       <Button variant="secondary" disabled>
                         Non disponibile

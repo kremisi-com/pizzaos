@@ -19,8 +19,10 @@ This app does not own shared package APIs or admin and landing code paths.
 - `app/layout.tsx`: root metadata and layout shell
 - `app/page.tsx`: client route entry
 - `app/menu/page.tsx`: menu browsing route with section preselection support
+- `app/product/[id]/page.tsx`: product detail route with guided customization flow
 - `src/features/home`: mobile-first home shell, seeded demo state, and reset flow
 - `src/features/menu`: section browsing, slot visibility, and product availability rendering
+- `src/features/customization`: product detail, guided stepper, pricing logic, allergens, and pairings
 - `src/features/home/client-demo-state.ts`: local storage hydration and reset helpers
 
 ## Shared Dependencies
