@@ -152,7 +152,7 @@ Do not make them so different that they stop feeling like PizzaOS.
 - Every app must support explicit demo reset or reseed behavior.
 - Simulations should be deterministic enough to test reliably.
 - Use mock data and local timers instead of fake network complexity unless a feature explicitly benefits from a mock API
-shape.
+  shape.
 
 ## Documentation Requirements
 
@@ -206,12 +206,15 @@ When working on a task:
 2. Confirm which app or shared package owns the change.
 3. Implement the smallest complete increment that matches the current plan step.
 4. Add or update tests in the same change.
-5. Verify the step is demoable.
-6. Update documentation if public behavior, structure, or commands changed.
-7. After everything is done, run a final check that the change matches the plan, tests pass, and the demo works.
-8. Mark the task as complete in the implementation plan document, and optionally add a note if there were any deviations or discoveries during implementation that are worth recording for future reference.
-9. Run `git status` to confirm only expected files are changed, and the changes are properly staged for commit. If necessary, update the `.gitignore` to avoid accidentally including files that should not be committed.
-10. Commit the changes after each task, using the git standard commit message format, providing a clear short title, a thorough description of the changes and referencing any relevant issue or task IDs.
+5. Fix any typescript error that appears. Never use any or tsignore to silence them.
+6. Fix any linting errors that appear. Never use disable linting rules to silence them.
+7. Use `@/` paths where possible
+8. Verify the step is demoable.
+9. Update documentation if public behavior, structure, or commands changed.
+10. After everything is done, run a final check that the change matches the plan, tests pass, and the demo works.
+11. Mark the task as complete in the implementation plan document, and optionally add a note if there were any deviations or discoveries during implementation that are worth recording for future reference.
+12. Run `git status` to confirm only expected files are changed, and the changes are properly staged for commit. If necessary, update the `.gitignore` to avoid accidentally including files that should not be committed.
+13. Commit the changes after each task, using the git standard commit message format, providing a clear short title, a thorough description of the changes and referencing any relevant issue or task IDs.
 
 ## What Not To Do
 
@@ -222,6 +225,7 @@ When working on a task:
 - Do not bury mock data inside random components.
 - Do not use placeholder UIs that cannot be navigated when the plan expects interactive behavior.
 - Do not reference the source restaurant brand from the UX input.
+- Do not use `any` to silence TypeScript errors.
 
 ## Definition Of Done
 
