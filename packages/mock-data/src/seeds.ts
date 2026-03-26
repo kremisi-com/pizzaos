@@ -94,6 +94,10 @@ function buildAdminDatasets(): Readonly<Record<EntityIdentifier, AdminStoreDatas
         inventory: cloneData(template.inventory),
         analytics: cloneData(template.analytics),
         insights: cloneData(template.insights),
+        coupons: cloneData(template.coupons),
+        loyalty: cloneData(template.loyalty),
+        loyaltyConfig: cloneData(template.loyaltyConfig),
+        isDynamicPricingEnabled: template.isDynamicPricingEnabled,
         simulationCursorIso: "2026-03-25T12:00:00.000Z"
       }
     ];

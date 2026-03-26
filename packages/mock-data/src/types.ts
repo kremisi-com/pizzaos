@@ -7,6 +7,7 @@ import type {
   EntityIdentifier,
   InventoryItem,
   LoyaltyState,
+  LoyaltySystemConfig,
   Menu,
   Order,
   Product,
@@ -42,6 +43,9 @@ export interface AdminStoreDataset
   readonly inventory: readonly InventoryItem[];
   readonly analytics: AnalyticsSnapshot;
   readonly insights: readonly AiInsight[];
+  readonly coupons: readonly Coupon[];
+  readonly loyalty: readonly LoyaltyState[];
+  readonly loyaltyConfig: LoyaltySystemConfig;
   readonly isDynamicPricingEnabled: boolean;
   readonly simulationCursorIso: string;
 }
@@ -94,5 +98,8 @@ export interface AdminDatasetTemplate
   readonly inventory: readonly InventoryItem[];
   readonly analytics: AnalyticsSnapshot;
   readonly insights: readonly AiInsight[];
+  readonly coupons: readonly Coupon[];
+  readonly loyalty: readonly LoyaltyState[];
+  readonly loyaltyConfig: LoyaltySystemConfig;
   readonly isDynamicPricingEnabled: boolean;
 }

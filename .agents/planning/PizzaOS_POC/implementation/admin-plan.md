@@ -7,7 +7,7 @@
 - [x] Step 3: Implement order detail and kitchen or bar routing views.
 - [x] Step 4: Implement menu and product management with multi-menu support.
 - [x] Step 5: Implement dynamic pricing controls and inventory visibility.
-- [ ] Step 6: Implement marketing tools, coupon creation, and loyalty overview.
+- [x] Step 6: Implement marketing tools, coupon creation, and loyalty management (config).
 - [ ] Step 7: Implement analytics, heatmap, AI insights, and local simulated update loops.
 - [ ] Step 8: Implement delivery simulation, integration placeholders, and end-to-end admin polish.
 

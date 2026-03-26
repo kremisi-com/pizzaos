@@ -16,6 +16,7 @@ import { OrdersDashboard } from "../../orders/components/orders-dashboard";
 import { StoreSwitcher } from "../../store-switch/components/store-switcher";
 import { CatalogManager } from "../../catalog/components/catalog-manager";
 import { InventoryManager } from "../../inventory/components/inventory-manager";
+import { MarketingManager } from "../../marketing/components/marketing-manager";
 import styles from "./admin-shell.module.css";
 
 const APP_ID = "admin" as const;
@@ -34,7 +35,7 @@ export function AdminShell(): ReactElement
 {
   const [seed, setSeed] = useState<AdminSeed>(() => loadDemoState(APP_ID, { storage: resolveStorage() }));
 
-  const [activeTab, setActiveTab] = useState<"dashboard" | "orders" | "catalog" | "inventory">("dashboard");
+  const [activeTab, setActiveTab] = useState<"dashboard" | "orders" | "catalog" | "inventory" | "marketing">("dashboard");
 
   const activeDataset = seed.datasetsByStoreId[seed.activeStoreId];
 
@@ -233,9 +234,12 @@ export function AdminShell(): ReactElement
           >
             Magazzino
           </button>
-          <a href="#" className={styles.navItem}>
+          <button
+            onClick={() => setActiveTab("marketing")}
+            className={`${styles.navButton} ${activeTab === "marketing" ? styles.navItemActive : ""}`}
+          >
             Marketing
-          </a>
+          </button>
           <a href="#" className={styles.navItem}>
             Analytics
           </a>
@@ -258,7 +262,7 @@ export function AdminShell(): ReactElement
         <header className={styles.header}>
           <div className={styles.headerInfo}>
             <h2>
-              {activeTab === "dashboard" ? seed.title : "Gestione Ordini"}
+              {activeTab === "dashboard" ? seed.title : activeTab === "marketing" ? "Marketing & Loyalty" : "Gestione Ordini"}
             </h2>
             <p>
               {activeTab === "dashboard" ? seed.subtitle : activeDataset.store.displayName}
@@ -279,6 +283,23 @@ export function AdminShell(): ReactElement
                 <div>
                   <div className={styles.statItemLabel}>PRODOTTI</div>
                   <div className={styles.statItemValue}>{activeDataset.products.length}</div>
+                </div>
+              </div>
+            </Card>
+
+            <Card title="Marketing Attivo">
+              <div className={styles.statGrid}>
+                <div>
+                  <div className={styles.statItemLabel}>COUPON ATTIVI</div>
+                  <div className={styles.statItemValue}>
+                    {activeDataset.coupons?.filter(c => c.status === "active").length ?? 0}
+                  </div>
+                </div>
+                <div>
+                  <div className={styles.statItemLabel}>LIVELLI FEDELTÀ</div>
+                  <div className={styles.statItemValue}>
+                    {activeDataset.loyaltyConfig?.tiers?.length ?? 0}
+                  </div>
                 </div>
               </div>
             </Card>
@@ -305,6 +326,12 @@ export function AdminShell(): ReactElement
              products={activeDataset.products}
              onUpdateMenu={handleUpdateMenu}
              onUpdateProduct={handleUpdateProduct}
+          />
+        ) : activeTab === "marketing" ? (
+          <MarketingManager
+            coupons={activeDataset.coupons ?? []}
+            loyaltyConfig={activeDataset.loyaltyConfig}
+            onCreateCoupon={() => alert("Funzionalità di creazione coupon in arrivo (POC)")}
           />
         ) : (
           <InventoryManager

@@ -172,7 +172,8 @@ function hasRequiredAdminStoreDatasetFields(dataset: unknown): boolean
     Array.isArray(dataset.orders) &&
     Array.isArray(dataset.inventory) &&
     isRecord(dataset.analytics) &&
-    Array.isArray(dataset.insights)
+    Array.isArray(dataset.insights) &&
+    isRecord(dataset.loyaltyConfig)
   );
 }
 

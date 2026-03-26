@@ -2,6 +2,7 @@ import type {
   Coupon,
   EntityIdentifier,
   LoyaltyState,
+  LoyaltySystemConfig,
   Menu,
   Order,
   Product,
@@ -169,6 +170,30 @@ export const CLIENT_MENU: Menu = {
   ]
 };
 
+export const DEFAULT_LOYALTY_CONFIG: LoyaltySystemConfig = {
+  pointsPerEuro: 10,
+  tiers: [
+    {
+      id: "tier-bronze",
+      name: "Bronzo",
+      minPoints: 0,
+      perks: ["Sconto 5% su ogni ordine"]
+    },
+    {
+      id: "tier-silver",
+      name: "Argento",
+      minPoints: 1000,
+      perks: ["Sconto 10% su ogni ordine", "Consegna gratuita"]
+    },
+    {
+      id: "tier-gold",
+      name: "Oro",
+      minPoints: 5000,
+      perks: ["Sconto 15% su ogni ordine", "Consegna gratuita", "Pizza omaggio ogni 10"]
+    }
+  ]
+};
+
 export const ADMIN_DATASET_TEMPLATES: Readonly<Record<EntityIdentifier, AdminDatasetTemplate>> = {
   "store-roma-centro": {
     menu: {
@@ -309,7 +334,28 @@ export const ADMIN_DATASET_TEMPLATES: Readonly<Record<EntityIdentifier, AdminDat
         status: "acknowledged",
         generatedAtIso: "2026-03-25T11:45:00.000Z"
       }
-    ]
+    ],
+    coupons: [
+      {
+        id: "coupon-roma-welcome",
+        code: "BENVENUTOCENTRO",
+        status: "active",
+        discountAmount: toMoney(500),
+        minOrderAmount: toMoney(1500),
+        validFromIso: "2026-03-01T00:00:00.000Z",
+        validUntilIso: "2026-12-31T23:59:59.000Z",
+        maxRedemptions: 500
+      }
+    ],
+    loyalty: [
+      {
+        customerId: "customer-roma-001",
+        currentTierId: "tier-gold",
+        pointsBalance: 2450
+      }
+    ],
+    loyaltyConfig: DEFAULT_LOYALTY_CONFIG,
+    isDynamicPricingEnabled: false
   },
   "store-milano-navigli": {
     menu: {
@@ -434,6 +480,26 @@ export const ADMIN_DATASET_TEMPLATES: Readonly<Record<EntityIdentifier, AdminDat
         generatedAtIso: "2026-03-25T17:58:00.000Z"
       }
     ],
+    coupons: [
+      {
+        id: "coupon-navigli-night",
+        code: "NAVIGLINOTTE",
+        status: "active",
+        discountAmount: toMoney(400),
+        minOrderAmount: toMoney(2000),
+        validFromIso: "2026-03-01T00:00:00.000Z",
+        validUntilIso: "2026-12-31T23:59:59.000Z",
+        maxRedemptions: 300
+      }
+    ],
+    loyalty: [
+      {
+        customerId: "customer-milano-004",
+        currentTierId: "tier-silver",
+        pointsBalance: 880
+      }
+    ],
+    loyaltyConfig: DEFAULT_LOYALTY_CONFIG,
     isDynamicPricingEnabled: true
   },
   "store-torino-porta-nuova": {
@@ -559,6 +625,9 @@ export const ADMIN_DATASET_TEMPLATES: Readonly<Record<EntityIdentifier, AdminDat
         generatedAtIso: "2026-03-25T09:28:00.000Z"
       }
     ],
+    coupons: [],
+    loyalty: [],
+    loyaltyConfig: DEFAULT_LOYALTY_CONFIG,
     isDynamicPricingEnabled: false
   }
 };
@@ -617,8 +686,6 @@ export const DEFAULT_CLIENT_COUPONS: readonly Coupon[] = [
 
 export const DEFAULT_CLIENT_LOYALTY: LoyaltyState = {
   customerId: "customer-client-demo",
-  tier: "silver",
-  pointsBalance: 740,
-  nextTierPoints: 1200,
-  availableRewards: ["Consegna gratuita", "Bibita omaggio"]
+  currentTierId: "tier-silver",
+  pointsBalance: 740
 };

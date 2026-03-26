@@ -163,13 +163,25 @@ export interface Coupon
   readonly maxRedemptions: number;
 }
 
+export interface LoyaltyTierConfig
+{
+  readonly id: EntityIdentifier;
+  readonly name: string; // e.g., "Bronze", "Silver", "Gold"
+  readonly minPoints: number;
+  readonly perks: readonly string[];
+}
+
+export interface LoyaltySystemConfig
+{
+  readonly tiers: readonly LoyaltyTierConfig[];
+  readonly pointsPerEuro: number;
+}
+
 export interface LoyaltyState
 {
   readonly customerId: EntityIdentifier;
-  readonly tier: "bronze" | "silver" | "gold";
+  readonly currentTierId: EntityIdentifier;
   readonly pointsBalance: number;
-  readonly nextTierPoints: number;
-  readonly availableRewards: readonly string[];
 }
 
 export interface AnalyticsSnapshot
