@@ -112,6 +112,18 @@ export interface Order
   readonly scheduledSlot: string;
   readonly createdAtIso: string;
   readonly updatedAtIso: string;
+  readonly riderId?: EntityIdentifier;
+}
+
+export interface Rider
+{
+  readonly id: EntityIdentifier;
+  readonly name: string;
+  readonly status: "available" | "busy" | "offline";
+  readonly location?: {
+    readonly lat: number;
+    readonly lng: number;
+  };
 }
 
 export interface StoreProfile

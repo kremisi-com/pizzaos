@@ -45,9 +45,59 @@
 }
 
 .stations {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+  display: flex;
+  flex-direction: column;
   gap: 16px;
+}
+
+.riderAssignment {
+  background-color: var(--pizzaos-color-background-accent);
+  padding: 16px;
+  border-radius: var(--pizzaos-radius-control);
+  border: 1px solid var(--pizzaos-color-border);
+}
+
+.riderSelect {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.riderOption {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px;
+  border: 1px solid var(--pizzaos-color-border);
+  border-radius: var(--pizzaos-radius-control);
+  background: white;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.2s;
+}
+
+.riderOptionActive {
+  border-color: var(--pizzaos-color-primary);
+  background-color: rgba(var(--pizzaos-color-primary-rgb), 0.05);
+  box-shadow: 0 0 0 1px var(--pizzaos-color-primary);
+}
+
+.riderOptionDisabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background-color: #f9fafb;
+}
+
+.riderName {
+  font-weight: 700;
+}
+
+.assignmentHint {
+  font-size: 0.75rem;
+  color: var(--pizzaos-color-foreground-muted);
+  margin-top: 8px;
+  font-style: italic;
 }
 
 .station {

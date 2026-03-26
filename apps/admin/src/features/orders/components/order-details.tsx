@@ -4,18 +4,20 @@ import {
   type Order,
   type OrderStatus,
   type Product,
+  type Rider,
   type RoutingStation,
   deriveRoutingStation,
   getNextOrderStatuses,
 } from "@pizzaos/domain";
-import { Badge, Button } from "@pizzaos/ui";
-import { type ReactElement, useMemo } from "react";
+import { Badge, Button, Card } from "@pizzaos/ui";
+import { type ReactElement, useMemo, useState } from "react";
 import styles from "./order-details.module.css";
 
 interface OrderDetailsProps {
   readonly order: Order;
   readonly allProducts: readonly Product[];
-  readonly onStatusUpdate: (orderId: string, nextStatus: OrderStatus) => void;
+  readonly riders?: readonly Rider[];
+  readonly onStatusUpdate: (orderId: string, nextStatus: OrderStatus, riderId?: string) => void;
   readonly onClose: () => void;
 }
 
@@ -38,7 +40,9 @@ const ACTION_LABELS: Partial<Record<OrderStatus, string>> = {
 };
 
 export function OrderDetails(props: OrderDetailsProps): ReactElement {
-  const { order, allProducts, onStatusUpdate, onClose } = props;
+  const { order, allProducts, riders = [], onStatusUpdate, onClose } = props;
+
+  const [selectedRiderId, setSelectedRiderId] = useState<string | undefined>(order.riderId);
 
   const linesWithProducts = useMemo(() => {
     return order.lines.map((line) => {
@@ -85,6 +89,28 @@ export function OrderDetails(props: OrderDetailsProps): ReactElement {
       </div>
 
       <div className={styles.stations}>
+        {order.status === "ready" && riders.length > 0 && (
+          <div className={styles.riderAssignment}>
+            <div className={styles.stationTitle}>Assegnazione Rider</div>
+            <div className={styles.riderSelect}>
+              {riders.map(rider => (
+                <button
+                  key={rider.id}
+                  className={`${styles.riderOption} ${selectedRiderId === rider.id ? styles.riderOptionActive : ""} ${rider.status !== "available" ? styles.riderOptionDisabled : ""}`}
+                  onClick={() => rider.status === "available" && setSelectedRiderId(rider.id)}
+                  disabled={rider.status !== "available"}
+                >
+                  <span className={styles.riderName}>{rider.name}</span>
+                  <Badge tone={rider.status === "available" ? "success" : "neutral"}>
+                    {rider.status === "available" ? "Libero" : "Occupato"}
+                  </Badge>
+                </button>
+              ))}
+            </div>
+            {!selectedRiderId && <p className={styles.assignmentHint}>Seleziona un rider disponibile per affidare la consegna.</p>}
+          </div>
+        )}
+
         {stations.kitchen.length > 0 && (
           <div className={styles.station}>
             <div className={styles.stationHeader}>
@@ -132,7 +158,10 @@ export function OrderDetails(props: OrderDetailsProps): ReactElement {
             Chiudi
           </Button>
           {primaryNextStatus && (
-            <Button onClick={() => onStatusUpdate(order.id, primaryNextStatus)}>
+            <Button
+              onClick={() => onStatusUpdate(order.id, primaryNextStatus, selectedRiderId)}
+              disabled={order.status === "ready" && !selectedRiderId}
+            >
               {ACTION_LABELS[order.status] ?? `Vai a ${STATUS_LABELS[primaryNextStatus]}`}
             </Button>
           )}

@@ -1,6 +1,6 @@
 "use client";
 
-import type { Order, OrderStatus, Product } from "@pizzaos/domain";
+import type { Order, OrderStatus, Product, Rider } from "@pizzaos/domain";
 import { Badge, Card, Dialog } from "@pizzaos/ui";
 import { type ReactElement, useMemo, useState } from "react";
 import styles from "./orders-dashboard.module.css";
@@ -8,9 +8,10 @@ import { OrderDetails } from "./order-details";
 
 interface OrdersDashboardProps {
   readonly orders: readonly Order[];
+  readonly riders?: readonly Rider[];
   readonly lastUpdateIso: string;
   readonly allProducts: readonly Product[];
-  readonly onOrderStatusUpdate?: (orderId: string, nextStatus: OrderStatus) => void;
+  readonly onOrderStatusUpdate?: (orderId: string, nextStatus: OrderStatus, riderId?: string) => void;
 }
 
 const STATUS_MAP: Record<OrderStatus, { label: string; tone: "neutral" | "success" | "warning" | "critical" }> = {
@@ -89,12 +90,17 @@ export function OrdersDashboard(props: OrdersDashboardProps): ReactElement {
 
               <div className={styles.customer}>
                 Cliente #{order.customerId.slice(-4)}
+                {order.riderId && (
+                  <span className={styles.riderBadge}>
+                    • Rider: {props.riders?.find(r => r.id === order.riderId)?.name}
+                  </span>
+                )}
               </div>
 
               <ul className={styles.itemsList}>
                 {order.lines.map((line, idx) => (
                   <li key={`${order.id}-line-${idx}`} className={styles.item}>
-                    <span>{line.quantity}x Prodotto #{line.productId.slice(-4)}</span>
+                    <span>{line.quantity}x {allProducts.find(p => p.id === line.productId)?.name || `Prodotto #${line.productId.slice(-4)}`}</span>
                     <span>{line.unitPrice.amountCents * line.quantity / 100} {line.unitPrice.currencyCode}</span>
                   </li>
                 ))}
@@ -102,7 +108,7 @@ export function OrdersDashboard(props: OrdersDashboardProps): ReactElement {
 
               <div className={styles.footer}>
                  <span className={styles.updatedAt}>
-                   Aggiornato: {new Date(order.updatedAtIso).toLocaleTimeString("it-IT", { hour: "2-digit", minute: "2-digit", second: "2-digit" })}
+                   Aggiornato: {new Date(order.updatedAtIso).toLocaleTimeString("it-IT", { hour: "2-digit", minute: "2-digit" })}
                  </span>
                  <span className={styles.total}>
                    Totale: {order.total.amountCents / 100} {order.total.currencyCode}
@@ -129,8 +135,9 @@ export function OrdersDashboard(props: OrdersDashboardProps): ReactElement {
           <OrderDetails
             order={selectedOrder}
             allProducts={allProducts}
-            onStatusUpdate={(id, status) => {
-              onOrderStatusUpdate?.(id, status);
+            riders={props.riders}
+            onStatusUpdate={(id, status, riderId) => {
+              onOrderStatusUpdate?.(id, status, riderId);
               setSelectedOrderId(null);
             }}
             onClose={() => setSelectedOrderId(null)}

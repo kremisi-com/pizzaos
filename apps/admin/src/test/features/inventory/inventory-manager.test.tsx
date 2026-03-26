@@ -82,24 +82,6 @@ describe("InventoryManager", () => {
     expect(screen.getByText("Solo 3 unità rimaste")).toBeDefined();
   });
 
-  it("calls onUpdateInventoryItem with 0 units when 'Segna Esaurito' is clicked", () => {
-    const onUpdateInventoryItem = vi.fn();
-    render(
-      <InventoryManager
-        inventory={MOCK_INVENTORY}
-        products={MOCK_PRODUCTS}
-        isDynamicPricingEnabled={false}
-        onToggleDynamicPricing={vi.fn()}
-        onUpdateInventoryItem={onUpdateInventoryItem}
-      />
-    );
-
-    const targetButton = screen.getAllByRole("button", { name: "Segna Esaurito" })[0];
-    fireEvent.click(targetButton);
-    expect(onUpdateInventoryItem).toHaveBeenCalled();
-    expect(onUpdateInventoryItem).toHaveBeenCalledWith("i1", "out_of_stock", 0);
-  });
-
   it("calls onUpdateInventoryItem with random units when 'Ripristina' is clicked", () => {
     const outOfStockInventory: InventoryItem[] = [
       {

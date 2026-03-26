@@ -18,6 +18,8 @@ import { CatalogManager } from "../../catalog/components/catalog-manager";
 import { InventoryManager } from "../../inventory/components/inventory-manager";
 import { MarketingManager } from "../../marketing/components/marketing-manager";
 import { AnalyticsManager } from "../../analytics/components/analytics-manager";
+import { DeliveryManager } from "../../delivery/components/delivery-manager";
+import { IntegrationsManager } from "../../integrations/components/integrations-manager";
 import styles from "./admin-shell.module.css";
 
 const APP_ID = "admin" as const;
@@ -36,7 +38,7 @@ export function AdminShell(): ReactElement
 {
   const [seed, setSeed] = useState<AdminSeed>(() => loadDemoState(APP_ID, { storage: resolveStorage() }));
 
-  const [activeTab, setActiveTab] = useState<"dashboard" | "orders" | "catalog" | "inventory" | "marketing" | "analytics">("dashboard");
+  const [activeTab, setActiveTab] = useState<"dashboard" | "orders" | "catalog" | "inventory" | "marketing" | "analytics" | "delivery" | "integrations">("dashboard");
 
   const activeDataset = seed.datasetsByStoreId[seed.activeStoreId];
 
@@ -91,7 +93,7 @@ export function AdminShell(): ReactElement
     setSeed(updatedSeed);
   }
 
-  function handleOrderStatusUpdate(orderId: string, nextStatus: OrderStatus): void {
+  function handleOrderStatusUpdate(orderId: string, nextStatus: OrderStatus, riderId?: string): void {
     setSeed((currentSeed) => {
       const activeStoreId = currentSeed.activeStoreId;
       const currentDataset = currentSeed.datasetsByStoreId[activeStoreId];
@@ -101,11 +103,28 @@ export function AdminShell(): ReactElement
           return {
             ...order,
             status: nextStatus,
+            riderId: riderId ?? order.riderId,
             updatedAtIso: new Date().toISOString(),
           };
         }
         return order;
       });
+
+      const updatedRiders = currentDataset.riders?.map((rider) => {
+        if (rider.id === riderId) {
+          return {
+            ...rider,
+            status: nextStatus === "out_for_delivery" ? ("busy" as const) : rider.status,
+          };
+        }
+        if (nextStatus === "delivered" && rider.id === updatedOrders.find(o => o.id === orderId)?.riderId) {
+          return {
+            ...rider,
+            status: "available" as const,
+          };
+        }
+        return rider;
+      }) ?? [];
 
       return {
         ...currentSeed,
@@ -114,6 +133,7 @@ export function AdminShell(): ReactElement
           [activeStoreId]: {
             ...currentDataset,
             orders: updatedOrders,
+            riders: updatedRiders,
           },
         },
       };
@@ -247,6 +267,18 @@ export function AdminShell(): ReactElement
           >
             Analytics
           </button>
+          <button
+            onClick={() => setActiveTab("delivery")}
+            className={`${styles.navButton} ${activeTab === "delivery" ? styles.navItemActive : ""}`}
+          >
+            Consegne
+          </button>
+          <button
+            onClick={() => setActiveTab("integrations")}
+            className={`${styles.navButton} ${activeTab === "integrations" ? styles.navItemActive : ""}`}
+          >
+            Integrazioni
+          </button>
         </nav>
 
         <StoreSwitcher
@@ -266,7 +298,12 @@ export function AdminShell(): ReactElement
         <header className={styles.header}>
           <div className={styles.headerInfo}>
             <h2>
-              {activeTab === "dashboard" ? seed.title : activeTab === "marketing" ? "Marketing & Loyalty" : activeTab === "analytics" ? "Analytics & Insights" : "Gestione Ordini"}
+              {activeTab === "dashboard" ? seed.title : 
+               activeTab === "marketing" ? "Marketing & Loyalty" : 
+               activeTab === "analytics" ? "Analytics & Insights" : 
+               activeTab === "delivery" ? "Gestione Consegne" :
+               activeTab === "integrations" ? "Integrazioni Esterne" :
+               "Gestione Operativa"}
             </h2>
             <p>
               {activeTab === "dashboard" ? seed.subtitle : activeDataset.store.displayName}
@@ -320,6 +357,7 @@ export function AdminShell(): ReactElement
         ) : activeTab === "orders" ? (
           <OrdersDashboard
             orders={activeDataset.orders}
+            riders={activeDataset.riders}
             lastUpdateIso={activeDataset.simulationCursorIso}
             allProducts={activeDataset.products}
             onOrderStatusUpdate={handleOrderStatusUpdate}
@@ -343,7 +381,14 @@ export function AdminShell(): ReactElement
             insights={activeDataset.insights}
             products={activeDataset.products}
           />
-        ) : (
+        ) : activeTab === "delivery" ? (
+          <DeliveryManager
+            riders={activeDataset.riders ?? []}
+            orders={activeDataset.orders}
+          />
+        ) : activeTab === "integrations" ? (
+          <IntegrationsManager />
+        ) : activeTab === "inventory" ? (
           <InventoryManager
             inventory={activeDataset.inventory}
             products={activeDataset.products}
@@ -351,6 +396,8 @@ export function AdminShell(): ReactElement
             onToggleDynamicPricing={handleToggleDynamicPricing}
             onUpdateInventoryItem={handleUpdateInventoryItem}
           />
+        ) : (
+          <div>Tab non ancora implementato</div>
         )}
       </main>
     </div>

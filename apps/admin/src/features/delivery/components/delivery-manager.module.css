@@ -1,0 +1,128 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.statCard {
+  background-color: var(--pizzaos-color-background-accent);
+  border: 1px solid var(--pizzaos-color-border);
+  border-radius: var(--pizzaos-radius-card);
+  padding: 16px;
+  box-shadow: var(--pizzaos-elevation-card);
+}
+
+.statLabel {
+  font-size: 0.875rem;
+  color: var(--pizzaos-color-foreground-muted);
+  margin-bottom: 4px;
+}
+
+.statValue {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--pizzaos-color-foreground);
+}
+
+.main {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.sectionTitle {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.riderGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 12px;
+}
+
+.riderHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.riderName {
+  font-weight: 600;
+}
+
+.riderStatus {
+  font-size: 0.875rem;
+  color: var(--pizzaos-color-foreground-muted);
+}
+
+.riderLocation {
+  font-size: 0.75rem;
+  color: var(--pizzaos-color-foreground-muted);
+  margin-top: 8px;
+  font-family: monospace;
+}
+
+.orderList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.orderItem {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.orderInfo {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.orderId {
+  font-weight: 600;
+}
+
+.deliveryRider {
+  font-size: 0.875rem;
+}
+
+.unassigned {
+  color: var(--pizzaos-color-primary);
+  font-style: italic;
+}
+
+.orderSlot {
+  font-size: 0.75rem;
+  color: var(--pizzaos-color-foreground-muted);
+}
+
+.emptyState {
+  padding: 32px;
+  text-align: center;
+  color: var(--pizzaos-color-foreground-muted);
+  border: 1px dashed var(--pizzaos-color-border);
+  border-radius: var(--pizzaos-radius-card);
+}
+
+@media (max-width: 1024px) {
+  .main {
+    grid-template-columns: 1fr;
+  }
+}

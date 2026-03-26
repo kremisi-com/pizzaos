@@ -11,6 +11,7 @@ import type {
   Menu,
   Order,
   Product,
+  Rider,
   StoreProfile
 } from "@pizzaos/domain";
 
@@ -40,6 +41,7 @@ export interface AdminStoreDataset
   readonly menus: readonly Menu[];
   readonly products: readonly Product[];
   readonly orders: readonly Order[];
+  readonly riders: readonly Rider[];
   readonly inventory: readonly InventoryItem[];
   readonly analytics: AnalyticsSnapshot;
   readonly insights: readonly AiInsight[];

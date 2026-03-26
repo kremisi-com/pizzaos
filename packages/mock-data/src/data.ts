@@ -6,6 +6,7 @@ import type {
   Menu,
   Order,
   Product,
+  Rider,
   StoreProfile
 } from "@pizzaos/domain";
 import { DEFAULT_CLIENT_STORE_ID } from "./constants";
@@ -335,6 +336,11 @@ export const ADMIN_DATASET_TEMPLATES: Readonly<Record<EntityIdentifier, AdminDat
         generatedAtIso: "2026-03-25T11:45:00.000Z"
       }
     ],
+    riders: [
+      { id: "rider-roma-1", name: "Marco Rossi", status: "available", location: { lat: 41.9028, lng: 12.4964 } },
+      { id: "rider-roma-2", name: "Luca Bianchi", status: "busy", location: { lat: 41.8902, lng: 12.4922 } },
+      { id: "rider-roma-3", name: "Giulia Verdi", status: "available", location: { lat: 41.9010, lng: 12.5000 } }
+    ],
     coupons: [
       {
         id: "coupon-roma-welcome",
@@ -480,6 +486,10 @@ export const ADMIN_DATASET_TEMPLATES: Readonly<Record<EntityIdentifier, AdminDat
         generatedAtIso: "2026-03-25T17:58:00.000Z"
       }
     ],
+    riders: [
+      { id: "rider-milano-1", name: "Alessandro Neri", status: "available", location: { lat: 45.4642, lng: 9.1900 } },
+      { id: "rider-milano-2", name: "Sofia Gialli", status: "available", location: { lat: 45.4500, lng: 9.1700 } }
+    ],
     coupons: [
       {
         id: "coupon-navigli-night",
@@ -624,6 +634,9 @@ export const ADMIN_DATASET_TEMPLATES: Readonly<Record<EntityIdentifier, AdminDat
         status: "new",
         generatedAtIso: "2026-03-25T09:28:00.000Z"
       }
+    ],
+    riders: [
+      { id: "rider-torino-1", name: "Pietro Blu", status: "offline" }
     ],
     coupons: [],
     loyalty: [],
