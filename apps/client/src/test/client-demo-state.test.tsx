@@ -56,4 +56,28 @@ describe("client demo state", () =>
     expect(resetSeed).toEqual(createClientSeed());
     expect(JSON.parse(storage.getItem(getClientDemoStateStorageKey()) ?? "{}")).toEqual(createClientSeed());
   });
+
+  it("recovers client demo state when persisted storage uses the previous schema", () =>
+  {
+    const storage = new InMemoryStorage();
+
+    storage.setItem(
+      getClientDemoStateStorageKey(),
+      JSON.stringify({
+        surface: "client",
+        title: "PizzaOS Client",
+        subtitle: "Vecchio payload",
+        store: {
+          id: "store-roma-centro"
+        },
+        menu: {},
+        products: []
+      })
+    );
+
+    const loadedSeed = loadClientDemoState(storage);
+
+    expect(loadedSeed).toEqual(createClientSeed());
+    expect(JSON.parse(storage.getItem(getClientDemoStateStorageKey()) ?? "{}")).toEqual(createClientSeed());
+  });
 });

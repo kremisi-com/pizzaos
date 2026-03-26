@@ -194,6 +194,20 @@ describe("reset, reseed, and recovery", () =>
     expect(recovered).toEqual(createLandingSeed());
   });
 
+  it("recovers client state when persisted payload is from the previous schema", () =>
+  {
+    const recovered = recoverPersistedDemoState("client", {
+      surface: "client",
+      title: "PizzaOS Client",
+      subtitle: "Schema precedente",
+      store: { id: "store-roma-centro" },
+      menu: {},
+      products: []
+    });
+
+    expect(recovered).toEqual(createClientSeed());
+  });
+
   it("recovers admin state when persisted payload has malformed datasets or active store id", () =>
   {
     const adminSeed = createAdminSeed();

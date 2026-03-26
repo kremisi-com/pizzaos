@@ -36,6 +36,7 @@ export function MenuScreen(props: MenuScreenProps): ReactElement
   const [seed, setSeed] = useState<ClientSeed>(() => loadClientDemoState());
   const [selectedSectionId, setSelectedSectionId] = useState(props.initialSectionId ?? "");
   const [selectedSlotId, setSelectedSlotId] = useState("");
+  const slots = Array.isArray(seed.slots) ? seed.slots : [];
 
   useEffect(() =>
   {
@@ -67,20 +68,20 @@ export function MenuScreen(props: MenuScreenProps): ReactElement
 
   useEffect(() =>
   {
-    const firstSelectableSlot = seed.slots.find((slot) => deriveSlotAvailability(slot).isSelectable);
+    const firstSelectableSlot = slots.find((slot) => deriveSlotAvailability(slot).isSelectable);
 
     setSelectedSlotId((currentSlotId) =>
     {
-      if (seed.slots.some((slot) => slot.slotId === currentSlotId && deriveSlotAvailability(slot).isSelectable))
+      if (slots.some((slot) => slot.slotId === currentSlotId && deriveSlotAvailability(slot).isSelectable))
       {
         return currentSlotId;
       }
 
       return firstSelectableSlot?.slotId ?? "";
     });
-  }, [seed.slots]);
+  }, [slots]);
 
-  const selectedSlot = seed.slots.find((slot) => slot.slotId === selectedSlotId) ?? seed.slots[0];
+  const selectedSlot = slots.find((slot) => slot.slotId === selectedSlotId) ?? slots[0];
   const selectedSlotState = selectedSlot ? deriveSlotAvailability(selectedSlot) : null;
 
   return (
@@ -109,7 +110,7 @@ export function MenuScreen(props: MenuScreenProps): ReactElement
         </div>
 
         <div className={styles.slotStrip} role="list" aria-label="Slot disponibili">
-          {seed.slots.map((slot) =>
+          {slots.map((slot) =>
           {
             const slotState = deriveSlotAvailability(slot);
             const isActive = slot.slotId === selectedSlotId;
