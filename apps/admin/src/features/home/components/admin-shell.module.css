@@ -60,9 +60,85 @@
   color: var(--pizzaos-color-primary-foreground) !important;
 }
 
+.navButton {
+  padding: 10px 12px;
+  border-radius: var(--pizzaos-radius-control);
+  text-decoration: none;
+  color: var(--pizzaos-color-foreground-muted);
+  font-weight: 500;
+  transition: all var(--pizzaos-motion-duration-fast) var(--pizzaos-motion-ease-standard);
+  background: transparent;
+  border: none;
+  text-align: left;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+.navButton:hover {
+  background-color: rgba(0, 0, 0, 0.04);
+  color: var(--pizzaos-color-foreground);
+}
+
 .sidebarFooter
 {
   margin-top: auto;
   padding-top: 16px;
   border-top: 1px solid var(--pizzaos-color-border);
+}
+
+.resetButton {
+  width: 100%;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 32px;
+}
+
+.headerInfo h2 {
+  margin: 0;
+  font-size: 1.75rem;
+  letter-spacing: -0.02em;
+}
+
+.headerInfo p {
+  margin: 0;
+  color: var(--pizzaos-color-foreground-muted);
+}
+
+.dashboardGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 24px;
+}
+
+.statGrid {
+  margin-top: 16px;
+  display: flex;
+  gap: 12px;
+}
+
+.statItemLabel {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--pizzaos-color-foreground-muted);
+}
+
+.statItemValue {
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.infoList {
+  padding-left: 20px;
+  color: var(--pizzaos-color-foreground-muted);
+}
+
+.emptyState {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 48px;
+  color: var(--pizzaos-color-foreground-muted);
 }

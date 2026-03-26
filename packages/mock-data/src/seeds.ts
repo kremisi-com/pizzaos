@@ -92,7 +92,8 @@ function buildAdminDatasets(): Readonly<Record<EntityIdentifier, AdminStoreDatas
         orders: cloneData(template.orders),
         inventory: cloneData(template.inventory),
         analytics: cloneData(template.analytics),
-        insights: cloneData(template.insights)
+        insights: cloneData(template.insights),
+        simulationCursorIso: "2026-03-25T12:00:00.000Z"
       }
     ];
   });

@@ -4,10 +4,14 @@ import {
   loadDemoState,
   resetDemoState,
   reseedDemoState,
+  advanceOrderSimulation,
+  getDemoStateStorageKey,
+  ADMIN_SIMULATION_INTERVAL_MS,
   type AdminSeed
 } from "@pizzaos/mock-data";
 import { Button, Card, StatusIndicator } from "@pizzaos/ui";
-import { useState, type ReactElement } from "react";
+import { useState, type ReactElement, useEffect } from "react";
+import { OrdersDashboard } from "../../orders/components/orders-dashboard";
 import { StoreSwitcher } from "../../store-switch/components/store-switcher";
 import styles from "./admin-shell.module.css";
 
@@ -27,7 +31,44 @@ export function AdminShell(): ReactElement
 {
   const [seed, setSeed] = useState<AdminSeed>(() => loadDemoState(APP_ID, { storage: resolveStorage() }));
 
+  const [activeTab, setActiveTab] = useState<"dashboard" | "orders">("dashboard");
+
   const activeDataset = seed.datasetsByStoreId[seed.activeStoreId];
+
+
+  useEffect(() => {
+    const storage = resolveStorage();
+    if (storage) {
+      const storageKey = getDemoStateStorageKey(APP_ID);
+      storage.setItem(storageKey, JSON.stringify(seed));
+    }
+  }, [seed]);
+
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      setSeed((currentSeed) => {
+        const activeStoreId = currentSeed.activeStoreId;
+        const currentDataset = currentSeed.datasetsByStoreId[activeStoreId];
+        const now = new Date();
+
+        const updatedDataset = advanceOrderSimulation(currentDataset, now);
+
+        if (updatedDataset === currentDataset) {
+          return currentSeed;
+        }
+
+        return {
+          ...currentSeed,
+          datasetsByStoreId: {
+            ...currentSeed.datasetsByStoreId,
+            [activeStoreId]: updatedDataset,
+          },
+        };
+      });
+    }, ADMIN_SIMULATION_INTERVAL_MS);
+
+    return () => clearInterval(intervalId);
+  }, []);
 
   function handleResetClick(): void
   {
@@ -51,12 +92,18 @@ export function AdminShell(): ReactElement
         <h1 className={styles.logo}>PizzaOS</h1>
 
         <nav className={styles.nav}>
-          <a href="#" className={`${styles.navItem} ${styles.navItemActive}`}>
+          <button
+            onClick={() => setActiveTab("dashboard")}
+            className={`${styles.navButton} ${activeTab === "dashboard" ? styles.navItemActive : ""}`}
+          >
             Dashboard
-          </a>
-          <a href="#" className={styles.navItem}>
+          </button>
+          <button
+            onClick={() => setActiveTab("orders")}
+            className={`${styles.navButton} ${activeTab === "orders" ? styles.navItemActive : ""}`}
+          >
             Ordini
-          </a>
+          </button>
           <a href="#" className={styles.navItem}>
             Menu
           </a>
@@ -78,45 +125,56 @@ export function AdminShell(): ReactElement
         />
 
         <div className={styles.sidebarFooter}>
-          <Button onClick={handleResetClick} variant="secondary" style={{ width: "100%" }}>
+          <Button onClick={handleResetClick} variant="secondary" className={styles.resetButton}>
             Reset Demo
           </Button>
         </div>
       </aside>
 
       <main className={styles.content}>
-        <header style={{ marginBottom: "32px", display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-          <div>
-            <h2 style={{ margin: 0 }}>{seed.title}</h2>
-            <p style={{ margin: 0 }}>{seed.subtitle}</p>
+        <header className={styles.header}>
+          <div className={styles.headerInfo}>
+            <h2>
+              {activeTab === "dashboard" ? seed.title : "Gestione Ordini"}
+            </h2>
+            <p>
+              {activeTab === "dashboard" ? seed.subtitle : activeDataset.store.displayName}
+            </p>
           </div>
           <StatusIndicator tone="active" label="Sistema Operativo" />
         </header>
 
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: "24px" }}>
-          <Card title="Stato Negozio" subtitle={activeDataset.store.displayName}>
-            <p>{activeDataset.store.city}</p>
-            <div style={{ marginTop: "16px", display: "flex", gap: "12px" }}>
-              <div>
-                <div style={{ fontSize: "0.75rem", fontWeight: 700, color: "var(--pizzaos-color-foreground-muted)" }}>ORDINI OGGI</div>
-                <div style={{ fontSize: "1.5rem", fontWeight: 700 }}>{activeDataset.orders.length}</div>
+        {activeTab === "dashboard" ? (
+          <div className={styles.dashboardGrid}>
+            <Card title="Stato Negozio" subtitle={activeDataset.store.displayName}>
+              <p>{activeDataset.store.city}</p>
+              <div className={styles.statGrid}>
+                <div>
+                  <div className={styles.statItemLabel}>ORDINI OGGI</div>
+                  <div className={styles.statItemValue}>{activeDataset.orders.length}</div>
+                </div>
+                <div>
+                  <div className={styles.statItemLabel}>PRODOTTI</div>
+                  <div className={styles.statItemValue}>{activeDataset.products.length}</div>
+                </div>
               </div>
-              <div>
-                <div style={{ fontSize: "0.75rem", fontWeight: 700, color: "var(--pizzaos-color-foreground-muted)" }}>PRODOTTI</div>
-                <div style={{ fontSize: "1.5rem", fontWeight: 700 }}>{activeDataset.products.length}</div>
-              </div>
-            </div>
-          </Card>
+            </Card>
 
-          <Card title="Info Demo">
-            <p>Questa è una superficie demo frontend-only. Tutti i dati sono simulati localmente.</p>
-            <ul style={{ paddingLeft: "20px", color: "var(--pizzaos-color-foreground-muted)" }}>
-              <li>Persistenza: localStorage</li>
-              <li>Multi-store: Abilitato</li>
-              <li>Simulation loop: Pronto</li>
-            </ul>
-          </Card>
-        </div>
+            <Card title="Info Demo">
+              <p>Questa è una superficie demo frontend-only. Tutti i dati sono simulati localmente.</p>
+              <ul className={styles.infoList}>
+                <li>Persistenza: localStorage</li>
+                <li>Multi-store: Abilitato</li>
+                <li>Simulation loop: Attivo (5s)</li>
+              </ul>
+            </Card>
+          </div>
+        ) : (
+          <OrdersDashboard
+            orders={activeDataset.orders}
+            lastUpdateIso={activeDataset.simulationCursorIso}
+          />
+        )}
       </main>
     </div>
   );

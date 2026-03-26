@@ -13,6 +13,12 @@ export {
   resetDemoState
 } from "./persistence";
 
+export {
+  ADMIN_SIMULATION_INTERVAL_MS,
+  DEFAULT_CURRENCY_CODE,
+  ORDER_SIMULATION_STEP_MS
+} from "./constants";
+
 export { advanceOrderSimulation, SUPPORTED_ORDER_STATUSES } from "./simulation";
 
 export type {

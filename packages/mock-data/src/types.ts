@@ -41,6 +41,7 @@ export interface AdminStoreDataset
   readonly inventory: readonly InventoryItem[];
   readonly analytics: AnalyticsSnapshot;
   readonly insights: readonly AiInsight[];
+  readonly simulationCursorIso: string;
 }
 
 export interface AdminSeed extends AppShellSeed

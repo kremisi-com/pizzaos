@@ -12,7 +12,6 @@ describe("admin shell", () =>
     expect(markup).toContain("PizzaOS");
     expect(markup).toContain("Dashboard");
     expect(markup).toContain("Ordini");
-    expect(markup).toContain("Negozio Attivo");
     expect(markup).toContain("Reset Demo");
     expect(markup).toContain("Stato Negozio");
   });
