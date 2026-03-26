@@ -17,6 +17,7 @@ import { StoreSwitcher } from "../../store-switch/components/store-switcher";
 import { CatalogManager } from "../../catalog/components/catalog-manager";
 import { InventoryManager } from "../../inventory/components/inventory-manager";
 import { MarketingManager } from "../../marketing/components/marketing-manager";
+import { AnalyticsManager } from "../../analytics/components/analytics-manager";
 import styles from "./admin-shell.module.css";
 
 const APP_ID = "admin" as const;
@@ -35,7 +36,7 @@ export function AdminShell(): ReactElement
 {
   const [seed, setSeed] = useState<AdminSeed>(() => loadDemoState(APP_ID, { storage: resolveStorage() }));
 
-  const [activeTab, setActiveTab] = useState<"dashboard" | "orders" | "catalog" | "inventory" | "marketing">("dashboard");
+  const [activeTab, setActiveTab] = useState<"dashboard" | "orders" | "catalog" | "inventory" | "marketing" | "analytics">("dashboard");
 
   const activeDataset = seed.datasetsByStoreId[seed.activeStoreId];
 
@@ -240,9 +241,12 @@ export function AdminShell(): ReactElement
           >
             Marketing
           </button>
-          <a href="#" className={styles.navItem}>
+          <button
+            onClick={() => setActiveTab("analytics")}
+            className={`${styles.navButton} ${activeTab === "analytics" ? styles.navItemActive : ""}`}
+          >
             Analytics
-          </a>
+          </button>
         </nav>
 
         <StoreSwitcher
@@ -262,7 +266,7 @@ export function AdminShell(): ReactElement
         <header className={styles.header}>
           <div className={styles.headerInfo}>
             <h2>
-              {activeTab === "dashboard" ? seed.title : activeTab === "marketing" ? "Marketing & Loyalty" : "Gestione Ordini"}
+              {activeTab === "dashboard" ? seed.title : activeTab === "marketing" ? "Marketing & Loyalty" : activeTab === "analytics" ? "Analytics & Insights" : "Gestione Ordini"}
             </h2>
             <p>
               {activeTab === "dashboard" ? seed.subtitle : activeDataset.store.displayName}
@@ -332,6 +336,12 @@ export function AdminShell(): ReactElement
             coupons={activeDataset.coupons ?? []}
             loyaltyConfig={activeDataset.loyaltyConfig}
             onCreateCoupon={() => alert("Funzionalità di creazione coupon in arrivo (POC)")}
+          />
+        ) : activeTab === "analytics" ? (
+          <AnalyticsManager
+            analytics={activeDataset.analytics}
+            insights={activeDataset.insights}
+            products={activeDataset.products}
           />
         ) : (
           <InventoryManager

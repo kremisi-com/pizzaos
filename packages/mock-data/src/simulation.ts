@@ -1,9 +1,14 @@
-import { ORDER_STATUS, progressOrderStatus, type Order } from "@pizzaos/domain";
+import { ORDER_STATUS, progressOrderStatus, type Order, type AnalyticsSnapshot } from "@pizzaos/domain";
 import { ORDER_SIMULATION_STEP_MS } from "./constants";
 import type { OrderSimulationState } from "./types";
 import { cloneData } from "./utils";
 
-export function advanceOrderSimulation<State extends OrderSimulationState>(
+export interface SimulationDataset extends OrderSimulationState
+{
+  readonly analytics?: AnalyticsSnapshot;
+}
+
+export function advanceOrderSimulation<State extends SimulationDataset>(
   state: State,
   now: Date | string
 ): State
@@ -34,9 +39,42 @@ export function advanceOrderSimulation<State extends OrderSimulationState>(
 
   const progressedOrders = state.orders.map((order) => progressOrderWithSteps(order, elapsedSteps, nextCursorIso));
 
+  let nextAnalytics = state.analytics ? cloneData(state.analytics) : undefined;
+
+  if (nextAnalytics)
+  {
+    // Update analytics based on newly delivered orders
+    const newlyDelivered = progressedOrders.filter(
+      (order, index) => order.status === "delivered" && state.orders[index].status !== "delivered"
+    );
+
+    if (newlyDelivered.length > 0)
+    {
+      const additionalRevenueCents = newlyDelivered.reduce((sum, order) => sum + order.total.amountCents, 0);
+
+      const nextOrdersToday = nextAnalytics.ordersToday + newlyDelivered.length;
+      const nextRevenueAmountCents = nextAnalytics.revenueToday.amountCents + additionalRevenueCents;
+
+      nextAnalytics = {
+        ...nextAnalytics,
+        ordersToday: nextOrdersToday,
+        revenueToday: {
+          ...nextAnalytics.revenueToday,
+          amountCents: nextRevenueAmountCents,
+        },
+        averageOrderValue: {
+          ...nextAnalytics.averageOrderValue,
+          amountCents: nextOrdersToday > 0 ? Math.round(nextRevenueAmountCents / nextOrdersToday) : 0,
+        },
+        generatedAtIso: nextCursorIso,
+      };
+    }
+  }
+
   return {
     ...cloneData(state),
     orders: progressedOrders,
+    analytics: nextAnalytics,
     simulationCursorIso: nextCursorIso
   };
 }

@@ -232,4 +232,42 @@ describe("order simulation", () =>
 
     expect(advanceOrderSimulation(state, timestamp)).toEqual(advanceOrderSimulation(state, timestamp));
   });
+
+  it("updates analytics when orders are delivered", () =>
+  {
+    const adminSeed = createAdminSeed();
+    const storeId = adminSeed.activeStoreId;
+    const dataset = adminSeed.datasetsByStoreId[storeId];
+
+    // Create a state with an order that is about to be delivered
+    const initialState = {
+      orders: [
+        {
+          ...dataset.orders[0],
+          status: "out_for_delivery" as const,
+          total: { amountCents: 2500, currencyCode: "EUR" }
+        }
+      ],
+      analytics: {
+        ...dataset.analytics,
+        ordersToday: 10,
+        revenueToday: { amountCents: 20000, currencyCode: "EUR" },
+        averageOrderValue: { amountCents: 2000, currencyCode: "EUR" }
+      },
+      simulationCursorIso: "2026-03-25T18:00:00.000Z"
+    };
+
+    // Progress time by 3 minutes (1 step)
+    const nextTimestamp = "2026-03-25T18:03:00.000Z";
+    const progressed = advanceOrderSimulation(initialState, nextTimestamp);
+
+    expect(progressed.orders[0].status).toBe("delivered");
+    expect(progressed.analytics).toBeDefined();
+    if (progressed.analytics) {
+      expect(progressed.analytics.ordersToday).toBe(11);
+      expect(progressed.analytics.revenueToday.amountCents).toBe(22500);
+      expect(progressed.analytics.averageOrderValue.amountCents).toBe(Math.round(22500 / 11));
+      expect(progressed.analytics.generatedAtIso).toBe(nextTimestamp);
+    }
+  });
 });
