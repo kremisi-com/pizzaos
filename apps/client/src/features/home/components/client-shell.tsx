@@ -232,7 +232,17 @@ function formatMoney(amountCents: number): string
 
 function formatSlot(isoTimestamp: string): string
 {
-  return SLOT_FORMATTER.format(new Date(isoTimestamp));
+  const normalizedValue = isoTimestamp.startsWith("slot-")
+    ? isoTimestamp.replace(/^slot-/, "")
+    : isoTimestamp;
+  const parsedDate = new Date(normalizedValue);
+
+  if (Number.isNaN(parsedDate.getTime()))
+  {
+    return isoTimestamp;
+  }
+
+  return SLOT_FORMATTER.format(parsedDate);
 }
 
 function getProductName(productId: Product["id"], products: readonly Product[]): string

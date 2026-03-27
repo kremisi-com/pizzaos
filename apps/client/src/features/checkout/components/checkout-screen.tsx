@@ -123,7 +123,7 @@ export function CheckoutScreen(): ReactElement
         storeId: seed.store.id,
         customerId: seed.loyalty.customerId,
         items: cartState.items,
-        selectedSlotLabel: selectedSlot.label,
+        selectedSlotId: selectedSlot.slotId,
         totals,
         createdAtIso
       });

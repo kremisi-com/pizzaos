@@ -44,7 +44,7 @@ export interface CreateMockOrderInput
   readonly storeId: string;
   readonly customerId: string;
   readonly items: readonly CartItem[];
-  readonly selectedSlotLabel: string;
+  readonly selectedSlotId: string;
   readonly totals: CheckoutTotals;
   readonly createdAtIso: string;
 }
@@ -175,7 +175,7 @@ export function createMockOrder(input: CreateMockOrderInput): Order
       currencyCode: "EUR"
     },
     status: "confirmed",
-    scheduledSlot: input.selectedSlotLabel,
+    scheduledSlot: input.selectedSlotId,
     createdAtIso: input.createdAtIso,
     updatedAtIso: input.createdAtIso
   };

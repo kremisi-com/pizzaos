@@ -1,6 +1,7 @@
 import { createClientSeed } from "@pizzaos/mock-data";
 import { describe, expect, it } from "vitest";
 import {
+  createMockOrder,
   deriveCheckoutTotals,
   deriveTipAmountCents,
   resolveSlotSelection,
@@ -61,5 +62,24 @@ describe("checkout model", () =>
     expect(selectableSlotId).toBe("slot-2026-03-25T19:10");
     expect(fallbackSlotId).toBe("slot-2026-03-25T19:10");
     expect(validationErrors.selectedSlotId).toBe("Seleziona uno slot disponibile per continuare.");
+  });
+
+  it("creates mock orders with slot identifier for downstream formatting", () =>
+  {
+    const order = createMockOrder({
+      storeId: "store-roma-centro",
+      customerId: "customer-client-demo",
+      items: CART_ITEMS,
+      selectedSlotId: "slot-2026-03-25T19:10",
+      totals: {
+        subtotalCents: 3450,
+        tipCents: 345,
+        deliveryFeeCents: 200,
+        totalCents: 3995
+      },
+      createdAtIso: "2026-03-27T10:30:00.000Z"
+    });
+
+    expect(order.scheduledSlot).toBe("slot-2026-03-25T19:10");
   });
 });
