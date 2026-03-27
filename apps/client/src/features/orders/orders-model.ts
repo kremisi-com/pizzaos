@@ -1,10 +1,11 @@
-import type { Order, OrderStatus } from "@pizzaos/domain";
+import type { Order, OrderStatus, Product } from "@pizzaos/domain";
 import {
   advanceOrderSimulation,
   ORDER_SIMULATION_STEP_MS,
   type ClientSeed,
   type DemoStorage
 } from "@pizzaos/mock-data";
+import type { CartItem, CartState } from "../cart/cart-model";
 
 export const CLIENT_ORDER_NOTIFICATIONS_STORAGE_KEY = "pizzaos:client:order-notifications:v1";
 export const CLIENT_ORDER_SIMULATION_TICK_MS = 5000;
@@ -67,6 +68,65 @@ export interface AdvanceClientOrderStateResult
 {
   readonly seed: ClientSeed;
   readonly notifications: readonly ClientOrderNotification[];
+}
+
+export function cloneOrderForReorder(order: Order): Order
+{
+  return {
+    ...order,
+    lines: order.lines.map((line) => ({
+      ...line,
+      unitPrice: {
+        ...line.unitPrice
+      }
+    })),
+    subtotal: {
+      ...order.subtotal
+    },
+    discountTotal: {
+      ...order.discountTotal
+    },
+    deliveryFee: {
+      ...order.deliveryFee
+    },
+    total: {
+      ...order.total
+    }
+  };
+}
+
+export function createCartStateFromOrder(order: Order, products: readonly Product[]): CartState
+{
+  const clonedOrder = cloneOrderForReorder(order);
+  const productsById = new Map(products.map((product) => [product.id, product]));
+
+  return {
+    items: clonedOrder.lines.map((line, lineIndex): CartItem => ({
+      id: `cart-reorder-${clonedOrder.id}-${lineIndex + 1}`,
+      productId: line.productId,
+      productName: productsById.get(line.productId)?.name ?? line.productId,
+      unitPriceCents: line.unitPrice.amountCents,
+      quantity: Math.max(1, Math.round(line.quantity)),
+      notes: line.notes
+    }))
+  };
+}
+
+export function deriveLastReorderOrder(orderHistory: readonly Order[]): Order | null
+{
+  const latestDeliveredOrder = orderHistory.find((order) => order.status === "delivered");
+
+  if (latestDeliveredOrder)
+  {
+    return latestDeliveredOrder;
+  }
+
+  return orderHistory.find((order) => order.status !== "cancelled") ?? null;
+}
+
+export function isArchivedOrder(order: Order): boolean
+{
+  return order.status === "delivered" || order.status === "cancelled";
 }
 
 export function loadOrderNotifications(storage?: DemoStorage): readonly ClientOrderNotification[]

@@ -5,10 +5,12 @@ import type { Order, Product } from "@pizzaos/domain";
 import { Badge, Button, ShellCard } from "@pizzaos/ui";
 import { useEffect, useState, type ReactElement } from "react";
 import type { ClientSeed } from "@pizzaos/mock-data";
-import { clearCartState } from "../../cart/cart-model";
+import { clearCartState, saveCartState } from "../../cart/cart-model";
 import { loadClientDemoState, resetClientDemoState } from "../client-demo-state";
 import {
   clearOrderNotifications,
+  createCartStateFromOrder,
+  deriveLastReorderOrder,
   deriveUnreadOrderNotificationsCount,
   getOrderStatusLabel,
   loadOrderNotifications
@@ -42,12 +44,18 @@ export function ClientShell(): ReactElement
 {
   const [seed, setSeed] = useState<ClientSeed>(() => loadClientDemoState());
   const [unreadNotificationsCount, setUnreadNotificationsCount] = useState(0);
+  const [isLastOrderPromptVisible, setIsLastOrderPromptVisible] = useState(
+    () => deriveLastReorderOrder(seed.orderHistory) !== null
+  );
+  const [isQuickReorderReady, setIsQuickReorderReady] = useState(false);
 
   useEffect(() =>
   {
     const storage = resolveStorage();
+    const hydratedSeed = loadClientDemoState(storage);
 
-    setSeed(loadClientDemoState(storage));
+    setSeed(hydratedSeed);
+    setIsLastOrderPromptVisible(deriveLastReorderOrder(hydratedSeed.orderHistory) !== null);
     setUnreadNotificationsCount(deriveUnreadOrderNotificationsCount(loadOrderNotifications(storage)));
   }, []);
 
@@ -59,10 +67,27 @@ export function ClientShell(): ReactElement
     clearOrderNotifications(storage);
     setSeed(resetClientDemoState(storage));
     setUnreadNotificationsCount(0);
+    setIsQuickReorderReady(false);
+    setIsLastOrderPromptVisible(true);
+  }
+
+  function handleOrderLikeLastTime(): void
+  {
+    const storage = resolveStorage();
+    const lastReorderOrder = deriveLastReorderOrder(seed.orderHistory);
+
+    if (!lastReorderOrder)
+    {
+      return;
+    }
+
+    saveCartState(createCartStateFromOrder(lastReorderOrder, seed.products), storage);
+    setIsQuickReorderReady(true);
+    setIsLastOrderPromptVisible(false);
   }
 
   const activeOrder = seed.activeOrders[0];
-  const latestOrder = seed.orderHistory[0] ?? activeOrder;
+  const latestOrder = deriveLastReorderOrder(seed.orderHistory) ?? activeOrder;
   const activeCoupon = seed.coupons.find((coupon) => coupon.status === "active");
 
   return (
@@ -99,6 +124,32 @@ export function ClientShell(): ReactElement
             </a>
           ) : null}
         </div>
+
+        {isLastOrderPromptVisible && latestOrder ? (
+          <div className={styles.lastOrderPrompt} data-testid="client-last-order-prompt">
+            <p className={styles.cardMeta}>
+              Ordina come l&apos;ultima volta in un tap e riparti dal checkout.
+            </p>
+            <div className={styles.lastOrderPromptActions}>
+              <Button onClick={handleOrderLikeLastTime} data-testid="client-order-like-last-time-button">
+                Ordina come l&apos;ultima volta
+              </Button>
+              <Button
+                variant="ghost"
+                onClick={() => setIsLastOrderPromptVisible(false)}
+              >
+                Dopo
+              </Button>
+            </div>
+          </div>
+        ) : null}
+
+        {isQuickReorderReady ? (
+          <div className={styles.quickReorderNotice} data-testid="client-quick-reorder-notice">
+            <p className={styles.cardMeta}>Carrello aggiornato con l&apos;ultimo ordine.</p>
+            <a className={styles.quickReorderLink} href="/cart">Vai al carrello</a>
+          </div>
+        ) : null}
 
         <dl className={styles.heroStats}>
           <div className={styles.statItem}>
@@ -148,10 +199,12 @@ export function ClientShell(): ReactElement
                 <>
                   <div className={styles.cardTopRow}>
                     <div>
-                      <p className={styles.cardTitle}>Ultimo ordine consegnato</p>
+                      <p className={styles.cardTitle}>Ultimo ordine riordinabile</p>
                       <p className={styles.cardMeta}>{formatSlot(latestOrder.createdAtIso)}</p>
                     </div>
-                    <Badge tone="success">Consegnato</Badge>
+                    <Badge tone={latestOrder.status === "delivered" ? "success" : "neutral"}>
+                      {formatOrderStatus(latestOrder.status)}
+                    </Badge>
                   </div>
 
                   <ul className={styles.orderLines}>
@@ -175,6 +228,19 @@ export function ClientShell(): ReactElement
                     </div>
                     <Badge tone="neutral">Slot salvato</Badge>
                   </div>
+
+                  <Button
+                    onClick={handleOrderLikeLastTime}
+                    data-testid="client-quick-reorder-button"
+                  >
+                    Ordina come l&apos;ultima volta
+                  </Button>
+
+                  {isQuickReorderReady ? (
+                    <a className={styles.quickReorderLink} href="/cart">
+                      Vai al carrello
+                    </a>
+                  ) : null}
                 </>
               ) : (
                 <p className={styles.cardMeta}>Nessun ordine precedente disponibile.</p>

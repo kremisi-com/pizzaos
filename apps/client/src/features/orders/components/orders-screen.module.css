@@ -69,6 +69,11 @@
   justify-content: center;
 }
 
+.secondaryLink:hover
+{
+  text-decoration: underline;
+}
+
 .orderMeta
 {
   margin-bottom: 12px;
@@ -248,6 +253,82 @@
 {
   margin: 0;
   color: var(--pizzaos-color-foreground-muted);
+}
+
+.historyList
+{
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 12px;
+}
+
+.historyItem
+{
+  padding: 12px;
+  border-radius: var(--pizzaos-radius-card);
+  border: 1px solid rgba(31, 37, 48, 0.12);
+  background: rgba(255, 255, 255, 0.92);
+  display: grid;
+  gap: 8px;
+}
+
+.historyTopRow
+{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.historyTitle
+{
+  margin: 0;
+  font-weight: 700;
+}
+
+.historyMeta
+{
+  margin: 0;
+  color: var(--pizzaos-color-foreground-muted);
+  font-size: 0.9rem;
+}
+
+.historyLines
+{
+  margin: 0;
+  padding-left: 18px;
+  display: grid;
+  gap: 4px;
+}
+
+.historyLine
+{
+  color: var(--pizzaos-color-foreground-muted);
+  font-size: 0.9rem;
+}
+
+.historyFooter
+{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.historyTotal
+{
+  margin: 0;
+  font-weight: 700;
+}
+
+.archiveSummary
+{
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(31, 37, 48, 0.12);
 }
 
 @media (min-width: 768px)

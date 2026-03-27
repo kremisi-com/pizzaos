@@ -2,6 +2,9 @@ import { createClientSeed } from "@pizzaos/mock-data";
 import { describe, expect, it } from "vitest";
 import {
   advanceClientOrderState,
+  cloneOrderForReorder,
+  createCartStateFromOrder,
+  deriveLastReorderOrder,
   deriveTrackingSnapshot,
   mergeOrderNotifications,
   type ClientOrderNotification
@@ -61,5 +64,40 @@ describe("orders model", () =>
     expect(hiddenSnapshot?.visibility).toBe("hidden");
     expect(activeSnapshot?.visibility).toBe("active");
     expect(deliveredSnapshot?.visibility).toBe("delivered");
+  });
+
+  it("creates a deep cloned order for reorder flows", () =>
+  {
+    const seed = createClientSeed();
+    const originalOrder = seed.orderHistory[0];
+    const clonedOrder = cloneOrderForReorder(originalOrder);
+
+    expect(clonedOrder).toEqual(originalOrder);
+    expect(clonedOrder).not.toBe(originalOrder);
+    expect(clonedOrder.lines).not.toBe(originalOrder.lines);
+    expect(clonedOrder.lines[0]).not.toBe(originalOrder.lines[0]);
+    expect(clonedOrder.lines[0].unitPrice).not.toBe(originalOrder.lines[0].unitPrice);
+  });
+
+  it("builds cart state from an existing order for quick reorder", () =>
+  {
+    const seed = createClientSeed();
+    const sourceOrder = seed.orderHistory[0];
+    const cartState = createCartStateFromOrder(sourceOrder, seed.products);
+
+    expect(cartState.items).toHaveLength(sourceOrder.lines.length);
+    expect(cartState.items[0]).toMatchObject({
+      productId: sourceOrder.lines[0].productId,
+      unitPriceCents: sourceOrder.lines[0].unitPrice.amountCents,
+      quantity: sourceOrder.lines[0].quantity
+    });
+  });
+
+  it("prefers latest delivered order as reorder candidate", () =>
+  {
+    const seed = createClientSeed();
+    const reorderOrder = deriveLastReorderOrder(seed.orderHistory);
+
+    expect(reorderOrder?.status).toBe("delivered");
   });
 });

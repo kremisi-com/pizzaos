@@ -1,16 +1,21 @@
 "use client";
 
+import type { Order } from "@pizzaos/domain";
 import type { ClientSeed } from "@pizzaos/mock-data";
 import { Badge, Button, ShellCard } from "@pizzaos/ui";
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactElement } from "react";
+import { saveCartState } from "../../cart/cart-model";
 import { loadClientDemoState, saveClientDemoState } from "../../home/client-demo-state";
 import {
   advanceClientOrderState,
   CLIENT_ORDER_SIMULATION_TICK_MS,
+  createCartStateFromOrder,
+  deriveLastReorderOrder,
   deriveOrderTimeline,
   deriveTrackingSnapshot,
   deriveUnreadOrderNotificationsCount,
   getOrderStatusLabel,
+  isArchivedOrder,
   loadOrderNotifications,
   markAllOrderNotificationsAsRead,
   saveOrderNotifications,
@@ -19,6 +24,13 @@ import {
 import styles from "./orders-screen.module.css";
 
 const TIME_FORMATTER = new Intl.DateTimeFormat("it-IT", {
+  hour: "2-digit",
+  minute: "2-digit"
+});
+
+const DATE_TIME_FORMATTER = new Intl.DateTimeFormat("it-IT", {
+  day: "2-digit",
+  month: "short",
   hour: "2-digit",
   minute: "2-digit"
 });
@@ -37,6 +49,7 @@ export function OrdersScreen(): ReactElement
 {
   const [seed, setSeed] = useState<ClientSeed>(() => loadClientDemoState());
   const [notifications, setNotifications] = useState<readonly ClientOrderNotification[]>([]);
+  const [reorderedOrderId, setReorderedOrderId] = useState<string | null>(null);
   const seedRef = useRef<ClientSeed>(seed);
   const notificationsRef = useRef<readonly ClientOrderNotification[]>([]);
 
@@ -64,6 +77,15 @@ export function OrdersScreen(): ReactElement
   }, [notifications]);
 
   const focusedOrder = seed.activeOrders[0] ?? seed.orderHistory[0];
+  const historyOrders = seed.orderHistory;
+  const archivedOrders = useMemo(
+    () => historyOrders.filter((order) => isArchivedOrder(order)),
+    [historyOrders]
+  );
+  const reorderCandidate = useMemo(
+    () => deriveLastReorderOrder(historyOrders),
+    [historyOrders]
+  );
   const unreadNotificationsCount = deriveUnreadOrderNotificationsCount(notifications);
   const orderTimeline = useMemo(
     () => (focusedOrder ? deriveOrderTimeline(focusedOrder.status) : []),
@@ -109,6 +131,15 @@ export function OrdersScreen(): ReactElement
     setNotifications(updatedNotifications);
   }
 
+  function handleQuickReorder(order: Order): void
+  {
+    const storage = resolveStorage();
+    const nextCartState = createCartStateFromOrder(order, seed.products);
+
+    saveCartState(nextCartState, storage);
+    setReorderedOrderId(order.id);
+  }
+
   return (
     <main className={styles.screen}>
       <section className={styles.hero} aria-labelledby="orders-title">
@@ -128,9 +159,29 @@ export function OrdersScreen(): ReactElement
           <Button onClick={handleSimulationAdvance} data-testid="orders-advance-button">
             Avanza stato
           </Button>
+          {reorderCandidate ? (
+            <Button
+              variant="secondary"
+              onClick={() => handleQuickReorder(reorderCandidate)}
+              data-testid="orders-last-time-button"
+            >
+              Ordina come l&apos;ultima volta
+            </Button>
+          ) : null}
           <a href="/menu" className={styles.secondaryLink}>Nuovo ordine</a>
         </div>
       </section>
+
+      {reorderedOrderId ? (
+        <ShellCard title="Riordino pronto">
+          <p className={styles.emptyCopy}>
+            Carrello aggiornato con l&apos;ordine {reorderedOrderId}. Continua con il checkout rapido.
+          </p>
+          <a className={styles.secondaryLink} href="/cart" data-testid="orders-reorder-cart-link">
+            Vai al carrello
+          </a>
+        </ShellCard>
+      ) : null}
 
       {focusedOrder ? (
         <>
@@ -244,6 +295,49 @@ export function OrdersScreen(): ReactElement
           <p className={styles.emptyCopy}>Nessuna notifica disponibile.</p>
         )}
       </ShellCard>
+
+      <ShellCard title="Storico ordini e archivio">
+        {historyOrders.length > 0 ? (
+          <ul className={styles.historyList} data-testid="orders-history-list">
+            {historyOrders.map((order) => (
+              <li key={order.id} className={styles.historyItem}>
+                <div className={styles.historyTopRow}>
+                  <p className={styles.historyTitle}>{order.id}</p>
+                  <Badge tone={isArchivedOrder(order) ? "neutral" : "warning"}>
+                    {isArchivedOrder(order) ? "Archiviato" : "In corso"}
+                  </Badge>
+                </div>
+                <p className={styles.historyMeta}>
+                  {formatDateTime(order.createdAtIso)} · {getOrderStatusLabel(order.status)}
+                </p>
+                <ul className={styles.historyLines}>
+                  {order.lines.map((line) => (
+                    <li key={`${order.id}-${line.productId}-${line.notes}`} className={styles.historyLine}>
+                      {line.quantity}x {resolveProductName(line.productId, seed)} · {formatMoney(line.unitPrice.amountCents)}
+                    </li>
+                  ))}
+                </ul>
+                <div className={styles.historyFooter}>
+                  <p className={styles.historyTotal}>Totale {formatMoney(order.total.amountCents)}</p>
+                  <Button
+                    variant="secondary"
+                    onClick={() => handleQuickReorder(order)}
+                    data-testid={`orders-reorder-${order.id}`}
+                  >
+                    Riordina veloce
+                  </Button>
+                </div>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className={styles.emptyCopy}>Nessun ordine nello storico.</p>
+        )}
+
+        <div className={styles.archiveSummary}>
+          <p className={styles.notificationsMeta}>Ordini archiviati: {archivedOrders.length}</p>
+        </div>
+      </ShellCard>
     </main>
   );
 }
@@ -258,4 +352,29 @@ function formatTime(isoTimestamp: string): string
   }
 
   return TIME_FORMATTER.format(parsedDate);
+}
+
+function formatDateTime(isoTimestamp: string): string
+{
+  const parsedDate = new Date(isoTimestamp);
+
+  if (Number.isNaN(parsedDate.getTime()))
+  {
+    return isoTimestamp;
+  }
+
+  return DATE_TIME_FORMATTER.format(parsedDate);
+}
+
+function formatMoney(amountCents: number): string
+{
+  return new Intl.NumberFormat("it-IT", {
+    style: "currency",
+    currency: "EUR"
+  }).format(amountCents / 100);
+}
+
+function resolveProductName(productId: string, seed: ClientSeed): string
+{
+  return seed.products.find((product) => product.id === productId)?.name ?? productId;
 }

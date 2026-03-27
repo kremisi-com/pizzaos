@@ -8,6 +8,7 @@ import {
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { OrdersScreen } from "../features/orders/components/orders-screen";
 import { getClientDemoStateStorageKey } from "../features/home/client-demo-state";
+import { CLIENT_CART_STORAGE_KEY } from "../features/cart/cart-model";
 import { CLIENT_ORDER_NOTIFICATIONS_STORAGE_KEY } from "../features/orders/orders-model";
 
 describe("orders screen", () =>
@@ -123,5 +124,29 @@ describe("orders screen", () =>
     domFireEvent.click(domScreen.getByTestId("orders-mark-read-button"));
 
     expect(await domScreen.findByText("Tutte le notifiche sono lette")).toBeDefined();
+  });
+
+  it("renders order history and prepares cart from quick reorder CTA", async () =>
+  {
+    const seed = createClientSeed();
+    window.localStorage.setItem(getClientDemoStateStorageKey(), JSON.stringify(seed));
+
+    renderDom(<OrdersScreen />);
+
+    expect(await domScreen.findByTestId("orders-history-list")).toBeDefined();
+    expect(domScreen.getByText("order-client-history-001")).toBeDefined();
+
+    domFireEvent.click(await domScreen.findByTestId("orders-reorder-order-client-history-001"));
+
+    const persistedCartPayload = window.localStorage.getItem(CLIENT_CART_STORAGE_KEY);
+    expect(persistedCartPayload).not.toBeNull();
+
+    const persistedCart = JSON.parse(persistedCartPayload ?? "{}") as {
+      readonly items?: readonly {
+        readonly productId: string;
+      }[];
+    };
+    expect(persistedCart.items?.[0]?.productId).toBe("product-capricciosa");
+    expect(await domScreen.findByTestId("orders-reorder-cart-link")).toBeDefined();
   });
 });

@@ -4,6 +4,7 @@ import { cleanupDom, domFireEvent, domScreen, renderDom } from "@pizzaos/testing
 import { beforeEach, describe, expect, it } from "vitest";
 import { createElement } from "react";
 import { renderToString } from "react-dom/server";
+import { CLIENT_CART_STORAGE_KEY } from "../features/cart/cart-model";
 import { ClientShell } from "../features/home/components/client-shell";
 import { getClientDemoStateStorageKey } from "../features/home/client-demo-state";
 import { CLIENT_ORDER_NOTIFICATIONS_STORAGE_KEY } from "../features/orders/orders-model";
@@ -26,6 +27,7 @@ describe("client shell", () =>
     expect(markup).toContain("Crea la tua pizza");
     expect(markup).toContain("Segui ordine");
     expect(markup).toContain("Riordino rapido");
+    expect(markup).toContain("Ordina come l&#x27;ultima volta");
     expect(markup).toContain("Promo di stagione");
     expect(markup).toContain("Reset demo");
     expect(markup).toContain('href="/menu"');
@@ -75,5 +77,17 @@ describe("client shell", () =>
     domFireEvent.click(await domScreen.findByTestId("client-reset-button"));
 
     expect(window.localStorage.getItem(CLIENT_ORDER_NOTIFICATIONS_STORAGE_KEY)).toBeNull();
+  });
+
+  it("prepares the cart from the order-like-last-time CTA", async () =>
+  {
+    renderDom(<ClientShell />);
+
+    domFireEvent.click(await domScreen.findByTestId("client-order-like-last-time-button"));
+
+    const persistedCartPayload = window.localStorage.getItem(CLIENT_CART_STORAGE_KEY);
+
+    expect(persistedCartPayload).not.toBeNull();
+    expect(await domScreen.findByTestId("client-quick-reorder-notice")).toBeDefined();
   });
 });
