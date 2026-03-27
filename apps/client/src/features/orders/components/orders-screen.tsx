@@ -5,6 +5,16 @@ import type { ClientSeed } from "@pizzaos/mock-data";
 import { Badge, Button, ShellCard } from "@pizzaos/ui";
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactElement } from "react";
 import { saveCartState } from "../../cart/cart-model";
+import {
+  getOrderFeedbackEntry,
+  loadClientFeedbackState,
+  markGoogleReviewRedirected,
+  saveClientFeedbackState,
+  shouldSuggestGoogleReviewRedirect,
+  submitOrderFeedback,
+  type ClientFeedbackState,
+  type FeedbackRating
+} from "../../feedback/feedback-model";
 import { loadClientDemoState, saveClientDemoState } from "../../home/client-demo-state";
 import {
   advanceClientOrderState,
@@ -49,6 +59,9 @@ export function OrdersScreen(): ReactElement
 {
   const [seed, setSeed] = useState<ClientSeed>(() => loadClientDemoState());
   const [notifications, setNotifications] = useState<readonly ClientOrderNotification[]>([]);
+  const [feedbackState, setFeedbackState] = useState<ClientFeedbackState>(() => loadClientFeedbackState());
+  const [feedbackRating, setFeedbackRating] = useState<FeedbackRating | null>(null);
+  const [feedbackComment, setFeedbackComment] = useState("");
   const [reorderedOrderId, setReorderedOrderId] = useState<string | null>(null);
   const seedRef = useRef<ClientSeed>(seed);
   const notificationsRef = useRef<readonly ClientOrderNotification[]>([]);
@@ -64,6 +77,7 @@ export function OrdersScreen(): ReactElement
     const hydratedNotifications = loadOrderNotifications(storage);
     notificationsRef.current = hydratedNotifications;
     setNotifications(hydratedNotifications);
+    setFeedbackState(loadClientFeedbackState(storage));
   }, []);
 
   useEffect(() =>
@@ -90,6 +104,15 @@ export function OrdersScreen(): ReactElement
   const orderTimeline = useMemo(
     () => (focusedOrder ? deriveOrderTimeline(focusedOrder.status) : []),
     [focusedOrder]
+  );
+  const feedbackTargetOrder = focusedOrder?.status === "delivered" ? focusedOrder : null;
+  const submittedFeedback = useMemo(
+    () => (feedbackTargetOrder ? getOrderFeedbackEntry(feedbackState, feedbackTargetOrder.id) : null),
+    [feedbackState, feedbackTargetOrder]
+  );
+  const shouldOfferGoogleReviewRedirect = useMemo(
+    () => (submittedFeedback ? shouldSuggestGoogleReviewRedirect(submittedFeedback.rating) : false),
+    [submittedFeedback]
   );
   const trackingSnapshot = useMemo(
     () => deriveTrackingSnapshot(focusedOrder),
@@ -138,6 +161,38 @@ export function OrdersScreen(): ReactElement
 
     saveCartState(nextCartState, storage);
     setReorderedOrderId(order.id);
+  }
+
+  function handleSubmitFeedback(): void
+  {
+    if (!feedbackTargetOrder || !feedbackRating)
+    {
+      return;
+    }
+
+    const storage = resolveStorage();
+    const nextFeedbackState = submitOrderFeedback({
+      state: feedbackState,
+      orderId: feedbackTargetOrder.id,
+      rating: feedbackRating,
+      comment: feedbackComment
+    });
+
+    setFeedbackState(saveClientFeedbackState(nextFeedbackState, storage));
+    setFeedbackRating(null);
+    setFeedbackComment("");
+  }
+
+  function handleGoogleReviewRedirectSimulation(): void
+  {
+    if (!feedbackTargetOrder)
+    {
+      return;
+    }
+
+    const storage = resolveStorage();
+    const nextFeedbackState = markGoogleReviewRedirected(feedbackState, feedbackTargetOrder.id);
+    setFeedbackState(saveClientFeedbackState(nextFeedbackState, storage));
   }
 
   return (
@@ -295,6 +350,92 @@ export function OrdersScreen(): ReactElement
           <p className={styles.emptyCopy}>Nessuna notifica disponibile.</p>
         )}
       </ShellCard>
+
+      {feedbackTargetOrder ? (
+        <ShellCard title="Feedback post-consegna">
+          <div className={styles.feedbackStack} data-testid="orders-feedback-card">
+            {!submittedFeedback ? (
+              <>
+                <p className={styles.feedbackIntro}>
+                  Com&apos;è andata la consegna di questo ordine? Il feedback resta locale e aiuta la demo retention.
+                </p>
+
+                <div className={styles.feedbackRatingRow} role="radiogroup" aria-label="Valuta l'ordine da 1 a 5">
+                  {[1, 2, 3, 4, 5].map((ratingValue) => (
+                    <button
+                      key={ratingValue}
+                      type="button"
+                      className={`${styles.feedbackRatingButton} ${feedbackRating === ratingValue ? styles.feedbackRatingButtonActive : ""}`}
+                      onClick={() => setFeedbackRating(ratingValue as FeedbackRating)}
+                      aria-pressed={feedbackRating === ratingValue}
+                      data-testid={`orders-feedback-rating-${ratingValue}`}
+                    >
+                      {ratingValue}
+                    </button>
+                  ))}
+                </div>
+
+                <label className={styles.feedbackLabel} htmlFor="orders-feedback-comment">
+                  Nota facoltativa
+                </label>
+                <textarea
+                  id="orders-feedback-comment"
+                  className={styles.feedbackComment}
+                  rows={3}
+                  value={feedbackComment}
+                  onChange={(event) => setFeedbackComment(event.target.value)}
+                  placeholder="Impasto perfetto e consegna puntuale."
+                />
+
+                <div className={styles.feedbackSubmitRow}>
+                  <Button
+                    onClick={handleSubmitFeedback}
+                    disabled={feedbackRating === null}
+                    data-testid="orders-feedback-submit-button"
+                  >
+                    Invia feedback
+                  </Button>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className={styles.feedbackSummaryTopRow}>
+                  <Badge tone={shouldOfferGoogleReviewRedirect ? "success" : "neutral"}>Feedback inviato</Badge>
+                  <p className={styles.feedbackMeta}>Valutazione: {submittedFeedback.rating}/5</p>
+                </div>
+
+                {submittedFeedback.comment ? (
+                  <p className={styles.feedbackCommentPreview}>&ldquo;{submittedFeedback.comment}&rdquo;</p>
+                ) : (
+                  <p className={styles.feedbackMeta}>Nessuna nota aggiuntiva.</p>
+                )}
+
+                {shouldOfferGoogleReviewRedirect ? (
+                  <>
+                    {submittedFeedback.googleReviewRedirectedAtIso ? (
+                      <p className={styles.feedbackMeta} data-testid="orders-feedback-google-redirected">
+                        Redirect Google Review simulato con successo.
+                      </p>
+                    ) : (
+                      <Button
+                        variant="secondary"
+                        onClick={handleGoogleReviewRedirectSimulation}
+                        data-testid="orders-feedback-google-button"
+                      >
+                        Simula redirect Google Review
+                      </Button>
+                    )}
+                  </>
+                ) : (
+                  <p className={styles.feedbackMeta}>
+                    Grazie, useremo il feedback per migliorare la prossima consegna.
+                  </p>
+                )}
+              </>
+            )}
+          </div>
+        </ShellCard>
+      ) : null}
 
       <ShellCard title="Storico ordini e archivio">
         {historyOrders.length > 0 ? (

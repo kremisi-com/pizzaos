@@ -107,4 +107,30 @@ describe("checkout screen", () =>
     expect(domScreen.getByText("Sconto coupon")).toBeDefined();
     expect(domScreen.getByTestId("checkout-total-value").textContent).toBe("7,71 €");
   });
+
+  it("shows invalid coupon message and does not apply discount", async () =>
+  {
+    renderDom(<CheckoutScreen />);
+
+    domFireEvent.change(domScreen.getByLabelText("Inserisci coupon"), {
+      target: {
+        value: "CODICENONVALIDO"
+      }
+    });
+    domFireEvent.click(domScreen.getByTestId("checkout-apply-coupon-button"));
+
+    expect(await domScreen.findByTestId("checkout-coupon-feedback")).toBeDefined();
+    expect(domScreen.getByTestId("checkout-coupon-feedback").textContent).toContain("Codice coupon non valido.");
+    expect(domScreen.queryByText("Sconto coupon")).toBeNull();
+  });
+
+  it("renders empty-cart edge state when checkout opens without items", () =>
+  {
+    window.localStorage.removeItem(CLIENT_CART_STORAGE_KEY);
+
+    renderDom(<CheckoutScreen />);
+
+    expect(domScreen.getByRole("heading", { name: "Checkout" })).toBeDefined();
+    expect(domScreen.getByText("Il carrello è vuoto. Aggiungi prodotti per completare un ordine mock.")).toBeDefined();
+  });
 });

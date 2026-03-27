@@ -255,6 +255,89 @@
   color: var(--pizzaos-color-foreground-muted);
 }
 
+.feedbackStack
+{
+  display: grid;
+  gap: 12px;
+}
+
+.feedbackIntro
+{
+  margin: 0;
+  color: var(--pizzaos-color-foreground-muted);
+}
+
+.feedbackRatingRow
+{
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.feedbackRatingButton
+{
+  min-height: 40px;
+  border-radius: var(--pizzaos-radius-control);
+  border: 1px solid rgba(31, 37, 48, 0.18);
+  background: rgba(255, 255, 255, 0.96);
+  color: var(--pizzaos-color-foreground);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.feedbackRatingButtonActive
+{
+  border-color: rgba(209, 73, 46, 0.48);
+  background: rgba(209, 73, 46, 0.14);
+}
+
+.feedbackLabel
+{
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.feedbackComment
+{
+  width: 100%;
+  border-radius: var(--pizzaos-radius-control);
+  border: 1px solid rgba(31, 37, 48, 0.2);
+  padding: 10px 12px;
+  resize: vertical;
+  min-height: 88px;
+  font: inherit;
+  color: inherit;
+  background: rgba(255, 255, 255, 0.96);
+}
+
+.feedbackSubmitRow
+{
+  display: flex;
+  justify-content: flex-end;
+}
+
+.feedbackSummaryTopRow
+{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.feedbackCommentPreview
+{
+  margin: 0;
+  font-style: italic;
+}
+
+.feedbackMeta
+{
+  margin: 0;
+  color: var(--pizzaos-color-foreground-muted);
+  font-size: 0.9rem;
+}
+
 .historyList
 {
   margin: 0;

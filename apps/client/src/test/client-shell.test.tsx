@@ -5,6 +5,7 @@ import { beforeEach, describe, expect, it } from "vitest";
 import { createElement } from "react";
 import { renderToString } from "react-dom/server";
 import { CLIENT_CART_STORAGE_KEY } from "../features/cart/cart-model";
+import { CLIENT_FEEDBACK_STORAGE_KEY } from "../features/feedback/feedback-model";
 import { ClientShell } from "../features/home/components/client-shell";
 import { getClientDemoStateStorageKey } from "../features/home/client-demo-state";
 import { CLIENT_ORDER_NOTIFICATIONS_STORAGE_KEY } from "../features/orders/orders-model";
@@ -57,7 +58,7 @@ describe("client shell", () =>
     expect(await domScreen.findByText(/Slot previsto Oggi, 19:10/i)).toBeDefined();
   });
 
-  it("clears persisted order notifications when resetting demo state", async () =>
+  it("clears persisted order notifications and feedback when resetting demo state", async () =>
   {
     window.localStorage.setItem(
       CLIENT_ORDER_NOTIFICATIONS_STORAGE_KEY,
@@ -73,12 +74,27 @@ describe("client shell", () =>
         }
       ])
     );
+    window.localStorage.setItem(
+      CLIENT_FEEDBACK_STORAGE_KEY,
+      JSON.stringify({
+        entries: [
+          {
+            orderId: "order-client-001",
+            rating: 5,
+            comment: "Ottimo",
+            submittedAtIso: "2026-03-25T19:50:00.000Z",
+            googleReviewRedirectedAtIso: null
+          }
+        ]
+      })
+    );
 
     renderDom(<ClientShell />);
 
     domFireEvent.click(await domScreen.findByTestId("client-reset-button"));
 
     expect(window.localStorage.getItem(CLIENT_ORDER_NOTIFICATIONS_STORAGE_KEY)).toBeNull();
+    expect(window.localStorage.getItem(CLIENT_FEEDBACK_STORAGE_KEY)).toBeNull();
   });
 
   it("prepares the cart from the order-like-last-time CTA", async () =>

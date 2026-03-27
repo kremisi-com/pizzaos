@@ -9,6 +9,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { OrdersScreen } from "../features/orders/components/orders-screen";
 import { getClientDemoStateStorageKey } from "../features/home/client-demo-state";
 import { CLIENT_CART_STORAGE_KEY } from "../features/cart/cart-model";
+import { CLIENT_FEEDBACK_STORAGE_KEY } from "../features/feedback/feedback-model";
 import { CLIENT_ORDER_NOTIFICATIONS_STORAGE_KEY } from "../features/orders/orders-model";
 
 describe("orders screen", () =>
@@ -148,5 +149,46 @@ describe("orders screen", () =>
     };
     expect(persistedCart.items?.[0]?.productId).toBe("product-capricciosa");
     expect(await domScreen.findByTestId("orders-reorder-cart-link")).toBeDefined();
+  });
+
+  it("collects post-delivery feedback and simulates Google review redirect on positive rating", async () =>
+  {
+    const seed = createClientSeed();
+    const deliveredOrder = {
+      ...seed.activeOrders[0],
+      status: "delivered" as const
+    };
+    const persistedSeed = {
+      ...seed,
+      activeOrders: [],
+      orderHistory: [
+        deliveredOrder,
+        ...seed.orderHistory
+      ]
+    };
+
+    window.localStorage.setItem(getClientDemoStateStorageKey(), JSON.stringify(persistedSeed));
+
+    renderDom(<OrdersScreen />);
+
+    expect(await domScreen.findByTestId("orders-feedback-card")).toBeDefined();
+
+    domFireEvent.click(domScreen.getByTestId("orders-feedback-rating-5"));
+    domFireEvent.change(domScreen.getByLabelText("Nota facoltativa"), {
+      target: {
+        value: "Consegna precisa e pizza calda."
+      }
+    });
+    domFireEvent.click(domScreen.getByTestId("orders-feedback-submit-button"));
+
+    expect(await domScreen.findByText("Feedback inviato")).toBeDefined();
+    expect(domScreen.getByTestId("orders-feedback-google-button")).toBeDefined();
+
+    domFireEvent.click(domScreen.getByTestId("orders-feedback-google-button"));
+
+    expect(await domScreen.findByTestId("orders-feedback-google-redirected")).toBeDefined();
+
+    const persistedFeedbackPayload = window.localStorage.getItem(CLIENT_FEEDBACK_STORAGE_KEY);
+    expect(persistedFeedbackPayload).not.toBeNull();
   });
 });
