@@ -120,6 +120,39 @@
   background: rgba(209, 73, 46, 0.14);
 }
 
+.couponStack
+{
+  display: grid;
+  gap: 10px;
+}
+
+.couponInputRow
+{
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px;
+}
+
+.couponFeedback
+{
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--pizzaos-color-foreground-muted);
+}
+
+.appliedCouponRow
+{
+  display: grid;
+  gap: 8px;
+}
+
+.metaCopy
+{
+  margin: 0;
+  color: var(--pizzaos-color-foreground-muted);
+}
+
 .paymentStack
 {
   display: grid;

@@ -39,6 +39,7 @@ describe("checkout model", () =>
     expect(deriveTipAmountCents(3450, 10)).toBe(345);
     expect(totals).toEqual({
       subtotalCents: 3450,
+      discountCents: 0,
       tipCents: 345,
       deliveryFeeCents: 200,
       totalCents: 3995
@@ -73,6 +74,7 @@ describe("checkout model", () =>
       selectedSlotId: "slot-2026-03-25T19:10",
       totals: {
         subtotalCents: 3450,
+        discountCents: 0,
         tipCents: 345,
         deliveryFeeCents: 200,
         totalCents: 3995

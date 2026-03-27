@@ -1,0 +1,169 @@
+.screen
+{
+  min-height: 100vh;
+  display: grid;
+  gap: 16px;
+  padding: 24px 16px 44px;
+  background:
+    radial-gradient(circle at top right, rgba(209, 73, 46, 0.14), transparent 30%),
+    linear-gradient(180deg, rgba(255, 249, 241, 0.98), rgba(240, 247, 255, 0.94));
+}
+
+.hero
+{
+  display: grid;
+  gap: 12px;
+  border-radius: calc(var(--pizzaos-radius-card) + 4px);
+  border: 1px solid rgba(31, 37, 48, 0.12);
+  background: rgba(255, 255, 255, 0.88);
+  box-shadow: var(--pizzaos-elevation-card);
+  padding: 18px;
+}
+
+.heroTopRow
+{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.backLink
+{
+  text-decoration: none;
+  color: var(--pizzaos-color-foreground);
+  font-weight: 700;
+}
+
+.heroTitle
+{
+  margin: 0;
+  font-size: clamp(2rem, 8vw, 2.8rem);
+  line-height: 0.95;
+  letter-spacing: -0.05em;
+}
+
+.heroCopy
+{
+  margin: 0;
+  color: var(--pizzaos-color-foreground-muted);
+}
+
+.kpiGrid
+{
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.kpiCard
+{
+  border-radius: var(--pizzaos-radius-card);
+  border: 1px solid rgba(31, 37, 48, 0.12);
+  background: rgba(255, 255, 255, 0.94);
+  padding: 12px;
+}
+
+.kpiLabel
+{
+  margin: 0;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--pizzaos-color-foreground-muted);
+}
+
+.kpiValue
+{
+  margin: 8px 0 0;
+  font-size: 1.2rem;
+  font-weight: 800;
+}
+
+.metaCopy
+{
+  margin: 8px 0 0;
+  color: var(--pizzaos-color-foreground-muted);
+}
+
+.rewardList,
+.couponList,
+.subscriptionList
+{
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 10px;
+}
+
+.rewardItem,
+.couponItem
+{
+  border-radius: var(--pizzaos-radius-card);
+  border: 1px solid rgba(31, 37, 48, 0.12);
+  background: rgba(255, 255, 255, 0.94);
+  padding: 12px;
+}
+
+.rewardTopRow
+{
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.rewardTitle,
+.couponCode
+{
+  margin: 0;
+  font-weight: 700;
+}
+
+.checkoutLink
+{
+  margin-top: 14px;
+  display: inline-flex;
+  width: 100%;
+  min-height: 40px;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--pizzaos-radius-control);
+  border: 1px solid rgba(31, 37, 48, 0.16);
+  text-decoration: none;
+  font-weight: 700;
+  color: var(--pizzaos-color-foreground);
+  background: rgba(255, 255, 255, 0.94);
+}
+
+.subscriptionCard
+{
+  display: grid;
+  gap: 10px;
+}
+
+.subscriptionPrice
+{
+  margin: 0;
+  font-size: 1.35rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+
+.subscriptionList
+{
+  list-style: disc;
+  padding-left: 20px;
+  color: var(--pizzaos-color-foreground-muted);
+}
+
+@media (min-width: 768px)
+{
+  .screen
+  {
+    max-width: 840px;
+    margin: 0 auto;
+    padding: 30px 24px 60px;
+  }
+}

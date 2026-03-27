@@ -11,6 +11,7 @@ import {
 import {
   createMockOrder,
   DELIVERY_FEE_CENTS,
+  deriveCartSubtotalCents,
   deriveCheckoutTotals,
   PAYMENT_SIMULATION_DELAY_MS,
   resolveSlotSelection,
@@ -23,6 +24,12 @@ import {
   loadClientDemoState,
   saveClientDemoState
 } from "../../home/client-demo-state";
+import {
+  applyCouponCode,
+  deriveCheckoutCoupons,
+  deriveEarnedLoyaltyPoints,
+  resolveLoyaltyTierId
+} from "../../loyalty/loyalty-model";
 import { deriveSlotAvailability } from "../../menu/menu-view-model";
 import styles from "./checkout-screen.module.css";
 
@@ -37,6 +44,9 @@ interface CheckoutConfirmation
   readonly slotLabel: string;
   readonly tipPercent: number;
   readonly paymentMethod: PaymentMethod;
+  readonly couponCode: string | null;
+  readonly discountCents: number;
+  readonly earnedPoints: number;
   readonly totalCents: number;
 }
 
@@ -59,6 +69,10 @@ export function CheckoutScreen(): ReactElement
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("card");
   const [cardholderName, setCardholderName] = useState("");
   const [cardLastDigits, setCardLastDigits] = useState("");
+  const [couponCodeInput, setCouponCodeInput] = useState("");
+  const [appliedCouponCode, setAppliedCouponCode] = useState<string | null>(null);
+  const [appliedCouponDiscountCents, setAppliedCouponDiscountCents] = useState(0);
+  const [couponFeedback, setCouponFeedback] = useState<string | null>(null);
   const [validationErrors, setValidationErrors] = useState<CheckoutValidationErrors>({});
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
   const [confirmation, setConfirmation] = useState<CheckoutConfirmation | null>(null);
@@ -74,14 +88,58 @@ export function CheckoutScreen(): ReactElement
     setSelectedSlotId(resolveSlotSelection(hydratedSeed.slots));
   }, []);
 
+  const availableCoupons = useMemo(
+    () => deriveCheckoutCoupons(seed.coupons, seed.loyalty),
+    [seed.coupons, seed.loyalty]
+  );
+  const subtotalCents = useMemo(
+    () => deriveCartSubtotalCents(cartState.items),
+    [cartState.items]
+  );
   const totals = useMemo(
     () =>
       deriveCheckoutTotals(cartState.items, {
         tipPercent,
-        deliveryFeeCents: DELIVERY_FEE_CENTS
+        deliveryFeeCents: DELIVERY_FEE_CENTS,
+        discountCents: appliedCouponDiscountCents
       }),
-    [cartState.items, tipPercent]
+    [appliedCouponDiscountCents, cartState.items, tipPercent]
   );
+  const projectedEarnedPoints = useMemo(
+    () => deriveEarnedLoyaltyPoints(subtotalCents - totals.discountCents),
+    [subtotalCents, totals.discountCents]
+  );
+
+  function handleApplyCouponClick(): void
+  {
+    const result = applyCouponCode({
+      rawCode: couponCodeInput,
+      coupons: availableCoupons,
+      subtotalCents,
+      referenceIso: new Date(Date.now()).toISOString()
+    });
+
+    setCouponFeedback(result.message);
+
+    if (result.status === "applied" && result.coupon)
+    {
+      setAppliedCouponCode(result.coupon.code);
+      setAppliedCouponDiscountCents(result.discountCents);
+      setCouponCodeInput(result.coupon.code);
+      return;
+    }
+
+    setAppliedCouponCode(null);
+    setAppliedCouponDiscountCents(0);
+  }
+
+  function handleClearCouponClick(): void
+  {
+    setAppliedCouponCode(null);
+    setAppliedCouponDiscountCents(0);
+    setCouponCodeInput("");
+    setCouponFeedback(null);
+  }
 
   function handleCheckoutSubmit(event: FormEvent<HTMLFormElement>): void
   {
@@ -119,6 +177,8 @@ export function CheckoutScreen(): ReactElement
     {
       const storage = resolveStorage();
       const createdAtIso = new Date(Date.now()).toISOString();
+      const earnedPoints = deriveEarnedLoyaltyPoints(totals.subtotalCents - totals.discountCents);
+      const nextPointsBalance = seed.loyalty.pointsBalance + earnedPoints;
       const nextOrder = createMockOrder({
         storeId: seed.store.id,
         customerId: seed.loyalty.customerId,
@@ -129,6 +189,11 @@ export function CheckoutScreen(): ReactElement
       });
       const nextSeed: ClientSeed = {
         ...seed,
+        loyalty: {
+          ...seed.loyalty,
+          pointsBalance: nextPointsBalance,
+          currentTierId: resolveLoyaltyTierId(nextPointsBalance)
+        },
         activeOrders: [
           nextOrder,
           ...seed.activeOrders
@@ -147,8 +212,15 @@ export function CheckoutScreen(): ReactElement
         slotLabel: selectedSlot.label,
         tipPercent,
         paymentMethod,
+        couponCode: appliedCouponCode,
+        discountCents: totals.discountCents,
+        earnedPoints,
         totalCents: totals.totalCents
       });
+      setAppliedCouponCode(null);
+      setAppliedCouponDiscountCents(0);
+      setCouponCodeInput("");
+      setCouponFeedback(null);
       setIsProcessingPayment(false);
     }, PAYMENT_SIMULATION_DELAY_MS);
   }
@@ -175,6 +247,16 @@ export function CheckoutScreen(): ReactElement
             <p>{confirmation.tipPercent}%</p>
             <p>Pagamento</p>
             <p>{confirmation.paymentMethod === "card" ? "Carta (mock)" : "Contanti (mock)"}</p>
+            {confirmation.couponCode ? (
+              <>
+                <p>Coupon applicato</p>
+                <p>{confirmation.couponCode}</p>
+                <p>Sconto coupon</p>
+                <p>-{formatMoney(confirmation.discountCents)}</p>
+              </>
+            ) : null}
+            <p>Punti ottenuti</p>
+            <p>{confirmation.earnedPoints} pt</p>
             <p className={styles.summaryTotalLabel}>Totale confermato</p>
             <p className={styles.summaryTotalValue}>{formatMoney(confirmation.totalCents)}</p>
           </div>
@@ -185,6 +267,7 @@ export function CheckoutScreen(): ReactElement
             Segui ordine
           </a>
           <a href="/" className={styles.primaryLink}>Torna alla home</a>
+          <a href="/rewards" className={styles.secondaryLink}>Apri loyalty</a>
           <a href="/menu" className={styles.secondaryLink}>Nuovo ordine</a>
         </div>
       </main>
@@ -267,6 +350,53 @@ export function CheckoutScreen(): ReactElement
           </div>
         </ShellCard>
 
+        <ShellCard title="Coupon e loyalty">
+          <div className={styles.couponStack}>
+            <label className={styles.fieldLabel} htmlFor="checkout-coupon-code">
+              Inserisci coupon
+            </label>
+            <div className={styles.couponInputRow}>
+              <input
+                id="checkout-coupon-code"
+                type="text"
+                className={styles.textInput}
+                value={couponCodeInput}
+                onChange={(event) => setCouponCodeInput(event.target.value.toUpperCase())}
+                placeholder="BENTORNATO5"
+              />
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={handleApplyCouponClick}
+                data-testid="checkout-apply-coupon-button"
+              >
+                Applica
+              </Button>
+            </div>
+
+            {couponFeedback ? (
+              <p className={styles.couponFeedback} data-testid="checkout-coupon-feedback">{couponFeedback}</p>
+            ) : null}
+
+            {appliedCouponCode ? (
+              <div className={styles.appliedCouponRow}>
+                <Badge tone="success">{appliedCouponCode}</Badge>
+                <p className={styles.metaCopy}>Sconto attivo: -{formatMoney(appliedCouponDiscountCents)}</p>
+                <Button type="button" variant="ghost" onClick={handleClearCouponClick}>
+                  Rimuovi
+                </Button>
+              </div>
+            ) : null}
+
+            <p className={styles.metaCopy}>
+              Coupon disponibili: {availableCoupons.map((coupon) => coupon.code).join(" · ")}
+            </p>
+            <a href="/rewards" className={styles.secondaryLink}>
+              Vedi tutti i vantaggi loyalty
+            </a>
+          </div>
+        </ShellCard>
+
         <ShellCard title="Pagamento mock">
           <div className={styles.paymentStack}>
             <label className={styles.paymentMethod}>
@@ -332,12 +462,22 @@ export function CheckoutScreen(): ReactElement
           <div className={styles.summaryGrid}>
             <p>Subtotale</p>
             <p>{formatMoney(totals.subtotalCents)}</p>
+            {totals.discountCents > 0 ? (
+              <>
+                <p>Sconto coupon</p>
+                <p>-{formatMoney(totals.discountCents)}</p>
+              </>
+            ) : null}
             <p>Consegna</p>
             <p>{formatMoney(totals.deliveryFeeCents)}</p>
             <p>Mancia ({tipPercent}%)</p>
             <p>{formatMoney(totals.tipCents)}</p>
+            <p>Punti stimati</p>
+            <p>{projectedEarnedPoints} pt</p>
             <p className={styles.summaryTotalLabel}>Totale</p>
-            <p className={styles.summaryTotalValue}>{formatMoney(totals.totalCents)}</p>
+            <p className={styles.summaryTotalValue} data-testid="checkout-total-value">
+              {formatMoney(totals.totalCents)}
+            </p>
           </div>
 
           {validationErrors.cart ? (

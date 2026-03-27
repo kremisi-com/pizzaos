@@ -118,6 +118,9 @@ export function ClientShell(): ReactElement
           >
             Crea la tua pizza
           </a>
+          <a className={`${styles.actionLink} ${styles.secondaryActionLink}`} href="/rewards">
+            Punti e vantaggi
+          </a>
           {activeOrder ? (
             <a className={`${styles.actionLink} ${styles.secondaryActionLink}`} href="/orders">
               Segui ordine
@@ -283,6 +286,9 @@ export function ClientShell(): ReactElement
                     Usa {formatMoney(activeCoupon.discountAmount.amountCents)} di sconto per ordini sopra{" "}
                     {formatMoney(activeCoupon.minOrderAmount.amountCents)}.
                   </p>
+                  <a className={styles.quickReorderLink} href="/rewards">
+                    Apri area loyalty e reward
+                  </a>
                 </div>
               ) : (
                 <p className={styles.cardMeta}>Nessun coupon attivo al momento.</p>

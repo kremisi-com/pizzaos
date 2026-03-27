@@ -16,6 +16,7 @@ export type PaymentMethod = "card" | "cash";
 export interface CheckoutTotals
 {
   readonly subtotalCents: number;
+  readonly discountCents: number;
   readonly tipCents: number;
   readonly deliveryFeeCents: number;
   readonly totalCents: number;
@@ -69,18 +70,21 @@ export function deriveCheckoutTotals(
   options: {
     readonly tipPercent: number;
     readonly deliveryFeeCents?: number;
+    readonly discountCents?: number;
   }
 ): CheckoutTotals
 {
   const subtotalCents = deriveCartSubtotalCents(items);
   const deliveryFeeCents = options.deliveryFeeCents ?? DELIVERY_FEE_CENTS;
+  const discountCents = Math.max(0, Math.min(subtotalCents, Math.round(options.discountCents ?? 0)));
   const tipCents = deriveTipAmountCents(subtotalCents, options.tipPercent);
 
   return {
     subtotalCents,
+    discountCents,
     tipCents,
     deliveryFeeCents,
-    totalCents: subtotalCents + deliveryFeeCents + tipCents
+    totalCents: subtotalCents + deliveryFeeCents + tipCents - discountCents
   };
 }
 
@@ -163,7 +167,7 @@ export function createMockOrder(input: CreateMockOrderInput): Order
       currencyCode: "EUR"
     },
     discountTotal: {
-      amountCents: 0,
+      amountCents: input.totals.discountCents,
       currencyCode: "EUR"
     },
     deliveryFee: {

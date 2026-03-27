@@ -5,8 +5,10 @@ import {
   domScreen,
   renderDom
 } from "@pizzaos/testing";
+import { createClientSeed } from "@pizzaos/mock-data";
 import { CheckoutScreen } from "../features/checkout/components/checkout-screen";
 import { CLIENT_CART_STORAGE_KEY } from "../features/cart/cart-model";
+import { getClientDemoStateStorageKey } from "../features/home/client-demo-state";
 
 const CART_STATE_PAYLOAD = JSON.stringify({
   items: [
@@ -70,5 +72,39 @@ describe("checkout screen", () =>
     expect(confirmationTitle.textContent).toBe("Ordine confermato");
     expect(domScreen.getByText(/Pagamento mock completato/i).textContent).toContain("Pagamento mock completato");
     expect(domScreen.getByRole("link", { name: "Segui ordine" })).toBeDefined();
+  });
+
+  it("applies coupon and updates total summary", async () =>
+  {
+    const seed = createClientSeed();
+    const persistedSeed = {
+      ...seed,
+      coupons: [
+        {
+          ...seed.coupons[0],
+          minOrderAmount: {
+            amountCents: 1000,
+            currencyCode: "EUR" as const
+          }
+        },
+        ...seed.coupons.slice(1)
+      ]
+    };
+
+    window.localStorage.setItem(getClientDemoStateStorageKey(), JSON.stringify(persistedSeed));
+
+    renderDom(<CheckoutScreen />);
+
+    domFireEvent.change(domScreen.getByLabelText("Inserisci coupon"), {
+      target: {
+        value: "BENTORNATO5"
+      }
+    });
+    domFireEvent.click(domScreen.getByTestId("checkout-apply-coupon-button"));
+
+    expect(await domScreen.findByTestId("checkout-coupon-feedback")).toBeDefined();
+    expect(domScreen.getByTestId("checkout-coupon-feedback").textContent).toContain("Coupon BENTORNATO5 applicato.");
+    expect(domScreen.getByText("Sconto coupon")).toBeDefined();
+    expect(domScreen.getByTestId("checkout-total-value").textContent).toBe("7,71 €");
   });
 });

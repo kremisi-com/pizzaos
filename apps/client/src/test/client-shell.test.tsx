@@ -25,12 +25,14 @@ describe("client shell", () =>
     expect(markup).toContain("Bentornato");
     expect(markup).toContain("Riordina ora");
     expect(markup).toContain("Crea la tua pizza");
+    expect(markup).toContain("Punti e vantaggi");
     expect(markup).toContain("Segui ordine");
     expect(markup).toContain("Riordino rapido");
     expect(markup).toContain("Ordina come l&#x27;ultima volta");
     expect(markup).toContain("Promo di stagione");
     expect(markup).toContain("Reset demo");
     expect(markup).toContain('href="/menu"');
+    expect(markup).toContain('href="/rewards"');
     expect(markup).toContain('href="/orders"');
     expect(markup).toContain('href="/menu?section=section-speciali"');
   });
