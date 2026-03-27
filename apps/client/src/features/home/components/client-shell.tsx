@@ -5,6 +5,7 @@ import type { Order, Product } from "@pizzaos/domain";
 import { Badge, Button, ShellCard } from "@pizzaos/ui";
 import { useEffect, useState, type ReactElement } from "react";
 import type { ClientSeed } from "@pizzaos/mock-data";
+import { clearCartState } from "../../cart/cart-model";
 import { loadClientDemoState, resetClientDemoState } from "../client-demo-state";
 import styles from "./client-shell.module.css";
 
@@ -42,7 +43,10 @@ export function ClientShell(): ReactElement
 
   function handleResetClick(): void
   {
-    setSeed(resetClientDemoState(resolveStorage()));
+    const storage = resolveStorage();
+
+    clearCartState(storage);
+    setSeed(resetClientDemoState(storage));
   }
 
   const activeOrder = seed.activeOrders[0];

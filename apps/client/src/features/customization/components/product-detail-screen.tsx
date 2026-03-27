@@ -4,6 +4,7 @@ import type { Product } from "@pizzaos/domain";
 import type { ClientSeed } from "@pizzaos/mock-data";
 import { Badge, Button, ShellCard, Toast } from "@pizzaos/ui";
 import { useEffect, useReducer, useState, type Dispatch, type ReactElement } from "react";
+import { addCartItem } from "../../cart/cart-model";
 import { loadClientDemoState } from "../../home/client-demo-state";
 import { deriveProductAvailability } from "../../menu/menu-view-model";
 import {
@@ -85,6 +86,33 @@ export function ProductDetailScreen(props: ProductDetailScreenProps): ReactEleme
 
   function handleAddToCartClick(): void
   {
+    if (!product)
+    {
+      return;
+    }
+
+    const doughLabel = DOUGH_OPTIONS.find((option) => option.id === state.selectedDoughId)?.label ?? "Classico";
+    const variantLabel = VARIANT_OPTIONS.find((option) => option.id === state.selectedVariantId)?.label ?? "Classica";
+    const selectedExtras = EXTRA_OPTIONS
+      .filter((extra) => state.selectedExtraIds.includes(extra.id))
+      .map((extra) => extra.label);
+    const notes = createCustomizationNotes({
+      doughLabel,
+      variantLabel,
+      selectedExtras
+    });
+
+    addCartItem(
+      {
+        productId: product.id,
+        productName: product.name,
+        unitPriceCents: priceBreakdown.totalCents,
+        quantity: 1,
+        notes
+      },
+      resolveStorage()
+    );
+
     setIsCartToastVisible(true);
   }
 
@@ -207,8 +235,12 @@ export function ProductDetailScreen(props: ProductDetailScreenProps): ReactEleme
         <div className={styles.toastWrap}>
           <Toast
             title="Configurazione pronta"
-            message="Prodotto personalizzato pronto per il carrello. Il checkout arriva nello step successivo."
+            message="Prodotto aggiunto al carrello. Puoi passare al checkout o continuare con altre pizze."
           />
+          <div className={styles.toastActions}>
+            <a href="/cart" className={styles.toastLink}>Vai al carrello</a>
+            <a href="/menu" className={styles.toastLinkSecondary}>Continua ordine</a>
+          </div>
         </div>
       ) : null}
     </main>
@@ -362,4 +394,23 @@ function formatDelta(amountCents: number): string
   }
 
   return `-${formatMoney(Math.abs(amountCents))}`;
+}
+
+function createCustomizationNotes(input: {
+  readonly doughLabel: string;
+  readonly variantLabel: string;
+  readonly selectedExtras: readonly string[];
+}): string
+{
+  const segments = [
+    `Impasto: ${input.doughLabel}`,
+    `Formato: ${input.variantLabel}`
+  ];
+
+  if (input.selectedExtras.length > 0)
+  {
+    segments.push(`Extra: ${input.selectedExtras.join(", ")}`);
+  }
+
+  return segments.join(" · ");
 }
