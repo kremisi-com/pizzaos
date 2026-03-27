@@ -69,5 +69,6 @@ describe("checkout screen", () =>
 
     expect(confirmationTitle.textContent).toBe("Ordine confermato");
     expect(domScreen.getByText(/Pagamento mock completato/i).textContent).toContain("Pagamento mock completato");
+    expect(domScreen.getByRole("link", { name: "Segui ordine" })).toBeDefined();
   });
 });

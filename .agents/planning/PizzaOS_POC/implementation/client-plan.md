@@ -6,7 +6,7 @@
 - [X] Step 2: Implement menu browsing with availability and slot visibility.
 - [X] Step 3: Implement product detail and pizza customization.
 - [X] Step 4: Implement cart, checkout, mock payment, and tip flow.
-- [ ] Step 5: Implement order status, notifications, and rider tracking.
+- [X] Step 5: Implement order status, notifications, and rider tracking.
 - [ ] Step 6: Implement order history, quick reorder, and "order like last time".
 - [ ] Step 7: Implement loyalty, rewards, coupons, and subscription UI.
 - [ ] Step 8: Implement feedback prompts, selected edge states, and end-to-end demo polish.

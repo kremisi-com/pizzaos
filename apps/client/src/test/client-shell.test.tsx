@@ -1,11 +1,12 @@
 import { getThemeClass } from "@pizzaos/brand";
 import { createClientSeed } from "@pizzaos/mock-data";
-import { cleanupDom, domScreen, renderDom } from "@pizzaos/testing";
+import { cleanupDom, domFireEvent, domScreen, renderDom } from "@pizzaos/testing";
 import { beforeEach, describe, expect, it } from "vitest";
 import { createElement } from "react";
 import { renderToString } from "react-dom/server";
 import { ClientShell } from "../features/home/components/client-shell";
 import { getClientDemoStateStorageKey } from "../features/home/client-demo-state";
+import { CLIENT_ORDER_NOTIFICATIONS_STORAGE_KEY } from "../features/orders/orders-model";
 
 describe("client shell", () =>
 {
@@ -23,10 +24,12 @@ describe("client shell", () =>
     expect(markup).toContain("Bentornato");
     expect(markup).toContain("Riordina ora");
     expect(markup).toContain("Crea la tua pizza");
+    expect(markup).toContain("Segui ordine");
     expect(markup).toContain("Riordino rapido");
     expect(markup).toContain("Promo di stagione");
     expect(markup).toContain("Reset demo");
     expect(markup).toContain('href="/menu"');
+    expect(markup).toContain('href="/orders"');
     expect(markup).toContain('href="/menu?section=section-speciali"');
   });
 
@@ -48,5 +51,29 @@ describe("client shell", () =>
     renderDom(<ClientShell />);
 
     expect(await domScreen.findByText(/Slot previsto Oggi, 19:10/i)).toBeDefined();
+  });
+
+  it("clears persisted order notifications when resetting demo state", async () =>
+  {
+    window.localStorage.setItem(
+      CLIENT_ORDER_NOTIFICATIONS_STORAGE_KEY,
+      JSON.stringify([
+        {
+          id: "order-notification-1",
+          orderId: "order-client-001",
+          status: "preparing",
+          title: "Ordine in preparazione",
+          description: "La cucina ha iniziato la preparazione.",
+          createdAtIso: "2026-03-25T18:45:00.000Z",
+          isRead: false
+        }
+      ])
+    );
+
+    renderDom(<ClientShell />);
+
+    domFireEvent.click(await domScreen.findByTestId("client-reset-button"));
+
+    expect(window.localStorage.getItem(CLIENT_ORDER_NOTIFICATIONS_STORAGE_KEY)).toBeNull();
   });
 });

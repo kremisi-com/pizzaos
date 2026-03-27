@@ -1,0 +1,272 @@
+.screen
+{
+  min-height: 100vh;
+  display: grid;
+  gap: 16px;
+  padding: 24px 16px 44px;
+  background:
+    radial-gradient(circle at top right, rgba(209, 73, 46, 0.16), transparent 30%),
+    linear-gradient(180deg, rgba(255, 249, 242, 0.98), rgba(239, 249, 255, 0.94));
+}
+
+.hero
+{
+  display: grid;
+  gap: 12px;
+  padding: 18px;
+  border-radius: calc(var(--pizzaos-radius-card) + 4px);
+  border: 1px solid rgba(31, 37, 48, 0.12);
+  background: rgba(255, 255, 255, 0.88);
+  box-shadow: var(--pizzaos-elevation-card);
+}
+
+.heroTopRow
+{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.backLink
+{
+  color: var(--pizzaos-color-foreground);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.heroTitle
+{
+  margin: 0;
+  font-size: clamp(2rem, 8vw, 2.8rem);
+  line-height: 0.96;
+  letter-spacing: -0.05em;
+}
+
+.heroCopy
+{
+  margin: 0;
+  color: var(--pizzaos-color-foreground-muted);
+}
+
+.heroActions
+{
+  display: grid;
+  gap: 10px;
+}
+
+.secondaryLink
+{
+  min-height: 40px;
+  border-radius: var(--pizzaos-radius-control);
+  border: 1px solid rgba(31, 37, 48, 0.16);
+  background: rgba(255, 255, 255, 0.96);
+  color: var(--pizzaos-color-foreground);
+  text-decoration: none;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.orderMeta
+{
+  margin-bottom: 12px;
+  display: grid;
+  gap: 4px;
+}
+
+.orderMeta p
+{
+  margin: 0;
+}
+
+.timeline
+{
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 8px;
+}
+
+.timelineStep
+{
+  padding: 10px 12px;
+  border-radius: var(--pizzaos-radius-card);
+  border: 1px solid rgba(31, 37, 48, 0.12);
+  background: rgba(255, 255, 255, 0.92);
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.timelineStepCompleted
+{
+  border-color: rgba(15, 118, 110, 0.35);
+  background: rgba(15, 118, 110, 0.08);
+}
+
+.timelineStepCurrent
+{
+  border-color: rgba(209, 73, 46, 0.44);
+  background: rgba(209, 73, 46, 0.12);
+}
+
+.timelineLabel
+{
+  font-weight: 700;
+}
+
+.timelineMeta
+{
+  color: var(--pizzaos-color-foreground-muted);
+  font-size: 0.92rem;
+}
+
+.trackingStack
+{
+  display: grid;
+  gap: 10px;
+}
+
+.mockMap
+{
+  position: relative;
+  min-height: 180px;
+  border-radius: var(--pizzaos-radius-card);
+  border: 1px solid rgba(31, 37, 48, 0.16);
+  background:
+    linear-gradient(120deg, rgba(209, 73, 46, 0.12), transparent 44%),
+    repeating-linear-gradient(
+      0deg,
+      rgba(31, 37, 48, 0.04),
+      rgba(31, 37, 48, 0.04) 18px,
+      rgba(255, 255, 255, 0.65) 18px,
+      rgba(255, 255, 255, 0.65) 36px
+    );
+}
+
+.storePin,
+.riderPin
+{
+  position: absolute;
+  transform: translate(-50%, -50%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  min-width: 54px;
+  min-height: 30px;
+}
+
+.storePin
+{
+  color: #ffffff;
+  background: rgba(31, 37, 48, 0.82);
+}
+
+.riderPin
+{
+  color: var(--pizzaos-color-foreground);
+  background: rgba(209, 73, 46, 0.9);
+}
+
+.trackingMeta
+{
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--pizzaos-color-foreground-muted);
+}
+
+.notificationsHeader
+{
+  display: grid;
+  gap: 10px;
+}
+
+.notificationsMeta
+{
+  margin: 0;
+  color: var(--pizzaos-color-foreground-muted);
+}
+
+.notificationsList
+{
+  margin: 10px 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 10px;
+}
+
+.notificationItem
+{
+  display: grid;
+  gap: 6px;
+  padding: 12px;
+  border-radius: var(--pizzaos-radius-card);
+  border: 1px solid rgba(31, 37, 48, 0.12);
+  background: rgba(255, 255, 255, 0.92);
+}
+
+.notificationUnread
+{
+  border-color: rgba(209, 73, 46, 0.44);
+  background: rgba(209, 73, 46, 0.11);
+}
+
+.notificationTopRow
+{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.notificationTitle
+{
+  margin: 0;
+  font-weight: 700;
+}
+
+.notificationDescription
+{
+  margin: 0;
+}
+
+.notificationMeta
+{
+  margin: 0;
+  font-size: 0.88rem;
+  color: var(--pizzaos-color-foreground-muted);
+}
+
+.emptyCopy
+{
+  margin: 0;
+  color: var(--pizzaos-color-foreground-muted);
+}
+
+@media (min-width: 768px)
+{
+  .screen
+  {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 30px 24px 60px;
+  }
+
+  .heroActions
+  {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .notificationsHeader
+  {
+    grid-template-columns: 1fr auto;
+    align-items: center;
+  }
+}

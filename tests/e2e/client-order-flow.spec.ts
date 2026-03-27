@@ -26,5 +26,20 @@ test.describe("client order flow", () =>
 
     await expect(page.getByRole("heading", { name: "Ordine confermato" })).toBeVisible();
     await expect(page.getByText(/Pagamento mock completato/i)).toBeVisible();
+
+    await page.getByTestId("checkout-orders-link").click();
+    await expect(page.getByRole("heading", { name: "Stato ordine" })).toBeVisible();
+    await expect(page.getByText(/order-client-mock-/i)).toBeVisible();
+    await expect(page.getByTestId("orders-current-status")).toHaveText("Confermato");
+
+    await page.getByTestId("orders-advance-button").click();
+    await expect(page.getByTestId("orders-current-status")).toHaveText("In preparazione");
+    await page.getByTestId("orders-advance-button").click();
+    await expect(page.getByTestId("orders-current-status")).toHaveText("Pronto");
+    await page.getByTestId("orders-advance-button").click();
+    await expect(page.getByTestId("orders-current-status")).toHaveText("In consegna");
+
+    await expect(page.getByTestId("tracking-visible")).toBeVisible();
+    await expect(page.getByText(/notifiche non lette/i)).toBeVisible();
   });
 });

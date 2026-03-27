@@ -181,6 +181,9 @@ export function CheckoutScreen(): ReactElement
         </ShellCard>
 
         <div className={styles.confirmationActions}>
+          <a href="/orders" className={styles.primaryLink} data-testid="checkout-orders-link">
+            Segui ordine
+          </a>
           <a href="/" className={styles.primaryLink}>Torna alla home</a>
           <a href="/menu" className={styles.secondaryLink}>Nuovo ordine</a>
         </div>

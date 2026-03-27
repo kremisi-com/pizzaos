@@ -7,6 +7,12 @@ import { useEffect, useState, type ReactElement } from "react";
 import type { ClientSeed } from "@pizzaos/mock-data";
 import { clearCartState } from "../../cart/cart-model";
 import { loadClientDemoState, resetClientDemoState } from "../client-demo-state";
+import {
+  clearOrderNotifications,
+  deriveUnreadOrderNotificationsCount,
+  getOrderStatusLabel,
+  loadOrderNotifications
+} from "../../orders/orders-model";
 import styles from "./client-shell.module.css";
 
 const MONEY_FORMATTER = new Intl.NumberFormat("it-IT", {
@@ -35,10 +41,14 @@ function resolveStorage(): Storage | undefined
 export function ClientShell(): ReactElement
 {
   const [seed, setSeed] = useState<ClientSeed>(() => loadClientDemoState());
+  const [unreadNotificationsCount, setUnreadNotificationsCount] = useState(0);
 
   useEffect(() =>
   {
-    setSeed(loadClientDemoState(resolveStorage()));
+    const storage = resolveStorage();
+
+    setSeed(loadClientDemoState(storage));
+    setUnreadNotificationsCount(deriveUnreadOrderNotificationsCount(loadOrderNotifications(storage)));
   }, []);
 
   function handleResetClick(): void
@@ -46,7 +56,9 @@ export function ClientShell(): ReactElement
     const storage = resolveStorage();
 
     clearCartState(storage);
+    clearOrderNotifications(storage);
     setSeed(resetClientDemoState(storage));
+    setUnreadNotificationsCount(0);
   }
 
   const activeOrder = seed.activeOrders[0];
@@ -81,6 +93,11 @@ export function ClientShell(): ReactElement
           >
             Crea la tua pizza
           </a>
+          {activeOrder ? (
+            <a className={`${styles.actionLink} ${styles.secondaryActionLink}`} href="/orders">
+              Segui ordine
+            </a>
+          ) : null}
         </div>
 
         <dl className={styles.heroStats}>
@@ -100,11 +117,20 @@ export function ClientShell(): ReactElement
             <dt className={styles.statLabel}>Coupon attivi</dt>
             <dd className={styles.statValue}>{seed.coupons.filter((coupon) => coupon.status === "active").length}</dd>
           </div>
+          <div className={styles.statItem}>
+            <dt className={styles.statLabel}>Notifiche</dt>
+            <dd className={styles.statValue}>{unreadNotificationsCount}</dd>
+          </div>
         </dl>
 
         {activeOrder ? (
           <div className={styles.promoStack}>
             <Badge tone="neutral">Ordine in corso</Badge>
+            {unreadNotificationsCount > 0 ? (
+              <Badge tone="warning">
+                {unreadNotificationsCount} notifiche nuove
+              </Badge>
+            ) : null}
             <p className={styles.cardMeta}>
               Slot previsto {formatSlot(activeOrder.scheduledSlot)} · {formatMoney(activeOrder.total.amountCents)}
             </p>
@@ -252,15 +278,5 @@ function getProductName(productId: Product["id"], products: readonly Product[]):
 
 function formatOrderStatus(status: Order["status"]): string
 {
-  const labels: Record<Order["status"], string> = {
-    received: "Ricevuto",
-    confirmed: "Confermato",
-    preparing: "In preparazione",
-    ready: "Pronto",
-    out_for_delivery: "In consegna",
-    delivered: "Consegnato",
-    cancelled: "Annullato"
-  };
-
-  return labels[status];
+  return getOrderStatusLabel(status);
 }

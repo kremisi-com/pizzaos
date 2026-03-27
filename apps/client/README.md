@@ -22,11 +22,13 @@ This app does not own shared package APIs or admin and landing code paths.
 - `app/product/[id]/page.tsx`: product detail route with guided customization flow
 - `app/cart/page.tsx`: cart review route with quantity updates and checkout entry
 - `app/checkout/page.tsx`: slot, tip, mock payment, and confirmation route
+- `app/orders/page.tsx`: order timeline, notifications, and tracking route
 - `src/features/home`: mobile-first home shell, seeded demo state, and reset flow
 - `src/features/menu`: section browsing, slot visibility, and product availability rendering
 - `src/features/customization`: product detail, guided stepper, pricing logic, allergens, and pairings
 - `src/features/cart`: cart persistence, quantity management, and cart review UI
 - `src/features/checkout`: checkout totals, validation, mock payment, and confirmation flow
+- `src/features/orders`: order simulation, timeline, notifications, and tracking UI
 - `src/features/home/client-demo-state.ts`: local storage hydration and reset helpers
 
 ## Shared Dependencies
