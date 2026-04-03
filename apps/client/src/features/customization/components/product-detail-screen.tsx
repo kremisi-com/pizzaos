@@ -2,14 +2,13 @@
 
 import type { Product } from "@pizzaos/domain";
 import type { ClientSeed } from "@pizzaos/mock-data";
-import { Badge, Button, ShellCard, Toast } from "@pizzaos/ui";
-import { useEffect, useReducer, useState, type Dispatch, type ReactElement } from "react";
+import { Badge } from "@pizzaos/ui";
+import { useCallback, useEffect, useReducer, useState, type Dispatch, type ReactElement } from "react";
 import { addCartItem } from "../../cart/cart-model";
 import { loadClientDemoState } from "../../home/client-demo-state";
 import { deriveProductAvailability } from "../../menu/menu-view-model";
 import {
   createInitialCustomizationState,
-  CUSTOMIZATION_STEPS,
   customizationReducer,
   deriveCustomizationPrice,
   deriveVisibleAllergens,
@@ -17,8 +16,8 @@ import {
   EXTRA_OPTIONS,
   getPairingSuggestions,
   INGREDIENT_OPTIONS,
-  LAST_CUSTOMIZATION_STEP_INDEX,
   VARIANT_OPTIONS,
+  type CustomizationState,
   type IngredientMode
 } from "../customization-model";
 import styles from "./product-detail-screen.module.css";
@@ -33,6 +32,8 @@ const INGREDIENT_MODE_LABEL: Readonly<Record<IngredientMode, string>> = {
   extra: "Extra",
   senza: "Senza"
 };
+
+type OpenSection = "dough" | "variant" | "ingredients" | "extras" | null;
 
 interface ProductDetailScreenProps
 {
@@ -54,10 +55,16 @@ export function ProductDetailScreen(props: ProductDetailScreenProps): ReactEleme
   const [seed, setSeed] = useState<ClientSeed>(() => loadClientDemoState());
   const [state, dispatch] = useReducer(customizationReducer, undefined, createInitialCustomizationState);
   const [isCartToastVisible, setIsCartToastVisible] = useState(false);
+  const [openSection, setOpenSection] = useState<OpenSection>(null);
 
   useEffect(() =>
   {
     setSeed(loadClientDemoState(resolveStorage()));
+  }, []);
+
+  const toggleSection = useCallback((section: OpenSection) =>
+  {
+    setOpenSection((current) => current === section ? null : section);
   }, []);
 
   const product = seed.products.find((candidateProduct) => candidateProduct.id === props.productId);
@@ -66,13 +73,17 @@ export function ProductDetailScreen(props: ProductDetailScreenProps): ReactEleme
   {
     return (
       <main className={styles.screen}>
-        <section className={styles.hero}>
-          <a href="/menu" className={styles.backLink}>Torna al menu</a>
-          <h1 className={styles.heroTitle}>Prodotto non trovato</h1>
-          <p className={styles.heroCopy}>
-            Questo dettaglio non è disponibile nello stato demo corrente. Apri il menu e seleziona un prodotto valido.
+        <div className={styles.notFound}>
+          <span className={styles.notFoundIcon}>🍕</span>
+          <h1 className={styles.notFoundTitle}>Prodotto non trovato</h1>
+          <p className={styles.notFoundText}>
+            Questo prodotto non è disponibile nello stato demo corrente.
           </p>
-        </section>
+          <a href="/menu" className={styles.notFoundLink}>
+            <span>←</span>
+            Torna al menu
+          </a>
+        </div>
       </main>
     );
   }
@@ -81,8 +92,6 @@ export function ProductDetailScreen(props: ProductDetailScreenProps): ReactEleme
   const priceBreakdown = deriveCustomizationPrice(product.basePrice.amountCents, state);
   const visibleAllergens = deriveVisibleAllergens(product.allergens, state);
   const pairings = getPairingSuggestions(product.id);
-  const currentStep = CUSTOMIZATION_STEPS[state.currentStepIndex];
-  const isLastStep = state.currentStepIndex === LAST_CUSTOMIZATION_STEP_INDEX;
 
   function handleAddToCartClick(): void
   {
@@ -116,130 +125,152 @@ export function ProductDetailScreen(props: ProductDetailScreenProps): ReactEleme
     setIsCartToastVisible(true);
   }
 
+  const selectedDoughLabel = DOUGH_OPTIONS.find((option) => option.id === state.selectedDoughId)?.label ?? "Classico";
+  const selectedVariantLabel = VARIANT_OPTIONS.find((option) => option.id === state.selectedVariantId)?.label ?? "Classica";
+  const doughDelta = DOUGH_OPTIONS.find((option) => option.id === state.selectedDoughId)?.priceDeltaCents ?? 0;
+  const variantDelta = VARIANT_OPTIONS.find((option) => option.id === state.selectedVariantId)?.priceDeltaCents ?? 0;
+  const activeExtrasCount = state.selectedExtraIds.length;
+  const ingredientChanges = deriveIngredientChangesSummary(state);
+
   return (
     <main className={styles.screen}>
+      {/* ── Hero ── */}
       <section className={styles.hero} aria-labelledby="product-detail-title">
         <div className={styles.heroTopRow}>
-          <a href="/menu" className={styles.backLink}>Torna al menu</a>
-          <Badge tone={availability.tone}>{availability.label}</Badge>
+          <a href="/menu" className={styles.backButton}>
+            <span className={styles.backIcon}>←</span>
+            Menu
+          </a>
+          <div className={styles.heroBadge}>
+            <Badge tone={availability.tone}>{availability.label}</Badge>
+          </div>
         </div>
 
         <h1 id="product-detail-title" className={styles.heroTitle}>{product.name}</h1>
-        <p className={styles.heroCopy}>{product.description}</p>
+        <p className={styles.heroDescription}>{product.description}</p>
 
-        <div className={styles.heroMetaRow}>
-          <span className={styles.heroMetaLabel}>Prezzo base</span>
-          <span className={styles.heroMetaValue}>{formatMoney(product.basePrice.amountCents)}</span>
-        </div>
-      </section>
-
-      <section className={styles.priceSection} aria-label="Prezzo configurazione">
-        <ShellCard title="Prezzo in tempo reale">
-          <div className={styles.priceBox}>
-            <p className={styles.priceTotal}>{formatMoney(priceBreakdown.totalCents)}</p>
-            <div className={styles.breakdownGrid}>
-              <p>Base prodotto</p>
-              <p>{formatMoney(priceBreakdown.basePriceCents)}</p>
-              <p>Impasto</p>
-              <p>{formatDelta(priceBreakdown.doughDeltaCents)}</p>
-              <p>Variante</p>
-              <p>{formatDelta(priceBreakdown.variantDeltaCents)}</p>
-              <p>Ingredienti</p>
-              <p>{formatDelta(priceBreakdown.ingredientDeltaCents)}</p>
-              <p>Extra</p>
-              <p>{formatDelta(priceBreakdown.extrasDeltaCents)}</p>
-            </div>
-          </div>
-        </ShellCard>
-      </section>
-
-      <section className={styles.flowSection} aria-labelledby="customization-flow-title">
-        <div className={styles.flowHeader}>
-          <p className={styles.flowEyebrow}>Step {state.currentStepIndex + 1} di {CUSTOMIZATION_STEPS.length}</p>
-          <h2 id="customization-flow-title" className={styles.flowTitle}>{currentStep.title}</h2>
+        <div className={styles.heroMeta}>
+          <span className={styles.heroPrice}>{formatMoney(product.basePrice.amountCents)}</span>
         </div>
 
-        <ol className={styles.stepProgress} aria-label="Progressione personalizzazione">
-          {CUSTOMIZATION_STEPS.map((step, stepIndex) => (
-            <li key={step.id}>
-              <button
-                type="button"
-                className={`${styles.stepButton} ${stepIndex === state.currentStepIndex ? styles.stepButtonActive : ""}`}
-                onClick={() => dispatch({ type: "go_to_step", stepIndex })}
-                aria-current={stepIndex === state.currentStepIndex ? "step" : undefined}
-              >
-                <span>{stepIndex + 1}</span>
-                <small>{step.title}</small>
-              </button>
-            </li>
-          ))}
-        </ol>
-
-        {renderStepContent(product, state, dispatch)}
-
-        <div className={styles.flowActions}>
-          <Button
-            variant="secondary"
-            onClick={() => dispatch({ type: "previous_step" })}
-            disabled={state.currentStepIndex === 0}
-          >
-            Indietro
-          </Button>
-
-          {isLastStep ? (
-            <Button
-              onClick={handleAddToCartClick}
-              disabled={!availability.isOrderable}
-            >
-              Aggiungi al carrello
-            </Button>
-          ) : (
-            <Button onClick={() => dispatch({ type: "next_step" })}>
-              Continua
-            </Button>
-          )}
-        </div>
-      </section>
-
-      <section className={styles.supportSection}>
-        <ShellCard title="Allergeni visibili">
-          <p className={styles.supportLead}>Sempre aggiornati durante la configurazione.</p>
-          <ul className={styles.supportList}>
+        {visibleAllergens.length > 0 ? (
+          <div className={styles.allergenRow}>
             {visibleAllergens.map((allergen) => (
-              <li key={allergen.code}>{allergen.label}</li>
+              <span key={allergen.code} className={styles.allergenPill}>
+                <span className={styles.allergenDot} />
+                {allergen.label}
+              </span>
             ))}
-          </ul>
-        </ShellCard>
-
-        <ShellCard title="Abbinamenti consigliati">
-          <ul className={styles.pairingList}>
-            {pairings.map((pairing) => (
-              <li key={pairing.id} className={styles.pairingItem}>
-                <div>
-                  <p className={styles.pairingTitle}>{pairing.title}</p>
-                  <p className={styles.pairingDescription}>{pairing.description}</p>
-                </div>
-                <p className={styles.pairingPrice}>{formatMoney(pairing.priceCents)}</p>
-              </li>
-            ))}
-          </ul>
-        </ShellCard>
+          </div>
+        ) : null}
       </section>
 
-      <div className={styles.totalBar} aria-live="polite">
-        <span>Totale configurazione</span>
-        <strong data-testid="customization-total-value">{formatMoney(priceBreakdown.totalCents)}</strong>
+      {/* ── Customization sections ── */}
+      <div className={styles.customizationArea}>
+
+        {/* Impasto */}
+        <CollapsibleSection
+          icon="🫓"
+          title="Impasto"
+          currentValue={selectedDoughLabel}
+          delta={doughDelta}
+          isOpen={openSection === "dough"}
+          onToggle={() => toggleSection("dough")}
+        >
+          <DoughSelector state={state} dispatch={dispatch} />
+        </CollapsibleSection>
+
+        {/* Formato */}
+        <CollapsibleSection
+          icon="📐"
+          title="Formato"
+          currentValue={selectedVariantLabel}
+          delta={variantDelta}
+          isOpen={openSection === "variant"}
+          onToggle={() => toggleSection("variant")}
+        >
+          <VariantSelector state={state} dispatch={dispatch} />
+        </CollapsibleSection>
+
+        {/* Ingredienti */}
+        <CollapsibleSection
+          icon="🧀"
+          title="Ingredienti"
+          currentValue={ingredientChanges}
+          delta={priceBreakdown.ingredientDeltaCents}
+          isOpen={openSection === "ingredients"}
+          onToggle={() => toggleSection("ingredients")}
+        >
+          <IngredientSelector state={state} dispatch={dispatch} />
+        </CollapsibleSection>
+
+        {/* Extra */}
+        <CollapsibleSection
+          icon="✨"
+          title="Extra"
+          currentValue={activeExtrasCount > 0 ? `${activeExtrasCount} selezionati` : "Nessun extra"}
+          delta={priceBreakdown.extrasDeltaCents}
+          isOpen={openSection === "extras"}
+          onToggle={() => toggleSection("extras")}
+        >
+          <ExtraSelector state={state} dispatch={dispatch} />
+        </CollapsibleSection>
       </div>
 
+      {/* ── Pairings ── */}
+      {pairings.length > 0 ? (
+        <section className={styles.pairingsSection}>
+          <h2 className={styles.pairingsTitle}>Abbinamenti consigliati</h2>
+          <div className={styles.pairingsList}>
+            {pairings.map((pairing) => (
+              <div key={pairing.id} className={styles.pairingCard}>
+                <div className={styles.pairingInfo}>
+                  <p className={styles.pairingName}>{pairing.title}</p>
+                  <p className={styles.pairingDescription}>{pairing.description}</p>
+                </div>
+                <span className={styles.pairingPrice}>{formatMoney(pairing.priceCents)}</span>
+              </div>
+            ))}
+          </div>
+        </section>
+      ) : null}
+
+      {/* ── Sticky bottom bar ── */}
+      <div className={styles.bottomBar} aria-live="polite">
+        <div className={styles.bottomBarInner}>
+          <div className={styles.bottomPriceBlock}>
+            <span className={styles.bottomPriceLabel}>Totale</span>
+            <span className={styles.bottomPriceValue} data-testid="customization-total-value">
+              {formatMoney(priceBreakdown.totalCents)}
+            </span>
+          </div>
+          <button
+            type="button"
+            className={styles.addToCartButton}
+            onClick={handleAddToCartClick}
+            disabled={!availability.isOrderable}
+          >
+            <span className={styles.addToCartIcon}>🛒</span>
+            Aggiungi
+          </button>
+        </div>
+      </div>
+
+      {/* ── Cart toast ── */}
       {isCartToastVisible ? (
-        <div className={styles.toastWrap}>
-          <Toast
-            title="Configurazione pronta"
-            message="Prodotto aggiunto al carrello. Puoi passare al checkout o continuare con altre pizze."
-          />
-          <div className={styles.toastActions}>
-            <a href="/cart" className={styles.toastLink}>Vai al carrello</a>
-            <a href="/menu" className={styles.toastLinkSecondary}>Continua ordine</a>
+        <div className={styles.toastOverlay}>
+          <div className={styles.toastCard}>
+            <p className={styles.toastTitle}>
+              <span className={styles.toastIcon}>✅</span>
+              Aggiunto al carrello
+            </p>
+            <p className={styles.toastMessage}>
+              {product.name} con le tue personalizzazioni è stato aggiunto. Continua o vai al carrello.
+            </p>
+            <div className={styles.toastActions}>
+              <a href="/cart" className={styles.toastLink}>Vai al carrello</a>
+              <a href="/menu" className={styles.toastLinkSecondary}>Continua</a>
+            </div>
           </div>
         </div>
       ) : null}
@@ -247,134 +278,236 @@ export function ProductDetailScreen(props: ProductDetailScreenProps): ReactEleme
   );
 }
 
-function renderStepContent(
-  product: Product,
-  state: ReturnType<typeof createInitialCustomizationState>,
-  dispatch: Dispatch<Parameters<typeof customizationReducer>[1]>
-): ReactElement
+/* ── Collapsible section wrapper ── */
+
+interface CollapsibleSectionProps
 {
-  const currentStep = CUSTOMIZATION_STEPS[state.currentStepIndex].id;
+  readonly icon: string;
+  readonly title: string;
+  readonly currentValue: string;
+  readonly delta: number;
+  readonly isOpen: boolean;
+  readonly onToggle: () => void;
+  readonly children: ReactElement;
+}
 
-  if (currentStep === "dough")
-  {
-    return (
-      <div className={styles.optionGrid} role="radiogroup" aria-label="Scelta impasto">
-        {DOUGH_OPTIONS.map((option) => (
-          <label key={option.id} className={styles.optionCard}>
-            <input
-              type="radio"
-              name="dough-option"
-              checked={state.selectedDoughId === option.id}
-              onChange={() => dispatch({ type: "set_dough", doughId: option.id })}
-            />
-            <span className={styles.optionTitle}>{option.label}</span>
-            <span className={styles.optionDescription}>{option.description}</span>
-            <span className={styles.optionDelta}>{formatDelta(option.priceDeltaCents)}</span>
-          </label>
-        ))}
-      </div>
-    );
-  }
-
-  if (currentStep === "variant")
-  {
-    return (
-      <div className={styles.optionGrid} role="radiogroup" aria-label="Scelta variante">
-        {VARIANT_OPTIONS.map((option) => (
-          <label key={option.id} className={styles.optionCard}>
-            <input
-              type="radio"
-              name="variant-option"
-              checked={state.selectedVariantId === option.id}
-              onChange={() => dispatch({ type: "set_variant", variantId: option.id })}
-            />
-            <span className={styles.optionTitle}>{option.label}</span>
-            <span className={styles.optionDescription}>{option.description}</span>
-            <span className={styles.optionDelta}>{formatDelta(option.priceDeltaCents)}</span>
-          </label>
-        ))}
-      </div>
-    );
-  }
-
-  if (currentStep === "ingredients")
-  {
-    return (
-      <div className={styles.ingredientStack}>
-        {INGREDIENT_OPTIONS.map((ingredient) => (
-          <article key={ingredient.id} className={styles.ingredientCard}>
-            <div className={styles.ingredientTopRow}>
-              <div>
-                <h3 className={styles.ingredientTitle}>{ingredient.label}</h3>
-                <p className={styles.ingredientDescription}>{ingredient.description}</p>
-              </div>
-              <span className={styles.ingredientMeta}>Extra {formatMoney(ingredient.extraPriceCents)}</span>
-            </div>
-
-            <div className={styles.ingredientModes} role="radiogroup" aria-label={ingredient.label}>
-              {Object.entries(INGREDIENT_MODE_LABEL).map(([mode, modeLabel]) => {
-                const resolvedMode = mode as IngredientMode;
-
-                return (
-                  <label key={mode} className={styles.modeOption}>
-                    <input
-                      type="radio"
-                      name={`ingredient-${ingredient.id}`}
-                      checked={(state.ingredientModes[ingredient.id] ?? ingredient.defaultMode) === resolvedMode}
-                      onChange={() =>
-                        dispatch({
-                          type: "set_ingredient_mode",
-                          ingredientId: ingredient.id,
-                          mode: resolvedMode
-                        })}
-                    />
-                    <span>{modeLabel}</span>
-                  </label>
-                );
-              })}
-            </div>
-          </article>
-        ))}
-      </div>
-    );
-  }
-
-  if (currentStep === "extras")
-  {
-    return (
-      <div className={styles.extraStack}>
-        {EXTRA_OPTIONS.map((extra) => (
-          <label key={extra.id} className={styles.extraOption}>
-            <input
-              type="checkbox"
-              checked={state.selectedExtraIds.includes(extra.id)}
-              onChange={() => dispatch({ type: "toggle_extra", extraId: extra.id })}
-            />
-            <div>
-              <span className={styles.optionTitle}>{extra.label}</span>
-              <span className={styles.optionDescription}>{extra.description}</span>
-            </div>
-            <span className={styles.optionDelta}>{formatDelta(extra.priceCents)}</span>
-          </label>
-        ))}
-      </div>
-    );
-  }
-
+function CollapsibleSection(props: CollapsibleSectionProps): ReactElement
+{
   return (
-    <div className={styles.summaryCard}>
-      <h3 className={styles.summaryTitle}>Configurazione pronta</h3>
-      <p className={styles.summaryCopy}>
-        {product.name} con impasto, varianti e extra selezionati. Procedi all&apos;aggiunta al carrello per continuare al checkout.
-      </p>
-      <ul className={styles.summaryList}>
-        <li>Impasto selezionato: {DOUGH_OPTIONS.find((option) => option.id === state.selectedDoughId)?.label}</li>
-        <li>Variante selezionata: {VARIANT_OPTIONS.find((option) => option.id === state.selectedVariantId)?.label}</li>
-        <li>Extra selezionati: {state.selectedExtraIds.length}</li>
-      </ul>
+    <div className={styles.sectionCard}>
+      <button
+        type="button"
+        className={styles.sectionHeader}
+        onClick={props.onToggle}
+        aria-expanded={props.isOpen}
+      >
+        <div className={styles.sectionHeaderLeft}>
+          <span className={styles.sectionIcon}>{props.icon}</span>
+          <div className={styles.sectionTitleGroup}>
+            <h2 className={styles.sectionTitle}>{props.title}</h2>
+            <p className={styles.sectionCurrentValue}>{props.currentValue}</p>
+          </div>
+        </div>
+        <div className={styles.sectionHeaderRight}>
+          {props.delta !== 0 ? (
+            <span className={styles.sectionDelta}>{formatDelta(props.delta)}</span>
+          ) : null}
+          <span className={`${styles.chevron} ${props.isOpen ? styles.chevronOpen : ""}`}>▾</span>
+        </div>
+      </button>
+
+      <div className={`${styles.sectionBody} ${props.isOpen ? styles.sectionBodyOpen : ""}`}>
+        <div className={styles.sectionContent}>
+          {props.children}
+        </div>
+      </div>
     </div>
   );
 }
+
+/* ── Dough selector ── */
+
+interface DoughSelectorProps
+{
+  readonly state: CustomizationState;
+  readonly dispatch: Dispatch<Parameters<typeof customizationReducer>[1]>;
+}
+
+function DoughSelector(props: DoughSelectorProps): ReactElement
+{
+  return (
+    <div className={styles.optionPillGroup} role="radiogroup" aria-label="Scelta impasto">
+      {DOUGH_OPTIONS.map((option) =>
+      {
+        const isActive = props.state.selectedDoughId === option.id;
+
+        return (
+          <label
+            key={option.id}
+            className={`${styles.optionPill} ${isActive ? styles.optionPillActive : ""}`}
+          >
+            <input
+              type="radio"
+              name="dough-option"
+              checked={isActive}
+              onChange={() => props.dispatch({ type: "set_dough", doughId: option.id })}
+            />
+            <span className={styles.optionPillTitle}>{option.label}</span>
+            <span className={styles.optionPillDescription}>{option.description}</span>
+            <span className={styles.optionPillDelta}>{formatDelta(option.priceDeltaCents)}</span>
+          </label>
+        );
+      })}
+    </div>
+  );
+}
+
+/* ── Variant selector ── */
+
+interface VariantSelectorProps
+{
+  readonly state: CustomizationState;
+  readonly dispatch: Dispatch<Parameters<typeof customizationReducer>[1]>;
+}
+
+function VariantSelector(props: VariantSelectorProps): ReactElement
+{
+  return (
+    <div className={styles.optionPillGroup} role="radiogroup" aria-label="Scelta formato">
+      {VARIANT_OPTIONS.map((option) =>
+      {
+        const isActive = props.state.selectedVariantId === option.id;
+
+        return (
+          <label
+            key={option.id}
+            className={`${styles.optionPill} ${isActive ? styles.optionPillActive : ""}`}
+          >
+            <input
+              type="radio"
+              name="variant-option"
+              checked={isActive}
+              onChange={() => props.dispatch({ type: "set_variant", variantId: option.id })}
+            />
+            <span className={styles.optionPillTitle}>{option.label}</span>
+            <span className={styles.optionPillDescription}>{option.description}</span>
+            <span className={styles.optionPillDelta}>{formatDelta(option.priceDeltaCents)}</span>
+          </label>
+        );
+      })}
+    </div>
+  );
+}
+
+/* ── Ingredient selector ── */
+
+interface IngredientSelectorProps
+{
+  readonly state: CustomizationState;
+  readonly dispatch: Dispatch<Parameters<typeof customizationReducer>[1]>;
+}
+
+function IngredientSelector(props: IngredientSelectorProps): ReactElement
+{
+  return (
+    <div className={styles.ingredientList}>
+      {INGREDIENT_OPTIONS.map((ingredient) =>
+      {
+        const currentMode = (props.state.ingredientModes[ingredient.id] ?? ingredient.defaultMode) as IngredientMode;
+
+        return (
+          <div key={ingredient.id} className={styles.ingredientRow}>
+            <div className={styles.ingredientInfo}>
+              <h3 className={styles.ingredientName}>{ingredient.label}</h3>
+              <p className={styles.ingredientDesc}>{ingredient.description}</p>
+              {currentMode === "extra" ? (
+                <span className={styles.ingredientExtraPrice}>+{formatMoney(ingredient.extraPriceCents)}</span>
+              ) : null}
+            </div>
+            <div className={styles.ingredientControls} role="radiogroup" aria-label={ingredient.label}>
+              {(Object.entries(INGREDIENT_MODE_LABEL) as [IngredientMode, string][]).map(([mode, modeLabel]) =>
+              {
+                const isActive = currentMode === mode;
+                let activeClass = "";
+
+                if (isActive && mode === "extra")
+                {
+                  activeClass = styles.modeButtonExtra;
+                }
+                else if (isActive && mode === "senza")
+                {
+                  activeClass = styles.modeButtonSenza;
+                }
+                else if (isActive)
+                {
+                  activeClass = styles.modeButtonActive;
+                }
+
+                return (
+                  <button
+                    key={mode}
+                    type="button"
+                    className={`${styles.modeButton} ${activeClass}`}
+                    onClick={() =>
+                      props.dispatch({
+                        type: "set_ingredient_mode",
+                        ingredientId: ingredient.id,
+                        mode
+                      })}
+                    aria-pressed={isActive}
+                  >
+                    {modeLabel}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+/* ── Extra selector ── */
+
+interface ExtraSelectorProps
+{
+  readonly state: CustomizationState;
+  readonly dispatch: Dispatch<Parameters<typeof customizationReducer>[1]>;
+}
+
+function ExtraSelector(props: ExtraSelectorProps): ReactElement
+{
+  return (
+    <div className={styles.extraList}>
+      {EXTRA_OPTIONS.map((extra) =>
+      {
+        const isActive = props.state.selectedExtraIds.includes(extra.id);
+
+        return (
+          <button
+            key={extra.id}
+            type="button"
+            className={`${styles.extraRow} ${isActive ? styles.extraRowActive : ""}`}
+            onClick={() => props.dispatch({ type: "toggle_extra", extraId: extra.id })}
+            aria-pressed={isActive}
+          >
+            <span className={`${styles.extraCheckbox} ${isActive ? styles.extraCheckboxActive : ""}`}>
+              {isActive ? "✓" : ""}
+            </span>
+            <div className={styles.extraInfo}>
+              <p className={styles.extraName}>{extra.label}</p>
+              <p className={styles.extraDesc}>{extra.description}</p>
+            </div>
+            <span className={styles.extraPrice}>{formatDelta(extra.priceCents)}</span>
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+/* ── Helpers ── */
 
 function formatMoney(amountCents: number): string
 {
@@ -394,6 +527,30 @@ function formatDelta(amountCents: number): string
   }
 
   return `-${formatMoney(Math.abs(amountCents))}`;
+}
+
+function deriveIngredientChangesSummary(state: CustomizationState): string
+{
+  const changes: string[] = [];
+
+  for (const ingredient of INGREDIENT_OPTIONS)
+  {
+    const currentMode = state.ingredientModes[ingredient.id] ?? ingredient.defaultMode;
+
+    if (currentMode !== ingredient.defaultMode)
+    {
+      const modeLabel = INGREDIENT_MODE_LABEL[currentMode as IngredientMode];
+
+      changes.push(`${ingredient.label}: ${modeLabel}`);
+    }
+  }
+
+  if (changes.length === 0)
+  {
+    return "Ricetta originale";
+  }
+
+  return changes.join(", ");
 }
 
 function createCustomizationNotes(input: {
