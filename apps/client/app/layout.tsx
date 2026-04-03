@@ -1,4 +1,5 @@
 import { getThemeClass, getThemeStyleVariables } from "@pizzaos/brand";
+import { BottomNav } from "@/features/navigation/BottomNav";
 import type { Metadata } from "next";
 import type { CSSProperties, ReactElement, ReactNode } from "react";
 import "./globals.css";
@@ -21,9 +22,17 @@ export default function RootLayout(props: RootLayoutProps): ReactElement
     <html lang="it">
       <body
         className={getThemeClass(surface)}
-        style={getThemeStyleVariables(surface) as CSSProperties}
+        style={{
+          ...(getThemeStyleVariables(surface) as CSSProperties),
+          minHeight: "100vh",
+          display: "flex",
+          flexDirection: "column"
+        }}
       >
-        {props.children}
+        <main style={{ flex: 1, paddingBottom: "100px" }}>
+          {props.children}
+        </main>
+        <BottomNav />
       </body>
     </html>
   );

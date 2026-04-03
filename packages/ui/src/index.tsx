@@ -451,3 +451,97 @@ export function StatusIndicator(props: StatusIndicatorProps): ReactElement
     </span>
   );
 }
+
+export interface BottomNavigationItem
+{
+  readonly id: string;
+  readonly label: string;
+  readonly icon: ReactNode;
+  readonly href: string;
+  readonly isProminent?: boolean;
+}
+
+export interface BottomNavigationProps
+{
+  readonly items: readonly BottomNavigationItem[];
+  readonly activeItemId: string;
+  readonly onNavigate?: (href: string) => void;
+}
+
+export function BottomNavigation(props: BottomNavigationProps): ReactElement
+{
+  return (
+    <nav
+      style={{
+        position: "fixed",
+        bottom: 0,
+        left: 0,
+        right: 0,
+        backgroundColor: "var(--pizzaos-color-background)",
+        borderTop: "1px solid var(--pizzaos-color-border)",
+        display: "flex",
+        justifyContent: "space-around",
+        alignItems: "center",
+        padding: "8px 0 calc(8px + env(safe-area-inset-bottom))",
+        zIndex: 50,
+        boxShadow: "0 -4px 12px rgba(0, 0, 0, 0.05)"
+      }}
+    >
+      {props.items.map((item) => {
+        const isActive = item.id === props.activeItemId;
+
+        const baseStyle: React.CSSProperties = {
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          border: "none",
+          background: "none",
+          cursor: "pointer",
+          transition: "all 0.2s ease"
+        };
+
+        if (item.isProminent) {
+          return (
+            <button
+              key={item.id}
+              onClick={() => props.onNavigate?.(item.href)}
+              style={{
+                ...baseStyle,
+                gap: "4px",
+                background: "var(--pizzaos-color-primary)",
+                color: "var(--pizzaos-color-primary-foreground)",
+                width: "64px",
+                height: "64px",
+                borderRadius: "50%",
+                marginTop: "-32px",
+                boxShadow: "0 4px 12px rgba(209, 73, 46, 0.4)",
+                transform: isActive ? "scale(1.1)" : "scale(1)"
+              }}
+            >
+              <span style={{ fontSize: "24px", display: "flex" }}>{item.icon}</span>
+              <span style={{ fontSize: "10px", fontWeight: 700 }}>{item.label}</span>
+            </button>
+          );
+        }
+
+        return (
+          <button
+            key={item.id}
+            onClick={() => props.onNavigate?.(item.href)}
+            style={{
+              ...baseStyle,
+              gap: "4px",
+              color: isActive ? "var(--pizzaos-color-primary)" : "var(--pizzaos-color-foreground-muted)",
+              flex: 1,
+              padding: "8px 0"
+            }}
+          >
+            <span style={{ fontSize: "20px", display: "flex" }}>{item.icon}</span>
+            <span style={{ fontSize: "12px", fontWeight: isActive ? 700 : 500 }}>{item.label}</span>
+          </button>
+        );
+      })}
+    </nav>
+  );
+}

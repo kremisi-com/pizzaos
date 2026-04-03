@@ -3,7 +3,6 @@ import {
   cleanupDom,
   domFireEvent,
   domScreen,
-  domWithin,
   renderDom
 } from "@pizzaos/testing";
 import { MenuScreen } from "../features/menu/components/menu-screen";
@@ -16,13 +15,14 @@ describe("menu screen", () =>
     window.localStorage.clear();
   });
 
-  it("renders menu browsing with slots and visible sold out product state", () =>
+  it("renders the menu header, category tabs, and sold out products", () =>
   {
     renderDom(<MenuScreen />);
 
-    expect(domScreen.getByRole("heading", { name: "Menu di oggi" }).textContent).toBe("Menu di oggi");
-    expect(domScreen.getByRole("heading", { name: "Consegna e ritiro" }).textContent).toBe("Consegna e ritiro");
-    expect(domScreen.getByRole("heading", { name: "Sfoglia per sezione" }).textContent).toBe("Sfoglia per sezione");
+    expect(domScreen.getByRole("heading", { name: "Scegli la tua pizza" }).textContent).toBe("Scegli la tua pizza");
+    expect(domScreen.getByRole("tablist", { name: "Sezioni menu" })).toBeTruthy();
+    expect(domScreen.getByRole("button", { name: /Consegna prevista:/i }).textContent).toContain("Oggi, 19:10");
+    expect(domScreen.getByRole("heading", { name: "Pizze Classiche" }).textContent).toBe("Pizze Classiche");
 
     domFireEvent.click(domScreen.getByRole("tab", { name: /Speciali Della Casa/i }));
 
@@ -33,26 +33,23 @@ describe("menu screen", () =>
 
     expect(domScreen.getByText("Calzone Tradizione").textContent).toBe("Calzone Tradizione");
     expect(domScreen.getByText("Esaurita ora").textContent).toBe("Esaurita ora");
-    expect(domScreen.getByRole("button", { name: "Non disponibile" }).hasAttribute("disabled")).toBe(true);
+    expect(domScreen.getByRole("button", { name: "Esaurito" }).hasAttribute("disabled")).toBe(true);
   });
 
-  it("switches section and keeps sold out slots visible but disabled", () =>
+  it("honors the initial section id and updates the selected tab", () =>
   {
     renderDom(<MenuScreen initialSectionId="section-speciali" />);
 
     const selectedTab = domScreen.getByRole("tab", { name: /Speciali Della Casa/i });
+
     expect(selectedTab.getAttribute("aria-selected")).toBe("true");
+    expect(domScreen.getByRole("heading", { name: "Speciali Della Casa" }).textContent).toBe("Speciali Della Casa");
+    expect(domScreen.getByText("Tonno e Cipolla").textContent).toBe("Tonno e Cipolla");
 
-    const slotList = domScreen.getByRole("list", { name: "Slot disponibili" });
-    const slotItems = domWithin(slotList).getAllByRole("listitem");
-    const soldOutSlot = slotItems[2];
+    domFireEvent.click(domScreen.getByRole("tab", { name: /Forno Espresso/i }));
 
-    expect(soldOutSlot.textContent).toContain("Oggi, 19:50");
-    expect(soldOutSlot.hasAttribute("disabled")).toBe(true);
-
-    domFireEvent.click(slotItems[1]);
-
-    expect(domScreen.getByText("Slot selezionato").textContent).toBe("Slot selezionato");
-    expect(domScreen.getByText(/Arrivo stimato in circa 40 minuti/i).textContent).toContain("40 minuti");
+    expect(selectedTab.getAttribute("aria-selected")).toBe("false");
+    expect(domScreen.getByRole("tab", { name: /Forno Espresso/i }).getAttribute("aria-selected")).toBe("true");
+    expect(domScreen.getByRole("heading", { name: "Forno Espresso" }).textContent).toBe("Forno Espresso");
   });
 });
