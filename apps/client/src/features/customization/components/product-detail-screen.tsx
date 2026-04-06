@@ -3,7 +3,7 @@
 import type { Product } from "@pizzaos/domain";
 import type { ClientSeed } from "@pizzaos/mock-data";
 import { Badge } from "@pizzaos/ui";
-import { useCallback, useEffect, useReducer, useState, type Dispatch, type ReactElement } from "react";
+import { useCallback, useEffect, useReducer, useRef, useState, type Dispatch, type ReactElement } from "react";
 import { addCartItem } from "../../cart/cart-model";
 import { loadClientDemoState } from "../../home/client-demo-state";
 import { deriveProductAvailability } from "../../menu/menu-view-model";
@@ -56,6 +56,9 @@ export function ProductDetailScreen(props: ProductDetailScreenProps): ReactEleme
   const [state, dispatch] = useReducer(customizationReducer, undefined, createInitialCustomizationState);
   const [isCartToastVisible, setIsCartToastVisible] = useState(false);
   const [openSection, setOpenSection] = useState<OpenSection>(null);
+  const [isPricePulsing, setIsPricePulsing] = useState(false);
+  const [isAddSuccess, setIsAddSuccess] = useState(false);
+  const previousTotalRef = useRef<number | null>(null);
 
   useEffect(() =>
   {
@@ -90,6 +93,29 @@ export function ProductDetailScreen(props: ProductDetailScreenProps): ReactEleme
 
   const availability = deriveProductAvailability(product);
   const priceBreakdown = deriveCustomizationPrice(product.basePrice.amountCents, state);
+
+  // Price pulse micro-animation: trigger when total changes after initial render
+  useEffect(() =>
+  {
+    if (previousTotalRef.current !== null && previousTotalRef.current !== priceBreakdown.totalCents)
+    {
+      setIsPricePulsing(true);
+      const timer = setTimeout(() => setIsPricePulsing(false), 300);
+
+      return () => clearTimeout(timer);
+    }
+
+    previousTotalRef.current = priceBreakdown.totalCents;
+
+    return undefined;
+  }, [priceBreakdown.totalCents]);
+
+  // Update ref after effect runs for subsequent changes
+  useEffect(() =>
+  {
+    previousTotalRef.current = priceBreakdown.totalCents;
+  });
+
   const visibleAllergens = deriveVisibleAllergens(product.allergens, state);
   const pairings = getPairingSuggestions(product.id);
 
@@ -122,7 +148,13 @@ export function ProductDetailScreen(props: ProductDetailScreenProps): ReactEleme
       resolveStorage()
     );
 
-    setIsCartToastVisible(true);
+    // Success flash animation
+    setIsAddSuccess(true);
+    setTimeout(() =>
+    {
+      setIsAddSuccess(false);
+      setIsCartToastVisible(true);
+    }, 600);
   }
 
   const selectedDoughLabel = DOUGH_OPTIONS.find((option) => option.id === state.selectedDoughId)?.label ?? "Classico";
@@ -235,25 +267,34 @@ export function ProductDetailScreen(props: ProductDetailScreenProps): ReactEleme
         </section>
       ) : null}
 
-      {/* ── Sticky bottom bar ── */}
-      <div className={styles.bottomBar} aria-live="polite">
-        <div className={styles.bottomBarInner}>
-          <div className={styles.bottomPriceBlock}>
-            <span className={styles.bottomPriceLabel}>Totale</span>
-            <span className={styles.bottomPriceValue} data-testid="customization-total-value">
-              {formatMoney(priceBreakdown.totalCents)}
-            </span>
-          </div>
-          <button
-            type="button"
-            className={styles.addToCartButton}
-            onClick={handleAddToCartClick}
-            disabled={!availability.isOrderable}
-          >
-            <span className={styles.addToCartIcon}>🛒</span>
-            Aggiungi
-          </button>
-        </div>
+      {/* ── Sticky CTA ── */}
+      <div className={styles.stickyCtaWrapper} aria-live="polite">
+        <button
+          type="button"
+          className={
+            `${styles.stickyCtaButton}${isAddSuccess ? ` ${styles.stickyCtaSuccess}` : ""}`
+          }
+          onClick={handleAddToCartClick}
+          disabled={!availability.isOrderable}
+          aria-label={`${formatMoney(priceBreakdown.totalCents)} – Aggiungi al carrello`}
+        >
+          {isAddSuccess ? (
+            <span className={styles.ctaLabel}>✓ Aggiunto</span>
+          ) : (
+            <>
+              <span
+                className={
+                  `${styles.ctaPrice}${isPricePulsing ? ` ${styles.ctaPricePulse}` : ""}`
+                }
+                data-testid="customization-total-value"
+              >
+                {formatMoney(priceBreakdown.totalCents)}
+              </span>
+              <span className={styles.ctaDot}>·</span>
+              <span className={styles.ctaLabel}>Aggiungi al carrello</span>
+            </>
+          )}
+        </button>
       </div>
 
       {/* ── Cart toast ── */}
