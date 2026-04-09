@@ -97,6 +97,7 @@ export interface AdminDatasetTemplate
   readonly menu: Menu;
   readonly menus: readonly Menu[];
   readonly orders: readonly Order[];
+  readonly riders: readonly Rider[];
   readonly inventory: readonly InventoryItem[];
   readonly analytics: AnalyticsSnapshot;
   readonly insights: readonly AiInsight[];

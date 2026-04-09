@@ -32,10 +32,8 @@ const MOCK_PRODUCTS: Product[] = [
     name: "Margherita",
     sku: "PIZ-001",
     description: "Classic",
-    price: { amountCents: 800, currencyCode: "EUR" },
+    basePrice: { amountCents: 800, currencyCode: "EUR" },
     status: "available",
-    category: "pizza",
-    image: "",
     tags: [],
     allergens: []
   },
@@ -44,10 +42,8 @@ const MOCK_PRODUCTS: Product[] = [
     name: "Diavola",
     sku: "PIZ-002",
     description: "Spicy",
-    price: { amountCents: 1000, currencyCode: "EUR" },
+    basePrice: { amountCents: 1000, currencyCode: "EUR" },
     status: "available",
-    category: "pizza",
-    image: "",
     tags: [],
     allergens: []
   }

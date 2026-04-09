@@ -137,6 +137,30 @@
   font-weight: 700;
 }
 
+.statItemValueSmall {
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.statWarning {
+  color: #f59e0b;
+}
+
+.statDanger {
+  color: var(--pizzaos-color-primary);
+}
+
+.insightTitle {
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.insightSummary {
+  font-size: 0.875rem;
+  color: var(--pizzaos-color-foreground-muted);
+  margin-bottom: 12px;
+}
+
 .infoList {
   padding-left: 20px;
   color: var(--pizzaos-color-foreground-muted);

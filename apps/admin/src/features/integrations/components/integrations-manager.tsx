@@ -1,4 +1,4 @@
-import { Badge, Button, Card, StatusIndicator } from "@pizzaos/ui";
+import { Button, Card, StatusIndicator } from "@pizzaos/ui";
 import { type ReactElement } from "react";
 import styles from "./integrations-manager.module.css";
 
@@ -48,10 +48,10 @@ export function IntegrationsManager(): ReactElement {
               <div className={styles.cardHeader}>
                 <div className={styles.logo}>{integration.logo}</div>
                 <div className={styles.status}>
-                  <StatusIndicator tone={integration.status === "connected" ? "active" : "idle"} />
-                  <span className={styles.statusText}>
-                    {integration.status === "connected" ? "Connesso" : "Disponibile"}
-                  </span>
+                  <StatusIndicator
+                    tone={integration.status === "connected" ? "active" : "idle"}
+                    label={integration.status === "connected" ? "Connesso" : "Disponibile"}
+                  />
                 </div>
               </div>
               <h3 className={styles.integrationName}>{integration.name}</h3>

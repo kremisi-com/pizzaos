@@ -245,14 +245,14 @@ describe("order simulation", () =>
         {
           ...dataset.orders[0],
           status: "out_for_delivery" as const,
-          total: { amountCents: 2500, currencyCode: "EUR" }
+          total: { amountCents: 2500, currencyCode: "EUR" as const }
         }
       ],
       analytics: {
         ...dataset.analytics,
         ordersToday: 10,
-        revenueToday: { amountCents: 20000, currencyCode: "EUR" },
-        averageOrderValue: { amountCents: 2000, currencyCode: "EUR" }
+        revenueToday: { amountCents: 20000, currencyCode: "EUR" as const },
+        averageOrderValue: { amountCents: 2000, currencyCode: "EUR" as const }
       },
       simulationCursorIso: "2026-03-25T18:00:00.000Z"
     };
