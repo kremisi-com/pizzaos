@@ -38,33 +38,18 @@ function resolveStorage(): Storage | undefined
 export function OrdersScreen(): ReactElement
 {
   const [seed, setSeed] = useState<ClientSeed>(() => loadClientDemoState());
-  const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
   const [reorderedOrderId, setReorderedOrderId] = useState<string | null>(null);
 
   useEffect(() =>
   {
     const hydratedSeed = loadClientDemoState(resolveStorage());
-    const selectableOrders = deriveSelectableOrders(hydratedSeed);
 
     setSeed(hydratedSeed);
-    setSelectedOrderId((currentSelectedOrderId) => currentSelectedOrderId ?? selectableOrders[0]?.id ?? null);
   }, []);
 
   const displayedOrders = useMemo(
     () => deriveSelectableOrders(seed),
     [seed]
-  );
-  const selectedOrder = useMemo(
-    () =>
-    {
-      if (displayedOrders.length === 0)
-      {
-        return null;
-      }
-
-      return displayedOrders.find((order) => order.id === selectedOrderId) ?? displayedOrders[0];
-    },
-    [displayedOrders, selectedOrderId]
   );
 
   function handleQuickReorder(order: Order): void
@@ -110,110 +95,34 @@ export function OrdersScreen(): ReactElement
       <ShellCard title="Storico ordini">
         {displayedOrders.length > 0 ? (
           <ul className={styles.historyList} data-testid="orders-history-list">
-            {displayedOrders.map((order) => {
-              const isSelected = order.id === selectedOrder?.id;
-
-              return (
-                <li key={order.id}>
-                  <button
-                    type="button"
-                    className={`${styles.historyButton} ${isSelected ? styles.historyButtonSelected : ""}`}
-                    onClick={() => setSelectedOrderId(order.id)}
-                    data-testid={`orders-history-select-${order.id}`}
+            {displayedOrders.map((order) => (
+              <li key={order.id} className={styles.historyItem}>
+                <div className={styles.historyCard}>
+                  <div className={styles.historyTopRow}>
+                    <p className={styles.historyTitle}>{order.id}</p>
+                    <Badge tone={order.status === "cancelled" ? "warning" : "neutral"}>
+                      {getOrderStatusLabel(order.status)}
+                    </Badge>
+                  </div>
+                  <p className={styles.historyMeta}>
+                    {formatDateTime(order.createdAtIso)} · {order.lines.length} {order.lines.length === 1 ? "riga" : "righe"}
+                  </p>
+                  <p className={styles.historyTotal}>Totale {formatMoney(order.total.amountCents)}</p>
+                  <Button
+                    variant="secondary"
+                    onClick={() => handleQuickReorder(order)}
+                    data-testid={`orders-reorder-${order.id}`}
                   >
-                    <div className={styles.historyTopRow}>
-                      <p className={styles.historyTitle}>{order.id}</p>
-                      <Badge tone={order.status === "cancelled" ? "warning" : "neutral"}>
-                        {getOrderStatusLabel(order.status)}
-                      </Badge>
-                    </div>
-                    <p className={styles.historyMeta}>
-                      {formatDateTime(order.createdAtIso)} · {order.lines.length} {order.lines.length === 1 ? "riga" : "righe"}
-                    </p>
-                    <p className={styles.historyTotal}>Totale {formatMoney(order.total.amountCents)}</p>
-                  </button>
+                    Riordina veloce
+                  </Button>
+                </div>
                 </li>
-              );
-            })}
+            ))}
           </ul>
         ) : (
           <p className={styles.emptyCopy}>Nessun ordine nello storico.</p>
         )}
       </ShellCard>
-
-      {selectedOrder ? (
-        <section className={styles.detailStack} data-testid="orders-detail-card">
-          <ShellCard title="Dettagli ordine">
-            <div className={styles.orderMeta}>
-              <p>
-                <strong>ID ordine:</strong> {selectedOrder.id}
-              </p>
-              <p>
-                <strong>Creato il:</strong> {formatDateTime(selectedOrder.createdAtIso)}
-              </p>
-              <p>
-                <strong>Slot:</strong> {selectedOrder.scheduledSlot}
-              </p>
-              <p>
-                <strong>Stato:</strong> {getOrderStatusLabel(selectedOrder.status)}
-              </p>
-            </div>
-
-            <section className={styles.itemsSection} aria-label="Prodotti dell'ordine selezionato">
-              {selectedOrder.lines.map((line, lineIndex) => (
-                <article
-                  key={`${selectedOrder.id}-${line.productId}-${lineIndex}`}
-                  className={styles.itemCard}
-                >
-                  <div className={styles.itemTopRow}>
-                    <div className={styles.itemInfo}>
-                      <h2 className={styles.itemName}>
-                        {line.quantity}x {resolveProductName(line.productId, seed)}
-                      </h2>
-                      {line.notes ? (
-                        <p className={styles.itemNotes}>{line.notes}</p>
-                      ) : null}
-                    </div>
-                    <p className={styles.itemPrice}>
-                      {formatMoney(line.unitPrice.amountCents * line.quantity)}
-                    </p>
-                  </div>
-                </article>
-              ))}
-            </section>
-          </ShellCard>
-
-          <ShellCard title="Riepilogo ordine">
-            <div className={styles.summaryGrid}>
-              <p>Subtotale</p>
-              <p>{formatMoney(selectedOrder.subtotal.amountCents)}</p>
-              {selectedOrder.discountTotal.amountCents > 0 ? (
-                <>
-                  <p>Sconti</p>
-                  <p>-{formatMoney(selectedOrder.discountTotal.amountCents)}</p>
-                </>
-              ) : null}
-              <p>Consegna</p>
-              <p>{formatMoney(selectedOrder.deliveryFee.amountCents)}</p>
-            </div>
-
-            <div className={styles.summaryTotalRow}>
-              <span className={styles.summaryTotalLabel}>Totale pagato</span>
-              <span className={styles.summaryTotalValue}>{formatMoney(selectedOrder.total.amountCents)}</span>
-            </div>
-
-            <div className={styles.summaryActions}>
-              <Button
-                variant="secondary"
-                onClick={() => handleQuickReorder(selectedOrder)}
-                data-testid={`orders-reorder-${selectedOrder.id}`}
-              >
-                Riordina veloce
-              </Button>
-            </div>
-          </ShellCard>
-        </section>
-      ) : null}
     </main>
   );
 }
@@ -245,9 +154,4 @@ function formatDateTime(isoTimestamp: string): string
 function formatMoney(amountCents: number): string
 {
   return MONEY_FORMATTER.format(amountCents / 100);
-}
-
-function resolveProductName(productId: string, seed: ClientSeed): string
-{
-  return seed.products.find((product) => product.id === productId)?.name ?? productId;
 }

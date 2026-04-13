@@ -1,10 +1,5 @@
 import { createClientSeed } from "@pizzaos/mock-data";
-import {
-  cleanupDom,
-  domFireEvent,
-  domScreen,
-  renderDom
-} from "@pizzaos/testing";
+import { cleanupDom, domFireEvent, domScreen, renderDom } from "@pizzaos/testing";
 import { beforeEach, describe, expect, it } from "vitest";
 import { OrdersScreen } from "../features/orders/components/orders-screen";
 import { CLIENT_CART_STORAGE_KEY } from "../features/cart/cart-model";
@@ -18,7 +13,7 @@ describe("orders screen", () =>
     window.localStorage.clear();
   });
 
-  it("renders archived orders list and opens the first order details", async () =>
+  it("renders archived orders list without detail or summary cards", async () =>
   {
     const seed = createClientSeed();
     window.localStorage.setItem(getClientDemoStateStorageKey(), JSON.stringify(seed));
@@ -27,14 +22,13 @@ describe("orders screen", () =>
 
     expect(await domScreen.findByRole("heading", { name: "Ordini passati" })).toBeDefined();
     expect(domScreen.getByTestId("orders-history-list")).toBeDefined();
-    expect(domScreen.getByTestId("orders-detail-card")).toBeDefined();
-    expect(domScreen.getByText("Dettagli ordine")).toBeDefined();
-    expect(domScreen.getByText("Riepilogo ordine")).toBeDefined();
     expect(domScreen.getAllByText("order-client-history-001").length).toBeGreaterThan(0);
     expect(domScreen.queryByTestId("orders-last-time-button")).toBeNull();
+    expect(domScreen.queryByText("Dettagli ordine")).toBeNull();
+    expect(domScreen.queryByText("Riepilogo ordine")).toBeNull();
   });
 
-  it("updates detail panel when selecting another order from history", async () =>
+  it("renders multiple archived orders directly in history", async () =>
   {
     const seed = createClientSeed();
     const secondArchivedOrder = {
@@ -59,11 +53,7 @@ describe("orders screen", () =>
 
     renderDom(<OrdersScreen />);
 
-    expect(await domScreen.findByTestId("orders-history-select-order-client-history-002")).toBeDefined();
-
-    domFireEvent.click(domScreen.getByTestId("orders-history-select-order-client-history-002"));
-
-    expect(domScreen.getByText("ID ordine:")).toBeDefined();
+    expect(await domScreen.findByText("order-client-history-002")).toBeDefined();
     expect(domScreen.getAllByText("order-client-history-002").length).toBeGreaterThan(0);
   });
 
