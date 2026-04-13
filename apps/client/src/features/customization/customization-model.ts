@@ -226,8 +226,220 @@ export const INGREDIENT_OPTIONS: readonly IngredientOption[] = [
     extraPriceCents: 25,
     defaultMode: "normale",
     allergens: []
+  },
+  {
+    id: "ingredient-aglio",
+    label: "Aglio italiano",
+    description: "Lamelle leggere dal profilo deciso.",
+    extraPriceCents: 20,
+    defaultMode: "normale",
+    allergens: []
+  },
+  {
+    id: "ingredient-origano",
+    label: "Origano mediterraneo",
+    description: "Profumo secco che completa la base rossa.",
+    extraPriceCents: 15,
+    defaultMode: "normale",
+    allergens: []
+  },
+  {
+    id: "ingredient-spianata",
+    label: "Spianata piccante",
+    description: "Fette sottili con speziatura viva.",
+    extraPriceCents: 160,
+    defaultMode: "normale",
+    allergens: []
+  },
+  {
+    id: "ingredient-peperoncino",
+    label: "Peperoncino rosso",
+    description: "Piccantezza pulita distribuita in uscita.",
+    extraPriceCents: 25,
+    defaultMode: "normale",
+    allergens: []
+  },
+  {
+    id: "ingredient-prosciutto-cotto",
+    label: "Prosciutto cotto arrosto",
+    description: "Fette morbide dal gusto delicato.",
+    extraPriceCents: 140,
+    defaultMode: "normale",
+    allergens: []
+  },
+  {
+    id: "ingredient-funghi",
+    label: "Funghi champignon",
+    description: "Saltati rapidamente per restare succosi.",
+    extraPriceCents: 110,
+    defaultMode: "normale",
+    allergens: []
+  },
+  {
+    id: "ingredient-carciofi",
+    label: "Carciofi a spicchi",
+    description: "Cuori teneri dal finale erbaceo.",
+    extraPriceCents: 120,
+    defaultMode: "normale",
+    allergens: []
+  },
+  {
+    id: "ingredient-olive",
+    label: "Olive taggiasche",
+    description: "Nota sapida che chiude la ricetta.",
+    extraPriceCents: 80,
+    defaultMode: "normale",
+    allergens: []
+  },
+  {
+    id: "ingredient-verdure-grigliate",
+    label: "Verdure grigliate",
+    description: "Selezione stagionale con tostatura leggera.",
+    extraPriceCents: 150,
+    defaultMode: "normale",
+    allergens: []
+  },
+  {
+    id: "ingredient-olio-basilico",
+    label: "Olio al basilico",
+    description: "Finitura aromatica dal profilo fresco.",
+    extraPriceCents: 35,
+    defaultMode: "normale",
+    allergens: []
+  },
+  {
+    id: "ingredient-gorgonzola",
+    label: "Gorgonzola dolce",
+    description: "Cremosita intensa a supporto dei formaggi.",
+    extraPriceCents: 140,
+    defaultMode: "normale",
+    allergens: [ALLERGENS.LAT]
+  },
+  {
+    id: "ingredient-fontina",
+    label: "Fontina valdostana",
+    description: "Pasta morbida con fusione avvolgente.",
+    extraPriceCents: 130,
+    defaultMode: "normale",
+    allergens: [ALLERGENS.LAT]
+  },
+  {
+    id: "ingredient-parmigiano",
+    label: "Parmigiano Reggiano",
+    description: "Scaglie fini per una chiusura sapida.",
+    extraPriceCents: 90,
+    defaultMode: "normale",
+    allergens: [ALLERGENS.LAT]
+  },
+  {
+    id: "ingredient-tonno",
+    label: "Tonno del Mediterraneo",
+    description: "Sfilacciato a mano per un morso piu pulito.",
+    extraPriceCents: 170,
+    defaultMode: "normale",
+    allergens: [ALLERGENS.PES]
+  },
+  {
+    id: "ingredient-cipolla-rossa",
+    label: "Cipolla rossa",
+    description: "Taglio sottile per una dolcezza piu elegante.",
+    extraPriceCents: 50,
+    defaultMode: "normale",
+    allergens: []
+  },
+  {
+    id: "ingredient-ricotta",
+    label: "Ricotta fresca",
+    description: "Ripieno soffice e lattico.",
+    extraPriceCents: 120,
+    defaultMode: "normale",
+    allergens: [ALLERGENS.LAT]
+  },
+  {
+    id: "ingredient-salame-dolce",
+    label: "Salame dolce",
+    description: "Macinatura fine dal profilo rotondo.",
+    extraPriceCents: 150,
+    defaultMode: "normale",
+    allergens: []
+  },
+  {
+    id: "ingredient-provola",
+    label: "Provola affumicata",
+    description: "Fusione elastica con finale affumicato.",
+    extraPriceCents: 130,
+    defaultMode: "normale",
+    allergens: [ALLERGENS.LAT]
+  },
+  {
+    id: "ingredient-rosmarino",
+    label: "Rosmarino fresco",
+    description: "Aghi fragranti su focaccia calda.",
+    extraPriceCents: 20,
+    defaultMode: "normale",
+    allergens: []
   }
 ];
+
+const INGREDIENT_OPTIONS_BY_ID: Readonly<Record<string, IngredientOption>> = Object.fromEntries(
+  INGREDIENT_OPTIONS.map((ingredient) => [ingredient.id, ingredient])
+);
+
+const PRODUCT_INGREDIENT_IDS: Readonly<Record<string, readonly string[]>> = {
+  "product-marinara": [
+    "ingredient-pomodoro",
+    "ingredient-aglio",
+    "ingredient-origano",
+    "ingredient-olio"
+  ],
+  "product-margherita": [
+    "ingredient-pomodoro",
+    "ingredient-fiordilatte",
+    "ingredient-basilico",
+    "ingredient-olio"
+  ],
+  "product-diavola": [
+    "ingredient-pomodoro",
+    "ingredient-fiordilatte",
+    "ingredient-spianata",
+    "ingredient-peperoncino"
+  ],
+  "product-capricciosa": [
+    "ingredient-pomodoro",
+    "ingredient-fiordilatte",
+    "ingredient-prosciutto-cotto",
+    "ingredient-funghi",
+    "ingredient-carciofi",
+    "ingredient-olive"
+  ],
+  "product-vegetariana": [
+    "ingredient-pomodoro",
+    "ingredient-fiordilatte",
+    "ingredient-verdure-grigliate",
+    "ingredient-olio-basilico"
+  ],
+  "product-4-formaggi": [
+    "ingredient-fiordilatte",
+    "ingredient-gorgonzola",
+    "ingredient-fontina",
+    "ingredient-parmigiano"
+  ],
+  "product-tonno-cipolla": [
+    "ingredient-pomodoro",
+    "ingredient-tonno",
+    "ingredient-cipolla-rossa",
+    "ingredient-olio"
+  ],
+  "product-calzone": [
+    "ingredient-ricotta",
+    "ingredient-salame-dolce",
+    "ingredient-provola"
+  ],
+  "product-focaccia-rosmarino": [
+    "ingredient-olio",
+    "ingredient-rosmarino"
+  ]
+};
 
 export const EXTRA_OPTIONS: readonly ExtraOption[] = [
   {
@@ -547,7 +759,7 @@ export function deriveCustomizationPrice(
 {
   const doughDeltaCents = resolveDoughOption(state.selectedDoughId).priceDeltaCents;
   const variantDeltaCents = resolveVariantOption(state.selectedVariantId).priceDeltaCents;
-  const ingredientDeltaCents = INGREDIENT_OPTIONS.reduce((accumulator, ingredient) =>
+  const ingredientDeltaCents = getIngredientOptionsForProduct(productId).reduce((accumulator, ingredient) =>
   {
     const mode = state.ingredientModes[ingredient.id] ?? ingredient.defaultMode;
 
@@ -645,6 +857,7 @@ export function deriveExtraPrice(
 }
 
 export function deriveVisibleAllergens(
+  productId: string,
   baseAllergens: readonly ProductAllergen[],
   state: CustomizationState
 ): readonly ProductAllergen[]
@@ -661,7 +874,7 @@ export function deriveVisibleAllergens(
     allergensByCode.set(allergen.code, allergen);
   }
 
-  for (const ingredient of INGREDIENT_OPTIONS)
+  for (const ingredient of getIngredientOptionsForProduct(productId))
   {
     const mode = state.ingredientModes[ingredient.id] ?? ingredient.defaultMode;
 
@@ -697,6 +910,20 @@ export function deriveVisibleAllergens(
 export function getPairingSuggestions(productId: string): readonly PairingSuggestion[]
 {
   return PAIRINGS_BY_PRODUCT_ID[productId] ?? DEFAULT_PAIRINGS;
+}
+
+export function getIngredientOptionsForProduct(productId: string): readonly IngredientOption[]
+{
+  const ingredientIds = PRODUCT_INGREDIENT_IDS[productId];
+
+  if (!ingredientIds)
+  {
+    return INGREDIENT_OPTIONS.slice(0, 4);
+  }
+
+  return ingredientIds
+    .map((ingredientId) => INGREDIENT_OPTIONS_BY_ID[ingredientId])
+    .filter((ingredient): ingredient is IngredientOption => ingredient !== undefined);
 }
 
 export function getPizzaPreviewImage(input: {

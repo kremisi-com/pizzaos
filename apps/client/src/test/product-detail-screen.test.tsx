@@ -120,6 +120,18 @@ describe("product detail screen", () => {
     expect(
       document.querySelector('[src="/images/topping/vegetariana.png"]'),
     ).toBeNull();
+
+    domFireEvent.click(
+      domScreen.getByRole("heading", { name: "Ingredienti" }).closest("button") as HTMLButtonElement,
+    );
+
+    expect(
+      domScreen.getByText("Sfilacciato a mano per un morso piu pulito.").textContent,
+    ).toBe("Sfilacciato a mano per un morso piu pulito.");
+    expect(
+      domScreen.getByText("Taglio sottile per una dolcezza piu elegante.").textContent,
+    ).toBe("Taglio sottile per una dolcezza piu elegante.");
+    expect(domScreen.queryByText("Fiordilatte")).toBeNull();
   });
 
   it("renders the marinara topping for the new menu product", () => {

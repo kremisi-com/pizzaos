@@ -83,7 +83,7 @@ describe("customization model", () =>
       type: "toggle_extra",
       extraId: "extra-acciughe"
     });
-    const visibleAllergens = deriveVisibleAllergens(baseProduct!.allergens, configuredState);
+    const visibleAllergens = deriveVisibleAllergens("product-margherita", baseProduct!.allergens, configuredState);
 
     expect(configuredState.currentStepIndex).toBe(4);
     expect(visibleAllergens.map((allergen) => allergen.label)).toEqual([

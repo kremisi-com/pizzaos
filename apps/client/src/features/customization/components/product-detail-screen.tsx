@@ -1,6 +1,6 @@
 "use client";
 
-import type { Product } from "@pizzaos/domain";
+import type { Product, ProductAllergen } from "@pizzaos/domain";
 import type { ClientSeed } from "@pizzaos/mock-data";
 import { Badge, Dialog } from "@pizzaos/ui";
 import { useCallback, useEffect, useReducer, useRef, useState, type Dispatch, type ReactElement } from "react";
@@ -17,9 +17,9 @@ import {
   EXTRA_CATEGORIES,
   EXTRA_OPTIONS,
   getPizzaPreviewImage,
+  getIngredientOptionsForProduct,
   getPairingSuggestions,
   getProductToppingImage,
-  INGREDIENT_OPTIONS,
   PIZZA_BASE_OPTIONS,
   VARIANT_OPTIONS,
   BUNDLE_CONFIGS,
@@ -129,7 +129,7 @@ export function ProductDetailScreen(props: ProductDetailScreenProps): ReactEleme
     previousTotalRef.current = priceBreakdown.totalCents;
   });
 
-  const visibleAllergens = deriveVisibleAllergens(product?.allergens ?? [], state);
+  const visibleAllergens = deriveVisibleAllergens(props.productId, product?.allergens ?? [], state);
   const pairings = product ? getPairingSuggestions(product.id) : [];
   const toppingImage = product ? getProductToppingImage(product.id) : undefined;
 
@@ -179,7 +179,7 @@ export function ProductDetailScreen(props: ProductDetailScreenProps): ReactEleme
   const doughDelta = DOUGH_OPTIONS.find((option) => option.id === state.selectedDoughId)?.priceDeltaCents ?? 0;
   const variantDelta = VARIANT_OPTIONS.find((option) => option.id === state.selectedVariantId)?.priceDeltaCents ?? 0;
   const activeExtrasCount = state.selectedExtraIds.length;
-  const ingredientChanges = deriveIngredientChangesSummary(state);
+  const ingredientChanges = deriveIngredientChangesSummary(props.productId, state);
 
   const [isIngredientsModalOpen, setIsIngredientsModalOpen] = useState(false);
 
@@ -308,7 +308,7 @@ export function ProductDetailScreen(props: ProductDetailScreenProps): ReactEleme
           isOpen={openSection === "ingredients"}
           onToggle={() => toggleSection("ingredients")}
         >
-          <IngredientSelector state={state} dispatch={dispatch} />
+          <IngredientSelector productId={props.productId} state={state} dispatch={dispatch} />
         </CollapsibleSection>
 
         {/* Extra */}
@@ -600,15 +600,18 @@ function VariantSelector(props: VariantSelectorProps): ReactElement
 
 interface IngredientSelectorProps
 {
+  readonly productId: string;
   readonly state: CustomizationState;
   readonly dispatch: Dispatch<Parameters<typeof customizationReducer>[1]>;
 }
 
 function IngredientSelector(props: IngredientSelectorProps): ReactElement
 {
+  const ingredientOptions = getIngredientOptionsForProduct(props.productId);
+
   return (
     <div className={styles.ingredientList}>
-      {INGREDIENT_OPTIONS.map((ingredient) =>
+      {ingredientOptions.map((ingredient) =>
       {
         const currentMode = (props.state.ingredientModes[ingredient.id] ?? ingredient.defaultMode) as IngredientMode;
         const isSelected = currentMode !== "senza";
@@ -769,11 +772,11 @@ function formatDelta(amountCents: number): string
   return `-${formatMoney(Math.abs(amountCents))}`;
 }
 
-function deriveIngredientChangesSummary(state: CustomizationState): string
+function deriveIngredientChangesSummary(productId: string, state: CustomizationState): string
 {
   const removedIngredients: string[] = [];
 
-  for (const ingredient of INGREDIENT_OPTIONS)
+  for (const ingredient of getIngredientOptionsForProduct(productId))
   {
     const currentMode = state.ingredientModes[ingredient.id] ?? ingredient.defaultMode;
 
@@ -896,51 +899,19 @@ function IngredientsModal(props: IngredientsModalProps): ReactElement
   );
 }
 
-function getProductIngredients(product: Product): { label: string; allergens: any[] }[]
+function getProductIngredients(product: Product): readonly {
+  label: string;
+  allergens: readonly ProductAllergen[];
+}[]
 {
-  const baseIngredients = [
-    { label: "Impasto tradizionale PizzaOS", allergens: [{ code: "GLU", label: "Glutine" }] }
-  ];
-
-  // Map words in description to ingredients with allergens
-  const mapping: Record<string, { label: string; allergens: any[] }> = {
-    pomodoro: { label: "Pomodoro San Marzano DOP", allergens: [] },
-    fiordilatte: { label: "Fiordilatte di Agerola", allergens: [{ code: "LAT", label: "Lattosio" }] },
-    basilico: { label: "Basilico fresco a foglia larga", allergens: [] },
-    tonno: { label: "Tonno pinna gialla in olio d'oliva", allergens: [{ code: "PES", label: "Pesce" }] },
-    cipolla: { label: "Cipolla rossa di Tropea", allergens: [] },
-    spianata: { label: "Spianata calabra piccante", allergens: [] },
-    formaggi: { label: "Selezione Formaggi Italiani", allergens: [{ code: "LAT", label: "Lattosio" }] },
-    gorgonzola: { label: "Gorgonzola DOP", allergens: [{ code: "LAT", label: "Lattosio" }] },
-    parmigiano: { label: "Parmigiano Reggiano 24 mesi", allergens: [{ code: "LAT", label: "Lattosio" }] },
-    pecorino: { label: "Pecorino Romano", allergens: [{ code: "LAT", label: "Lattosio" }] },
-    olive: { label: "Olive taggiasche denocciolate", allergens: [] },
-    carciofi: { label: "Cuori di carciofo", allergens: [] },
-    funghi: { label: "Funghi champignon freschi", allergens: [] },
-    "prosciutto cotto": { label: "Prosciutto cotto alta qualità", allergens: [] }
-  };
-
-  const ingredients = [...baseIngredients];
-  const desc = product.description.toLowerCase();
-
-  for (const [key, value] of Object.entries(mapping))
-  {
-    if (desc.includes(key))
+  return [
     {
-      ingredients.push(value);
-    }
-  }
-
-  // Specific fallbacks for common pizzas if description is too brief
-  if (product.id === "product-margherita" && !desc.includes("fiordilatte"))
-  {
-    ingredients.push(mapping.fiordilatte);
-  }
-
-  if (product.id === "product-tonno-cipolla" && !desc.includes("pomodoro"))
-  {
-    ingredients.push(mapping.pomodoro);
-  }
-
-  return ingredients;
+      label: "Impasto tradizionale PizzaOS",
+      allergens: [{ code: "GLU", label: "Glutine" }]
+    },
+    ...getIngredientOptionsForProduct(product.id).map((ingredient) => ({
+      label: ingredient.label,
+      allergens: ingredient.allergens
+    }))
+  ];
 }
