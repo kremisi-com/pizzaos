@@ -222,6 +222,10 @@ Finish the client app as a polished, demo-ready mobile product.
 **Test requirements**
 
 - Add E2E coverage for the full happy path and at least one selected edge-state path.
+
+**Implementation note**
+
+- The cart summary footer was refined into a full-width bottom band without the previous outlined card, keeping the checkout CTA more contemporary and visually aligned with the mobile-first client polish goals.
 - Add component tests for feedback and empty or invalid states.
 
 **Integration with previous work**

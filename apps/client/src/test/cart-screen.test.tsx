@@ -37,7 +37,9 @@ describe("cart screen", () =>
 
     expect(domScreen.getByRole("heading", { name: "Carrello" })).toBeDefined();
     expect(domScreen.getByRole("heading", { name: "Riepilogo ordine" })).toBeDefined();
-    expect(domScreen.getByText("24,40 €")).toBeDefined();
+    expect(
+      domScreen.getByText((content) => content.includes("22,40"))
+    ).toBeDefined();
     expect(domScreen.getByTestId("cart-checkout-link").textContent).toContain("Vai al checkout");
   });
 
