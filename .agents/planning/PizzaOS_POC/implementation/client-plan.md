@@ -93,6 +93,7 @@ Deliver the richest customer interaction in the app without losing clarity.
 
 - The pizza preview now persists both dough and base selection (`rossa` or `bianca`) and uses those choices to resolve deterministic images from `apps/client/public/images/pizza`.
 - The product detail overlay now resolves the topping image from the selected menu product, so `/product/[id]` stays visually aligned with the previous selection.
+- The product detail page now includes a free-text "Note per la cucina" field near the bottom of the flow and appends that message to the cart line notes alongside the structured customization summary.
 
 ## Step 4: Implement cart, checkout, mock payment, and tip flow
 

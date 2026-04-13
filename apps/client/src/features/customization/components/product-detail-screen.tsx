@@ -55,6 +55,7 @@ export function ProductDetailScreen(props: ProductDetailScreenProps): ReactEleme
 {
   const [seed, setSeed] = useState<ClientSeed>(() => loadClientDemoState());
   const [state, dispatch] = useReducer(customizationReducer, undefined, () => createInitialCustomizationState());
+  const [customerNote, setCustomerNote] = useState("");
   const [isCartToastVisible, setIsCartToastVisible] = useState(false);
   const [openSection, setOpenSection] = useState<OpenSection>(null);
   const [isPricePulsing, setIsPricePulsing] = useState(false);
@@ -150,7 +151,8 @@ export function ProductDetailScreen(props: ProductDetailScreenProps): ReactEleme
       baseLabel,
       doughLabel,
       variantLabel,
-      selectedExtras
+      selectedExtras,
+      customerNote
     });
 
     addCartItem(
@@ -323,6 +325,30 @@ export function ProductDetailScreen(props: ProductDetailScreenProps): ReactEleme
           <ExtraSelector state={state} dispatch={dispatch} productId={props.productId} />
         </CollapsibleSection>
       </div>
+
+      <section className={styles.noteSection} aria-labelledby="product-note-title">
+        <div className={styles.noteHeader}>
+          <span className={styles.noteIcon} aria-hidden="true">📝</span>
+          <div className={styles.noteCopy}>
+            <h2 id="product-note-title" className={styles.noteTitle}>Note per la cucina</h2>
+            <p className={styles.noteDescription}>
+              Aggiungi richieste semplici come taglio, cottura o confezione separata.
+            </p>
+          </div>
+        </div>
+        <label className={styles.noteField}>
+          <span className={styles.noteLabel}>Messaggio opzionale</span>
+          <textarea
+            className={styles.noteTextarea}
+            name="customer-note"
+            placeholder="Es. taglia a spicchi piccoli, consegna senza suonare"
+            value={customerNote}
+            onChange={(event) => setCustomerNote(event.target.value)}
+            maxLength={180}
+            rows={4}
+          />
+        </label>
+      </section>
 
       {/* ── Pairings ── */}
       {pairings.length > 0 ? (
@@ -799,6 +825,7 @@ function createCustomizationNotes(input: {
   readonly doughLabel: string;
   readonly variantLabel: string;
   readonly selectedExtras: readonly string[];
+  readonly customerNote: string;
 }): string
 {
   const segments = [
@@ -810,6 +837,13 @@ function createCustomizationNotes(input: {
   if (input.selectedExtras.length > 0)
   {
     segments.push(`Extra: ${input.selectedExtras.join(", ")}`);
+  }
+
+  const sanitizedCustomerNote = input.customerNote.trim();
+
+  if (sanitizedCustomerNote)
+  {
+    segments.push(`Note: ${sanitizedCustomerNote}`);
   }
 
   return segments.join(" · ");

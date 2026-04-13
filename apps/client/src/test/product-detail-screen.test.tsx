@@ -39,6 +39,12 @@ describe("product detail screen", () => {
     expect(domScreen.getByRole("heading", { name: "Extra" }).textContent).toBe(
       "Extra",
     );
+    expect(
+      domScreen.getByRole("heading", { name: "Note per la cucina" }).textContent,
+    ).toBe("Note per la cucina");
+    expect(
+      domScreen.getByLabelText("Messaggio opzionale").getAttribute("placeholder"),
+    ).toBe("Es. taglia a spicchi piccoli, consegna senza suonare");
 
     domFireEvent.click(
       domScreen.getByRole("heading", { name: "Extra" }).closest("button") as HTMLButtonElement,
@@ -143,5 +149,25 @@ describe("product detail screen", () => {
     expect(
       domScreen.getByRole("heading", { name: "Marinara" }).textContent,
     ).toBe("Marinara");
+  });
+
+  it("persists the customer note in cart item notes", () => {
+    renderDom(<ProductDetailScreen productId="product-margherita" />);
+
+    domFireEvent.change(domScreen.getByLabelText("Messaggio opzionale"), {
+      target: { value: "Taglia a spicchi piccoli" },
+    });
+    domFireEvent.click(
+      domScreen.getByRole("button", { name: /Aggiungi al carrello/i }),
+    );
+
+    const persistedCartState = window.localStorage.getItem(
+      "pizzaos:client:cart-state:v1",
+    );
+
+    expect(persistedCartState).not.toBeNull();
+    expect(persistedCartState).toContain("Note: Taglia a spicchi piccoli");
+    expect(persistedCartState).toContain("Base: Rossa");
+    expect(persistedCartState).toContain("Impasto: Classico");
   });
 });
