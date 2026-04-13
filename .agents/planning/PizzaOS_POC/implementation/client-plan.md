@@ -234,3 +234,5 @@ needed.
   the check marker, accent border, and elevation so labels stay legible in the mobile customization teaser.
 - The menu header now uses a dedicated group emoji CTA that routes to `/group-order`, matching the existing "Ordina con
   i tuoi amici" narrative from the client home and avoiding a dead-end demo link.
+- The `/group-order` hub now presents a shared-cart narrative with inline QR placeholder, copy-link CTA, and QR
+  visibility toggle so the group-order demo reads as self-serve ordering from each guest's phone.
