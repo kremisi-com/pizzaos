@@ -15,14 +15,24 @@ describe("orders model", () =>
   it("progresses active order status and keeps order history aligned", () =>
   {
     const seed = createClientSeed();
-    const startingOrderId = seed.activeOrders[0].id;
+    const startingOrder = {
+      ...seed.orderHistory[0],
+      id: "order-client-active-001",
+      status: "confirmed" as const,
+      createdAtIso: "2026-03-25T18:40:00.000Z",
+      updatedAtIso: "2026-03-25T18:42:00.000Z"
+    };
     const result = advanceClientOrderState(
-      seed,
+      {
+        ...seed,
+        activeOrders: [startingOrder],
+        orderHistory: [startingOrder, ...seed.orderHistory]
+      },
       []
     );
 
     expect(result.seed.activeOrders[0]?.status).toBe("preparing");
-    expect(result.seed.orderHistory.find((order) => order.id === startingOrderId)?.status).toBe("preparing");
+    expect(result.seed.orderHistory.find((order) => order.id === startingOrder.id)?.status).toBe("preparing");
   });
 
   it("deduplicates notifications by id", () =>
@@ -46,7 +56,10 @@ describe("orders model", () =>
   it("derives tracking visibility rules from order status", () =>
   {
     const seed = createClientSeed();
-    const order = seed.activeOrders[0];
+    const order = {
+      ...seed.orderHistory[0],
+      status: "confirmed" as const
+    };
 
     const hiddenSnapshot = deriveTrackingSnapshot({
       ...order,

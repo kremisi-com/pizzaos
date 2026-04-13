@@ -23,31 +23,45 @@ describe("client shell", () =>
     const markup = renderToString(createElement(ClientShell));
 
     expect(markup).toContain(getThemeClass("client"));
-    expect(markup).toContain("Bentornato");
-    expect(markup).toContain("Riordina ora");
-    expect(markup).toContain("Crea la tua pizza");
-    expect(markup).toContain("Punti e vantaggi");
-    expect(markup).toContain("Segui ordine");
-    expect(markup).toContain("Riordino rapido");
+    expect(markup).toContain("Cosa ordiniamo oggi?");
+    expect(markup).not.toContain("Ordine in corso");
     expect(markup).toContain("Ordina come l&#x27;ultima volta");
-    expect(markup).toContain("Promo di stagione");
-    expect(markup).toContain("Reset demo");
+    expect(markup).toContain("Crea la tua pizza");
+    expect(markup).toContain("Esplora le categorie");
+    expect(markup).toContain("Scopri i tuoi vantaggi");
+    expect(markup).toContain("Svuota sessione demo");
     expect(markup).toContain('href="/menu"');
     expect(markup).toContain('href="/rewards"');
-    expect(markup).toContain('href="/orders"');
     expect(markup).toContain('href="/menu?section=section-speciali"');
   });
 
-  it("does not crash when persisted slot values are non-ISO labels", async () =>
+  it("hides the active-order banner on first open and shows it after an order exists", async () =>
   {
+    renderDom(<ClientShell />);
+
+    expect(domScreen.queryByText("Ordine in corso")).toBeNull();
+
+    cleanupDom();
+
     const seed = createClientSeed();
     const persistedSeed = {
       ...seed,
       activeOrders: [
         {
-          ...seed.activeOrders[0],
+          ...seed.orderHistory[0],
+          id: "order-client-active-001",
+          status: "confirmed" as const,
           scheduledSlot: "Oggi, 19:10"
         }
+      ],
+      orderHistory: [
+        {
+          ...seed.orderHistory[0],
+          id: "order-client-active-001",
+          status: "confirmed" as const,
+          scheduledSlot: "Oggi, 19:10"
+        },
+        ...seed.orderHistory
       ]
     };
 
@@ -55,7 +69,8 @@ describe("client shell", () =>
 
     renderDom(<ClientShell />);
 
-    expect(await domScreen.findByText(/Slot previsto Oggi, 19:10/i)).toBeDefined();
+    expect(await domScreen.findByText("Ordine in corso")).toBeDefined();
+    expect(domScreen.getByText(/Consegna prevista Oggi, 19:10/i)).toBeDefined();
   });
 
   it("clears persisted order notifications and feedback when resetting demo state", async () =>
@@ -101,11 +116,11 @@ describe("client shell", () =>
   {
     renderDom(<ClientShell />);
 
-    domFireEvent.click(await domScreen.findByTestId("client-order-like-last-time-button"));
+    domFireEvent.click(await domScreen.findByTestId("client-quick-reorder-button"));
 
     const persistedCartPayload = window.localStorage.getItem(CLIENT_CART_STORAGE_KEY);
 
     expect(persistedCartPayload).not.toBeNull();
-    expect(await domScreen.findByTestId("client-quick-reorder-notice")).toBeDefined();
+    expect(await domScreen.findByText("Carrello aggiornato!")).toBeDefined();
   });
 });

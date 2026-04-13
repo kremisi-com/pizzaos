@@ -675,21 +675,7 @@ export const ADMIN_DATASET_TEMPLATES: Readonly<Record<EntityIdentifier, AdminDat
   }
 };
 
-export const DEFAULT_CLIENT_ACTIVE_ORDERS: readonly Order[] = [
-  createOrder(
-    "order-client-001",
-    DEFAULT_CLIENT_STORE_ID,
-    "customer-client-demo",
-    "confirmed",
-    "2026-03-25T18:40:00.000Z",
-    "2026-03-25T18:42:00.000Z",
-    [
-      createLine("product-margherita", 1, 900, ""),
-      createLine("product-focaccia-rosmarino", 1, 550, "Tagliare in 4")
-    ],
-    200
-  )
-];
+export const DEFAULT_CLIENT_ACTIVE_ORDERS: readonly Order[] = [];
 
 export const DEFAULT_CLIENT_ORDER_HISTORY: readonly Order[] = [
   createOrder(

@@ -25,25 +25,27 @@ describe("orders screen", () =>
     vi.useRealTimers();
   });
 
-  it("renders timeline and keeps tracking hidden before dispatch", async () =>
+  function createActiveOrderSeed(status: "confirmed" | "preparing" | "out_for_delivery" | "delivered")
   {
     const seed = createClientSeed();
-    const persistedSeed = {
-      ...seed,
-      activeOrders: [
-        {
-          ...seed.activeOrders[0],
-          status: "preparing" as const
-        }
-      ],
-      orderHistory: [
-        {
-          ...seed.activeOrders[0],
-          status: "preparing" as const
-        },
-        ...seed.orderHistory
-      ]
+    const activeOrder = {
+      ...seed.orderHistory[0],
+      id: "order-client-active-001",
+      status,
+      createdAtIso: "2026-03-25T18:40:00.000Z",
+      updatedAtIso: "2026-03-25T18:42:00.000Z"
     };
+
+    return {
+      ...seed,
+      activeOrders: status === "delivered" ? [] : [activeOrder],
+      orderHistory: [activeOrder, ...seed.orderHistory]
+    };
+  }
+
+  it("renders timeline and keeps tracking hidden before dispatch", async () =>
+  {
+    const persistedSeed = createActiveOrderSeed("preparing");
 
     window.localStorage.setItem(getClientDemoStateStorageKey(), JSON.stringify(persistedSeed));
 
@@ -56,23 +58,7 @@ describe("orders screen", () =>
 
   it("shows tracking when order is out for delivery", async () =>
   {
-    const seed = createClientSeed();
-    const persistedSeed = {
-      ...seed,
-      activeOrders: [
-        {
-          ...seed.activeOrders[0],
-          status: "out_for_delivery" as const
-        }
-      ],
-      orderHistory: [
-        {
-          ...seed.activeOrders[0],
-          status: "out_for_delivery" as const
-        },
-        ...seed.orderHistory
-      ]
-    };
+    const persistedSeed = createActiveOrderSeed("out_for_delivery");
 
     window.localStorage.setItem(getClientDemoStateStorageKey(), JSON.stringify(persistedSeed));
 
@@ -84,23 +70,7 @@ describe("orders screen", () =>
 
   it("marks all notifications as read", async () =>
   {
-    const seed = createClientSeed();
-    const persistedSeed = {
-      ...seed,
-      activeOrders: [
-        {
-          ...seed.activeOrders[0],
-          status: "preparing" as const
-        }
-      ],
-      orderHistory: [
-        {
-          ...seed.activeOrders[0],
-          status: "preparing" as const
-        },
-        ...seed.orderHistory
-      ]
-    };
+    const persistedSeed = createActiveOrderSeed("preparing");
 
     window.localStorage.setItem(getClientDemoStateStorageKey(), JSON.stringify(persistedSeed));
     window.localStorage.setItem(
@@ -135,7 +105,7 @@ describe("orders screen", () =>
     renderDom(<OrdersScreen />);
 
     expect(await domScreen.findByTestId("orders-history-list")).toBeDefined();
-    expect(domScreen.getByText("order-client-history-001")).toBeDefined();
+    expect(domScreen.getAllByText("order-client-history-001")).toHaveLength(2);
 
     domFireEvent.click(await domScreen.findByTestId("orders-reorder-order-client-history-001"));
 
@@ -153,19 +123,7 @@ describe("orders screen", () =>
 
   it("collects post-delivery feedback and simulates Google review redirect on positive rating", async () =>
   {
-    const seed = createClientSeed();
-    const deliveredOrder = {
-      ...seed.activeOrders[0],
-      status: "delivered" as const
-    };
-    const persistedSeed = {
-      ...seed,
-      activeOrders: [],
-      orderHistory: [
-        deliveredOrder,
-        ...seed.orderHistory
-      ]
-    };
+    const persistedSeed = createActiveOrderSeed("delivered");
 
     window.localStorage.setItem(getClientDemoStateStorageKey(), JSON.stringify(persistedSeed));
 

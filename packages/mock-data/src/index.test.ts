@@ -249,9 +249,16 @@ describe("order simulation", () =>
   it("deterministically progresses order statuses based on explicit time", () =>
   {
     const clientSeed = createClientSeed();
+    const simulatedOrder = {
+      ...clientSeed.orderHistory[0],
+      id: "order-client-active-001",
+      status: "confirmed" as const,
+      createdAtIso: "2026-03-25T18:40:00.000Z",
+      updatedAtIso: "2026-03-25T18:42:00.000Z"
+    };
 
     const initialState = {
-      orders: clientSeed.activeOrders,
+      orders: [simulatedOrder],
       simulationCursorIso: clientSeed.simulationCursorIso
     };
 
@@ -276,9 +283,16 @@ describe("order simulation", () =>
   it("is deterministic for same input state and timestamp", () =>
   {
     const clientSeed = createClientSeed();
+    const simulatedOrder = {
+      ...clientSeed.orderHistory[0],
+      id: "order-client-active-001",
+      status: "confirmed" as const,
+      createdAtIso: "2026-03-25T18:40:00.000Z",
+      updatedAtIso: "2026-03-25T18:42:00.000Z"
+    };
 
     const state = {
-      orders: clientSeed.activeOrders,
+      orders: [simulatedOrder],
       simulationCursorIso: clientSeed.simulationCursorIso
     };
 
