@@ -24,7 +24,7 @@ describe("client shell", () =>
 
     expect(markup).toContain(getThemeClass("client"));
     expect(markup).toContain("Pizzeria PizzaOS");
-    expect(markup).toContain("Apri pagina utente");
+    expect(markup).toContain("Apri premi e reward");
     expect(markup).not.toContain("Ordine in corso");
     expect(markup).toContain("Ordina come l&#x27;ultima volta");
     expect(markup).toContain("mostra ordinazione");
@@ -36,7 +36,6 @@ describe("client shell", () =>
     expect(markup).toContain("Scopri i tuoi vantaggi");
     expect(markup).toContain("Svuota sessione demo");
     expect(markup).toContain('href="/menu?section=section-creare-pizza"');
-    expect(markup).toContain('href="/profile"');
     expect(markup).toContain('href="/rewards"');
     expect(markup).toContain('href="/menu?section=section-classiche"');
   });

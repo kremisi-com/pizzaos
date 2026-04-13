@@ -85,9 +85,9 @@ export function ClientShell(): ReactElement {
       <section className={styles.hero} aria-labelledby="client-home-title">
         <a
           className={styles.profileLink}
-          href="/profile"
-          aria-label="Apri pagina utente"
-          title="Apri pagina utente"
+          href="/rewards"
+          aria-label="Apri premi e reward"
+          title="Apri premi e reward"
         >
           👤
         </a>

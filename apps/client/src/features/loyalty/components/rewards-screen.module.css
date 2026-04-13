@@ -1,94 +1,145 @@
+/* ── Screen container ── */
 .screen
 {
-  min-height: 100vh;
-  display: grid;
-  gap: 16px;
-  padding: 24px 16px 44px;
-  background:
-    radial-gradient(circle at top right, rgba(209, 73, 46, 0.14), transparent 30%),
-    linear-gradient(180deg, rgba(255, 249, 241, 0.98), rgba(240, 247, 255, 0.94));
+  min-height: 100dvh;
+  margin: 0 auto;
+  padding: 0 0 160px;
+  max-width: 520px;
+  width: 100%;
+  background: var(--pizzaos-color-background);
+  background-image:
+    radial-gradient(circle at top right, rgba(209, 73, 46, 0.06), transparent 40%),
+    radial-gradient(circle at bottom left, rgba(238, 248, 255, 0.5), transparent 50%);
+  overflow-x: hidden;
 }
 
+/* ── Hero section ── */
 .hero
 {
-  display: grid;
-  gap: 12px;
-  border-radius: calc(var(--pizzaos-radius-card) + 4px);
-  border: 1px solid rgba(31, 37, 48, 0.12);
-  background: rgba(255, 255, 255, 0.88);
-  box-shadow: var(--pizzaos-elevation-card);
-  padding: 18px;
+  padding: 24px 20px 20px;
 }
 
 .heroTopRow
 {
   display: flex;
-  align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  align-items: center;
+  margin-bottom: 20px;
 }
 
 .backLink
 {
+  display: flex;
+  align-items: center;
+  gap: 6px;
   text-decoration: none;
   color: var(--pizzaos-color-foreground);
   font-weight: 700;
+  font-size: 0.9rem;
+  padding: 6px 12px 6px 8px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  transition: background 0.2s ease;
+}
+
+.backLink:hover
+{
+  background: rgba(255, 255, 255, 0.9);
 }
 
 .heroTitle
 {
-  margin: 0;
-  font-size: clamp(2rem, 8vw, 2.8rem);
-  line-height: 0.95;
-  letter-spacing: -0.05em;
+  margin: 0 0 8px;
+  font-size: 1.8rem;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+  font-weight: var(--pizzaos-font-weight-heading, 800);
 }
 
 .heroCopy
 {
   margin: 0;
   color: var(--pizzaos-color-foreground-muted);
+  font-size: 0.95rem;
+  line-height: 1.5;
 }
 
+/* ── Section divider layout ── */
+.contentArea
+{
+  border-top: 1px solid var(--pizzaos-color-border);
+}
+
+.section
+{
+  padding: 24px 20px;
+  border-bottom: 1px solid var(--pizzaos-color-border);
+}
+
+.sectionTitle
+{
+  margin: 0 0 16px;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--pizzaos-color-foreground-muted);
+}
+
+/* ── KPI grid ── */
 .kpiGrid
 {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 10px;
+  margin-bottom: 14px;
 }
 
 .kpiCard
 {
-  border-radius: var(--pizzaos-radius-card);
-  border: 1px solid rgba(31, 37, 48, 0.12);
-  background: rgba(255, 255, 255, 0.94);
-  padding: 12px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  border: 1.5px solid rgba(31, 37, 48, 0.1);
+  background: rgba(255, 255, 255, 0.9);
+  transition: border-color 0.18s ease, background 0.18s ease;
+  animation: fadeInUp 0.3s ease both;
 }
+
+.kpiCard:nth-child(1) { animation-delay: 0ms; }
+.kpiCard:nth-child(2) { animation-delay: 60ms; }
 
 .kpiLabel
 {
-  margin: 0;
-  font-size: 0.8rem;
+  margin: 0 0 4px;
+  font-size: 0.78rem;
+  font-weight: 800;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.1em;
   color: var(--pizzaos-color-foreground-muted);
 }
 
 .kpiValue
 {
-  margin: 8px 0 0;
-  font-size: 1.2rem;
+  margin: 0;
+  font-size: 1.25rem;
   font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--pizzaos-color-foreground);
 }
 
+/* ── Shared meta copy ── */
 .metaCopy
 {
-  margin: 8px 0 0;
+  margin: 6px 0 0;
+  font-size: 0.88rem;
   color: var(--pizzaos-color-foreground-muted);
+  line-height: 1.5;
 }
 
+/* ── Reward & coupon lists ── */
 .rewardList,
-.couponList,
-.subscriptionList
+.couponList
 {
   margin: 0;
   padding: 0;
@@ -100,11 +151,22 @@
 .rewardItem,
 .couponItem
 {
-  border-radius: var(--pizzaos-radius-card);
-  border: 1px solid rgba(31, 37, 48, 0.12);
-  background: rgba(255, 255, 255, 0.94);
-  padding: 12px;
+  padding: 16px;
+  border-radius: 14px;
+  border: 1.5px solid rgba(31, 37, 48, 0.1);
+  background: rgba(255, 255, 255, 0.9);
+  transition: border-color 0.18s ease, background 0.18s ease;
+  animation: fadeInUp 0.3s ease both;
 }
+
+.rewardItem:nth-child(1) { animation-delay: 0ms; }
+.rewardItem:nth-child(2) { animation-delay: 60ms; }
+.rewardItem:nth-child(3) { animation-delay: 120ms; }
+.rewardItem:nth-child(4) { animation-delay: 180ms; }
+
+.couponItem:nth-child(1) { animation-delay: 0ms; }
+.couponItem:nth-child(2) { animation-delay: 60ms; }
+.couponItem:nth-child(3) { animation-delay: 120ms; }
 
 .rewardTopRow
 {
@@ -112,31 +174,61 @@
   align-items: flex-start;
   justify-content: space-between;
   gap: 10px;
+  margin-bottom: 6px;
 }
 
 .rewardTitle,
 .couponCode
 {
   margin: 0;
-  font-weight: 700;
+  font-weight: 800;
+  font-size: 0.97rem;
+  letter-spacing: -0.01em;
+  color: var(--pizzaos-color-foreground);
 }
 
+/* ── Checkout CTA link ── */
 .checkoutLink
 {
-  margin-top: 14px;
-  display: inline-flex;
-  width: 100%;
-  min-height: 40px;
+  display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: var(--pizzaos-radius-control);
-  border: 1px solid rgba(31, 37, 48, 0.16);
+  gap: 8px;
+  margin-top: 16px;
+  width: 100%;
+  height: 56px;
+  padding: 0 24px;
+  background: var(--pizzaos-color-primary);
+  color: white;
+  border: none;
+  border-radius: 16px;
   text-decoration: none;
-  font-weight: 700;
-  color: var(--pizzaos-color-foreground);
-  background: rgba(255, 255, 255, 0.94);
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  cursor: pointer;
+  box-shadow: 0 4px 20px rgba(209, 73, 46, 0.3);
+  transition:
+    transform 0.15s cubic-bezier(0.4, 0, 0.2, 1),
+    filter 0.2s ease,
+    box-shadow 0.3s ease;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  box-sizing: border-box;
 }
 
+.checkoutLink:hover
+{
+  filter: brightness(1.06);
+}
+
+.checkoutLink:active
+{
+  transform: scale(0.97);
+}
+
+/* ── Subscription section ── */
 .subscriptionCard
 {
   display: grid;
@@ -145,25 +237,58 @@
 
 .subscriptionPrice
 {
-  margin: 0;
-  font-size: 1.35rem;
+  margin: 0 0 4px;
+  font-size: 1.45rem;
   font-weight: 800;
   letter-spacing: -0.03em;
+  color: var(--pizzaos-color-foreground);
 }
 
 .subscriptionList
 {
-  list-style: disc;
+  margin: 4px 0 0;
   padding-left: 20px;
+  list-style: disc;
   color: var(--pizzaos-color-foreground-muted);
+  font-size: 0.88rem;
+  line-height: 1.7;
 }
 
+.subscriptionList li
+{
+  margin: 0;
+}
+
+.subscriptionAction
+{
+  margin-top: 8px;
+}
+
+/* ── Animations ── */
+@keyframes fadeInUp
+{
+  from
+  {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to
+  {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ── Responsive ── */
 @media (min-width: 768px)
 {
   .screen
   {
-    max-width: 840px;
-    margin: 0 auto;
-    padding: 30px 24px 60px;
+    max-width: 680px;
+  }
+
+  .heroTitle
+  {
+    font-size: 2.2rem;
   }
 }

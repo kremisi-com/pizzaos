@@ -230,46 +230,79 @@ export function CheckoutScreen(): ReactElement
     return (
       <main className={styles.screen}>
         <section className={styles.confirmationHero} aria-labelledby="checkout-confirmation-title">
-          <Badge tone="success">Ordine confermato</Badge>
-          <h1 id="checkout-confirmation-title" className={styles.heroTitle}>Ordine confermato</h1>
+          <div className={styles.confirmationIconWrap} aria-hidden="true">
+            <svg
+              className={styles.confirmationIcon}
+              viewBox="0 0 52 52"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <circle cx="26" cy="26" r="25" stroke="currentColor" strokeWidth="2" />
+              <path
+                d="M15 26.5L22 33.5L37 18.5"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </div>
+          <span className={styles.confirmationPill}>Ordine confermato</span>
+          <h1 id="checkout-confirmation-title" className={styles.heroTitle}>Il tuo ordine è confermato</h1>
           <p className={styles.heroCopy}>
-            Pagamento mock completato. Abbiamo confermato la preparazione con slot {confirmation.slotLabel}.
+            Preparazione confermata per lo slot <strong>{confirmation.slotLabel}</strong>.
+            Riceverai aggiornamenti in tempo reale.
           </p>
         </section>
 
         <div className={styles.section}>
           <p className={styles.sectionTitle}>Dettagli conferma</p>
-          <div className={styles.summaryGrid}>
-            <p>ID ordine</p>
-            <p>{confirmation.orderId}</p>
-            <p>Slot</p>
-            <p>{confirmation.slotLabel}</p>
-            <p>Mancia</p>
-            <p>{confirmation.tipPercent}%</p>
-            <p>Pagamento</p>
-            <p>{confirmation.paymentMethod === "card" ? "Carta (mock)" : "Contanti (mock)"}</p>
+          <dl className={styles.confirmationList}>
+            <div className={styles.confirmationRow}>
+              <dt>Slot</dt>
+              <dd>{confirmation.slotLabel}</dd>
+            </div>
+            <div className={styles.confirmationRow}>
+              <dt>Mancia</dt>
+              <dd>{confirmation.tipPercent}%</dd>
+            </div>
+            <div className={styles.confirmationRow}>
+              <dt>Pagamento</dt>
+              <dd>{confirmation.paymentMethod === "card" ? "Carta (mock)" : "Contanti (mock)"}</dd>
+            </div>
             {confirmation.couponCode ? (
               <>
-                <p>Coupon applicato</p>
-                <p>{confirmation.couponCode}</p>
-                <p>Sconto coupon</p>
-                <p>-{formatMoney(confirmation.discountCents)}</p>
+                <div className={styles.confirmationRow}>
+                  <dt>Coupon</dt>
+                  <dd>{confirmation.couponCode}</dd>
+                </div>
+                <div className={styles.confirmationRow}>
+                  <dt>Sconto</dt>
+                  <dd>-{formatMoney(confirmation.discountCents)}</dd>
+                </div>
               </>
             ) : null}
-            <p>Punti ottenuti</p>
-            <p>{confirmation.earnedPoints} pt</p>
-            <p className={styles.summaryTotalLabel}>Totale confermato</p>
-            <p className={styles.summaryTotalValue}>{formatMoney(confirmation.totalCents)}</p>
-          </div>
+            <div className={styles.confirmationRow}>
+              <dt>Punti ottenuti</dt>
+              <dd className={styles.confirmationPointsBadge}>+{confirmation.earnedPoints} pt ✦</dd>
+            </div>
+            <div className={`${styles.confirmationRow} ${styles.confirmationTotalRow}`}>
+              <dt>Totale confermato</dt>
+              <dd>{formatMoney(confirmation.totalCents)}</dd>
+            </div>
+          </dl>
         </div>
 
         <div className={styles.confirmationActions}>
           <a href="/orders" className={styles.primaryLink} data-testid="checkout-orders-link">
             Segui ordine
           </a>
-          <a href="/" className={styles.primaryLink}>Torna alla home</a>
-          <a href="/rewards" className={styles.secondaryLink}>Apri loyalty</a>
-          <a href="/menu" className={styles.secondaryLink}>Nuovo ordine</a>
+          <a href="/" className={styles.outlineLink}>Torna alla home</a>
+          <div className={styles.tertiaryLinks}>
+            <a href="/rewards" className={styles.secondaryLink}>Apri loyalty</a>
+            <span className={styles.dot} aria-hidden="true">·</span>
+            <a href="/menu" className={styles.secondaryLink}>Nuovo ordine</a>
+          </div>
         </div>
       </main>
     );
@@ -293,7 +326,6 @@ export function CheckoutScreen(): ReactElement
       <section className={styles.hero} aria-labelledby="checkout-title">
         <div className={styles.heroTopRow}>
           <a href="/cart" className={styles.backLink}>Carrello</a>
-          <Badge tone="neutral">{seed.store.displayName}</Badge>
         </div>
 
         <h1 id="checkout-title" className={styles.heroTitle}>Checkout</h1>

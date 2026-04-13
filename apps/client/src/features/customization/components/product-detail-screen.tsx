@@ -431,7 +431,7 @@ export function ProductDetailScreen(props: ProductDetailScreenProps): ReactEleme
             </p>
             <div className={styles.toastActions}>
               <a href="/cart" className={styles.toastLink}>Vai al carrello</a>
-              <a href="/menu" className={styles.toastLinkSecondary}>Continua</a>
+              <a href="/" className={styles.toastLinkSecondary}>Continua</a>
             </div>
           </div>
         </div>

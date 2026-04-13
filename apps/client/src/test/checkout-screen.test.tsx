@@ -41,6 +41,8 @@ describe("checkout screen", () =>
   {
     renderDom(<CheckoutScreen />);
 
+    expect(domScreen.queryByText("Roma Centro")).toBeNull();
+
     domFireEvent.click(domScreen.getByTestId("checkout-submit-button"));
 
     expect(domScreen.getByText("Inserisci il nome intestatario della carta.").textContent).toBe(

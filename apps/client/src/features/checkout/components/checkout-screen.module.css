@@ -13,11 +13,27 @@
   overflow-x: hidden;
 }
 
+@keyframes confirmFadeUp
+{
+  from
+  {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+
+  to
+  {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 /* ── Hero section ── */
 .hero,
 .confirmationHero
 {
-  padding: 24px 20px 20px;
+  padding: 32px 20px 24px;
+  animation: confirmFadeUp 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 .heroTopRow
@@ -382,11 +398,114 @@
 }
 
 /* ── Confirmation state ── */
+.confirmationIconWrap
+{
+  width: 56px;
+  height: 56px;
+  margin-bottom: 20px;
+  color: #22a861;
+  animation: confirmFadeUp 0.5s cubic-bezier(0.22, 1, 0.36, 1) 0.05s both;
+}
+
+.confirmationIcon
+{
+  width: 100%;
+  height: 100%;
+}
+
+.confirmationPill
+{
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: rgba(34, 168, 97, 0.12);
+  color: #16803c;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin-bottom: 14px;
+}
+
+.confirmationList
+{
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0;
+}
+
+.confirmationRow
+{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 13px 0;
+  border-bottom: 1px solid var(--pizzaos-color-border);
+}
+
+.confirmationRow:last-child
+{
+  border-bottom: none;
+}
+
+.confirmationRow dt
+{
+  font-size: 0.92rem;
+  color: var(--pizzaos-color-foreground-muted);
+  margin: 0;
+}
+
+.confirmationRow dd
+{
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--pizzaos-color-foreground);
+  margin: 0;
+  text-align: right;
+}
+
+.confirmationPointsBadge
+{
+  color: #b45309 !important;
+  background: rgba(251, 191, 36, 0.12);
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 0.82rem !important;
+  font-weight: 800 !important;
+}
+
+.confirmationTotalRow
+{
+  padding-top: 16px !important;
+  border-bottom: none !important;
+  margin-top: 4px;
+}
+
+.confirmationTotalRow dt
+{
+  font-size: 1rem !important;
+  font-weight: 800 !important;
+  color: var(--pizzaos-color-foreground) !important;
+}
+
+.confirmationTotalRow dd
+{
+  font-size: 1.6rem !important;
+  font-weight: 900 !important;
+  letter-spacing: -0.03em !important;
+  color: var(--pizzaos-color-foreground) !important;
+}
+
 .confirmationActions
 {
   display: grid;
   gap: 10px;
-  padding: 0 20px;
+  padding: 24px 20px 32px;
+  animation: confirmFadeUp 0.5s cubic-bezier(0.22, 1, 0.36, 1) 0.12s both;
 }
 
 .primaryLink
@@ -408,7 +527,7 @@
   font-weight: 800;
   letter-spacing: -0.01em;
   cursor: pointer;
-  box-shadow: 0 4px 20px rgba(209, 73, 46, 0.3);
+  box-shadow: 0 4px 20px rgba(209, 73, 46, 0.28);
   transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1), filter 0.2s ease;
   -webkit-tap-highlight-color: transparent;
 }
@@ -422,6 +541,56 @@
 {
   transform: scale(0.97);
 }
+
+.outlineLink
+{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 52px;
+  padding: 0 24px;
+  background: transparent;
+  color: var(--pizzaos-color-foreground);
+  border: 1.5px solid rgba(31, 37, 48, 0.14);
+  border-radius: 16px;
+  text-decoration: none;
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  cursor: pointer;
+  transition: border-color 0.18s ease, background 0.18s ease, transform 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.outlineLink:hover
+{
+  border-color: rgba(209, 73, 46, 0.3);
+  background: rgba(209, 73, 46, 0.04);
+}
+
+.outlineLink:active
+{
+  transform: scale(0.98);
+}
+
+.tertiaryLinks
+{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding-top: 4px;
+}
+
+.dot
+{
+  color: var(--pizzaos-color-foreground-muted);
+  font-size: 1.1rem;
+  user-select: none;
+}
+
 
 /* ── Responsive ── */
 @media (min-width: 768px)
