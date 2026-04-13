@@ -22,6 +22,8 @@ import {
   INGREDIENT_OPTIONS,
   PIZZA_BASE_OPTIONS,
   VARIANT_OPTIONS,
+  BUNDLE_CONFIGS,
+  deriveExtraPrice,
   type CustomizationState,
   type IngredientMode
 } from "../customization-model";
@@ -103,7 +105,7 @@ export function ProductDetailScreen(props: ProductDetailScreenProps): ReactEleme
   const availability = product
     ? deriveProductAvailability(product)
     : { label: "Non disponibile", tone: "neutral" as const, isOrderable: false };
-  const priceBreakdown = deriveCustomizationPrice(product?.basePrice.amountCents ?? 0, state);
+  const priceBreakdown = deriveCustomizationPrice(props.productId, product?.basePrice.amountCents ?? 0, state);
 
   // Price pulse micro-animation: trigger when total changes after initial render
   useEffect(() =>
@@ -318,7 +320,7 @@ export function ProductDetailScreen(props: ProductDetailScreenProps): ReactEleme
           isOpen={openSection === "extras"}
           onToggle={() => toggleSection("extras")}
         >
-          <ExtraSelector state={state} dispatch={dispatch} />
+          <ExtraSelector state={state} dispatch={dispatch} productId={props.productId} />
         </CollapsibleSection>
       </div>
 
@@ -646,6 +648,7 @@ interface ExtraSelectorProps
 {
   readonly state: CustomizationState;
   readonly dispatch: Dispatch<Parameters<typeof customizationReducer>[1]>;
+  readonly productId: string;
 }
 
 function ExtraSelector(props: ExtraSelectorProps): ReactElement
@@ -657,8 +660,20 @@ function ExtraSelector(props: ExtraSelectorProps): ReactElement
     setOpenCategoryId((current) => current === categoryId ? null : categoryId);
   };
 
+  const bundleConfig = BUNDLE_CONFIGS[props.productId];
+  const discountedCount = props.state.selectedExtraIds.length;
+  const remainingDiscountSlots = bundleConfig ? Math.max(0, bundleConfig.discountQuota - discountedCount) : 0;
+
   return (
     <div className={styles.extraList}>
+      {bundleConfig && (
+        <div className={styles.bundleQuotaSummary}>
+          <span className={styles.bundleQuotaIcon}>✨</span>
+          <p className={styles.bundleQuotaText}>
+            Hai <span className={styles.bundleQuotaCount}>{remainingDiscountSlots}</span> slot scontati al <span className={styles.bundleQuotaCount}>{bundleConfig.discountRate * 100}%</span> rimanenti.
+          </p>
+        </div>
+      )}
       {EXTRA_CATEGORIES.map((category) =>
       {
         const options = EXTRA_OPTIONS.filter((extra) => extra.categoryId === category.id);
@@ -691,13 +706,24 @@ function ExtraSelector(props: ExtraSelectorProps): ReactElement
               {options.map((extra) =>
               {
                 const isActive = props.state.selectedExtraIds.includes(extra.id);
+                const discountedPrice = deriveExtraPrice(props.productId, extra.id, props.state.selectedExtraIds);
+                const isDiscounted = discountedPrice < extra.priceCents;
 
                 return (
                   <div key={extra.id} className={styles.extraRow}>
                     <div className={styles.extraInfo}>
                       <h3 className={styles.extraName}>{extra.label}</h3>
                       {extra.description && <p className={styles.extraDesc}>{extra.description}</p>}
-                      <span className={styles.extraPrice}>{formatDelta(extra.priceCents)}</span>
+                      <div className={styles.extraPriceGroup}>
+                        {isDiscounted ? (
+                          <>
+                            <span className={styles.extraPriceStrikethrough}>{formatDelta(extra.priceCents)}</span>
+                            <span className={styles.extraPriceDiscounted}>{formatDelta(discountedPrice)}</span>
+                          </>
+                        ) : (
+                          <span className={styles.extraPrice}>{formatDelta(extra.priceCents)}</span>
+                        )}
+                      </div>
                     </div>
 
                     <button

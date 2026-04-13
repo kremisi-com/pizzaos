@@ -721,6 +721,59 @@
   margin-top: 2px;
 }
 
+.extraPriceGroup
+{
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 2px;
+}
+
+.extraPriceStrikethrough
+{
+  font-size: 0.82rem;
+  color: var(--pizzaos-color-foreground-muted);
+  text-decoration: line-through;
+  opacity: 0.7;
+}
+
+.extraPriceDiscounted
+{
+  font-size: 0.88rem;
+  font-weight: 800;
+  color: #10b981; /* Premium green for discount */
+}
+
+.bundleQuotaSummary
+{
+  margin: 4px 20px 16px;
+  padding: 10px 16px;
+  background: rgba(16, 185, 129, 0.08);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid rgba(16, 185, 129, 0.15);
+}
+
+.bundleQuotaIcon
+{
+  font-size: 1.1rem;
+}
+
+.bundleQuotaText
+{
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #065f46;
+}
+
+.bundleQuotaCount
+{
+  color: #10b981;
+  font-weight: 900;
+}
+
 .ingredientControls
 {
   display: flex;

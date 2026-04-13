@@ -142,6 +142,36 @@ export const PRODUCTS: readonly Product[] = [
     status: "available",
     tags: ["forno", "contorno"],
     allergens: [{ code: "GLU", label: "Glutine" }]
+  },
+  {
+    id: "product-create-simple",
+    sku: "PIZ-CREA-SIMP",
+    name: "Crea la tua pizza (Base Simple)",
+    description: "La base perfetta per iniziare. Include 3 extra con sconto 20%.",
+    basePrice: toMoney(500),
+    status: "available",
+    tags: ["customizable-bundle", "tier-simple"],
+    allergens: [{ code: "GLU", label: "Glutine" }]
+  },
+  {
+    id: "product-create-wild",
+    sku: "PIZ-CREA-WILD",
+    name: "Crea la tua pizza (Base Wild)",
+    description: "Per chi non ha paura di osare. Include 5 extra con sconto 40%.",
+    basePrice: toMoney(900),
+    status: "available",
+    tags: ["customizable-bundle", "tier-wild"],
+    allergens: [{ code: "GLU", label: "Glutine" }]
+  },
+  {
+    id: "product-create-savage",
+    sku: "PIZ-CREA-SAVA",
+    name: "Crea la tua pizza (Base Savage)",
+    description: "Libertà totale. Include 7 extra con sconto 50%.",
+    basePrice: toMoney(1200),
+    status: "available",
+    tags: ["customizable-bundle", "tier-savage"],
+    allergens: [{ code: "GLU", label: "Glutine" }]
   }
 ] as const;
 
@@ -167,6 +197,23 @@ export const CLIENT_MENU: Menu = {
         { productId: "product-vegetariana", isFeatured: true },
         { productId: "product-4-formaggi", isFeatured: false },
         { productId: "product-tonno-cipolla", isFeatured: false }
+      ]
+    },
+    {
+      id: "section-forno",
+      name: "Forno Espresso",
+      productRefs: [
+        { productId: "product-focaccia-rosmarino", isFeatured: true },
+        { productId: "product-calzone", isFeatured: false }
+      ]
+    },
+    {
+      id: "section-creare-pizza",
+      name: "Voglio creare la mia pizza",
+      productRefs: [
+        { productId: "product-create-simple", isFeatured: true },
+        { productId: "product-create-wild", isFeatured: true },
+        { productId: "product-create-savage", isFeatured: true }
       ]
     }
   ]

@@ -61,6 +61,18 @@ export interface PairingSuggestion
   readonly priceCents: number;
 }
 
+export interface BundleConfig
+{
+  readonly discountQuota: number;
+  readonly discountRate: number;
+}
+
+export const BUNDLE_CONFIGS: Readonly<Record<string, BundleConfig>> = {
+  "product-create-simple": { discountQuota: 3, discountRate: 0.2 },
+  "product-create-wild": { discountQuota: 5, discountRate: 0.4 },
+  "product-create-savage": { discountQuota: 7, discountRate: 0.5 }
+};
+
 export interface CustomizationStep
 {
   readonly id: string;
@@ -527,6 +539,7 @@ export function customizationReducer(state: CustomizationState, action: Customiz
 }
 
 export function deriveCustomizationPrice(
+  productId: string,
   basePriceCents: number,
   state: CustomizationState
 ): CustomizationPriceBreakdown
@@ -546,15 +559,40 @@ export function deriveCustomizationPrice(
   }, 0);
 
   const selectedExtraIds = new Set(state.selectedExtraIds);
-  const extrasDeltaCents = EXTRA_OPTIONS.reduce((accumulator, extra) =>
-  {
-    if (!selectedExtraIds.has(extra.id))
-    {
-      return accumulator;
-    }
+  const bundleConfig = BUNDLE_CONFIGS[productId];
 
-    return accumulator + extra.priceCents;
-  }, 0);
+  let extrasDeltaCents = 0;
+
+  if (bundleConfig)
+  {
+    const selectedExtras = EXTRA_OPTIONS
+      .filter((extra) => selectedExtraIds.has(extra.id))
+      .sort((a, b) => b.priceCents - a.priceCents);
+
+    selectedExtras.forEach((extra, index) =>
+    {
+      if (index < bundleConfig.discountQuota)
+      {
+        extrasDeltaCents += Math.round(extra.priceCents * (1 - bundleConfig.discountRate));
+      }
+      else
+      {
+        extrasDeltaCents += extra.priceCents;
+      }
+    });
+  }
+  else
+  {
+    extrasDeltaCents = EXTRA_OPTIONS.reduce((accumulator, extra) =>
+    {
+      if (!selectedExtraIds.has(extra.id))
+      {
+        return accumulator;
+      }
+
+      return accumulator + extra.priceCents;
+    }, 0);
+  }
 
   return {
     basePriceCents,
@@ -564,6 +602,45 @@ export function deriveCustomizationPrice(
     extrasDeltaCents,
     totalCents: basePriceCents + doughDeltaCents + variantDeltaCents + ingredientDeltaCents + extrasDeltaCents
   };
+}
+
+export function deriveExtraPrice(
+  productId: string,
+  extraId: string,
+  selectedExtraIds: readonly string[]
+): number
+{
+  const extra = EXTRA_OPTIONS.find((e) => e.id === extraId);
+
+  if (!extra)
+  {
+    return 0;
+  }
+
+  const bundleConfig = BUNDLE_CONFIGS[productId];
+
+  if (!bundleConfig)
+  {
+    return extra.priceCents;
+  }
+
+  if (!selectedExtraIds.includes(extraId))
+  {
+    return extra.priceCents;
+  }
+
+  const sortedSelectedExtras = EXTRA_OPTIONS
+    .filter((e) => selectedExtraIds.includes(e.id))
+    .sort((a, b) => b.priceCents - a.priceCents);
+
+  const index = sortedSelectedExtras.findIndex((e) => e.id === extraId);
+
+  if (index >= 0 && index < bundleConfig.discountQuota)
+  {
+    return Math.round(extra.priceCents * (1 - bundleConfig.discountRate));
+  }
+
+  return extra.priceCents;
 }
 
 export function deriveVisibleAllergens(
