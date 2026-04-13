@@ -2,7 +2,7 @@
 
 import { getThemeClass } from "@pizzaos/brand";
 import type { Product } from "@pizzaos/domain";
-import { Badge, Button } from "@pizzaos/ui";
+import { Button } from "@pizzaos/ui";
 import { useEffect, useState, type ReactElement } from "react";
 import type { ClientSeed } from "@pizzaos/mock-data";
 import { clearCartState, saveCartState } from "../../cart/cart-model";
@@ -83,6 +83,15 @@ export function ClientShell(): ReactElement {
       <div className={styles.headerBanner}></div>
 
       <section className={styles.hero} aria-labelledby="client-home-title">
+        <a
+          className={styles.profileLink}
+          href="/profile"
+          aria-label="Apri pagina utente"
+          title="Apri pagina utente"
+        >
+          👤
+        </a>
+
         <h1 id="client-home-title" className={styles.heroTitle}>
           Pizzeria PizzaOS
         </h1>
@@ -127,17 +136,23 @@ export function ClientShell(): ReactElement {
       </section>
 
       {activeOrder ? (
-        <section className={styles.activeOrderCard}>
-          <div className={styles.activeOrderInfo}>
-            <Badge tone="success">Ordine in corso</Badge>
-            <p className={styles.activeOrderMeta}>
+        <a
+          className={styles.activeOrderStrip}
+          href="/orders"
+          aria-label="Ordine in corso — Segui l'ordine"
+        >
+          <span className={styles.activeOrderAccent} />
+          <span className={styles.activeOrderPulse} />
+          <span className={styles.activeOrderBody}>
+            <span className={styles.activeOrderLabel}>Ordine in corso</span>
+            <span className={styles.activeOrderMeta}>
               Consegna prevista {formatSlot(activeOrder.scheduledSlot)}
-            </p>
-          </div>
-          <a className={styles.activeOrderLink} href="/orders">
-            Segui l&apos;ordine
-          </a>
-        </section>
+            </span>
+          </span>
+          <span className={styles.activeOrderCta}>
+            Segui &rarr;
+          </span>
+        </a>
       ) : null}
 
       <div className={styles.contentGrid}>
@@ -148,9 +163,6 @@ export function ClientShell(): ReactElement {
               <div className={styles.reorderInfo}>
                 <p className={styles.reorderTitle}>
                   Ordina come l&apos;ultima volta
-                </p>
-                <p className={styles.reorderPrice}>
-                  {formatMoney(latestOrder.total.amountCents)}
                 </p>
                 <button
                   type="button"
@@ -212,22 +224,22 @@ export function ClientShell(): ReactElement {
               <span className={styles.categoryLabel}>Classiche</span>
             </a>
             <a
-              href="/menu?section=section-speciali"
+              href="/products?section=section-stuzzicherie"
               className={styles.categoryTab}
             >
               <span className={styles.categoryIcon}>🥨</span>
               <span className={styles.categoryLabel}>Stuzzicherie</span>
             </a>
             <a
-              href="/menu?section=section-bevande"
+              href="/products?section=section-bevande"
               className={styles.categoryTab}
             >
               <span className={styles.categoryIcon}>🥤</span>
               <span className={styles.categoryLabel}>Bevande</span>
             </a>
-            <a href="/menu" className={styles.categoryTab}>
+            <a href="/products?section=section-dolci" className={styles.categoryTab}>
               <span className={styles.categoryIcon}>🧁</span>
-              <span className={styles.categoryLabel}>dolci</span>
+              <span className={styles.categoryLabel}>Dolci</span>
             </a>
           </div>
         </section>

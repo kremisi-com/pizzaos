@@ -37,6 +37,7 @@ describe("cart screen", () =>
 
     expect(domScreen.getByRole("heading", { name: "Carrello" })).toBeDefined();
     expect(domScreen.getByRole("heading", { name: "Riepilogo ordine" })).toBeDefined();
+    expect(domScreen.queryByText("Roma Centro")).toBeNull();
     expect(
       domScreen.getByText((content) => content.includes("22,40"))
     ).toBeDefined();

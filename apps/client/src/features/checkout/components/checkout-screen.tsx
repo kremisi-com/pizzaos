@@ -1,7 +1,7 @@
 "use client";
 
 import type { ClientSeed } from "@pizzaos/mock-data";
-import { Badge, Button, ShellCard } from "@pizzaos/ui";
+import { Badge, Button } from "@pizzaos/ui";
 import { useEffect, useMemo, useState, type FormEvent, type ReactElement } from "react";
 import {
   clearCartState,
@@ -237,7 +237,8 @@ export function CheckoutScreen(): ReactElement
           </p>
         </section>
 
-        <ShellCard title="Dettagli conferma">
+        <div className={styles.section}>
+          <p className={styles.sectionTitle}>Dettagli conferma</p>
           <div className={styles.summaryGrid}>
             <p>ID ordine</p>
             <p>{confirmation.orderId}</p>
@@ -260,7 +261,7 @@ export function CheckoutScreen(): ReactElement
             <p className={styles.summaryTotalLabel}>Totale confermato</p>
             <p className={styles.summaryTotalValue}>{formatMoney(confirmation.totalCents)}</p>
           </div>
-        </ShellCard>
+        </div>
 
         <div className={styles.confirmationActions}>
           <a href="/orders" className={styles.primaryLink} data-testid="checkout-orders-link">
@@ -300,7 +301,8 @@ export function CheckoutScreen(): ReactElement
       </section>
 
       <form className={styles.form} onSubmit={handleCheckoutSubmit}>
-        <ShellCard title="Slot consegna">
+        <div className={styles.section}>
+          <p className={styles.sectionTitle}>Slot consegna</p>
           <div className={styles.slotList} role="radiogroup" aria-label="Selezione slot checkout">
             {seed.slots.map((slot) =>
             {
@@ -332,9 +334,10 @@ export function CheckoutScreen(): ReactElement
           {validationErrors.selectedSlotId ? (
             <p className={styles.errorMessage} role="alert">{validationErrors.selectedSlotId}</p>
           ) : null}
-        </ShellCard>
+        </div>
 
-        <ShellCard title="Mancia rider">
+        <div className={styles.section}>
+          <p className={styles.sectionTitle}>Mancia rider</p>
           <div className={styles.tipRow} role="radiogroup" aria-label="Selezione mancia">
             {TIP_PERCENT_OPTIONS.map((tipOption) => (
               <button
@@ -348,30 +351,33 @@ export function CheckoutScreen(): ReactElement
               </button>
             ))}
           </div>
-        </ShellCard>
+        </div>
 
-        <ShellCard title="Coupon e loyalty">
+        <div className={styles.section}>
+          <p className={styles.sectionTitle}>Coupon e loyalty</p>
           <div className={styles.couponStack}>
-            <label className={styles.fieldLabel} htmlFor="checkout-coupon-code">
-              Inserisci coupon
-            </label>
-            <div className={styles.couponInputRow}>
-              <input
-                id="checkout-coupon-code"
-                type="text"
-                className={styles.textInput}
-                value={couponCodeInput}
-                onChange={(event) => setCouponCodeInput(event.target.value.toUpperCase())}
-                placeholder="BENTORNATO5"
-              />
-              <Button
-                type="button"
-                variant="secondary"
-                onClick={handleApplyCouponClick}
-                data-testid="checkout-apply-coupon-button"
-              >
-                Applica
-              </Button>
+            <div>
+              <label className={styles.fieldLabel} htmlFor="checkout-coupon-code">
+                Inserisci coupon
+              </label>
+              <div className={styles.couponInputRow}>
+                <input
+                  id="checkout-coupon-code"
+                  type="text"
+                  className={styles.textInput}
+                  value={couponCodeInput}
+                  onChange={(event) => setCouponCodeInput(event.target.value.toUpperCase())}
+                  placeholder="BENTORNATO5"
+                />
+                <Button
+                  type="button"
+                  variant="secondary"
+                  onClick={handleApplyCouponClick}
+                  data-testid="checkout-apply-coupon-button"
+                >
+                  Applica
+                </Button>
+              </div>
             </div>
 
             {couponFeedback ? (
@@ -395,9 +401,10 @@ export function CheckoutScreen(): ReactElement
               Vedi tutti i vantaggi loyalty
             </a>
           </div>
-        </ShellCard>
+        </div>
 
-        <ShellCard title="Pagamento mock">
+        <div className={styles.section}>
+          <p className={styles.sectionTitle}>Pagamento mock</p>
           <div className={styles.paymentStack}>
             <label className={styles.paymentMethod}>
               <input
@@ -423,42 +430,47 @@ export function CheckoutScreen(): ReactElement
 
             {paymentMethod === "card" ? (
               <div className={styles.cardFields}>
-                <label className={styles.fieldLabel} htmlFor="checkout-cardholder-name">
-                  Intestatario carta
-                </label>
-                <input
-                  id="checkout-cardholder-name"
-                  type="text"
-                  className={styles.textInput}
-                  value={cardholderName}
-                  onChange={(event) => setCardholderName(event.target.value)}
-                  placeholder="Mario Rossi"
-                />
-                {validationErrors.cardholderName ? (
-                  <p className={styles.errorMessage} role="alert">{validationErrors.cardholderName}</p>
-                ) : null}
+                <div>
+                  <label className={styles.fieldLabel} htmlFor="checkout-cardholder-name">
+                    Intestatario carta
+                  </label>
+                  <input
+                    id="checkout-cardholder-name"
+                    type="text"
+                    className={styles.textInput}
+                    value={cardholderName}
+                    onChange={(event) => setCardholderName(event.target.value)}
+                    placeholder="Mario Rossi"
+                  />
+                  {validationErrors.cardholderName ? (
+                    <p className={styles.errorMessage} role="alert">{validationErrors.cardholderName}</p>
+                  ) : null}
+                </div>
 
-                <label className={styles.fieldLabel} htmlFor="checkout-card-last-digits">
-                  Ultime 4 cifre
-                </label>
-                <input
-                  id="checkout-card-last-digits"
-                  type="text"
-                  className={styles.textInput}
-                  value={cardLastDigits}
-                  onChange={(event) => setCardLastDigits(event.target.value.replace(/\D/g, "").slice(0, 4))}
-                  placeholder="1234"
-                  inputMode="numeric"
-                />
-                {validationErrors.cardLastDigits ? (
-                  <p className={styles.errorMessage} role="alert">{validationErrors.cardLastDigits}</p>
-                ) : null}
+                <div>
+                  <label className={styles.fieldLabel} htmlFor="checkout-card-last-digits">
+                    Ultime 4 cifre
+                  </label>
+                  <input
+                    id="checkout-card-last-digits"
+                    type="text"
+                    className={styles.textInput}
+                    value={cardLastDigits}
+                    onChange={(event) => setCardLastDigits(event.target.value.replace(/\D/g, "").slice(0, 4))}
+                    placeholder="1234"
+                    inputMode="numeric"
+                  />
+                  {validationErrors.cardLastDigits ? (
+                    <p className={styles.errorMessage} role="alert">{validationErrors.cardLastDigits}</p>
+                  ) : null}
+                </div>
               </div>
             ) : null}
           </div>
-        </ShellCard>
+        </div>
 
-        <ShellCard title="Totale checkout">
+        <div className={styles.section}>
+          <p className={styles.sectionTitle}>Totale checkout</p>
           <div className={styles.summaryGrid}>
             <p>Subtotale</p>
             <p>{formatMoney(totals.subtotalCents)}</p>
@@ -493,7 +505,7 @@ export function CheckoutScreen(): ReactElement
               {isProcessingPayment ? "Pagamento mock in corso..." : "Conferma ordine mock"}
             </Button>
           </div>
-        </ShellCard>
+        </div>
       </form>
     </main>
   );

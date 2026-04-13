@@ -24,6 +24,7 @@ describe("client shell", () =>
 
     expect(markup).toContain(getThemeClass("client"));
     expect(markup).toContain("Pizzeria PizzaOS");
+    expect(markup).toContain("Apri pagina utente");
     expect(markup).not.toContain("Ordine in corso");
     expect(markup).toContain("Ordina come l&#x27;ultima volta");
     expect(markup).toContain("mostra ordinazione");
@@ -34,9 +35,10 @@ describe("client shell", () =>
     expect(markup).toContain("dolci");
     expect(markup).toContain("Scopri i tuoi vantaggi");
     expect(markup).toContain("Svuota sessione demo");
-    expect(markup).toContain('href="/menu"');
+    expect(markup).toContain('href="/menu?section=section-creare-pizza"');
+    expect(markup).toContain('href="/profile"');
     expect(markup).toContain('href="/rewards"');
-    expect(markup).toContain('href="/menu?section=section-speciali"');
+    expect(markup).toContain('href="/menu?section=section-classiche"');
   });
 
   it("hides the active-order banner on first open and shows it after an order exists", async () =>
@@ -132,11 +134,13 @@ describe("client shell", () =>
   {
     renderDom(<ClientShell />);
 
-    expect(domScreen.queryByText("1x Capricciosa")).toBeNull();
+    expect(domScreen.queryByText("1x Diavola Piccante")).toBeNull();
+    expect(domScreen.queryByText("2x Birra artigianale bionda")).toBeNull();
 
     domFireEvent.click(await domScreen.findByRole("button", { name: "mostra ordinazione" }));
 
-    expect(await domScreen.findByText("1x Capricciosa")).toBeDefined();
+    expect(await domScreen.findByText("1x Diavola Piccante")).toBeDefined();
+    expect(domScreen.getByText("2x Birra artigianale bionda")).toBeDefined();
     expect(domScreen.getByRole("button", { name: "nascondi ordinazione" }).getAttribute("aria-expanded")).toBe("true");
   });
 });

@@ -2,7 +2,7 @@
 
 import type { Product, ProductAllergen } from "@pizzaos/domain";
 import type { ClientSeed } from "@pizzaos/mock-data";
-import { Badge, Dialog } from "@pizzaos/ui";
+import { Dialog } from "@pizzaos/ui";
 import { useCallback, useEffect, useReducer, useRef, useState, type Dispatch, type ReactElement } from "react";
 import { addCartItem } from "../../cart/cart-model";
 import { loadClientDemoState } from "../../home/client-demo-state";
@@ -74,9 +74,7 @@ export function ProductDetailScreen(props: ProductDetailScreenProps): ReactEleme
   }, []);
 
   const product = seed.products.find((candidateProduct) => candidateProduct.id === props.productId);
-  const availability = product
-    ? deriveProductAvailability(product)
-    : { label: "Non disponibile", tone: "neutral" as const, isOrderable: false };
+  const isOrderable = product ? deriveProductAvailability(product).isOrderable : false;
 
   useEffect(() =>
   {
@@ -209,16 +207,12 @@ export function ProductDetailScreen(props: ProductDetailScreenProps): ReactEleme
 
   return (
     <main className={styles.screen}>
-      {/* ── Hero ── */}
       <section className={styles.hero} aria-labelledby="product-detail-title">
         <div className={styles.heroTopRow}>
           <a href="/menu" className={styles.backButton}>
             <span className={styles.backIcon}>←</span>
             Menu
           </a>
-          <div className={styles.heroBadge}>
-            <Badge tone={availability.tone}>{availability.label}</Badge>
-          </div>
         </div>
 
         <div className={styles.generatorPreview}>
@@ -402,7 +396,7 @@ export function ProductDetailScreen(props: ProductDetailScreenProps): ReactEleme
             `${styles.stickyCtaButton}${isAddSuccess ? ` ${styles.stickyCtaSuccess}` : ""}`
           }
           onClick={handleAddToCartClick}
-          disabled={!availability.isOrderable}
+          disabled={!isOrderable}
           aria-label={`${formatMoney(priceBreakdown.totalCents)} – Aggiungi al carrello`}
         >
           {isAddSuccess ? (

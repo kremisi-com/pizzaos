@@ -21,6 +21,8 @@ export {
 
 export { advanceOrderSimulation, SUPPORTED_ORDER_STATUSES } from "./simulation";
 
+export { PRODUCTS_MENU } from "./data";
+
 export type {
   AdminSeed,
   AdminStoreDataset,

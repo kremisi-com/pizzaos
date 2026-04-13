@@ -64,17 +64,22 @@ const PARTICIPANTS = [
   {
     emoji: "🍕",
     name: "Sara",
-    choice: "Margherita extra bufala"
+    choice: "1× Margherita extra bufala, 2× Coca Cola"
   },
   {
     emoji: "🌶️",
     name: "Luca",
-    choice: "Diavola piccante"
+    choice: "1× Diavola piccante, 1× Birra artigianale bionda"
   },
   {
     emoji: "🥗",
     name: "Marta",
-    choice: "Vegetariana senza olive"
+    choice: "1× Vegetariana senza olive, 1× Acqua frizzante"
+  },
+  {
+    emoji: "⭐",
+    name: "Tu",
+    choice: "1× Quattro Formaggi, 1× Limonata artigianale"
   }
 ] as const;
 

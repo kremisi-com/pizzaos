@@ -85,6 +85,9 @@ describe("seed factories", () =>
   it("provides deterministic client slots and browse edge cases", () =>
   {
     const clientSeed = createClientSeed();
+    const rosemaryFocaccia = clientSeed.products.find(
+      (product) => product.id === "product-focaccia-rosmarino"
+    );
 
     expect(clientSeed.slots).toEqual([
       {
@@ -112,6 +115,7 @@ describe("seed factories", () =>
         etaMinutes: 70
       }
     ]);
+    expect(rosemaryFocaccia?.status).toBe("sold_out");
     expect(clientSeed.products.some((product) => product.status === "sold_out")).toBe(true);
     expect(clientSeed.products.some((product) => product.preparationMode === "crudo")).toBe(true);
     expect(clientSeed.orderHistory.map((order) => order.id)).toEqual([

@@ -31,6 +31,41 @@
   margin-bottom: 0;
 }
 
+.profileLink
+{
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 999px;
+  text-decoration: none;
+  font-size: 1.4rem;
+  background: rgba(248, 250, 252, 0.92);
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+  transition:
+    transform var(--pizzaos-motion-duration-slow) var(--pizzaos-motion-ease-standard),
+    box-shadow var(--pizzaos-motion-duration-slow) var(--pizzaos-motion-ease-standard),
+    background var(--pizzaos-motion-duration-slow) var(--pizzaos-motion-ease-standard);
+}
+
+.profileLink:hover
+{
+  transform: translateY(-1px);
+  background: white;
+  box-shadow: 0 14px 28px rgba(15, 23, 42, 0.12);
+}
+
+.profileLink:focus-visible
+{
+  outline: 2px solid var(--pizzaos-color-primary);
+  outline-offset: 3px;
+}
+
 .heroTitle
 {
   margin: 0 0 12px;
@@ -153,36 +188,102 @@
   letter-spacing: -0.02em;
 }
 
-.activeOrderCard
+.activeOrderStrip
 {
-  margin: 0 20px 24px;
+  position: relative;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 16px 20px;
-  background: #f0fdfa;
-  border: 1px solid rgba(15, 118, 110, 0.2);
-  border-radius: 16px;
+  gap: 12px;
+  padding: 14px 20px;
+  text-decoration: none;
+  background: transparent;
+  border-top: 1px solid rgba(15, 118, 110, 0.12);
+  border-bottom: 1px solid rgba(15, 118, 110, 0.12);
+  overflow: hidden;
+  transition: background var(--pizzaos-motion-duration-slow) var(--pizzaos-motion-ease-standard);
 }
 
-.activeOrderInfo
+.activeOrderStrip::before
 {
-  display: grid;
-  gap: 4px;
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, rgba(13, 148, 136, 0.05) 0%, transparent 60%);
+  pointer-events: none;
+}
+
+.activeOrderStrip:hover
+{
+  background: rgba(13, 148, 136, 0.04);
+}
+
+.activeOrderAccent
+{
+  flex-shrink: 0;
+  width: 3px;
+  height: 36px;
+  border-radius: 99px;
+  background: #0d9488;
+}
+
+.activeOrderPulse
+{
+  flex-shrink: 0;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #0d9488;
+  box-shadow: 0 0 0 0 rgba(13, 148, 136, 0.4);
+  animation: pulseRing 1.8s ease-out infinite;
+}
+
+@keyframes pulseRing
+{
+  0%   { box-shadow: 0 0 0 0 rgba(13, 148, 136, 0.4); }
+  70%  { box-shadow: 0 0 0 8px rgba(13, 148, 136, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(13, 148, 136, 0); }
+}
+
+.activeOrderBody
+{
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.activeOrderLabel
+{
+  font-weight: 800;
+  font-size: 0.9rem;
+  color: #0d9488;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
 }
 
 .activeOrderMeta
 {
-  margin: 0;
   font-size: 0.85rem;
   color: var(--pizzaos-color-foreground-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.activeOrderLink
+.activeOrderCta
 {
-  font-weight: 700;
+  flex-shrink: 0;
+  font-weight: 800;
+  font-size: 0.9rem;
   color: #0d9488;
-  text-decoration: none;
+  opacity: 0.7;
+  transition: opacity var(--pizzaos-motion-duration-slow) var(--pizzaos-motion-ease-standard);
+}
+
+.activeOrderStrip:hover .activeOrderCta
+{
+  opacity: 1;
 }
 
 .reorderSection

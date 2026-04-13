@@ -1,9 +1,6 @@
 "use client";
 
-import type { ClientSeed } from "@pizzaos/mock-data";
-import { Badge } from "@pizzaos/ui";
 import { useEffect, useMemo, useState, type ReactElement } from "react";
-import { loadClientDemoState } from "../../home/client-demo-state";
 import {
   clearCartState,
   loadCartState,
@@ -31,14 +28,12 @@ function resolveStorage(): Storage | undefined
 
 export function CartScreen(): ReactElement
 {
-  const [seed, setSeed] = useState<ClientSeed>(() => loadClientDemoState());
   const [cartState, setCartState] = useState<CartState>(() => loadCartState());
 
   useEffect(() =>
   {
     const storage = resolveStorage();
 
-    setSeed(loadClientDemoState(storage));
     setCartState(loadCartState(storage));
   }, []);
 
@@ -74,7 +69,6 @@ export function CartScreen(): ReactElement
             <span className={styles.backIcon}>←</span>
             Menu
           </a>
-          <Badge tone="neutral">{seed.store.displayName}</Badge>
         </div>
 
         <h1 id="cart-title" className={styles.heroTitle}>Carrello</h1>

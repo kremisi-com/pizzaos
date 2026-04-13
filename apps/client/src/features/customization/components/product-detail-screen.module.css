@@ -176,12 +176,6 @@
   letter-spacing: -0.02em;
 }
 
-.heroBadge
-{
-  display: flex;
-  gap: 6px;
-}
-
 /* ── Ingredients modal styles ── */
 .modalIngredientList
 {
