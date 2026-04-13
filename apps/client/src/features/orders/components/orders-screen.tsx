@@ -75,10 +75,6 @@ export function OrdersScreen(): ReactElement
         <p className={styles.heroCopy}>
           Apri uno storico per rivedere prodotti, note e totale con lo stesso dettaglio del carrello.
         </p>
-
-        <div className={styles.heroActions}>
-          <a href="/menu" className={styles.secondaryLink}>Nuovo ordine</a>
-        </div>
       </section>
 
       {reorderedOrderId ? (

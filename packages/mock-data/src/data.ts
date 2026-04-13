@@ -738,6 +738,32 @@ export const DEFAULT_CLIENT_ORDER_HISTORY: readonly Order[] = [
     "2026-03-23T18:48:00.000Z",
     [createLine("product-capricciosa", 1, 1250, "")],
     200
+  ),
+  createOrder(
+    "order-client-history-002",
+    DEFAULT_CLIENT_STORE_ID,
+    "customer-client-demo",
+    "delivered",
+    "2026-03-19T19:15:00.000Z",
+    "2026-03-19T20:01:00.000Z",
+    [
+      createLine("product-margherita", 1, 950, "Impasto integrale"),
+      createLine("product-suppli-cacio-e-pepe", 1, 550, "")
+    ],
+    200
+  ),
+  createOrder(
+    "order-client-history-003",
+    DEFAULT_CLIENT_STORE_ID,
+    "customer-client-demo",
+    "delivered",
+    "2026-03-15T20:05:00.000Z",
+    "2026-03-15T20:52:00.000Z",
+    [
+      createLine("product-diavola", 2, 1300, "Una senza cipolla rossa"),
+      createLine("product-acqua-frizzante", 1, 250, "")
+    ],
+    300
   )
 ];
 

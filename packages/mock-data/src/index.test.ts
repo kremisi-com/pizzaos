@@ -114,6 +114,11 @@ describe("seed factories", () =>
     ]);
     expect(clientSeed.products.some((product) => product.status === "sold_out")).toBe(true);
     expect(clientSeed.products.some((product) => product.preparationMode === "crudo")).toBe(true);
+    expect(clientSeed.orderHistory.map((order) => order.id)).toEqual([
+      "order-client-history-001",
+      "order-client-history-002",
+      "order-client-history-003"
+    ]);
   });
 });
 

@@ -49,12 +49,6 @@
   color: var(--pizzaos-color-foreground-muted);
 }
 
-.heroActions
-{
-  display: grid;
-  gap: 10px;
-}
-
 .secondaryLink
 {
   min-height: 40px;
@@ -153,10 +147,5 @@
     max-width: 860px;
     margin: 0 auto;
     padding: 30px 24px 60px;
-  }
-
-  .heroActions
-  {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
