@@ -26,6 +26,9 @@ describe("menu screen", () => {
         .textContent,
     ).toBe("La pizza a modo tuo");
     expect(
+      domScreen.getByRole("link", { name: "Vai al gruppo amici" }).getAttribute("href"),
+    ).toBe("/group-order");
+    expect(
       domScreen.getByRole("tablist", { name: "Sezioni menu" }),
     ).toBeTruthy();
     expect(
@@ -72,6 +75,8 @@ describe("menu screen", () => {
     renderDom(<MenuScreen />);
 
     expect(domScreen.getAllByText("✓")).toHaveLength(2);
+    expect(domScreen.getByText("🌱").textContent).toBe("🌱");
+    expect(domScreen.getByText("🌾").textContent).toBe("🌾");
     domFireEvent.click(domScreen.getByRole("radio", { name: /Bianca/i }));
     domFireEvent.click(domScreen.getByRole("radio", { name: /Integrale/i }));
 

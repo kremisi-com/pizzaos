@@ -19,6 +19,7 @@ This app does not own shared package APIs or admin and landing code paths.
 - `app/layout.tsx`: root metadata and layout shell
 - `app/page.tsx`: client route entry
 - `app/menu/page.tsx`: menu browsing route with section preselection support
+- `app/group-order/page.tsx`: gruppo amici demo hub linked from home and menu header
 - `app/product/[id]/page.tsx`: product detail route with guided customization flow
 - `app/cart/page.tsx`: cart review route with quantity updates and checkout entry
 - `app/checkout/page.tsx`: slot, tip, mock payment, and confirmation route

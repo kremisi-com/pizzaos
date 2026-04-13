@@ -67,25 +67,27 @@
   gap: 12px;
 }
 
-.iconButton {
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 8px;
+.groupButton {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--pizzaos-color-primary);
-  font-size: 1.2rem;
-  transition: opacity 0.2s;
+  width: 46px;
+  height: 46px;
+  border-radius: 16px;
+  text-decoration: none;
+  background: linear-gradient(135deg, rgba(209, 73, 46, 0.14), rgba(209, 73, 46, 0.06));
+  border: 1px solid rgba(209, 73, 46, 0.18);
+  box-shadow: 0 10px 22px rgba(209, 73, 46, 0.12);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.iconButton:hover {
-  opacity: 0.7;
+.groupButton:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 14px 24px rgba(209, 73, 46, 0.16);
 }
 
 .actionIcon {
-  font-size: 1.3rem;
+  font-size: 1.45rem;
 }
 
 .statusDot {
@@ -242,8 +244,8 @@
   display: flex;
   gap: 12px;
   overflow-x: auto;
-  padding: 4px 4px 8px;
-  margin: -4px;
+  padding: 8px 8px 20px;
+  margin: -8px;
   scrollbar-width: none;
 }
 
@@ -522,7 +524,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #10b981; /* Green color from the screenshot circle */
+  color: var(--pizzaos-color-primary); /* Brand primary color instead of generic green */
   font-size: 1.4rem;
   font-weight: 500;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
@@ -538,10 +540,10 @@
 
 .productCard:hover .productAddButton {
   transform: translateY(-50%) scale(1.1);
-  background: #10b981;
+  background: var(--pizzaos-color-primary);
   color: white;
-  border-color: #10b981;
-  box-shadow: 0 6px 16px rgba(16, 185, 129, 0.3);
+  border-color: var(--pizzaos-color-primary);
+  box-shadow: 0 6px 16px rgba(209, 73, 46, 0.3);
 }
 
 /* ── Meta row (badges + allergens) ── */

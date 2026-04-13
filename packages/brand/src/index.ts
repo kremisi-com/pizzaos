@@ -102,8 +102,8 @@ export const SURFACE_THEME_TOKENS: Record<AppSurface, SurfaceThemeTokens> = {
   client: {
     ...BASE_THEME_TOKENS,
     color: {
-      background: "#fff8f0",
-      backgroundAccent: "#eef8ff",
+      background: "#ffffff",
+      backgroundAccent: "#ffffff",
       foreground: "#1f2530",
       foregroundMuted: "#4f5a6a",
       border: "rgba(31, 37, 48, 0.18)",

@@ -2,17 +2,19 @@
 
 import type { Product } from "@pizzaos/domain";
 import type { ClientSeed } from "@pizzaos/mock-data";
-import { Badge } from "@pizzaos/ui";
+import { Badge, Dialog } from "@pizzaos/ui";
 import { useCallback, useEffect, useReducer, useRef, useState, type Dispatch, type ReactElement } from "react";
 import { addCartItem } from "../../cart/cart-model";
 import { loadClientDemoState } from "../../home/client-demo-state";
 import { deriveProductAvailability } from "../../menu/menu-view-model";
 import {
+  ALLERGEN_EMOJI_MAP,
   createInitialCustomizationState,
   customizationReducer,
   deriveCustomizationPrice,
   deriveVisibleAllergens,
   DOUGH_OPTIONS,
+  EXTRA_CATEGORIES,
   EXTRA_OPTIONS,
   getPizzaPreviewImage,
   getPairingSuggestions,
@@ -177,6 +179,8 @@ export function ProductDetailScreen(props: ProductDetailScreenProps): ReactEleme
   const activeExtrasCount = state.selectedExtraIds.length;
   const ingredientChanges = deriveIngredientChangesSummary(state);
 
+  const [isIngredientsModalOpen, setIsIngredientsModalOpen] = useState(false);
+
   if (!product)
   {
     return (
@@ -231,24 +235,29 @@ export function ProductDetailScreen(props: ProductDetailScreenProps): ReactEleme
           </div>
         </div>
 
-        <h1 id="product-detail-title" className={styles.heroTitle}>{product.name}</h1>
+        <div className={styles.titleWrapper}>
+          <h1 id="product-detail-title" className={styles.heroTitle}>{product.name}</h1>
+          <button
+            type="button"
+            className={styles.infoButton}
+            onClick={() => setIsIngredientsModalOpen(true)}
+            aria-label="Informazioni ingredienti e allergeni"
+          >
+            🔍
+          </button>
+        </div>
         <p className={styles.heroDescription}>{product.description}</p>
 
         <div className={styles.heroMeta}>
           <span className={styles.heroPrice}>{formatMoney(product.basePrice.amountCents)}</span>
         </div>
-
-        {visibleAllergens.length > 0 ? (
-          <div className={styles.allergenRow}>
-            {visibleAllergens.map((allergen) => (
-              <span key={allergen.code} className={styles.allergenPill}>
-                <span className={styles.allergenDot} />
-                {allergen.label}
-              </span>
-            ))}
-          </div>
-        ) : null}
       </section>
+
+      <IngredientsModal
+        isOpen={isIngredientsModalOpen}
+        onClose={() => setIsIngredientsModalOpen(false)}
+        product={product}
+      />
 
       {/* ── Customization sections ── */}
       <div className={styles.customizationArea}>
@@ -488,7 +497,7 @@ function DoughSelector(props: DoughSelectorProps): ReactElement
               }}
             />
             <div className={styles.optionInfo}>
-              <span className={styles.optionTitle}>{option.label}</span>
+              <span className={styles.optionTitle}>{option.icon} {option.label}</span>
               {option.description ? <span className={styles.optionDescription}>{option.description}</span> : null}
             </div>
             <div className={styles.optionRight}>
@@ -641,52 +650,71 @@ interface ExtraSelectorProps
 
 function ExtraSelector(props: ExtraSelectorProps): ReactElement
 {
+  const [openCategoryId, setOpenCategoryId] = useState<string | null>(null);
+
+  const toggleCategory = (categoryId: string) =>
+  {
+    setOpenCategoryId((current) => current === categoryId ? null : categoryId);
+  };
+
   return (
     <div className={styles.extraList}>
-      {EXTRA_OPTIONS.map((extra) =>
+      {EXTRA_CATEGORIES.map((category) =>
       {
-        const isActive = props.state.selectedExtraIds.includes(extra.id);
+        const options = EXTRA_OPTIONS.filter((extra) => extra.categoryId === category.id);
+
+        if (options.length === 0)
+        {
+          return null;
+        }
+
+        const isOpen = openCategoryId === category.id;
 
         return (
-          <div key={extra.id} className={styles.extraRow}>
-            <div className={styles.extraInfo}>
-              <p className={styles.extraName}>{extra.label}</p>
-              <p className={styles.extraDesc}>{extra.description}</p>
-              <span className={styles.extraPrice}>{formatDelta(extra.priceCents)}</span>
+          <section key={category.id} className={styles.extraCategory} aria-labelledby={`extra-category-${category.id}`}>
+            <button
+              type="button"
+              className={`${styles.extraCategoryHeader} ${isOpen ? styles.extraCategoryHeaderOpen : ""}`}
+              onClick={() => toggleCategory(category.id)}
+              aria-expanded={isOpen}
+            >
+              <div className={styles.sectionTitleGroup}>
+                <h3 id={`extra-category-${category.id}`} className={styles.extraCategoryTitle}>{category.title}</h3>
+                <span className={styles.extraCategoryCount}>{options.length} opzioni disponibili</span>
+              </div>
+              <span className={styles.extraCategoryChevron}>
+                {isOpen ? "▴" : "▾"}
+              </span>
+            </button>
+
+            <div className={`${styles.extraCategoryContent} ${isOpen ? styles.extraCategoryContentOpen : ""}`}>
+              {options.map((extra) =>
+              {
+                const isActive = props.state.selectedExtraIds.includes(extra.id);
+
+                return (
+                  <div key={extra.id} className={styles.extraRow}>
+                    <div className={styles.extraInfo}>
+                      <h3 className={styles.extraName}>{extra.label}</h3>
+                      {extra.description && <p className={styles.extraDesc}>{extra.description}</p>}
+                      <span className={styles.extraPrice}>{formatDelta(extra.priceCents)}</span>
+                    </div>
+
+                    <button
+                      type="button"
+                      className={`${styles.ingredientToggle} ${isActive ? styles.ingredientToggleActive : ""}`}
+                      onClick={() => props.dispatch({ type: "toggle_extra", extraId: extra.id })}
+                      aria-pressed={isActive}
+                      aria-label={`${extra.label} ${isActive ? "incluso" : "escluso"}`}
+                    >
+                      <span className={styles.ingredientToggleIndicator} aria-hidden="true" />
+                      <span className={styles.ingredientToggleLabel}>{isActive ? "Incluso" : "Escluso"}</span>
+                    </button>
+                  </div>
+                );
+              })}
             </div>
-            <div className={styles.ingredientControls}>
-              {isActive ? (
-                <>
-                  <button
-                    type="button"
-                    className={`${styles.circleButton} ${styles.circleButtonActive}`}
-                    onClick={() => props.dispatch({ type: "toggle_extra", extraId: extra.id })}
-                    aria-label="Rimuovi extra"
-                  >
-                    <span className={styles.circleButtonIcon}>−</span>
-                  </button>
-                  <span className={styles.ingredientAmount}>1</span>
-                  <button
-                    type="button"
-                    className={styles.circleButton}
-                    disabled
-                    aria-label="Aggiungi extra"
-                  >
-                    <span className={styles.circleButtonIcon}>＋</span>
-                  </button>
-                </>
-              ) : (
-                <button
-                  type="button"
-                  className={styles.circleButton}
-                  onClick={() => props.dispatch({ type: "toggle_extra", extraId: extra.id })}
-                  aria-label="Aggiungi extra"
-                >
-                  <span className={styles.circleButtonIcon}>＋</span>
-                </button>
-              )}
-            </div>
-          </div>
+          </section>
         );
       })}
     </div>
@@ -777,4 +805,116 @@ function inferDefaultBaseId(product: Product | undefined): string
   }
 
   return "base-rossa";
+}
+
+/* ── Ingredients Modal ── */
+
+interface IngredientsModalProps
+{
+  readonly isOpen: boolean;
+  readonly onClose: () => void;
+  readonly product: Product;
+}
+
+function IngredientsModal(props: IngredientsModalProps): ReactElement
+{
+  const ingredients = getProductIngredients(props.product);
+
+  // Collect all unique allergens from ingredients for the legend
+  const uniqueAllergensMap = new Map<string, string>();
+
+  for (const ing of ingredients)
+  {
+    for (const all of ing.allergens)
+    {
+      uniqueAllergensMap.set(all.code, all.label);
+    }
+  }
+  const uniqueAllergens = Array.from(uniqueAllergensMap.entries()).map(([code, label]) => ({ code, label }));
+
+  return (
+    <Dialog
+      open={props.isOpen}
+      onClose={props.onClose}
+      dialogId="ingredients-modal"
+      title="Ingredienti e allergeni"
+    >
+      <div className={styles.modalIngredientList}>
+        {ingredients.map((ing, idx) => (
+          <div key={`${ing.label}-${idx}`} className={styles.modalIngredientRow}>
+            <span className={styles.modalIngredientName}>{ing.label}</span>
+            <div className={styles.modalAllergenDots}>
+              {ing.allergens.map((all) => (
+                <span key={all.code} className={styles.allergenEmojiDot} title={all.label}>
+                  {ALLERGEN_EMOJI_MAP[all.code] ?? "❓"}
+                </span>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {uniqueAllergens.length > 0 && (
+        <div className={styles.allergenLegend}>
+          {uniqueAllergens.map((all) => (
+            <div key={all.code} className={styles.legendItem}>
+              <span className={styles.legendEmoji}>
+                {ALLERGEN_EMOJI_MAP[all.code] ?? "❓"}
+              </span>
+              <span>{all.label}</span>
+            </div>
+          ))}
+        </div>
+      )}
+    </Dialog>
+  );
+}
+
+function getProductIngredients(product: Product): { label: string; allergens: any[] }[]
+{
+  const baseIngredients = [
+    { label: "Impasto tradizionale PizzaOS", allergens: [{ code: "GLU", label: "Glutine" }] }
+  ];
+
+  // Map words in description to ingredients with allergens
+  const mapping: Record<string, { label: string; allergens: any[] }> = {
+    pomodoro: { label: "Pomodoro San Marzano DOP", allergens: [] },
+    fiordilatte: { label: "Fiordilatte di Agerola", allergens: [{ code: "LAT", label: "Lattosio" }] },
+    basilico: { label: "Basilico fresco a foglia larga", allergens: [] },
+    tonno: { label: "Tonno pinna gialla in olio d'oliva", allergens: [{ code: "PES", label: "Pesce" }] },
+    cipolla: { label: "Cipolla rossa di Tropea", allergens: [] },
+    spianata: { label: "Spianata calabra piccante", allergens: [] },
+    formaggi: { label: "Selezione Formaggi Italiani", allergens: [{ code: "LAT", label: "Lattosio" }] },
+    gorgonzola: { label: "Gorgonzola DOP", allergens: [{ code: "LAT", label: "Lattosio" }] },
+    parmigiano: { label: "Parmigiano Reggiano 24 mesi", allergens: [{ code: "LAT", label: "Lattosio" }] },
+    pecorino: { label: "Pecorino Romano", allergens: [{ code: "LAT", label: "Lattosio" }] },
+    olive: { label: "Olive taggiasche denocciolate", allergens: [] },
+    carciofi: { label: "Cuori di carciofo", allergens: [] },
+    funghi: { label: "Funghi champignon freschi", allergens: [] },
+    "prosciutto cotto": { label: "Prosciutto cotto alta qualità", allergens: [] }
+  };
+
+  const ingredients = [...baseIngredients];
+  const desc = product.description.toLowerCase();
+
+  for (const [key, value] of Object.entries(mapping))
+  {
+    if (desc.includes(key))
+    {
+      ingredients.push(value);
+    }
+  }
+
+  // Specific fallbacks for common pizzas if description is too brief
+  if (product.id === "product-margherita" && !desc.includes("fiordilatte"))
+  {
+    ingredients.push(mapping.fiordilatte);
+  }
+
+  if (product.id === "product-tonno-cipolla" && !desc.includes("pomodoro"))
+  {
+    ingredients.push(mapping.pomodoro);
+  }
+
+  return ingredients;
 }

@@ -2,7 +2,7 @@
 
 import { getThemeClass } from "@pizzaos/brand";
 import type { ClientSeed } from "@pizzaos/mock-data";
-import { Badge, Button } from "@pizzaos/ui";
+import { Badge } from "@pizzaos/ui";
 import { useEffect, useState, type ReactElement } from "react";
 import { loadClientDemoState } from "../../home/client-demo-state";
 import {
@@ -101,12 +101,9 @@ export function MenuScreen(props: MenuScreenProps): ReactElement
             <span>Home</span>
           </a>
           <div className={styles.headerActions}>
-            <button className={styles.iconButton} aria-label="Condividi">
-              <span className={styles.actionIcon}>🔗</span>
-            </button>
-            <button className={styles.iconButton} aria-label="Cerca">
-              <span className={styles.actionIcon}>🔍</span>
-            </button>
+            <a href="/group-order" className={styles.groupButton} aria-label="Vai al gruppo amici">
+              <span className={styles.actionIcon} aria-hidden="true">👥</span>
+            </a>
           </div>
         </div>
 
@@ -144,7 +141,7 @@ export function MenuScreen(props: MenuScreenProps): ReactElement
               role="radio"
             >
               <span className={styles.doughOptionIcon}>
-                {option.id === "dough-classico" ? "🫓" : option.id === "dough-integrale" ? "🌾" : "🍪"}
+                {option.icon}
               </span>
               <span className={styles.doughOptionName}>
                 {option.label}

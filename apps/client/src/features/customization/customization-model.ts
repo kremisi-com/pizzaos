@@ -6,6 +6,7 @@ export interface DoughOption
 {
   readonly id: string;
   readonly label: string;
+  readonly icon: string;
   readonly description: string;
   readonly priceDeltaCents: number;
   readonly allergens: readonly ProductAllergen[];
@@ -39,10 +40,17 @@ export interface IngredientOption
 export interface ExtraOption
 {
   readonly id: string;
+  readonly categoryId: string;
   readonly label: string;
   readonly description: string;
   readonly priceCents: number;
   readonly allergens: readonly ProductAllergen[];
+}
+
+export interface ExtraCategory
+{
+  readonly id: string;
+  readonly title: string;
 }
 
 export interface PairingSuggestion
@@ -91,10 +99,18 @@ const ALLERGENS: Readonly<Record<string, ProductAllergen>> = {
   SOL: { code: "SOL", label: "Solfiti" }
 };
 
+export const ALLERGEN_EMOJI_MAP: Readonly<Record<string, string>> = {
+  GLU: "🌾",
+  LAT: "🥛",
+  PES: "🐟",
+  SOL: "🍷"
+};
+
 export const DOUGH_OPTIONS: readonly DoughOption[] = [
   {
     id: "dough-classico",
     label: "Classico",
+    icon: "🫓",
     description: "Bassa idratazione e bordo tradizionale.",
     priceDeltaCents: 0,
     allergens: [ALLERGENS.GLU]
@@ -102,6 +118,7 @@ export const DOUGH_OPTIONS: readonly DoughOption[] = [
   {
     id: "dough-integrale",
     label: "Integrale",
+    icon: "🌱",
     description: "Impasto ai cereali con maggiore croccantezza.",
     priceDeltaCents: 120,
     allergens: [ALLERGENS.GLU]
@@ -109,6 +126,7 @@ export const DOUGH_OPTIONS: readonly DoughOption[] = [
   {
     id: "dough-5-cereali",
     label: "5 Cereali",
+    icon: "🌾",
     description: "Mix di farine multicereali per un sapore rustico.",
     priceDeltaCents: 150,
     allergens: [ALLERGENS.GLU]
@@ -200,25 +218,123 @@ export const INGREDIENT_OPTIONS: readonly IngredientOption[] = [
 
 export const EXTRA_OPTIONS: readonly ExtraOption[] = [
   {
-    id: "extra-burrata",
-    label: "Burrata cremosa",
-    description: "Aggiunta a fine cottura.",
-    priceCents: 220,
-    allergens: [ALLERGENS.LAT]
-  },
-  {
     id: "extra-olive-taggiasche",
+    categoryId: "vegetali",
     label: "Olive taggiasche",
     description: "Porzione extra di olive.",
     priceCents: 90,
     allergens: []
   },
   {
+    id: "extra-funghi-trifolati",
+    categoryId: "vegetali",
+    label: "Funghi trifolati",
+    description: "Funghi saltati con prezzemolo e aglio.",
+    priceCents: 140,
+    allergens: []
+  },
+  {
+    id: "extra-rucola",
+    categoryId: "vegetali",
+    label: "Rucola fresca",
+    description: "Aggiunta a crudo per una nota erbacea.",
+    priceCents: 110,
+    allergens: []
+  },
+  {
+    id: "extra-spianata-piccante",
+    categoryId: "carne",
+    label: "Spianata piccante",
+    description: "Fette sottili dal profilo deciso.",
+    priceCents: 190,
+    allergens: []
+  },
+  {
+    id: "extra-salsiccia",
+    categoryId: "carne",
+    label: "Salsiccia sbriciolata",
+    description: "Rosolata e distribuita in cottura.",
+    priceCents: 210,
+    allergens: []
+  },
+  {
+    id: "extra-burrata",
+    categoryId: "latticini",
+    label: "Burrata cremosa",
+    description: "Aggiunta a fine cottura.",
+    priceCents: 220,
+    allergens: [ALLERGENS.LAT]
+  },
+  {
+    id: "extra-stracciatella",
+    categoryId: "latticini",
+    label: "Stracciatella pugliese",
+    description: "Crema di latte filante aggiunta a caldo.",
+    priceCents: 180,
+    allergens: [ALLERGENS.LAT]
+  },
+  {
+    id: "extra-gorgonzola",
+    categoryId: "latticini",
+    label: "Gorgonzola dolce",
+    description: "Cucchiaiate cremose dal gusto intenso.",
+    priceCents: 170,
+    allergens: [ALLERGENS.LAT]
+  },
+  {
     id: "extra-acciughe",
+    categoryId: "pesce",
     label: "Filetti di acciuga",
     description: "Selezione di acciughe in olio.",
     priceCents: 160,
     allergens: [ALLERGENS.PES]
+  },
+  {
+    id: "extra-tonno",
+    categoryId: "pesce",
+    label: "Tonno del Mediterraneo",
+    description: "Filetti sfilacciati per un profilo marino pulito.",
+    priceCents: 190,
+    allergens: [ALLERGENS.PES]
+  },
+  {
+    id: "extra-miele-piccante",
+    categoryId: "finiture",
+    label: "Miele piccante",
+    description: "Finitura dolce e speziata per pizze saporite.",
+    priceCents: 80,
+    allergens: []
+  },
+  {
+    id: "extra-capperi-fritti",
+    categoryId: "finiture",
+    label: "Capperi croccanti",
+    description: "Tocco sapido e croccante a fine cottura.",
+    priceCents: 70,
+    allergens: []
+  }
+];
+
+export const EXTRA_CATEGORIES: readonly ExtraCategory[] = [
+  {
+    id: "vegetali",
+    title: "Vegetali"
+  },
+  {
+    id: "carne",
+    title: "Carne"
+  },
+  {
+    id: "pesce",
+    title: "Pesce"
+  },
+  {
+    id: "latticini",
+    title: "Latticini"
+  },
+  {
+    id: "finiture",
+    title: "Salse e finiture"
   }
 ];
 

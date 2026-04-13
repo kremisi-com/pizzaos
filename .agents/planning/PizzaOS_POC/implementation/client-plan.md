@@ -232,3 +232,5 @@ needed.
 
 - Menu-level dough and base selection cards keep a light surface even when selected; selection is communicated through
   the check marker, accent border, and elevation so labels stay legible in the mobile customization teaser.
+- The menu header now uses a dedicated group emoji CTA that routes to `/group-order`, matching the existing "Ordina con
+  i tuoi amici" narrative from the client home and avoiding a dead-end demo link.

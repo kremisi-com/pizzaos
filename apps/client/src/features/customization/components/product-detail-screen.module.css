@@ -13,11 +13,14 @@
 /* ── Hero section ── */
 .hero
 {
+  position: relative;
   padding: 24px 20px 20px;
 }
 
 .generatorPreview
 {
+  position: relative;
+  z-index: 1;
   margin-bottom: 20px;
 }
 
@@ -64,6 +67,8 @@
 
 .heroTopRow
 {
+  position: relative;
+  z-index: 3;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -97,17 +102,57 @@
   font-size: 1.1rem;
 }
 
+.titleWrapper
+{
+  position: relative;
+  z-index: 3;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  margin: 0 0 8px;
+}
+
 .heroTitle
 {
-  margin: 0 0 8px;
+  margin: 0;
   font-size: 2.2rem;
   line-height: 1;
   letter-spacing: -0.04em;
   font-weight: 900;
+  flex: 1;
+}
+
+.infoButton
+{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 42px;
+  min-height: 42px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  font-size: 1.25rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: var(--pizzaos-color-foreground);
+}
+
+.infoButton:hover
+{
+  transform: scale(1.05);
+}
+
+.infoButton:active
+{
+  transform: scale(0.95);
 }
 
 .heroDescription
 {
+  position: relative;
+  z-index: 3;
   margin: 0 0 16px;
   color: var(--pizzaos-color-foreground-muted);
   font-size: 1rem;
@@ -116,6 +161,8 @@
 
 .heroMeta
 {
+  position: relative;
+  z-index: 3;
   display: flex;
   align-items: center;
   gap: 12px;
@@ -135,38 +182,96 @@
   gap: 6px;
 }
 
-/* ── Allergen pills ── */
-.allergenRow
+/* ── Ingredients modal styles ── */
+.modalIngredientList
 {
   display: flex;
-  gap: 6px;
-  flex-wrap: wrap;
-  margin-top: 12px;
+  flex-direction: column;
+  gap: 0;
+  margin-top: 0;
 }
 
-.allergenPill
+.modalIngredientRow
+{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  gap: 12px;
+}
+
+.modalIngredientRow:first-child
+{
+  padding-top: 0;
+}
+
+.modalIngredientRow:last-child
+{
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.modalIngredientName
+{
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--pizzaos-color-foreground);
+  letter-spacing: -0.01em;
+  line-height: 1.4;
+  flex: 1;
+}
+
+.modalAllergenDots
+{
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.allergenEmojiDot
+{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  transition: transform 0.15s ease;
+  cursor: default;
+}
+
+.allergenEmojiDot:hover
+{
+  transform: scale(1.15);
+}
+
+.allergenLegend
+{
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.legendItem
 {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 6px 14px;
-  background: #f1f5f9;
+  font-size: 0.78rem;
+  color: var(--pizzaos-color-foreground-muted);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  background: rgba(0, 0, 0, 0.04);
   border-radius: 999px;
-  font-size: 0.7rem;
-  font-weight: 800;
-  color: #475569;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  border: 1px solid rgba(0, 0, 0, 0.03);
+  padding: 5px 10px 5px 8px;
 }
 
-.allergenDot
+.legendEmoji
 {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--pizzaos-color-primary);
-  opacity: 0.7;
+  font-size: 1rem;
+  line-height: 1;
 }
 
 /* ── Customization sections ── */
@@ -295,7 +400,7 @@
 
 .sectionBodyOpen
 {
-  max-height: 600px;
+  max-height: 2000px;
   opacity: 1;
 }
 
@@ -494,6 +599,81 @@
 {
   display: flex;
   flex-direction: column;
+}
+
+.extraCategory
+{
+  display: flex;
+  flex-direction: column;
+}
+
+.extraCategory + .extraCategory
+{
+  border-top: 1px solid rgba(15, 23, 42, 0.06);
+}
+
+.extraCategoryTitle
+{
+  margin: 0;
+  font-size: 0.86rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #334155;
+}
+
+.extraCategoryCount
+{
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--pizzaos-color-foreground-muted);
+}
+
+.extraCategoryHeader
+{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 18px 20px;
+  width: 100%;
+  border: none;
+  background: none;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.2s ease;
+}
+
+.extraCategoryHeader:hover
+{
+  background: rgba(0, 0, 0, 0.02);
+}
+
+.extraCategoryChevron
+{
+  font-size: 0.8rem;
+  color: var(--pizzaos-color-foreground-muted);
+  transition: transform 0.2s ease;
+}
+
+.extraCategoryHeaderOpen .extraCategoryChevron
+{
+  transform: rotate(180deg);
+}
+
+.extraCategoryContent
+{
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.extraCategoryContentOpen
+{
+  max-height: 1000px;
+  opacity: 1;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
 }
 
 .ingredientRow, .extraRow

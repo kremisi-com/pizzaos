@@ -39,13 +39,43 @@ describe("product detail screen", () => {
     expect(domScreen.getByRole("heading", { name: "Extra" }).textContent).toBe(
       "Extra",
     );
+
+    domFireEvent.click(
+      domScreen.getByRole("heading", { name: "Extra" }).closest("button") as HTMLButtonElement,
+    );
+
+    expect(domScreen.getByRole("heading", { name: "Vegetali" }).textContent).toBe(
+      "Vegetali",
+    );
+    expect(domScreen.getByRole("heading", { name: "Carne" }).textContent).toBe(
+      "Carne",
+    );
+    expect(domScreen.getByRole("heading", { name: "Pesce" }).textContent).toBe(
+      "Pesce",
+    );
+    expect(
+      domScreen.getByRole("heading", { name: "Latticini" }).textContent,
+    ).toBe("Latticini");
+    expect(
+      domScreen.getByRole("heading", { name: "Salse e finiture" }).textContent,
+    ).toBe("Salse e finiture");
+    expect(domScreen.getByText("Funghi trifolati").textContent).toBe(
+      "Funghi trifolati",
+    );
+    expect(domScreen.getByText("Spianata piccante").textContent).toBe(
+      "Spianata piccante",
+    );
   });
 
   it("shows allergens, updates the ingredient toggles, and switches the preview image", () => {
     renderDom(<ProductDetailScreen productId="product-margherita" />);
 
+    domFireEvent.click(
+      domScreen.getByRole("button", { name: "Informazioni ingredienti e allergeni" }),
+    );
     expect(domScreen.getByText("Glutine").textContent).toBe("Glutine");
     expect(domScreen.getByText("Lattosio").textContent).toBe("Lattosio");
+    domFireEvent.click(domScreen.getByRole("button", { name: "Chiudi" }));
     expect(
       domScreen.getByTestId("customization-total-value").textContent,
     ).toContain("9,00");
@@ -64,7 +94,7 @@ describe("product detail screen", () => {
         .getAttribute("src"),
     ).toBe("/images/pizza/bianca-integrale.png");
 
-    domFireEvent.click(domScreen.getByRole("button", { name: /Ingredienti/i }));
+    domFireEvent.click(domScreen.getByRole("heading", { name: "Ingredienti" }).closest("button") as HTMLButtonElement);
     domFireEvent.click(
       domScreen.getByRole("button", { name: "Fiordilatte incluso" }),
     );

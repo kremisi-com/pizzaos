@@ -1,0 +1,166 @@
+.screen {
+  min-height: 100dvh;
+  max-width: 520px;
+  margin: 0 auto;
+  padding: 24px 20px 120px;
+  background:
+    radial-gradient(circle at top right, rgba(209, 73, 46, 0.12), transparent 32%),
+    linear-gradient(180deg, #fffaf5 0%, #ffffff 42%);
+}
+
+.header {
+  display: grid;
+  gap: 14px;
+}
+
+.backButton {
+  width: fit-content;
+  text-decoration: none;
+  color: var(--pizzaos-color-foreground);
+  font-weight: 800;
+  font-size: 0.9rem;
+}
+
+.title {
+  margin: 0;
+  font-size: 2.2rem;
+  line-height: 1.02;
+  letter-spacing: -0.04em;
+}
+
+.subtitle {
+  margin: 0;
+  color: var(--pizzaos-color-foreground-muted);
+  line-height: 1.5;
+}
+
+.summaryCard,
+.participantCard {
+  border-radius: 28px;
+  border: 1px solid rgba(26, 26, 26, 0.08);
+  background: rgba(255, 255, 255, 0.88);
+  box-shadow: 0 18px 40px rgba(29, 20, 10, 0.07);
+}
+
+.summaryCard {
+  display: grid;
+  gap: 12px;
+  margin-top: 28px;
+  padding: 22px;
+}
+
+.eyebrow {
+  margin: 0 0 6px;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--pizzaos-color-primary);
+}
+
+.cardTitle,
+.sectionTitle {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 850;
+}
+
+.meta {
+  margin: 0;
+  color: var(--pizzaos-color-foreground-muted);
+  font-weight: 600;
+}
+
+.participantsSection {
+  margin-top: 28px;
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.memberCount {
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: var(--pizzaos-color-foreground-muted);
+}
+
+.participantList {
+  display: grid;
+  gap: 14px;
+}
+
+.participantCard {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 14px;
+  padding: 18px;
+}
+
+.participantEmoji {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 16px;
+  background: rgba(209, 73, 46, 0.1);
+  font-size: 1.4rem;
+}
+
+.participantInfo {
+  display: grid;
+  gap: 4px;
+}
+
+.participantName,
+.participantChoice {
+  margin: 0;
+}
+
+.participantName {
+  font-weight: 800;
+}
+
+.participantChoice {
+  color: var(--pizzaos-color-foreground-muted);
+  font-size: 0.92rem;
+}
+
+.participantStatus {
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: #0f7b45;
+}
+
+.actions {
+  display: grid;
+  gap: 12px;
+  margin-top: 28px;
+}
+
+.primaryAction,
+.secondaryAction {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 54px;
+  border-radius: 999px;
+  text-decoration: none;
+  font-weight: 800;
+}
+
+.primaryAction {
+  background: var(--pizzaos-color-primary);
+  color: #ffffff;
+}
+
+.secondaryAction {
+  border: 1px solid rgba(26, 26, 26, 0.1);
+  color: var(--pizzaos-color-foreground);
+  background: rgba(255, 255, 255, 0.9);
+}
