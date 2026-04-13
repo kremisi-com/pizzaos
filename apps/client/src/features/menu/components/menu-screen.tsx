@@ -7,9 +7,9 @@ import { useEffect, useState, type ReactElement } from "react";
 import { loadClientDemoState } from "../../home/client-demo-state";
 import {
   deriveMenuSections,
-  deriveProductAvailability,
-  deriveSlotAvailability
+  deriveProductAvailability
 } from "../menu-view-model";
+import { DOUGH_OPTIONS, getPizzaPreviewImage, PIZZA_BASE_OPTIONS } from "../../customization/customization-model";
 import styles from "./menu-screen.module.css";
 
 const MONEY_FORMATTER = new Intl.NumberFormat("it-IT", {
@@ -36,9 +36,29 @@ export function MenuScreen(props: MenuScreenProps): ReactElement
 {
   const [seed, setSeed] = useState<ClientSeed>(() => loadClientDemoState());
   const [selectedSectionId, setSelectedSectionId] = useState(props.initialSectionId ?? "");
-  const [selectedSlotId, setSelectedSlotId] = useState("");
-  const slots = seed.slots;
+  const [selectedDoughId, setSelectedDoughId] = useState(DOUGH_OPTIONS[0].id);
+  const [selectedBaseId, setSelectedBaseId] = useState(PIZZA_BASE_OPTIONS[0].id);
 
+  useEffect(() =>
+  {
+    if (typeof window === "undefined")
+    {
+      return;
+    }
+
+    const savedDough = window.localStorage.getItem("pizzaos-selected-dough");
+    const savedBase = window.localStorage.getItem("pizzaos-selected-base");
+
+    if (savedDough)
+    {
+      setSelectedDoughId(savedDough);
+    }
+
+    if (savedBase)
+    {
+      setSelectedBaseId(savedBase);
+    }
+  }, []);
   useEffect(() =>
   {
     setSeed(loadClientDemoState(resolveStorage()));
@@ -67,34 +87,8 @@ export function MenuScreen(props: MenuScreenProps): ReactElement
     });
   }, [props.initialSectionId, sections, selectedSection]);
 
-  useEffect(() =>
-  {
-    const firstSelectableSlot = slots.find((slot) => deriveSlotAvailability(slot).isSelectable);
-
-    setSelectedSlotId((currentSlotId) =>
-    {
-      if (slots.some((slot) => slot.slotId === currentSlotId && deriveSlotAvailability(slot).isSelectable))
-      {
-        return currentSlotId;
-      }
-
-      return firstSelectableSlot?.slotId ?? "";
-    });
-  }, [slots]);
-
-  const selectedSlot = slots.find((slot) => slot.slotId === selectedSlotId) ?? slots[0];
-  const selectedSlotState = selectedSlot ? deriveSlotAvailability(selectedSlot) : null;
-
   return (
     <div className={`${getThemeClass(seed.surface)} ${styles.screen}`}>
-      <div className={styles.heroImageWrap}>
-        <img
-          src="/images/pizza/pizza-rossa.png"
-          alt="Anteprima pizza"
-          className={styles.heroImage}
-        />
-      </div>
-
       <header className={styles.header}>
         <div className={styles.headerTop}>
           <a href="/" className={styles.backButton}>
@@ -107,12 +101,73 @@ export function MenuScreen(props: MenuScreenProps): ReactElement
           </div>
         </div>
 
-        <h1 id="menu-title" className={styles.heroTitle}>Scegli la tua pizza</h1>
+        <h1 id="menu-title" className={styles.heroTitle}>La pizza a modo tuo</h1>
         <p className={styles.heroSubtitle}>Ingredienti freschi, impasti a lenta lievitazione.</p>
+
+        <div className={styles.heroImageWrap}>
+          <img
+            src={getPizzaPreviewImage({
+              doughId: selectedDoughId,
+              baseId: selectedBaseId
+            })}
+            alt="Anteprima pizza"
+            className={styles.heroImage}
+          />
+        </div>
       </header>
+
+
+      <section className={styles.doughSection}>
+        <span className={styles.doughLabel}>Scegli l&apos;impasto:</span>
+        <div className={styles.doughList} role="radiogroup" aria-label="Scelta impasto">
+          {DOUGH_OPTIONS.map((option) => (
+            <button
+              key={option.id}
+              type="button"
+              className={`${styles.doughOption} ${selectedDoughId === option.id ? styles.doughOptionActive : ""}`}
+              onClick={() => {
+                setSelectedDoughId(option.id);
+                if (typeof window !== "undefined") {
+                  window.localStorage.setItem("pizzaos-selected-dough", option.id);
+                }
+              }}
+              aria-checked={selectedDoughId === option.id}
+              role="radio"
+            >
+              <span className={styles.doughOptionIcon}>🫓</span>
+              <span className={styles.doughOptionName}>{option.label}</span>
+            </button>
+          ))}
+        </div>
+      </section>
+
+      <section className={styles.doughSection}>
+        <span className={styles.doughLabel}>Scegli la base:</span>
+        <div className={styles.doughList} role="radiogroup" aria-label="Scelta base">
+          {PIZZA_BASE_OPTIONS.map((option) => (
+            <button
+              key={option.id}
+              type="button"
+              className={`${styles.doughOption} ${selectedBaseId === option.id ? styles.doughOptionActive : ""}`}
+              onClick={() => {
+                setSelectedBaseId(option.id);
+                if (typeof window !== "undefined") {
+                  window.localStorage.setItem("pizzaos-selected-base", option.id);
+                }
+              }}
+              aria-checked={selectedBaseId === option.id}
+              role="radio"
+            >
+              <span className={styles.doughOptionIcon}>{option.id === "base-rossa" ? "🍅" : "🧄"}</span>
+              <span className={styles.doughOptionName}>{option.label}</span>
+            </button>
+          ))}
+        </div>
+      </section>
 
       <section className={styles.tabSection}>
         <div className={styles.categoryContainer}>
+          <h2 className={styles.categoryTitle}>Da dove vuoi iniziare?</h2>
           <div className={styles.categoryList} role="tablist" aria-label="Sezioni menu">
             {sections.map((section) => {
               const icon = section.id.includes("classiche") ? "🍕" :
@@ -136,22 +191,6 @@ export function MenuScreen(props: MenuScreenProps): ReactElement
         </div>
       </section>
 
-      <section className={styles.slotSection}>
-        <button
-          className={styles.slotTrigger}
-          onClick={() => {/* Toggle slot picker */}}
-        >
-          <div className={styles.slotTriggerContent}>
-            <span className={styles.slotIcon}>🕒</span>
-            <div className={styles.slotText}>
-              <span className={styles.slotLabel}>Consegna prevista:</span>
-              <span className={styles.slotValue}>{selectedSlot?.label ?? "Seleziona slot"}</span>
-            </div>
-          </div>
-          {selectedSlotState ? <Badge tone={selectedSlotState.tone}>{selectedSlotState.label}</Badge> : null}
-        </button>
-      </section>
-
       <section aria-labelledby="menu-sections-title" className={styles.productsSection}>
         {selectedSection ? (
           <>
@@ -167,60 +206,56 @@ export function MenuScreen(props: MenuScreenProps): ReactElement
               {
                 const availability = deriveProductAvailability(product);
 
+                const isOrderable = availability.isOrderable;
+                const CardTag = isOrderable ? "a" : "article";
+                const cardProps = isOrderable ? { href: `/product/${product.id}` } : {};
+
                 return (
-                  <article
+                  <CardTag
                     key={product.id}
-                    className={`${styles.productCard} ${!availability.isOrderable ? styles.productCardMuted : ""}`}
+                    {...cardProps}
+                    className={`${styles.productCard} ${!isOrderable ? styles.productCardMuted : ""}`}
                   >
-                    <div className={styles.productInfo}>
-                      <div className={styles.productMain}>
-                        <h3 className={styles.productName}>{product.name}</h3>
+                    <div className={styles.productInside}>
+                      <div className={styles.productMainInfo}>
+                        <div className={styles.productHeader}>
+                          <h3 className={styles.productName}>{product.name}</h3>
+                          <div className={styles.productPrice}>
+                            {MONEY_FORMATTER.format(product.basePrice.amountCents / 100)}
+                          </div>
+                        </div>
                         <p className={styles.productDescription}>{product.description}</p>
-                      </div>
+                        
+                        <div className={styles.productMeta}>
+                          <div className={styles.badgeRow}>
+                            {!isOrderable && <Badge tone={availability.tone}>{availability.label}</Badge>}
+                            {product.preparationMode && (
+                              <Badge tone={product.preparationMode === "crudo" ? "warning" : "neutral"}>
+                                {product.preparationMode === "crudo" ? "Servita cruda" : "Cotta"}
+                              </Badge>
+                            )}
+                          </div>
 
-                      <div className={styles.productVisual}>
-                        <div className={styles.productPrice}>
-                          {MONEY_FORMATTER.format(product.basePrice.amountCents / 100)}
+                          <div className={styles.allergenRow}>
+                            {product.allergens.slice(0, 3).map(a => (
+                              <span key={a.code} title={a.label} className={styles.allergenIndicator}>
+                                {a.label.charAt(0)}
+                              </span>
+                            ))}
+                            {product.allergens.length > 3 && <span>+</span>}
+                          </div>
                         </div>
-                        <div className={styles.productImagePlaceholder}>
-                          <span>🍕</span>
+                      </div>
+
+                      {isOrderable && (
+                        <div className={styles.productChevron}>
+                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M9 18l6-6-6-6" />
+                          </svg>
                         </div>
-                      </div>
-                    </div>
-
-                    <div className={styles.productMeta}>
-                      <div className={styles.badgeRow}>
-                        {!availability.isOrderable && <Badge tone={availability.tone}>{availability.label}</Badge>}
-                        {product.preparationMode && (
-                          <Badge tone={product.preparationMode === "crudo" ? "warning" : "neutral"}>
-                            {product.preparationMode === "crudo" ? "Servita cruda" : "Cotta"}
-                          </Badge>
-                        )}
-                      </div>
-
-                      <div className={styles.allergenRow}>
-                        {product.allergens.slice(0, 3).map(a => (
-                          <span key={a.code} title={a.label} className={styles.allergenIndicator}>
-                            {a.label.charAt(0)}
-                          </span>
-                        ))}
-                        {product.allergens.length > 3 && <span>+</span>}
-                      </div>
-                    </div>
-
-                    <div className={styles.cardActions}>
-                      {availability.isOrderable ? (
-                        <a href={`/product/${product.id}`} className={styles.primaryAction}>
-                          <span>Personalizza</span>
-                          <span className={styles.plusIcon}>+</span>
-                        </a>
-                      ) : (
-                        <Button variant="secondary" disabled className={styles.disabledAction}>
-                          Esaurito
-                        </Button>
                       )}
                     </div>
-                  </article>
+                  </CardTag>
                 );
               })}
             </div>
