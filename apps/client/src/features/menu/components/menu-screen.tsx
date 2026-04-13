@@ -187,6 +187,7 @@ export function MenuScreen(props: MenuScreenProps): ReactElement
             {sections.map((section) => {
               const icon = section.id.includes("classiche") ? "🍕" :
                            section.id.includes("speciali") ? "✨" :
+                           section.id.includes("creare") ? "🧑‍🍳" :
                            section.id.includes("bevande") ? "🥤" : "🍽️";
               return (
                 <button

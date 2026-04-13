@@ -118,18 +118,20 @@ export function GroupOrderScreen(): ReactElement
             </div>
           ) : null}
 
-          <button type="button" className={styles.shareLinkButton} onClick={handleShareLink}>
-            condividi link
-          </button>
-          <button
-            type="button"
-            className={styles.qrToggleButton}
-            onClick={() => setIsQrCodeVisible((currentValue) => !currentValue)}
-            aria-controls="group-order-qr-code"
-            aria-expanded={isQrCodeVisible}
-          >
-            {isQrCodeVisible ? "nascondi QR code" : "mostra QR code"}
-          </button>
+          <div className={styles.shareActions}>
+            <button type="button" className={styles.shareLinkButton} onClick={handleShareLink}>
+              Condividi link
+            </button>
+            <button
+              type="button"
+              className={styles.qrToggleButton}
+              onClick={() => setIsQrCodeVisible((currentValue) => !currentValue)}
+              aria-controls="group-order-qr-code"
+              aria-expanded={isQrCodeVisible}
+            >
+              {isQrCodeVisible ? "Nascondi QR" : "Mostra QR"}
+            </button>
+          </div>
           {shareFeedback ? (
             <p className={styles.shareFeedback} aria-live="polite">{shareFeedback}</p>
           ) : null}

@@ -157,9 +157,9 @@ export const PRODUCTS: readonly Product[] = [
   {
     id: "product-create-simple",
     sku: "PIZ-CREA-SIMP",
-    name: "Crea la tua pizza (Base Simple)",
+    name: "Simple Version",
     description: "La base perfetta per iniziare. Include 3 extra con sconto 20%.",
-    basePrice: toMoney(500),
+    basePrice: toMoney(600),
     status: "available",
     tags: ["customizable-bundle", "tier-simple"],
     allergens: [{ code: "GLU", label: "Glutine" }]
@@ -167,7 +167,7 @@ export const PRODUCTS: readonly Product[] = [
   {
     id: "product-create-wild",
     sku: "PIZ-CREA-WILD",
-    name: "Crea la tua pizza (Base Wild)",
+    name: "Wild Version",
     description: "Per chi non ha paura di osare. Include 5 extra con sconto 40%.",
     basePrice: toMoney(900),
     status: "available",
@@ -177,7 +177,7 @@ export const PRODUCTS: readonly Product[] = [
   {
     id: "product-create-savage",
     sku: "PIZ-CREA-SAVA",
-    name: "Crea la tua pizza (Base Savage)",
+    name: "Savage Version",
     description: "Libertà totale. Include 7 extra con sconto 50%.",
     basePrice: toMoney(1200),
     status: "available",

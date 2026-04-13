@@ -115,9 +115,9 @@ export function ClientShell(): ReactElement
         <div className={styles.heroActions}>
           <a
             className={styles.primaryActionLink}
-            href="/menu?section=section-speciali"
+            href="/menu?section=section-creare-pizza"
           >
-            Crea la tua pizza
+            Voglio creare la mia pizza
           </a>
           <a
             className={styles.secondaryActionLink}
