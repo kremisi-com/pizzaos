@@ -89,6 +89,11 @@ Deliver the richest customer interaction in the app without losing clarity.
 
 - A presenter can fully customize a pizza, see the price update live, and add it to the cart confidently.
 
+**Implementation note**
+
+- The pizza preview now persists both dough and base selection (`rossa` or `bianca`) and uses those choices to resolve deterministic images from `apps/client/public/images/pizza`.
+- The product detail overlay now resolves the topping image from the selected menu product, so `/product/[id]` stays visually aligned with the previous selection.
+
 ## Step 4: Implement cart, checkout, mock payment, and tip flow
 
 **Objective**

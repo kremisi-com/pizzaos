@@ -1,40 +1,87 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { cleanupDom, domFireEvent, domScreen, renderDom } from "@pizzaos/testing";
+import {
+  cleanupDom,
+  domFireEvent,
+  domScreen,
+  renderDom,
+} from "@pizzaos/testing";
 import { ProductDetailScreen } from "../features/customization/components/product-detail-screen";
 
-describe("product detail screen", () =>
-{
-  beforeEach(() =>
-  {
+describe("product detail screen", () => {
+  beforeEach(() => {
     cleanupDom();
     window.localStorage.clear();
   });
 
-  it("renders the pizza generator preview and customization sections", () =>
-  {
+  it("renders the pizza generator preview and customization sections", () => {
     renderDom(<ProductDetailScreen productId="product-margherita" />);
 
-    expect(domScreen.getByRole("img", { name: "Anteprima pizza Margherita Classica" }).getAttribute("src")).toBe("/images/pizza/pizza-rossa.png");
-    expect(domScreen.getByRole("heading", { name: "Impasto" }).textContent).toBe("Impasto");
-    expect(domScreen.getByRole("heading", { name: "Formato" }).textContent).toBe("Formato");
-    expect(domScreen.getByRole("heading", { name: "Ingredienti" }).textContent).toBe("Ingredienti");
-    expect(domScreen.getByRole("heading", { name: "Extra" }).textContent).toBe("Extra");
+    expect(
+      domScreen
+        .getByRole("img", { name: "Anteprima pizza Margherita Classica" })
+        .getAttribute("src"),
+    ).toBe("/images/pizza/rossa-classica.png");
+    expect(
+      document.querySelector('[src="/images/topping/margherita.png"]'),
+    ).not.toBeNull();
+    expect(
+      domScreen.getByRole("heading", { name: "Impasto" }).textContent,
+    ).toBe("Impasto");
+    expect(domScreen.getByRole("heading", { name: "Base" }).textContent).toBe(
+      "Base",
+    );
+    expect(
+      domScreen.getByRole("heading", { name: "Formato" }).textContent,
+    ).toBe("Formato");
+    expect(
+      domScreen.getByRole("heading", { name: "Ingredienti" }).textContent,
+    ).toBe("Ingredienti");
+    expect(domScreen.getByRole("heading", { name: "Extra" }).textContent).toBe(
+      "Extra",
+    );
   });
 
-  it("shows allergens and updates total while customizing", () =>
-  {
+  it("shows allergens, updates total, and switches the preview image", () => {
     renderDom(<ProductDetailScreen productId="product-margherita" />);
 
     expect(domScreen.getByText("Glutine").textContent).toBe("Glutine");
     expect(domScreen.getByText("Lattosio").textContent).toBe("Lattosio");
-    expect(domScreen.getByTestId("customization-total-value").textContent).toContain("9,00");
+    expect(
+      domScreen.getByTestId("customization-total-value").textContent,
+    ).toContain("9,00");
 
     domFireEvent.click(domScreen.getByRole("radio", { name: /Integrale/i }));
-    expect(domScreen.getByTestId("customization-total-value").textContent).toContain("10,20");
+    expect(
+      domScreen.getByTestId("customization-total-value").textContent,
+    ).toContain("10,20");
+
+    domFireEvent.click(domScreen.getByRole("button", { name: /Base/i }));
+    domFireEvent.click(domScreen.getByRole("radio", { name: /Bianca/i }));
+
+    expect(
+      domScreen
+        .getByRole("img", { name: "Anteprima pizza Margherita Classica" })
+        .getAttribute("src"),
+    ).toBe("/images/pizza/bianca-integrale.png");
 
     domFireEvent.click(domScreen.getByRole("button", { name: /Ingredienti/i }));
-    domFireEvent.click(domScreen.getAllByRole("button", { name: "Aggiungi porzione extra" })[0]);
+    domFireEvent.click(
+      domScreen.getAllByRole("button", { name: "Aggiungi porzione extra" })[0],
+    );
 
-    expect(domScreen.getByTestId("customization-total-value").textContent).toContain("10,60");
+    expect(
+      domScreen.getByTestId("customization-total-value").textContent,
+    ).toContain("10,60");
+  });
+
+  it("renders the topping for the requested product", () => {
+    renderDom(<ProductDetailScreen productId="product-tonno-cipolla" />);
+
+    expect(
+      document.querySelector('[src="/images/topping/tonno.png"]'),
+    ).not.toBeNull();
+    expect(
+      document.querySelector('[src="/images/topping/vegetariana.png"]'),
+    ).toBeNull();
   });
 });

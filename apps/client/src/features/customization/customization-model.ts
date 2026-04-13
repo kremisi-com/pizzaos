@@ -11,6 +11,13 @@ export interface DoughOption
   readonly allergens: readonly ProductAllergen[];
 }
 
+export interface PizzaBaseOption
+{
+  readonly id: string;
+  readonly label: string;
+  readonly description: string;
+}
+
 export interface VariantOption
 {
   readonly id: string;
@@ -100,13 +107,40 @@ export const DOUGH_OPTIONS: readonly DoughOption[] = [
     allergens: [ALLERGENS.GLU]
   },
   {
-    id: "dough-senza-glutine",
-    label: "Senza glutine",
-    description: "Base dedicata con lavorazione separata.",
-    priceDeltaCents: 200,
-    allergens: [ALLERGENS.SOL]
+    id: "dough-5-cereali",
+    label: "5 Cereali",
+    description: "Mix di farine multicereali per un sapore rustico.",
+    priceDeltaCents: 150,
+    allergens: [ALLERGENS.GLU]
   }
 ];
+
+export const PIZZA_BASE_OPTIONS: readonly PizzaBaseOption[] = [
+  {
+    id: "base-rossa",
+    label: "Rossa",
+    description: "Pomodoro San Marzano e profilo piu tradizionale."
+  },
+  {
+    id: "base-bianca",
+    label: "Bianca",
+    description: "Senza pomodoro, piu cremosa e delicata."
+  }
+];
+
+const TOPPING_IMAGE_BY_PRODUCT_ID: Readonly<Record<string, string>> = {
+  "product-margherita": "/images/topping/margherita.png",
+  "product-diavola": "/images/topping/diavola.png",
+  "product-capricciosa": "/images/topping/capricciosa.png",
+  "product-vegetariana": "/images/topping/vegetariana.png",
+  "product-4-formaggi": "/images/topping/formaggi.png",
+  "product-tonno-cipolla": "/images/topping/tonno.png"
+};
+
+export function getProductToppingImage(productId: string): string | undefined
+{
+  return TOPPING_IMAGE_BY_PRODUCT_ID[productId];
+}
 
 export const VARIANT_OPTIONS: readonly VariantOption[] = [
   {
@@ -238,6 +272,7 @@ export interface CustomizationState
 {
   readonly currentStepIndex: number;
   readonly selectedDoughId: string;
+  readonly selectedBaseId: string;
   readonly selectedVariantId: string;
   readonly ingredientModes: Readonly<Record<string, IngredientMode>>;
   readonly selectedExtraIds: readonly string[];
@@ -247,6 +282,10 @@ export type CustomizationAction =
   | {
     readonly type: "set_dough";
     readonly doughId: string;
+  }
+  | {
+    readonly type: "set_base";
+    readonly baseId: string;
   }
   | {
     readonly type: "set_variant";
@@ -282,15 +321,22 @@ export interface CustomizationPriceBreakdown
   readonly totalCents: number;
 }
 
-export function createInitialCustomizationState(): CustomizationState
+export function createInitialCustomizationState(initialSelections?: {
+  readonly doughId?: string;
+  readonly baseId?: string;
+}): CustomizationState
 {
   const defaultIngredientModes = Object.fromEntries(
     INGREDIENT_OPTIONS.map((ingredient) => [ingredient.id, ingredient.defaultMode])
   );
 
+  const initialDough = DOUGH_OPTIONS.find((d) => d.id === initialSelections?.doughId) ?? DOUGH_OPTIONS[0];
+  const initialBase = PIZZA_BASE_OPTIONS.find((option) => option.id === initialSelections?.baseId) ?? PIZZA_BASE_OPTIONS[0];
+
   return {
     currentStepIndex: 0,
-    selectedDoughId: DOUGH_OPTIONS[0].id,
+    selectedDoughId: initialDough.id,
+    selectedBaseId: initialBase.id,
     selectedVariantId: VARIANT_OPTIONS[0].id,
     ingredientModes: defaultIngredientModes,
     selectedExtraIds: []
@@ -305,6 +351,11 @@ export function customizationReducer(state: CustomizationState, action: Customiz
       return {
         ...state,
         selectedDoughId: resolveDoughOption(action.doughId).id
+      };
+    case "set_base":
+      return {
+        ...state,
+        selectedBaseId: resolvePizzaBaseOption(action.baseId).id
       };
     case "set_variant":
       return {
@@ -454,6 +505,17 @@ export function getPairingSuggestions(productId: string): readonly PairingSugges
   return PAIRINGS_BY_PRODUCT_ID[productId] ?? DEFAULT_PAIRINGS;
 }
 
+export function getPizzaPreviewImage(input: {
+  readonly doughId: string;
+  readonly baseId: string;
+}): string
+{
+  const doughSlug = toPizzaPreviewDoughSlug(resolveDoughOption(input.doughId).id);
+  const baseSlug = resolvePizzaBaseOption(input.baseId).id.replace("base-", "");
+
+  return `/images/pizza/${baseSlug}-${doughSlug}.png`;
+}
+
 function clampStepIndex(stepIndex: number): number
 {
   if (stepIndex < 0)
@@ -474,7 +536,25 @@ function resolveDoughOption(doughId: string): DoughOption
   return DOUGH_OPTIONS.find((option) => option.id === doughId) ?? DOUGH_OPTIONS[0];
 }
 
+function resolvePizzaBaseOption(baseId: string): PizzaBaseOption
+{
+  return PIZZA_BASE_OPTIONS.find((option) => option.id === baseId) ?? PIZZA_BASE_OPTIONS[0];
+}
+
 function resolveVariantOption(variantId: string): VariantOption
 {
   return VARIANT_OPTIONS.find((option) => option.id === variantId) ?? VARIANT_OPTIONS[0];
+}
+
+function toPizzaPreviewDoughSlug(doughId: string): string
+{
+  switch (doughId)
+  {
+    case "dough-classico":
+      return "classica";
+    case "dough-5-cereali":
+      return "5_cereali";
+    default:
+      return doughId.replace("dough-", "");
+  }
 }

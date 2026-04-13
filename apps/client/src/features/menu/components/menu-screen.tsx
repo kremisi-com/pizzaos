@@ -9,7 +9,12 @@ import {
   deriveMenuSections,
   deriveProductAvailability
 } from "../menu-view-model";
-import { DOUGH_OPTIONS, getPizzaPreviewImage, PIZZA_BASE_OPTIONS } from "../../customization/customization-model";
+import {
+  DOUGH_OPTIONS,
+  getPizzaPreviewImage,
+  getProductToppingImage,
+  PIZZA_BASE_OPTIONS
+} from "../../customization/customization-model";
 import styles from "./menu-screen.module.css";
 
 const MONEY_FORMATTER = new Intl.NumberFormat("it-IT", {
@@ -95,9 +100,13 @@ export function MenuScreen(props: MenuScreenProps): ReactElement
             <span className={styles.backIcon}>←</span>
             <span>Home</span>
           </a>
-          <div className={styles.storeBadge}>
-            <span className={styles.statusDot} />
-            {seed.store.displayName}
+          <div className={styles.headerActions}>
+            <button className={styles.iconButton} aria-label="Condividi">
+              <span className={styles.actionIcon}>🔗</span>
+            </button>
+            <button className={styles.iconButton} aria-label="Cerca">
+              <span className={styles.actionIcon}>🔍</span>
+            </button>
           </div>
         </div>
 
@@ -180,7 +189,20 @@ export function MenuScreen(props: MenuScreenProps): ReactElement
                   role="tab"
                   aria-selected={selectedSection?.id === section.id}
                   className={`${styles.categoryTab} ${selectedSection?.id === section.id ? styles.categoryTabActive : ""}`}
-                  onClick={() => setSelectedSectionId(section.id)}
+                  onClick={() => {
+                    setSelectedSectionId(section.id);
+                    const element = document.getElementById(section.id);
+                    if (element) {
+                      const offset = 120; // sticky header offset
+                      const elementPosition = element.getBoundingClientRect().top;
+                      const offsetPosition = elementPosition + window.pageYOffset - offset;
+
+                      window.scrollTo({
+                        top: offsetPosition,
+                        behavior: "smooth"
+                      });
+                    }
+                  }}
                 >
                   <span className={styles.categoryIcon}>{icon}</span>
                   <span className={styles.categoryName}>{section.name}</span>
@@ -192,74 +214,67 @@ export function MenuScreen(props: MenuScreenProps): ReactElement
       </section>
 
       <section aria-labelledby="menu-sections-title" className={styles.productsSection}>
-        {selectedSection ? (
-          <>
-            <div className={styles.sectionHeader}>
-              <h2 className={styles.sectionTitle}>{selectedSection.name}</h2>
-              <span className={styles.sectionCount}>
-                {selectedSection.products.length} {selectedSection.products.length === 1 ? "prodotto" : "prodotti"}
-              </span>
-            </div>
+        {sections.length > 0 ? (
+          <div className={styles.allSectionsContainer}>
+            {sections.map((section) => (
+              <div key={section.id} id={section.id} className={styles.sectionGroup}>
+                <h2 className={styles.sectionTitle}>{section.name}</h2>
+                <div className={styles.productGrid} aria-live="polite">
+                  {section.products.map((product) =>
+                  {
+                    const availability = deriveProductAvailability(product);
+                    const imageSrc = getProductToppingImage(product.id);
+                    const isOrderable = availability.isOrderable;
+                    const CardTag = isOrderable ? "a" : "article";
+                    const cardProps = isOrderable ? { href: `/product/${product.id}` } : {};
 
-            <div className={styles.productGrid} aria-live="polite">
-              {selectedSection.products.map((product) =>
-              {
-                const availability = deriveProductAvailability(product);
+                    return (
+                      <CardTag
+                        key={product.id}
+                        {...cardProps}
+                        className={`${styles.productCard} ${!isOrderable ? styles.productCardMuted : ""}`}
+                      >
+                        <div className={styles.productInside}>
+                          <div className={styles.productMainInfo}>
+                            <h3 className={styles.productName}>{product.name}</h3>
+                            <p className={styles.productDescription}>{product.description}</p>
 
-                const isOrderable = availability.isOrderable;
-                const CardTag = isOrderable ? "a" : "article";
-                const cardProps = isOrderable ? { href: `/product/${product.id}` } : {};
-
-                return (
-                  <CardTag
-                    key={product.id}
-                    {...cardProps}
-                    className={`${styles.productCard} ${!isOrderable ? styles.productCardMuted : ""}`}
-                  >
-                    <div className={styles.productInside}>
-                      <div className={styles.productMainInfo}>
-                        <div className={styles.productHeader}>
-                          <h3 className={styles.productName}>{product.name}</h3>
-                          <div className={styles.productPrice}>
-                            {MONEY_FORMATTER.format(product.basePrice.amountCents / 100)}
+                            <div className={styles.productPriceRow}>
+                              <span className={styles.productPrice}>
+                                {MONEY_FORMATTER.format(product.basePrice.amountCents / 100)}
+                              </span>
+                              {(product.tags.includes("popular") || product.id.includes("margherita") || product.id.includes("crudo")) && (
+                                <span className={styles.popularTag}>Popolare</span>
+                              )}
+                            </div>
                           </div>
-                        </div>
-                        <p className={styles.productDescription}>{product.description}</p>
-                        
-                        <div className={styles.productMeta}>
-                          <div className={styles.badgeRow}>
-                            {!isOrderable && <Badge tone={availability.tone}>{availability.label}</Badge>}
-                            {product.preparationMode && (
-                              <Badge tone={product.preparationMode === "crudo" ? "warning" : "neutral"}>
-                                {product.preparationMode === "crudo" ? "Servita cruda" : "Cotta"}
-                              </Badge>
+
+                          <div className={styles.productVisualArea}>
+                            {imageSrc ? (
+                              <div className={styles.productImageFrame}>
+                                <img
+                                  src={imageSrc}
+                                  alt=""
+                                  aria-hidden="true"
+                                  className={styles.productImage}
+                                />
+                              </div>
+                            ) : isOrderable ? (
+                              <div className={styles.productImagePlaceholder} />
+                            ) : null}
+
+                            {isOrderable && (
+                              <div className={styles.productAddButton} aria-hidden="true">+</div>
                             )}
                           </div>
-
-                          <div className={styles.allergenRow}>
-                            {product.allergens.slice(0, 3).map(a => (
-                              <span key={a.code} title={a.label} className={styles.allergenIndicator}>
-                                {a.label.charAt(0)}
-                              </span>
-                            ))}
-                            {product.allergens.length > 3 && <span>+</span>}
-                          </div>
                         </div>
-                      </div>
-
-                      {isOrderable && (
-                        <div className={styles.productChevron}>
-                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                            <path d="M9 18l6-6-6-6" />
-                          </svg>
-                        </div>
-                      )}
-                    </div>
-                  </CardTag>
-                );
-              })}
-            </div>
-          </>
+                      </CardTag>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
+          </div>
         ) : (
           <div className={styles.emptyState}>
             <span className={styles.emptyIcon}>🍽️</span>

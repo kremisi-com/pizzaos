@@ -14,8 +14,11 @@ import {
   deriveVisibleAllergens,
   DOUGH_OPTIONS,
   EXTRA_OPTIONS,
+  getPizzaPreviewImage,
   getPairingSuggestions,
+  getProductToppingImage,
   INGREDIENT_OPTIONS,
+  PIZZA_BASE_OPTIONS,
   VARIANT_OPTIONS,
   type CustomizationState,
   type IngredientMode
@@ -33,7 +36,7 @@ const INGREDIENT_MODE_LABEL: Readonly<Record<IngredientMode, string>> = {
   senza: "Senza"
 };
 
-type OpenSection = "dough" | "variant" | "ingredients" | "extras" | null;
+type OpenSection = "dough" | "base" | "variant" | "ingredients" | "extras" | null;
 
 interface ProductDetailScreenProps
 {
@@ -53,7 +56,7 @@ function resolveStorage(): Storage | undefined
 export function ProductDetailScreen(props: ProductDetailScreenProps): ReactElement
 {
   const [seed, setSeed] = useState<ClientSeed>(() => loadClientDemoState());
-  const [state, dispatch] = useReducer(customizationReducer, undefined, createInitialCustomizationState);
+  const [state, dispatch] = useReducer(customizationReducer, undefined, () => createInitialCustomizationState());
   const [isCartToastVisible, setIsCartToastVisible] = useState(false);
   const [openSection, setOpenSection] = useState<OpenSection>(null);
   const [isPricePulsing, setIsPricePulsing] = useState(false);
@@ -72,27 +75,39 @@ export function ProductDetailScreen(props: ProductDetailScreenProps): ReactEleme
 
   const product = seed.products.find((candidateProduct) => candidateProduct.id === props.productId);
 
-  if (!product)
+  useEffect(() =>
   {
-    return (
-      <main className={styles.screen}>
-        <div className={styles.notFound}>
-          <span className={styles.notFoundIcon}>🍕</span>
-          <h1 className={styles.notFoundTitle}>Prodotto non trovato</h1>
-          <p className={styles.notFoundText}>
-            Questo prodotto non è disponibile nello stato demo corrente.
-          </p>
-          <a href="/menu" className={styles.notFoundLink}>
-            <span>←</span>
-            Torna al menu
-          </a>
-        </div>
-      </main>
-    );
-  }
+    if (product)
+    {
+      document.title = `${product.name} | PizzaOS`;
+    }
+  }, [product]);
 
-  const availability = deriveProductAvailability(product);
-  const priceBreakdown = deriveCustomizationPrice(product.basePrice.amountCents, state);
+  useEffect(() =>
+  {
+    if (typeof window === "undefined")
+    {
+      return;
+    }
+
+    const savedDough = window.localStorage.getItem("pizzaos-selected-dough");
+    const savedBase = window.localStorage.getItem("pizzaos-selected-base");
+
+    if (savedDough)
+    {
+      dispatch({ type: "set_dough", doughId: savedDough });
+    }
+
+    dispatch({
+      type: "set_base",
+      baseId: savedBase ?? inferDefaultBaseId(product)
+    });
+  }, [product]);
+
+  const availability = product
+    ? deriveProductAvailability(product)
+    : { label: "Non disponibile", tone: "neutral" as const, isOrderable: false };
+  const priceBreakdown = deriveCustomizationPrice(product?.basePrice.amountCents ?? 0, state);
 
   // Price pulse micro-animation: trigger when total changes after initial render
   useEffect(() =>
@@ -116,8 +131,9 @@ export function ProductDetailScreen(props: ProductDetailScreenProps): ReactEleme
     previousTotalRef.current = priceBreakdown.totalCents;
   });
 
-  const visibleAllergens = deriveVisibleAllergens(product.allergens, state);
-  const pairings = getPairingSuggestions(product.id);
+  const visibleAllergens = deriveVisibleAllergens(product?.allergens ?? [], state);
+  const pairings = product ? getPairingSuggestions(product.id) : [];
+  const toppingImage = product ? getProductToppingImage(product.id) : undefined;
 
   function handleAddToCartClick(): void
   {
@@ -127,11 +143,13 @@ export function ProductDetailScreen(props: ProductDetailScreenProps): ReactEleme
     }
 
     const doughLabel = DOUGH_OPTIONS.find((option) => option.id === state.selectedDoughId)?.label ?? "Classico";
+    const baseLabel = PIZZA_BASE_OPTIONS.find((option) => option.id === state.selectedBaseId)?.label ?? "Rossa";
     const variantLabel = VARIANT_OPTIONS.find((option) => option.id === state.selectedVariantId)?.label ?? "Classica";
     const selectedExtras = EXTRA_OPTIONS
       .filter((extra) => state.selectedExtraIds.includes(extra.id))
       .map((extra) => extra.label);
     const notes = createCustomizationNotes({
+      baseLabel,
       doughLabel,
       variantLabel,
       selectedExtras
@@ -158,11 +176,31 @@ export function ProductDetailScreen(props: ProductDetailScreenProps): ReactEleme
   }
 
   const selectedDoughLabel = DOUGH_OPTIONS.find((option) => option.id === state.selectedDoughId)?.label ?? "Classico";
+  const selectedBaseLabel = PIZZA_BASE_OPTIONS.find((option) => option.id === state.selectedBaseId)?.label ?? "Rossa";
   const selectedVariantLabel = VARIANT_OPTIONS.find((option) => option.id === state.selectedVariantId)?.label ?? "Classica";
   const doughDelta = DOUGH_OPTIONS.find((option) => option.id === state.selectedDoughId)?.priceDeltaCents ?? 0;
   const variantDelta = VARIANT_OPTIONS.find((option) => option.id === state.selectedVariantId)?.priceDeltaCents ?? 0;
   const activeExtrasCount = state.selectedExtraIds.length;
   const ingredientChanges = deriveIngredientChangesSummary(state);
+
+  if (!product)
+  {
+    return (
+      <main className={styles.screen}>
+        <div className={styles.notFound}>
+          <span className={styles.notFoundIcon}>🍕</span>
+          <h1 className={styles.notFoundTitle}>Prodotto non trovato</h1>
+          <p className={styles.notFoundText}>
+            Questo prodotto non è disponibile nello stato demo corrente.
+          </p>
+          <a href="/menu" className={styles.notFoundLink}>
+            <span>←</span>
+            Torna al menu
+          </a>
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className={styles.screen}>
@@ -181,10 +219,21 @@ export function ProductDetailScreen(props: ProductDetailScreenProps): ReactEleme
         <div className={styles.generatorPreview}>
           <div className={styles.generatorPreviewFrame}>
             <img
-              src="/images/pizza/pizza-rossa.png"
+              src={getPizzaPreviewImage({
+                doughId: state.selectedDoughId,
+                baseId: state.selectedBaseId
+              })}
               alt={`Anteprima pizza ${product.name}`}
               className={styles.generatorPreviewImage}
             />
+            {toppingImage ? (
+              <img
+                src={toppingImage}
+                alt=""
+                aria-hidden="true"
+                className={styles.generatorPreviewOverlay}
+              />
+            ) : null}
           </div>
         </div>
 
@@ -220,6 +269,17 @@ export function ProductDetailScreen(props: ProductDetailScreenProps): ReactEleme
           onToggle={() => toggleSection("dough")}
         >
           <DoughSelector state={state} dispatch={dispatch} />
+        </CollapsibleSection>
+
+        <CollapsibleSection
+          icon={state.selectedBaseId === "base-rossa" ? "🍅" : "🧄"}
+          title="Base"
+          currentValue={selectedBaseLabel}
+          delta={0}
+          isOpen={openSection === "base"}
+          onToggle={() => toggleSection("base")}
+        >
+          <BaseSelector state={state} dispatch={dispatch} />
         </CollapsibleSection>
 
         {/* Formato */}
@@ -402,7 +462,13 @@ function DoughSelector(props: DoughSelectorProps): ReactElement
               name="dough-option"
               className={styles.hiddenInput}
               checked={isActive}
-              onChange={() => props.dispatch({ type: "set_dough", doughId: option.id })}
+              onChange={() => {
+                props.dispatch({ type: "set_dough", doughId: option.id });
+                if (typeof window !== "undefined")
+                {
+                  window.localStorage.setItem("pizzaos-selected-dough", option.id);
+                }
+              }}
             />
             <div className={styles.optionInfo}>
               <span className={styles.optionTitle}>{option.label}</span>
@@ -410,6 +476,52 @@ function DoughSelector(props: DoughSelectorProps): ReactElement
             </div>
             <div className={styles.optionRight}>
               {option.priceDeltaCents !== 0 && <span className={styles.optionDelta}>{formatDelta(option.priceDeltaCents)}</span>}
+              <div className={`${styles.radioCircle} ${isActive ? styles.radioCircleActive : ""}`} />
+            </div>
+          </label>
+        );
+      })}
+    </div>
+  );
+}
+
+interface BaseSelectorProps
+{
+  readonly state: CustomizationState;
+  readonly dispatch: Dispatch<Parameters<typeof customizationReducer>[1]>;
+}
+
+function BaseSelector(props: BaseSelectorProps): ReactElement
+{
+  return (
+    <div className={styles.optionList} role="radiogroup" aria-label="Scelta base">
+      {PIZZA_BASE_OPTIONS.map((option) =>
+      {
+        const isActive = props.state.selectedBaseId === option.id;
+
+        return (
+          <label
+            key={option.id}
+            className={`${styles.optionRow} ${isActive ? styles.optionRowActive : ""}`}
+          >
+            <input
+              type="radio"
+              name="base-option"
+              className={styles.hiddenInput}
+              checked={isActive}
+              onChange={() => {
+                props.dispatch({ type: "set_base", baseId: option.id });
+                if (typeof window !== "undefined")
+                {
+                  window.localStorage.setItem("pizzaos-selected-base", option.id);
+                }
+              }}
+            />
+            <div className={styles.optionInfo}>
+              <span className={styles.optionTitle}>{option.label}</span>
+              <span className={styles.optionDescription}>{option.description}</span>
+            </div>
+            <div className={styles.optionRight}>
               <div className={`${styles.radioCircle} ${isActive ? styles.radioCircleActive : ""}`} />
             </div>
           </label>
@@ -632,12 +744,14 @@ function deriveIngredientChangesSummary(state: CustomizationState): string
 }
 
 function createCustomizationNotes(input: {
+  readonly baseLabel: string;
   readonly doughLabel: string;
   readonly variantLabel: string;
   readonly selectedExtras: readonly string[];
 }): string
 {
   const segments = [
+    `Base: ${input.baseLabel}`,
     `Impasto: ${input.doughLabel}`,
     `Formato: ${input.variantLabel}`
   ];
@@ -648,4 +762,25 @@ function createCustomizationNotes(input: {
   }
 
   return segments.join(" · ");
+}
+
+function inferDefaultBaseId(product: Product | undefined): string
+{
+  if (!product)
+  {
+    return PIZZA_BASE_OPTIONS[0].id;
+  }
+
+  const normalizedText = `${product.name} ${product.description}`.toLocaleLowerCase("it-IT");
+
+  if (
+    normalizedText.includes("quattro formaggi") ||
+    normalizedText.includes("focaccia") ||
+    (!normalizedText.includes("pomodoro") && normalizedText.includes("fiordilatte"))
+  )
+  {
+    return "base-bianca";
+  }
+
+  return "base-rossa";
 }
