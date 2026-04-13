@@ -7,17 +7,20 @@ import { useEffect, useState, type ReactElement } from "react";
 import type { ClientSeed } from "@pizzaos/mock-data";
 import { clearCartState, saveCartState } from "../../cart/cart-model";
 import { clearClientFeedbackState } from "../../feedback/feedback-model";
-import { loadClientDemoState, resetClientDemoState } from "../client-demo-state";
+import {
+  loadClientDemoState,
+  resetClientDemoState,
+} from "../client-demo-state";
 import {
   clearOrderNotifications,
   createCartStateFromOrder,
-  deriveLastReorderOrder
+  deriveLastReorderOrder,
 } from "../../orders/orders-model";
 import styles from "./client-shell.module.css";
 
 const MONEY_FORMATTER = new Intl.NumberFormat("it-IT", {
   style: "currency",
-  currency: "EUR"
+  currency: "EUR",
 });
 
 const SLOT_FORMATTER = new Intl.DateTimeFormat("it-IT", {
@@ -25,35 +28,30 @@ const SLOT_FORMATTER = new Intl.DateTimeFormat("it-IT", {
   day: "2-digit",
   month: "short",
   hour: "2-digit",
-  minute: "2-digit"
+  minute: "2-digit",
 });
 
-function resolveStorage(): Storage | undefined
-{
-  if (typeof window === "undefined")
-  {
+function resolveStorage(): Storage | undefined {
+  if (typeof window === "undefined") {
     return undefined;
   }
 
   return window.localStorage;
 }
 
-export function ClientShell(): ReactElement
-{
+export function ClientShell(): ReactElement {
   const [seed, setSeed] = useState<ClientSeed>(() => loadClientDemoState());
   const [isQuickReorderReady, setIsQuickReorderReady] = useState(false);
   const [isLastOrderExpanded, setIsLastOrderExpanded] = useState(false);
 
-  useEffect(() =>
-  {
+  useEffect(() => {
     const storage = resolveStorage();
     const hydratedSeed = loadClientDemoState(storage);
 
     setSeed(hydratedSeed);
   }, []);
 
-  function handleResetClick(): void
-  {
+  function handleResetClick(): void {
     const storage = resolveStorage();
 
     clearCartState(storage);
@@ -63,17 +61,18 @@ export function ClientShell(): ReactElement
     setIsQuickReorderReady(false);
   }
 
-  function handleOrderLikeLastTime(): void
-  {
+  function handleOrderLikeLastTime(): void {
     const storage = resolveStorage();
     const lastReorderOrder = deriveLastReorderOrder(seed.orderHistory);
 
-    if (!lastReorderOrder)
-    {
+    if (!lastReorderOrder) {
       return;
     }
 
-    saveCartState(createCartStateFromOrder(lastReorderOrder, seed.products), storage);
+    saveCartState(
+      createCartStateFromOrder(lastReorderOrder, seed.products),
+      storage,
+    );
     setIsQuickReorderReady(true);
   }
 
@@ -81,9 +80,7 @@ export function ClientShell(): ReactElement
   const latestOrder = deriveLastReorderOrder(seed.orderHistory) ?? activeOrder;
   return (
     <main className={`${getThemeClass(seed.surface)} ${styles.shell}`}>
-      <div className={styles.headerBanner}>
-
-      </div>
+      <div className={styles.headerBanner}></div>
 
       <section className={styles.hero} aria-labelledby="client-home-title">
         <h1 id="client-home-title" className={styles.heroTitle}>
@@ -93,7 +90,9 @@ export function ClientShell(): ReactElement
         <div className={styles.heroStatsRow}>
           <div className={styles.statItem}>
             <span className={styles.statIcon}>★</span>
-            <span className={styles.ratingText}>4.8 Eccellente <span className={styles.ratingCount}>(500+)</span></span>
+            <span className={styles.ratingText}>
+              4.8 Eccellente <span className={styles.ratingCount}>(500+)</span>
+            </span>
             <span className={styles.statLink}>›</span>
           </div>
           <div className={styles.statItem}>
@@ -108,7 +107,9 @@ export function ClientShell(): ReactElement
           </div>
           <div className={styles.statItem}>
             <span className={styles.statIcon}>💰</span>
-            <span>Minimo d&apos;ordine: 10,00 € · <strong>Aperto</strong></span>
+            <span>
+              Minimo d&apos;ordine: 10,00 € · <strong>Aperto</strong>
+            </span>
           </div>
         </div>
 
@@ -119,10 +120,7 @@ export function ClientShell(): ReactElement
           >
             Voglio creare la mia pizza
           </a>
-          <a
-            className={styles.secondaryActionLink}
-            href="/group-order"
-          >
+          <a className={styles.secondaryActionLink} href="/group-order">
             Ordina con i tuoi amici
           </a>
         </div>
@@ -148,36 +146,56 @@ export function ClientShell(): ReactElement
             <h2 className={styles.sectionTitle}>Bentornato!</h2>
             <div className={styles.reorderCard}>
               <div className={styles.reorderInfo}>
-                <p className={styles.reorderTitle}>Ordina come l&apos;ultima volta</p>
-                <p className={styles.reorderPrice}>{formatMoney(latestOrder.total.amountCents)}</p>
+                <p className={styles.reorderTitle}>
+                  Ordina come l&apos;ultima volta
+                </p>
+                <p className={styles.reorderPrice}>
+                  {formatMoney(latestOrder.total.amountCents)}
+                </p>
                 <button
                   type="button"
                   className={styles.reorderToggle}
                   aria-expanded={isLastOrderExpanded}
                   onClick={() => setIsLastOrderExpanded((current) => !current)}
                 >
-                  {isLastOrderExpanded ? "nascondi ordinazione" : "mostra ordinazione"}
+                  {isLastOrderExpanded
+                    ? "nascondi ordinazione"
+                    : "mostra ordinazione"}
                 </button>
                 {isLastOrderExpanded ? (
-                  <div className={`${styles.reorderDetails} ${styles.reorderDetailsExpanded}`}>
+                  <div
+                    className={`${styles.reorderDetails} ${styles.reorderDetailsExpanded}`}
+                  >
                     <ul className={styles.reorderDetailsList}>
                       {latestOrder.lines.map((line) => (
-                        <li key={`${latestOrder.id}-${line.productId}`} className={styles.reorderDetailsItem}>
-                          {formatOrderLine(line.quantity, getProductName(line.productId, seed.products))}
+                        <li
+                          key={`${latestOrder.id}-${line.productId}`}
+                          className={styles.reorderDetailsItem}
+                        >
+                          {formatOrderLine(
+                            line.quantity,
+                            getProductName(line.productId, seed.products),
+                          )}
                         </li>
                       ))}
                     </ul>
                   </div>
                 ) : null}
               </div>
-              <Button onClick={handleOrderLikeLastTime} data-testid="client-quick-reorder-button" className={styles.reorderButton}>
+              <Button
+                onClick={handleOrderLikeLastTime}
+                data-testid="client-quick-reorder-button"
+                className={styles.reorderButton}
+              >
                 Ripeti
               </Button>
             </div>
             {isQuickReorderReady ? (
               <div className={styles.quickReorderNotice}>
                 <span>Carrello aggiornato!</span>
-                <a className={styles.cartLink} href="/cart">Vai al carrello</a>
+                <a className={styles.cartLink} href="/cart">
+                  Vai al carrello
+                </a>
               </div>
             ) : null}
           </section>
@@ -186,15 +204,24 @@ export function ClientShell(): ReactElement
         <section className={styles.categoriesSection}>
           <h2 className={styles.sectionTitle}>Esplora le categorie</h2>
           <div className={styles.categoryGrid}>
-            <a href="/menu?section=section-classiche" className={styles.categoryTab}>
+            <a
+              href="/menu?section=section-classiche"
+              className={styles.categoryTab}
+            >
               <span className={styles.categoryIcon}>🍕</span>
               <span className={styles.categoryLabel}>Classiche</span>
             </a>
-            <a href="/menu?section=section-speciali" className={styles.categoryTab}>
+            <a
+              href="/menu?section=section-speciali"
+              className={styles.categoryTab}
+            >
               <span className={styles.categoryIcon}>🥨</span>
               <span className={styles.categoryLabel}>Stuzzicherie</span>
             </a>
-            <a href="/menu?section=section-bevande" className={styles.categoryTab}>
+            <a
+              href="/menu?section=section-bevande"
+              className={styles.categoryTab}
+            >
               <span className={styles.categoryIcon}>🥤</span>
               <span className={styles.categoryLabel}>Bevande</span>
             </a>
@@ -208,12 +235,19 @@ export function ClientShell(): ReactElement
         <section className={styles.loyaltySection}>
           <div className={styles.loyaltyCard}>
             <div className={styles.loyaltyPoints}>
-              <span className={styles.pointsValue}>{seed.loyalty.pointsBalance}</span>
+              <span className={styles.pointsValue}>
+                {seed.loyalty.pointsBalance}
+              </span>
               <span className={styles.pointsLabel}>Punti</span>
             </div>
             <div className={styles.loyaltyPromo}>
-              <p>Hai {seed.coupons.filter(c => c.status === "active").length} coupon attivi</p>
-              <a href="/rewards" className={styles.rewardsLink}>Scopri i tuoi vantaggi</a>
+              <p>
+                Hai {seed.coupons.filter((c) => c.status === "active").length}{" "}
+                coupon attivi
+              </p>
+              <a href="/rewards" className={styles.rewardsLink}>
+                Scopri i tuoi vantaggi
+              </a>
             </div>
           </div>
         </section>
@@ -239,32 +273,32 @@ export function ClientShell(): ReactElement
   );
 }
 
-function formatMoney(amountCents: number): string
-{
+function formatMoney(amountCents: number): string {
   return MONEY_FORMATTER.format(amountCents / 100);
 }
 
-function formatSlot(isoTimestamp: string): string
-{
+function formatSlot(isoTimestamp: string): string {
   const normalizedValue = isoTimestamp.startsWith("slot-")
     ? isoTimestamp.replace(/^slot-/, "")
     : isoTimestamp;
   const parsedDate = new Date(normalizedValue);
 
-  if (Number.isNaN(parsedDate.getTime()))
-  {
+  if (Number.isNaN(parsedDate.getTime())) {
     return isoTimestamp;
   }
 
   return SLOT_FORMATTER.format(parsedDate);
 }
 
-function getProductName(productId: Product["id"], products: readonly Product[]): string
-{
-  return products.find((product) => product.id === productId)?.name ?? productId;
+function getProductName(
+  productId: Product["id"],
+  products: readonly Product[],
+): string {
+  return (
+    products.find((product) => product.id === productId)?.name ?? productId
+  );
 }
 
-function formatOrderLine(quantity: number, productName: string): string
-{
+function formatOrderLine(quantity: number, productName: string): string {
   return `${quantity}x ${productName}`;
 }
