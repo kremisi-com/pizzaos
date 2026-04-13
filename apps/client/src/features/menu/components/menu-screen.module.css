@@ -130,12 +130,11 @@
 
 .categoryTitle {
   display: block;
-  font-size: 0.72rem;
-  color: var(--pizzaos-color-foreground-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  font-weight: 700;
-  margin-bottom: 16px;
+  font-size: 0.95rem;
+  color: var(--pizzaos-color-foreground);
+  font-weight: 850;
+  margin-bottom: 20px;
+  letter-spacing: -0.01em;
 }
 
 .categoryContainer {
@@ -146,28 +145,34 @@
 
 .categoryList {
   display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
+  flex-direction: column;
+  gap: 16px;
   width: 100%;
 }
 
 .categoryTab {
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 10px;
-  padding: 16px 24px;
-  min-width: 140px;
-  flex: 1 0 auto;
-  border-radius: 28px;
+  justify-content: flex-start;
+  gap: 16px;
+  padding: 18px 24px;
+  width: 100%;
+  border-radius: 24px;
   border: 1px solid rgba(0, 0, 0, 0.06);
   background: white;
-  color: #334155;
+  color: var(--pizzaos-color-foreground);
   font-weight: 800;
-  font-size: 0.95rem;
+  font-size: 1.05rem;
   cursor: pointer;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.02);
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+}
+
+.categoryTab:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.06);
+  border-color: rgba(0, 0, 0, 0.1);
 }
 
 .categoryTab:active {
@@ -178,15 +183,44 @@
   background: var(--pizzaos-color-primary);
   color: white;
   border-color: var(--pizzaos-color-primary);
+  box-shadow: 0 8px 24px rgba(209, 73, 46, 0.25);
 }
 
 .categoryIcon {
-  font-size: 1rem;
+  font-size: 1.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: rgba(0, 0, 0, 0.03);
+  border-radius: 10px;
+}
+
+.categoryTabActive .categoryIcon {
+  background: rgba(255, 255, 255, 0.2);
 }
 
 .categoryName {
   line-height: 1.1;
-  text-align: center;
+  text-align: left;
+  flex: 1;
+}
+
+.categoryArrow {
+  font-size: 1.1rem;
+  opacity: 0.3;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.categoryTab:hover .categoryArrow {
+  transform: translateX(4px);
+  opacity: 0.8;
+}
+
+.categoryTabActive .categoryArrow {
+  opacity: 1;
+  transform: translateX(2px);
 }
 
 /* ── Dough Section ── */
@@ -197,13 +231,11 @@
 
 .doughLabel {
   display: block;
-  font-size: 0.8rem;
+  font-size: 0.95rem;
   color: var(--pizzaos-color-foreground);
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-  font-weight: 800;
-  margin-bottom: 16px;
-  opacity: 0.9;
+  font-weight: 850;
+  margin-bottom: 20px;
+  letter-spacing: -0.01em;
 }
 
 .doughList {
@@ -225,41 +257,100 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
-  padding: 16px 12px;
-  background: #ffffff;
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  border-radius: 20px;
+  gap: 12px;
+  padding: 20px 12px;
+  background: #f8fafc;
+  border: 1.5px solid rgba(0, 0, 0, 0.05);
+  border-radius: 24px;
   cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  overflow: hidden;
+  outline: none;
+}
+
+.activeIndicator {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 20px;
+  height: 20px;
+  background: white;
+  color: var(--pizzaos-color-foreground);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 800;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  animation: scaleIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes scaleIn {
+  from { transform: scale(0); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
 }
 
 .doughOption:hover {
-  border-color: var(--pizzaos-color-primary-muted, rgba(209, 73, 46, 0.2));
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.06);
+  background: #ffffff;
+  border-color: rgba(0, 0, 0, 0.1);
+  transform: translateY(-4px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
 }
 
 .doughOptionActive {
-  background: var(--pizzaos-color-foreground);
-  color: #ffffff;
-  border-color: var(--pizzaos-color-foreground);
-  transform: translateY(-3px);
+  background: #ffffff;
+  color: var(--pizzaos-color-foreground);
+  border-color: rgba(209, 73, 46, 0.3);
+  transform: translateY(-4px);
+  box-shadow: 0 14px 30px rgba(15, 23, 42, 0.08);
 }
 
 .doughOptionActive:hover {
-  transform: translateY(-3px);
+  background: #ffffff;
+  border-color: rgba(209, 73, 46, 0.36);
+  transform: translateY(-4px);
 }
 
 .doughOptionIcon {
-  font-size: 1.4rem;
+  font-size: 1.6rem;
+  width: 52px;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.04);
+  transition: all 0.3s ease;
+}
+
+.doughOptionActive .doughOptionIcon {
+  background: #ffffff;
+  box-shadow: 0 6px 16px rgba(209, 73, 46, 0.14);
+  transform: scale(1.05);
 }
 
 .doughOptionName {
   font-weight: 800;
-  font-size: 0.82rem;
+  font-size: 0.85rem;
   letter-spacing: -0.01em;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.priceDelta {
+  font-size: 0.7rem;
+  opacity: 0.65;
+  font-weight: 600;
+}
+
+.doughOptionActive .priceDelta {
+  color: var(--pizzaos-color-foreground-muted);
+  opacity: 1;
 }
 
 /* ── Products Section ── */

@@ -71,6 +71,7 @@ describe("menu screen", () => {
   it("updates the preview image when base and dough change", () => {
     renderDom(<MenuScreen />);
 
+    expect(domScreen.getAllByText("✓")).toHaveLength(2);
     domFireEvent.click(domScreen.getByRole("radio", { name: /Bianca/i }));
     domFireEvent.click(domScreen.getByRole("radio", { name: /Integrale/i }));
 
@@ -79,6 +80,16 @@ describe("menu screen", () => {
         .getByRole("img", { name: "Anteprima pizza" })
         .getAttribute("src"),
     ).toBe("/images/pizza/bianca-integrale.png");
+    expect(domScreen.getAllByText("✓")).toHaveLength(2);
+    expect(
+      domScreen.getByRole("radio", { name: /Bianca/i }).getAttribute("aria-checked"),
+    ).toBe("true");
+    expect(
+      domScreen.getByRole("radio", { name: /Rossa/i }).getAttribute("aria-checked"),
+    ).toBe("false");
+    expect(
+      domScreen.getByRole("radio", { name: /Integrale/i }).getAttribute("aria-checked"),
+    ).toBe("true");
   });
 
   it("honors the initial section id and updates the selected tab", () => {

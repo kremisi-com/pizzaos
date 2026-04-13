@@ -266,7 +266,7 @@ export function ProductDetailScreen(props: ProductDetailScreenProps): ReactEleme
         </CollapsibleSection>
 
         <CollapsibleSection
-          icon={state.selectedBaseId === "base-rossa" ? "🍅" : "🧄"}
+          icon={state.selectedBaseId === "base-rossa" ? "🍅" : "🍶"}
           title="Base"
           currentValue={selectedBaseLabel}
           delta={0}
@@ -324,7 +324,30 @@ export function ProductDetailScreen(props: ProductDetailScreenProps): ReactEleme
                   <p className={styles.pairingName}>{pairing.title}</p>
                   <p className={styles.pairingDescription}>{pairing.description}</p>
                 </div>
-                <span className={styles.pairingPrice}>{formatMoney(pairing.priceCents)}</span>
+                <div className={styles.pairingPriceGroup}>
+                  <span className={styles.pairingPrice}>{formatMoney(pairing.priceCents)}</span>
+                  <button
+                    type="button"
+                    className={styles.pairingAddButton}
+                    onClick={() =>
+                    {
+                      addCartItem(
+                        {
+                          productId: pairing.id,
+                          productName: pairing.title,
+                          unitPriceCents: pairing.priceCents,
+                          quantity: 1,
+                          notes: "Abbinamento consigliato"
+                        },
+                        resolveStorage()
+                      );
+                      setIsCartToastVisible(true);
+                    }}
+                    aria-label={`Aggiungi ${pairing.title} al carrello`}
+                  >
+                    ＋
+                  </button>
+                </div>
               </div>
             ))}
           </div>

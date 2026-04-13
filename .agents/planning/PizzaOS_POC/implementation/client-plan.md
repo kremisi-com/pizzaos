@@ -227,3 +227,8 @@ Finish the client app as a polished, demo-ready mobile product.
 
 - The client app is ready for a full walkthrough from first open to feedback, with credible edge cases available when
 needed.
+
+**Implementation note**
+
+- Menu-level dough and base selection cards keep a light surface even when selected; selection is communicated through
+  the check marker, accent border, and elevation so labels stay legible in the mobile customization teaser.

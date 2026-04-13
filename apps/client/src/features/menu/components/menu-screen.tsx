@@ -127,7 +127,7 @@ export function MenuScreen(props: MenuScreenProps): ReactElement
 
 
       <section className={styles.doughSection}>
-        <span className={styles.doughLabel}>Scegli l&apos;impasto:</span>
+        <span className={styles.doughLabel}>Impasto</span>
         <div className={styles.doughList} role="radiogroup" aria-label="Scelta impasto">
           {DOUGH_OPTIONS.map((option) => (
             <button
@@ -143,15 +143,23 @@ export function MenuScreen(props: MenuScreenProps): ReactElement
               aria-checked={selectedDoughId === option.id}
               role="radio"
             >
-              <span className={styles.doughOptionIcon}>🫓</span>
-              <span className={styles.doughOptionName}>{option.label}</span>
+              <span className={styles.doughOptionIcon}>
+                {option.id === "dough-classico" ? "🫓" : option.id === "dough-integrale" ? "🌾" : "🍪"}
+              </span>
+              <span className={styles.doughOptionName}>
+                {option.label}
+                {option.priceDeltaCents > 0 && (
+                  <span className={styles.priceDelta}> (+{MONEY_FORMATTER.format(option.priceDeltaCents / 100)})</span>
+                )}
+              </span>
+              {selectedDoughId === option.id && <span className={styles.activeIndicator}>✓</span>}
             </button>
           ))}
         </div>
       </section>
 
       <section className={styles.doughSection}>
-        <span className={styles.doughLabel}>Scegli la base:</span>
+        <span className={styles.doughLabel}>Base pizza</span>
         <div className={styles.doughList} role="radiogroup" aria-label="Scelta base">
           {PIZZA_BASE_OPTIONS.map((option) => (
             <button
@@ -167,8 +175,9 @@ export function MenuScreen(props: MenuScreenProps): ReactElement
               aria-checked={selectedBaseId === option.id}
               role="radio"
             >
-              <span className={styles.doughOptionIcon}>{option.id === "base-rossa" ? "🍅" : "🧄"}</span>
+              <span className={styles.doughOptionIcon}>{option.id === "base-rossa" ? "🍅" : "🍶"}</span>
               <span className={styles.doughOptionName}>{option.label}</span>
+              {selectedBaseId === option.id && <span className={styles.activeIndicator}>✓</span>}
             </button>
           ))}
         </div>
@@ -206,6 +215,7 @@ export function MenuScreen(props: MenuScreenProps): ReactElement
                 >
                   <span className={styles.categoryIcon}>{icon}</span>
                   <span className={styles.categoryName}>{section.name}</span>
+                  <span className={styles.categoryArrow}>→</span>
                 </button>
               );
             })}
