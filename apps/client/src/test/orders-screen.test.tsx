@@ -31,6 +31,7 @@ describe("orders screen", () =>
     expect(domScreen.getByText("Dettagli ordine")).toBeDefined();
     expect(domScreen.getByText("Riepilogo ordine")).toBeDefined();
     expect(domScreen.getAllByText("order-client-history-001").length).toBeGreaterThan(0);
+    expect(domScreen.queryByTestId("orders-last-time-button")).toBeNull();
   });
 
   it("updates detail panel when selecting another order from history", async () =>

@@ -8,7 +8,6 @@ import { saveCartState } from "../../cart/cart-model";
 import { loadClientDemoState } from "../../home/client-demo-state";
 import {
   createCartStateFromOrder,
-  deriveLastReorderOrder,
   getOrderStatusLabel,
   isArchivedOrder
 } from "../orders-model";
@@ -55,10 +54,6 @@ export function OrdersScreen(): ReactElement
     () => deriveSelectableOrders(seed),
     [seed]
   );
-  const reorderCandidate = useMemo(
-    () => deriveLastReorderOrder(displayedOrders),
-    [displayedOrders]
-  );
   const selectedOrder = useMemo(
     () =>
     {
@@ -97,15 +92,6 @@ export function OrdersScreen(): ReactElement
         </p>
 
         <div className={styles.heroActions}>
-          {reorderCandidate ? (
-            <Button
-              variant="secondary"
-              onClick={() => handleQuickReorder(reorderCandidate)}
-              data-testid="orders-last-time-button"
-            >
-              Ordina come l&apos;ultima volta
-            </Button>
-          ) : null}
           <a href="/menu" className={styles.secondaryLink}>Nuovo ordine</a>
         </div>
       </section>

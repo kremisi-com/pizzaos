@@ -177,6 +177,10 @@ Support the repeat-customer narrative that is central to PizzaOS.
 
 - A presenter can reopen the app and demonstrate fast repeat ordering with minimal steps.
 
+**Implementation note**
+
+- The `orders` route no longer renders the hero CTA `Ordina come l'ultima volta`; repeat ordering remains available from the home prompt and each order detail card via `Riordina veloce`.
+
 ## Step 7: Implement loyalty, rewards, coupons, and subscription UI
 
 **Objective**
