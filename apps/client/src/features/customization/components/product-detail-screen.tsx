@@ -226,14 +226,14 @@ export function ProductDetailScreen(props: ProductDetailScreenProps): ReactEleme
               alt={`Anteprima pizza ${product.name}`}
               className={styles.generatorPreviewImage}
             />
-            {toppingImage ? (
+            {toppingImage && (
               <img
                 src={toppingImage}
                 alt=""
                 aria-hidden="true"
                 className={styles.generatorPreviewOverlay}
               />
-            ) : null}
+            )}
           </div>
         </div>
 

@@ -1,7 +1,7 @@
 "use client";
 
 import type { ClientSeed } from "@pizzaos/mock-data";
-import { Badge, Button, ShellCard } from "@pizzaos/ui";
+import { Badge } from "@pizzaos/ui";
 import { useEffect, useMemo, useState, type ReactElement } from "react";
 import { loadClientDemoState } from "../../home/client-demo-state";
 import {
@@ -70,82 +70,127 @@ export function CartScreen(): ReactElement
     <main className={styles.screen}>
       <section className={styles.hero} aria-labelledby="cart-title">
         <div className={styles.heroTopRow}>
-          <a href="/menu" className={styles.backLink}>Menu</a>
+          <a href="/menu" className={styles.backButton}>
+            <span className={styles.backIcon}>←</span>
+            Menu
+          </a>
           <Badge tone="neutral">{seed.store.displayName}</Badge>
         </div>
 
         <h1 id="cart-title" className={styles.heroTitle}>Carrello</h1>
-        <p className={styles.heroCopy}>Rivedi prodotti, quantità e totale prima del checkout.</p>
+        <p className={styles.heroCopy}>
+          Rivedi prodotti, quantità e totale prima del checkout.
+        </p>
+
+        {cartState.items.length > 0 ? (
+          <div className={styles.itemCount}>
+            <span className={styles.itemCountDot} />
+            {cartState.items.length} {cartState.items.length === 1 ? "prodotto" : "prodotti"}
+          </div>
+        ) : null}
       </section>
 
       {cartState.items.length === 0 ? (
-        <ShellCard title="Carrello vuoto">
-          <div className={styles.emptyState}>
-            <p className={styles.emptyLead}>Nessun prodotto nel carrello.</p>
-            <p className={styles.emptyCopy}>Apri il menu e personalizza una pizza per iniziare il checkout.</p>
-            <a href="/menu" className={styles.menuLink}>Vai al menu</a>
-          </div>
-        </ShellCard>
+        <div className={styles.emptyState}>
+          <span className={styles.emptyIcon}>🛒</span>
+          <p className={styles.emptyLead}>Carrello vuoto</p>
+          <p className={styles.emptyCopy}>
+            Apri il menu e personalizza una pizza per iniziare il checkout.
+          </p>
+          <a href="/menu" className={styles.menuLink}>
+            Sfoglia il menu →
+          </a>
+        </div>
       ) : (
         <>
           <section className={styles.itemsSection} aria-label="Prodotti nel carrello">
             {cartState.items.map((item) => (
               <article key={item.id} className={styles.itemCard}>
                 <div className={styles.itemTopRow}>
-                  <div>
+                  <div className={styles.itemInfo}>
                     <h2 className={styles.itemName}>{item.productName}</h2>
-                    <p className={styles.itemNotes}>{item.notes}</p>
+                    {item.notes ? (
+                      <p className={styles.itemNotes}>{item.notes}</p>
+                    ) : null}
                   </div>
-                  <p className={styles.itemPrice}>{formatMoney(item.unitPriceCents * item.quantity)}</p>
+                  <p className={styles.itemPrice}>
+                    {formatMoney(item.unitPriceCents * item.quantity)}
+                  </p>
                 </div>
 
                 <div className={styles.itemActions}>
                   <div className={styles.quantityControl}>
-                    <Button
-                      variant="secondary"
+                    <button
+                      type="button"
+                      className={styles.quantityButton}
                       aria-label={`Diminuisci quantità ${item.productName}`}
                       onClick={() => handleQuantityChange(item.id, item.quantity - 1)}
                     >
-                      -
-                    </Button>
-                    <span className={styles.quantityValue}>Qta {item.quantity}</span>
-                    <Button
-                      variant="secondary"
+                      −
+                    </button>
+                    <span className={styles.quantityValue}>{item.quantity}</span>
+                    <button
+                      type="button"
+                      className={styles.quantityButton}
                       aria-label={`Aumenta quantità ${item.productName}`}
                       onClick={() => handleQuantityChange(item.id, item.quantity + 1)}
                     >
                       +
-                    </Button>
+                    </button>
                   </div>
 
-                  <Button variant="ghost" onClick={() => handleRemove(item.id)}>
+                  <button
+                    type="button"
+                    className={styles.removeButton}
+                    onClick={() => handleRemove(item.id)}
+                  >
+                    <span className={styles.removeIcon}>🗑</span>
                     Rimuovi
-                  </Button>
+                  </button>
                 </div>
               </article>
             ))}
           </section>
 
           <section className={styles.summarySection}>
-            <ShellCard title="Riepilogo ordine">
+            <div className={styles.summaryCard}>
+              <h2 className={styles.summaryTitle}>
+                <span className={styles.summaryIcon}>📋</span>
+                Riepilogo
+              </h2>
+
               <div className={styles.summaryGrid}>
                 <p>Subtotale</p>
                 <p>{formatMoney(totals.subtotalCents)}</p>
                 <p>Consegna stimata</p>
                 <p>{formatMoney(totals.deliveryFeeCents)}</p>
-                <p className={styles.summaryTotalLabel}>Totale stimato</p>
-                <p className={styles.summaryTotalValue}>{formatMoney(totals.totalCents)}</p>
+              </div>
+
+              <div className={styles.summaryTotalRow}>
+                <span className={styles.summaryTotalLabel}>Totale stimato</span>
+                <span className={styles.summaryTotalValue}>
+                  {formatMoney(totals.totalCents)}
+                </span>
               </div>
 
               <div className={styles.summaryActions}>
-                <a href="/checkout" className={styles.checkoutLink} data-testid="cart-checkout-link">
+                <a
+                  href="/checkout"
+                  className={styles.checkoutLink}
+                  data-testid="cart-checkout-link"
+                >
                   Vai al checkout
+                  <span className={styles.checkoutIcon}>→</span>
                 </a>
-                <Button variant="secondary" onClick={handleClearCart}>
+                <button
+                  type="button"
+                  className={styles.clearCartButton}
+                  onClick={handleClearCart}
+                >
                   Svuota carrello
-                </Button>
+                </button>
               </div>
-            </ShellCard>
+            </div>
           </section>
         </>
       )}

@@ -236,3 +236,6 @@ A change is done when:
 - the increment is demoable
 - the appropriate README coverage remains accurate
 - the change preserves the AI-friendly repository boundaries
+
+## Rules for Google Antigravity
+- don't use the live demo to test the visual design, let me send you the screenshots

@@ -23,11 +23,14 @@ describe("client shell", () =>
     const markup = renderToString(createElement(ClientShell));
 
     expect(markup).toContain(getThemeClass("client"));
-    expect(markup).toContain("Cosa ordiniamo oggi?");
+    expect(markup).toContain("Pizzeria PizzaOS");
     expect(markup).not.toContain("Ordine in corso");
     expect(markup).toContain("Ordina come l&#x27;ultima volta");
     expect(markup).toContain("Crea la tua pizza");
+    expect(markup).toContain("Ordina con i tuoi amici");
     expect(markup).toContain("Esplora le categorie");
+    expect(markup).toContain("Stuzzicherie");
+    expect(markup).toContain("dolci");
     expect(markup).toContain("Scopri i tuoi vantaggi");
     expect(markup).toContain("Svuota sessione demo");
     expect(markup).toContain('href="/menu"');

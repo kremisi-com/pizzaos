@@ -17,14 +17,14 @@ describe("menu view model helpers", () =>
 
     expect(sections.map((section) => section.id)).toEqual([
       "section-pizze-classiche",
-      "section-speciali",
-      "section-forno-espresso"
+      "section-speciali"
     ]);
-    expect(sections[2].products.map((product) => product.id)).toEqual([
-      "product-focaccia-rosmarino",
-      "product-calzone"
+    expect(sections[1].products.map((product) => product.id)).toEqual([
+      "product-vegetariana",
+      "product-4-formaggi",
+      "product-tonno-cipolla"
     ]);
-    expect(sections[2].summary).toContain("1 esaurite");
+    expect(sections[1].summary).toBe("3 disponibili");
   });
 
   it("derives product availability states for available and sold out products", () =>

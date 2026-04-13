@@ -4,6 +4,7 @@ import {
   customizationReducer,
   deriveCustomizationPrice,
   deriveVisibleAllergens,
+  getPizzaPreviewImage,
   type CustomizationAction
 } from "../features/customization/customization-model";
 import { createClientSeed } from "@pizzaos/mock-data";
@@ -16,7 +17,11 @@ describe("customization model", () =>
     const actions: readonly CustomizationAction[] = [
       {
         type: "set_dough",
-        doughId: "dough-senza-glutine"
+        doughId: "dough-integrale"
+      },
+      {
+        type: "set_base",
+        baseId: "base-bianca"
       },
       {
         type: "set_variant",
@@ -38,12 +43,29 @@ describe("customization model", () =>
 
     expect(breakdown).toEqual({
       basePriceCents: 900,
-      doughDeltaCents: 200,
+      doughDeltaCents: 120,
       variantDeltaCents: 300,
       ingredientDeltaCents: 120,
       extrasDeltaCents: 220,
-      totalCents: 1740
+      totalCents: 1660
     });
+    expect(getPizzaPreviewImage({
+      doughId: configuredState.selectedDoughId,
+      baseId: configuredState.selectedBaseId
+    })).toBe("/images/pizza/bianca-integrale.png");
+  });
+
+  it("maps dough ids to the preview asset filenames used on disk", () =>
+  {
+    expect(getPizzaPreviewImage({
+      doughId: "dough-classico",
+      baseId: "base-rossa"
+    })).toBe("/images/pizza/rossa-classica.png");
+
+    expect(getPizzaPreviewImage({
+      doughId: "dough-5-cereali",
+      baseId: "base-bianca"
+    })).toBe("/images/pizza/bianca-5_cereali.png");
   });
 
   it("keeps step progression clamped and extends visible allergens with selected options", () =>

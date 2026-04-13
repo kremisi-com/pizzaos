@@ -13,7 +13,7 @@ describe("menu screen", () => {
     window.localStorage.clear();
   });
 
-  it("renders the menu header, category tabs, and sold out products", () => {
+  it("renders the menu header, category tabs, and visible products", () => {
     renderDom(<MenuScreen />);
 
     expect(
@@ -32,13 +32,17 @@ describe("menu screen", () => {
       domScreen.getByRole("heading", { name: "Da dove vuoi iniziare?" }).textContent,
     ).toBe("Da dove vuoi iniziare?");
     expect(
+      document.querySelector('[src="/images/topping/margherita.png"]'),
+    ).not.toBeNull();
+    expect(
+      document.querySelector('[src="/images/topping/diavola.png"]'),
+    ).not.toBeNull();
+    expect(
       domScreen
         .getByRole("radio", { name: /Rossa/i })
         .getAttribute("aria-checked"),
     ).toBe("true");
-    expect(
-      domScreen.getByRole("heading", { name: "Pizze Classiche" }).textContent,
-    ).toBe("Pizze Classiche");
+
 
     domFireEvent.click(
       domScreen.getByRole("tab", { name: /Speciali Della Casa/i }),
@@ -47,23 +51,21 @@ describe("menu screen", () => {
     expect(domScreen.getByText("Tonno e Cipolla").textContent).toBe(
       "Tonno e Cipolla",
     );
-    expect(domScreen.getByText("Servita cruda").textContent).toBe(
-      "Servita cruda",
-    );
-
-    domFireEvent.click(domScreen.getByRole("tab", { name: /Forno Espresso/i }));
-
-    expect(domScreen.getByText("Calzone Tradizione").textContent).toBe(
-      "Calzone Tradizione",
-    );
-    expect(domScreen.getByText("Esaurita ora").textContent).toBe(
-      "Esaurita ora",
-    );
     expect(
-      domScreen
-        .getByRole("button", { name: "Esaurito" })
-        .hasAttribute("disabled"),
-    ).toBe(true);
+      document.querySelector('[src="/images/topping/vegetariana.png"]'),
+    ).not.toBeNull();
+    expect(
+      document.querySelector('[src="/images/topping/formaggi.png"]'),
+    ).not.toBeNull();
+    expect(
+      document.querySelector('[src="/images/topping/tonno.png"]'),
+    ).not.toBeNull();
+
+    expect(
+      domScreen.queryByRole("tab", { name: /Forno Espresso/i }),
+    ).toBeNull();
+    expect(domScreen.queryByText("Focaccia al Rosmarino")).toBeNull();
+    expect(domScreen.queryByText("Calzone Tradizione")).toBeNull();
   });
 
   it("updates the preview image when base and dough change", () => {
@@ -87,24 +89,16 @@ describe("menu screen", () => {
     });
 
     expect(selectedTab.getAttribute("aria-selected")).toBe("true");
-    expect(
-      domScreen.getByRole("heading", { name: "Speciali Della Casa" })
-        .textContent,
-    ).toBe("Speciali Della Casa");
     expect(domScreen.getByText("Tonno e Cipolla").textContent).toBe(
       "Tonno e Cipolla",
     );
-
-    domFireEvent.click(domScreen.getByRole("tab", { name: /Forno Espresso/i }));
-
-    expect(selectedTab.getAttribute("aria-selected")).toBe("false");
     expect(
       domScreen
-        .getByRole("tab", { name: /Forno Espresso/i })
+        .getByRole("tab", { name: /Speciali Della Casa/i })
         .getAttribute("aria-selected"),
     ).toBe("true");
     expect(
-      domScreen.getByRole("heading", { name: "Forno Espresso" }).textContent,
-    ).toBe("Forno Espresso");
+      domScreen.queryByRole("tab", { name: /Forno Espresso/i }),
+    ).toBeNull();
   });
 });

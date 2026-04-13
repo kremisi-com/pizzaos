@@ -1,101 +1,120 @@
+/* ── Screen container ── */
 .screen
 {
-  min-height: 100vh;
-  display: grid;
-  gap: 18px;
-  padding: 24px 16px 44px;
-  background:
-    radial-gradient(circle at top right, rgba(209, 73, 46, 0.14), transparent 32%),
-    linear-gradient(180deg, rgba(255, 247, 237, 0.98), rgba(238, 249, 255, 0.93));
+  min-height: 100dvh;
+  margin: 0 auto;
+  padding: 0 0 160px;
+  max-width: 520px;
+  width: 100%;
+  background: var(--pizzaos-color-background);
+  background-image:
+    radial-gradient(circle at top right, rgba(209, 73, 46, 0.06), transparent 40%),
+    radial-gradient(circle at bottom left, rgba(238, 248, 255, 0.5), transparent 50%);
+  overflow-x: hidden;
 }
 
+/* ── Hero section ── */
 .hero
 {
-  display: grid;
-  gap: 12px;
-  padding: 18px;
-  border-radius: calc(var(--pizzaos-radius-card) + 4px);
-  border: 1px solid rgba(31, 37, 48, 0.12);
-  background: rgba(255, 255, 255, 0.86);
-  box-shadow: var(--pizzaos-elevation-card);
+  padding: 24px 20px 20px;
 }
 
 .heroTopRow
 {
   display: flex;
-  align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  align-items: center;
+  margin-bottom: 20px;
 }
 
-.backLink
+.backButton
 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
   color: var(--pizzaos-color-foreground);
   font-weight: 700;
-  text-decoration: none;
+  font-size: 0.9rem;
+  padding: 6px 12px 6px 8px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  transition: background 0.2s ease;
+}
+
+.backButton:hover
+{
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.backIcon
+{
+  font-size: 1.1rem;
 }
 
 .heroTitle
 {
-  margin: 0;
-  font-size: clamp(2rem, 8vw, 2.7rem);
-  line-height: 0.95;
-  letter-spacing: -0.05em;
+  margin: 0 0 8px;
+  font-size: 1.8rem;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+  font-weight: var(--pizzaos-font-weight-heading, 800);
 }
 
 .heroCopy
 {
   margin: 0;
   color: var(--pizzaos-color-foreground-muted);
+  font-size: 0.95rem;
+  line-height: 1.5;
 }
 
-.emptyState
+.itemCount
 {
-  display: grid;
-  gap: 10px;
-}
-
-.emptyLead
-{
-  margin: 0;
-  font-weight: 700;
-  color: var(--pizzaos-color-foreground);
-}
-
-.emptyCopy
-{
-  margin: 0;
-}
-
-.menuLink
-{
-  min-height: 40px;
-  border-radius: var(--pizzaos-radius-control);
-  border: 1px solid rgba(31, 37, 48, 0.16);
-  background: rgba(255, 255, 255, 0.96);
-  text-decoration: none;
-  font-weight: 700;
-  color: var(--pizzaos-color-foreground);
   display: inline-flex;
   align-items: center;
-  justify-content: center;
+  gap: 6px;
+  margin-top: 12px;
+  padding: 5px 12px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--pizzaos-color-primary);
+  background: rgba(209, 73, 46, 0.08);
+  border-radius: 999px;
+  letter-spacing: 0.01em;
 }
 
+.itemCountDot
+{
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--pizzaos-color-primary);
+}
+
+/* ── Items section ── */
 .itemsSection
 {
   display: grid;
-  gap: 12px;
+  gap: 0;
+  border-top: 1px solid var(--pizzaos-color-border);
 }
 
+/* ── Single item row ── */
 .itemCard
 {
   display: grid;
-  gap: 12px;
-  padding: 16px;
-  border-radius: var(--pizzaos-radius-card);
-  border: 1px solid rgba(31, 37, 48, 0.12);
-  background: rgba(255, 255, 255, 0.88);
-  box-shadow: var(--pizzaos-elevation-card);
+  gap: 0;
+  padding: 20px;
+  border-bottom: 1px solid var(--pizzaos-color-border);
+  background: transparent;
+  transition: background 0.15s ease;
+}
+
+.itemCard:last-child
+{
+  border-bottom: 1px solid var(--pizzaos-color-border);
 }
 
 .itemTopRow
@@ -103,103 +122,405 @@
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 14px;
+  gap: 16px;
+}
+
+.itemInfo
+{
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+  flex: 1;
 }
 
 .itemName
 {
-  margin: 0 0 4px;
-  font-size: 1.12rem;
-  letter-spacing: -0.03em;
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
 }
 
 .itemNotes
 {
   margin: 0;
-  font-size: 0.92rem;
+  font-size: 0.82rem;
   color: var(--pizzaos-color-foreground-muted);
+  font-weight: 500;
+  line-height: 1.4;
 }
 
 .itemPrice
 {
   margin: 0;
   font-weight: 800;
+  font-size: 1.1rem;
   white-space: nowrap;
+  color: var(--pizzaos-color-foreground);
+  letter-spacing: -0.01em;
+  flex-shrink: 0;
 }
 
+/* ── Item actions row ── */
 .itemActions
 {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  margin-top: 14px;
 }
 
+/* ── Quantity stepper ── */
 .quantityControl
 {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 0;
+  background: rgba(241, 245, 249, 0.8);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: 12px;
+  padding: 2px;
+}
+
+.quantityButton
+{
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  border: none;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--pizzaos-color-foreground);
+  font-size: 1.1rem;
+  font-weight: 700;
+  transition: all 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.quantityButton:hover
+{
+  background: rgba(0, 0, 0, 0.04);
+}
+
+.quantityButton:active
+{
+  transform: scale(0.92);
+  background: rgba(0, 0, 0, 0.08);
 }
 
 .quantityValue
 {
-  min-width: 64px;
+  min-width: 40px;
   text-align: center;
-  font-weight: 700;
+  font-weight: 800;
+  font-size: 0.95rem;
+  color: var(--pizzaos-color-foreground);
+  letter-spacing: -0.01em;
 }
 
+/* ── Remove button ── */
+.removeButton
+{
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: var(--pizzaos-color-foreground-muted);
+  font-size: 0.82rem;
+  font-weight: 600;
+  font-family: inherit;
+  border-radius: 10px;
+  transition: all 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.removeButton:hover
+{
+  color: #dc2626;
+  background: rgba(220, 38, 38, 0.06);
+}
+
+.removeButton:active
+{
+  transform: scale(0.96);
+}
+
+.removeIcon
+{
+  font-size: 0.95rem;
+  line-height: 1;
+}
+
+/* ── Summary section ── */
 .summarySection
 {
-  display: grid;
+  padding: 0 20px;
+  margin-top: 8px;
+}
+
+.summaryCard
+{
+  background: white;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  border-radius: 20px;
+  padding: 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+}
+
+.summaryTitle
+{
+  margin: 0 0 20px;
+  font-size: 1.1rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.summaryIcon
+{
+  font-size: 1.1rem;
 }
 
 .summaryGrid
 {
   display: grid;
   grid-template-columns: 1fr auto;
-  gap: 8px 12px;
+  gap: 12px 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  margin-bottom: 16px;
 }
 
 .summaryGrid p
 {
   margin: 0;
+  font-size: 0.92rem;
+  color: var(--pizzaos-color-foreground-muted);
 }
 
-.summaryTotalLabel,
+.summaryGrid p:nth-child(even)
+{
+  text-align: right;
+  font-weight: 600;
+  color: var(--pizzaos-color-foreground);
+}
+
+.summaryTotalRow
+{
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.summaryTotalLabel
+{
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--pizzaos-color-foreground);
+}
+
 .summaryTotalValue
 {
-  font-weight: 800;
-  font-size: 1.08rem;
+  font-weight: 900;
+  font-size: 1.35rem;
+  letter-spacing: -0.02em;
+  color: var(--pizzaos-color-foreground);
 }
 
+/* ── Summary actions ── */
 .summaryActions
 {
-  margin-top: 14px;
+  margin-top: 20px;
   display: grid;
   gap: 10px;
 }
 
+/* ── Checkout CTA ── */
 .checkoutLink
 {
-  min-height: 40px;
-  border-radius: var(--pizzaos-radius-control);
-  border: 1px solid rgba(209, 73, 46, 0.48);
-  background: rgba(209, 73, 46, 0.14);
-  color: var(--pizzaos-color-foreground);
-  text-decoration: none;
-  font-weight: 700;
-  display: inline-flex;
+  display: flex;
   align-items: center;
   justify-content: center;
+  gap: 8px;
+  width: 100%;
+  height: 56px;
+  padding: 0 24px;
+  background: var(--pizzaos-color-primary);
+  color: white;
+  border: none;
+  border-radius: 16px;
+  text-decoration: none;
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  cursor: pointer;
+  box-shadow: 0 4px 20px rgba(209, 73, 46, 0.3);
+  transition:
+    transform 0.15s cubic-bezier(0.4, 0, 0.2, 1),
+    filter 0.2s ease,
+    box-shadow 0.3s ease;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
 }
 
+.checkoutLink:hover
+{
+  filter: brightness(1.06);
+}
+
+.checkoutLink:active
+{
+  transform: scale(0.97);
+}
+
+.checkoutIcon
+{
+  font-size: 1.15rem;
+}
+
+/* ── Clear cart button ── */
+.clearCartButton
+{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  height: 44px;
+  padding: 0 20px;
+  background: transparent;
+  color: var(--pizzaos-color-foreground-muted);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 12px;
+  font-family: inherit;
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.clearCartButton:hover
+{
+  background: rgba(0, 0, 0, 0.02);
+  border-color: rgba(0, 0, 0, 0.12);
+  color: var(--pizzaos-color-foreground);
+}
+
+.clearCartButton:active
+{
+  transform: scale(0.97);
+}
+
+/* ── Empty state ── */
+.emptyState
+{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 24px;
+  text-align: center;
+  gap: 12px;
+}
+
+.emptyIcon
+{
+  font-size: 3.5rem;
+  opacity: 0.4;
+  margin-bottom: 4px;
+}
+
+.emptyLead
+{
+  margin: 0;
+  font-weight: 800;
+  font-size: 1.2rem;
+  color: var(--pizzaos-color-foreground);
+}
+
+.emptyCopy
+{
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--pizzaos-color-foreground-muted);
+  max-width: 260px;
+  line-height: 1.5;
+}
+
+.menuLink
+{
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+  padding: 10px 20px;
+  background: var(--pizzaos-color-foreground);
+  color: white;
+  text-decoration: none;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  transition: opacity 0.2s ease, transform 0.12s ease;
+}
+
+.menuLink:active
+{
+  transform: scale(0.97);
+}
+
+/* ── Animations ── */
+@keyframes fadeInUp
+{
+  from
+  {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to
+  {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.itemCard
+{
+  animation: fadeInUp 0.3s ease both;
+}
+
+.itemCard:nth-child(1) { animation-delay: 0ms; }
+.itemCard:nth-child(2) { animation-delay: 50ms; }
+.itemCard:nth-child(3) { animation-delay: 100ms; }
+.itemCard:nth-child(4) { animation-delay: 150ms; }
+.itemCard:nth-child(5) { animation-delay: 200ms; }
+
+.summaryCard
+{
+  animation: fadeInUp 0.35s ease 100ms both;
+}
+
+/* ── Responsive ── */
 @media (min-width: 768px)
 {
   .screen
   {
-    max-width: 820px;
-    margin: 0 auto;
-    padding: 30px 24px 60px;
+    max-width: 680px;
+  }
+
+  .heroTitle
+  {
+    font-size: 2.2rem;
   }
 }

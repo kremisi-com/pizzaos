@@ -11,9 +11,7 @@ import { loadClientDemoState, resetClientDemoState } from "../client-demo-state"
 import {
   clearOrderNotifications,
   createCartStateFromOrder,
-  deriveLastReorderOrder,
-  deriveUnreadOrderNotificationsCount,
-  loadOrderNotifications
+  deriveLastReorderOrder
 } from "../../orders/orders-model";
 import styles from "./client-shell.module.css";
 
@@ -43,7 +41,6 @@ function resolveStorage(): Storage | undefined
 export function ClientShell(): ReactElement
 {
   const [seed, setSeed] = useState<ClientSeed>(() => loadClientDemoState());
-  const [unreadNotificationsCount, setUnreadNotificationsCount] = useState(0);
 
   const [isQuickReorderReady, setIsQuickReorderReady] = useState(false);
 
@@ -53,7 +50,6 @@ export function ClientShell(): ReactElement
     const hydratedSeed = loadClientDemoState(storage);
 
     setSeed(hydratedSeed);
-    setUnreadNotificationsCount(deriveUnreadOrderNotificationsCount(loadOrderNotifications(storage)));
   }, []);
 
   function handleResetClick(): void
@@ -64,7 +60,6 @@ export function ClientShell(): ReactElement
     clearClientFeedbackState(storage);
     clearOrderNotifications(storage);
     setSeed(resetClientDemoState(storage));
-    setUnreadNotificationsCount(0);
     setIsQuickReorderReady(false);
   }
 
@@ -86,34 +81,49 @@ export function ClientShell(): ReactElement
   const latestOrder = deriveLastReorderOrder(seed.orderHistory) ?? activeOrder;
   return (
     <main className={`${getThemeClass(seed.surface)} ${styles.shell}`}>
-      <section className={styles.hero} aria-labelledby="client-home-title">
-        <div className={styles.heroTopRow}>
-          <div className={styles.storeInfo}>
-            <span className={styles.statusDot} />
-            <span className={styles.heroMeta}>
-              {seed.store.displayName} · {seed.store.city}
-            </span>
-          </div>
-          {unreadNotificationsCount > 0 ? (
-            <Badge tone="warning">
-              {unreadNotificationsCount}
-            </Badge>
-          ) : null}
-        </div>
+      <div className={styles.headerBanner}>
 
+      </div>
+
+      <section className={styles.hero} aria-labelledby="client-home-title">
         <h1 id="client-home-title" className={styles.heroTitle}>
-          Cosa ordiniamo oggi?
+          Pizzeria PizzaOS
         </h1>
 
+        <div className={styles.heroStatsRow}>
+          <div className={styles.statItem}>
+            <span className={styles.statIcon}>★</span>
+            <span className={styles.ratingText}>4.8 Eccellente <span className={styles.ratingCount}>(500+)</span></span>
+            <span className={styles.statLink}>›</span>
+          </div>
+          <div className={styles.statItem}>
+            <span className={styles.statIcon}>ⓘ</span>
+            <span>Allergeni e informazioni</span>
+            <span className={styles.statLink}>›</span>
+          </div>
+          <div className={styles.statItem}>
+            <span className={styles.statIcon}>🛵</span>
+            <span>Consegna fra circa 25 min · 1.5 km</span>
+            <span className={styles.statLink}>›</span>
+          </div>
+          <div className={styles.statItem}>
+            <span className={styles.statIcon}>💰</span>
+            <span>Minimo d&apos;ordine: 10,00 € · <strong>Aperto</strong></span>
+          </div>
+        </div>
+
         <div className={styles.heroActions}>
-          <a className={`${styles.actionLink} ${styles.primaryActionLink}`} href="/menu">
-            Sfoglia il menu
-          </a>
           <a
-            className={`${styles.actionLink} ${styles.secondaryActionLink}`}
+            className={styles.primaryActionLink}
             href="/menu?section=section-speciali"
           >
             Crea la tua pizza
+          </a>
+          <a
+            className={styles.secondaryActionLink}
+            href="/group-order"
+          >
+            Ordina con i tuoi amici
           </a>
         </div>
       </section>
@@ -165,16 +175,16 @@ export function ClientShell(): ReactElement
               <span className={styles.categoryLabel}>Classiche</span>
             </a>
             <a href="/menu?section=section-speciali" className={styles.categoryTab}>
-              <span className={styles.categoryIcon}>✨</span>
-              <span className={styles.categoryLabel}>Speciali</span>
+              <span className={styles.categoryIcon}>🥨</span>
+              <span className={styles.categoryLabel}>Stuzzicherie</span>
             </a>
             <a href="/menu?section=section-bevande" className={styles.categoryTab}>
               <span className={styles.categoryIcon}>🥤</span>
               <span className={styles.categoryLabel}>Bevande</span>
             </a>
-            <a href="/rewards" className={styles.categoryTab}>
-              <span className={styles.categoryIcon}>🎁</span>
-              <span className={styles.categoryLabel}>Premi</span>
+            <a href="/menu" className={styles.categoryTab}>
+              <span className={styles.categoryIcon}>🧁</span>
+              <span className={styles.categoryLabel}>dolci</span>
             </a>
           </div>
         </section>
@@ -190,6 +200,12 @@ export function ClientShell(): ReactElement
               <a href="/rewards" className={styles.rewardsLink}>Scopri i tuoi vantaggi</a>
             </div>
           </div>
+        </section>
+
+        <section className={styles.rewardsActionSection}>
+          <a href="/rewards" className={styles.secondaryActionButton}>
+            I tuoi premi e coupon
+          </a>
         </section>
 
         <section className={styles.demoSection}>
@@ -231,5 +247,3 @@ function getProductName(productId: Product["id"], products: readonly Product[]):
 {
   return products.find((product) => product.id === productId)?.name ?? productId;
 }
-
-

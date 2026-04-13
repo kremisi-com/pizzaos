@@ -168,14 +168,6 @@ export const CLIENT_MENU: Menu = {
         { productId: "product-4-formaggi", isFeatured: false },
         { productId: "product-tonno-cipolla", isFeatured: false }
       ]
-    },
-    {
-      id: "section-forno-espresso",
-      name: "Forno Espresso",
-      productRefs: [
-        { productId: "product-focaccia-rosmarino", isFeatured: true },
-        { productId: "product-calzone", isFeatured: false }
-      ]
     }
   ]
 };
