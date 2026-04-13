@@ -10,6 +10,7 @@ export interface CartItem
   readonly unitPriceCents: number;
   readonly quantity: number;
   readonly notes: string;
+  readonly removedIngredients: readonly string[];
 }
 
 export interface CartState
@@ -24,6 +25,7 @@ export interface CartItemDraft
   readonly unitPriceCents: number;
   readonly quantity?: number;
   readonly notes?: string;
+  readonly removedIngredients?: readonly string[];
 }
 
 export function createInitialCartState(): CartState
@@ -77,7 +79,8 @@ export function addCartItem(itemDraft: CartItemDraft, storage?: DemoStorage): Ca
         productName: itemDraft.productName,
         unitPriceCents: Math.max(0, Math.round(itemDraft.unitPriceCents)),
         quantity: Math.max(1, Math.round(itemDraft.quantity ?? 1)),
-        notes: itemDraft.notes?.trim() ?? ""
+        notes: itemDraft.notes?.trim() ?? "",
+        removedIngredients: sanitizeRemovedIngredients(itemDraft.removedIngredients)
       }
     ]
   };
@@ -145,7 +148,8 @@ function parsePersistedCartState(payload: string | null): CartState | null
         productName: item.productName,
         unitPriceCents: Math.max(0, Math.round(item.unitPriceCents)),
         quantity: Math.max(1, Math.round(item.quantity)),
-        notes: item.notes
+        notes: item.notes,
+        removedIngredients: sanitizeRemovedIngredients(item.removedIngredients)
       }))
     };
   }
@@ -183,7 +187,14 @@ function isPersistedCartItem(value: unknown): value is PersistedCartItem
     typeof value.productName === "string" &&
     typeof value.unitPriceCents === "number" &&
     typeof value.quantity === "number" &&
-    typeof value.notes === "string"
+    typeof value.notes === "string" &&
+    (
+      value.removedIngredients === undefined ||
+      (
+        Array.isArray(value.removedIngredients) &&
+        value.removedIngredients.every((ingredient) => typeof ingredient === "string")
+      )
+    )
   );
 }
 
@@ -200,9 +211,22 @@ interface PersistedCartItem
   readonly unitPriceCents: number;
   readonly quantity: number;
   readonly notes: string;
+  readonly removedIngredients?: readonly string[];
 }
 
 function isRecord(value: unknown): value is Record<string, unknown>
 {
   return typeof value === "object" && value !== null;
+}
+
+function sanitizeRemovedIngredients(removedIngredients: readonly string[] | undefined): readonly string[]
+{
+  if (!removedIngredients)
+  {
+    return [];
+  }
+
+  return removedIngredients
+    .map((ingredient) => ingredient.trim())
+    .filter((ingredient) => ingredient.length > 0);
 }

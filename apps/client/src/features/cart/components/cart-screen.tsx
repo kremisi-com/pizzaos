@@ -109,6 +109,11 @@ export function CartScreen(): ReactElement
                 <div className={styles.itemTopRow}>
                   <div className={styles.itemInfo}>
                     <h2 className={styles.itemName}>{item.productName}</h2>
+                    {item.removedIngredients.length > 0 ? (
+                      <p className={styles.itemNotes}>
+                        Senza: {item.removedIngredients.join(", ")}
+                      </p>
+                    ) : null}
                     {item.notes ? (
                       <p className={styles.itemNotes}>{item.notes}</p>
                     ) : null}
@@ -152,44 +157,41 @@ export function CartScreen(): ReactElement
             ))}
           </section>
 
-          <section className={styles.summarySection}>
-            <div className={styles.summaryCard}>
-              <h2 className={styles.summaryTitle}>
-                <span className={styles.summaryIcon}>📋</span>
-                Riepilogo
-              </h2>
+          <section className={styles.summarySection} aria-labelledby="cart-summary-title">
+            <h2 id="cart-summary-title" className={styles.summaryTitle}>
+              Riepilogo ordine
+            </h2>
 
-              <div className={styles.summaryGrid}>
-                <p>Subtotale</p>
-                <p>{formatMoney(totals.subtotalCents)}</p>
-                <p>Consegna stimata</p>
-                <p>{formatMoney(totals.deliveryFeeCents)}</p>
-              </div>
+            <div className={styles.summaryGrid}>
+              <p>Subtotale</p>
+              <p>{formatMoney(totals.subtotalCents)}</p>
+              <p>Consegna stimata</p>
+              <p>{formatMoney(totals.deliveryFeeCents)}</p>
+            </div>
 
-              <div className={styles.summaryTotalRow}>
-                <span className={styles.summaryTotalLabel}>Totale stimato</span>
-                <span className={styles.summaryTotalValue}>
-                  {formatMoney(totals.totalCents)}
-                </span>
-              </div>
+            <div className={styles.summaryTotalRow}>
+              <span className={styles.summaryTotalLabel}>Totale stimato</span>
+              <span className={styles.summaryTotalValue}>
+                {formatMoney(totals.totalCents)}
+              </span>
+            </div>
 
-              <div className={styles.summaryActions}>
-                <a
-                  href="/checkout"
-                  className={styles.checkoutLink}
-                  data-testid="cart-checkout-link"
-                >
-                  Vai al checkout
-                  <span className={styles.checkoutIcon}>→</span>
-                </a>
-                <button
-                  type="button"
-                  className={styles.clearCartButton}
-                  onClick={handleClearCart}
-                >
-                  Svuota carrello
-                </button>
-              </div>
+            <div className={styles.summaryActions}>
+              <a
+                href="/checkout"
+                className={styles.checkoutLink}
+                data-testid="cart-checkout-link"
+              >
+                Vai al checkout
+                <span className={styles.checkoutIcon}>→</span>
+              </a>
+              <button
+                type="button"
+                className={styles.clearCartButton}
+                onClick={handleClearCart}
+              >
+                Svuota carrello
+              </button>
             </div>
           </section>
         </>

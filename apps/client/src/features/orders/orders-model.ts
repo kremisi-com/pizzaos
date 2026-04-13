@@ -107,7 +107,8 @@ export function createCartStateFromOrder(order: Order, products: readonly Produc
       productName: productsById.get(line.productId)?.name ?? line.productId,
       unitPriceCents: line.unitPrice.amountCents,
       quantity: Math.max(1, Math.round(line.quantity)),
-      notes: line.notes
+      notes: line.notes,
+      removedIngredients: []
     }))
   };
 }

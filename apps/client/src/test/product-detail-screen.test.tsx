@@ -154,6 +154,12 @@ describe("product detail screen", () => {
   it("persists the customer note in cart item notes", () => {
     renderDom(<ProductDetailScreen productId="product-margherita" />);
 
+    domFireEvent.click(
+      domScreen.getByRole("heading", { name: "Ingredienti" }).closest("button") as HTMLButtonElement,
+    );
+    domFireEvent.click(
+      domScreen.getByRole("button", { name: "Fiordilatte incluso" }),
+    );
     domFireEvent.change(domScreen.getByLabelText("Messaggio opzionale"), {
       target: { value: "Taglia a spicchi piccoli" },
     });
@@ -169,5 +175,6 @@ describe("product detail screen", () => {
     expect(persistedCartState).toContain("Note: Taglia a spicchi piccoli");
     expect(persistedCartState).toContain("Base: Rossa");
     expect(persistedCartState).toContain("Impasto: Classico");
+    expect(persistedCartState).toContain("\"removedIngredients\":[\"Fiordilatte\"]");
   });
 });

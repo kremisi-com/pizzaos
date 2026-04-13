@@ -121,6 +121,10 @@ Complete the core order placement journey from configured product to confirmed o
 
 - A presenter can place a full mock order, including slot choice and tip, and reach a convincing confirmation state.
 
+**Implementation note**
+
+- Cart line items now persist removed base ingredients as structured metadata and render them in cart review as `Senza: ...`, separate from dough/base/format notes.
+
 ## Step 5: Implement order status, notifications, and rider tracking
 
 **Objective**

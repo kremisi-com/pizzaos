@@ -12,6 +12,7 @@ import {
   createInitialCustomizationState,
   customizationReducer,
   deriveCustomizationPrice,
+  deriveRemovedIngredientLabels,
   deriveVisibleAllergens,
   DOUGH_OPTIONS,
   EXTRA_CATEGORIES,
@@ -147,6 +148,7 @@ export function ProductDetailScreen(props: ProductDetailScreenProps): ReactEleme
     const selectedExtras = EXTRA_OPTIONS
       .filter((extra) => state.selectedExtraIds.includes(extra.id))
       .map((extra) => extra.label);
+    const removedIngredients = deriveRemovedIngredientLabels(product.id, state.ingredientModes);
     const notes = createCustomizationNotes({
       baseLabel,
       doughLabel,
@@ -161,7 +163,8 @@ export function ProductDetailScreen(props: ProductDetailScreenProps): ReactEleme
         productName: product.name,
         unitPriceCents: priceBreakdown.totalCents,
         quantity: 1,
-        notes
+        notes,
+        removedIngredients
       },
       resolveStorage()
     );
@@ -800,17 +803,7 @@ function formatDelta(amountCents: number): string
 
 function deriveIngredientChangesSummary(productId: string, state: CustomizationState): string
 {
-  const removedIngredients: string[] = [];
-
-  for (const ingredient of getIngredientOptionsForProduct(productId))
-  {
-    const currentMode = state.ingredientModes[ingredient.id] ?? ingredient.defaultMode;
-
-    if (currentMode === "senza")
-    {
-      removedIngredients.push(ingredient.label);
-    }
-  }
+  const removedIngredients = deriveRemovedIngredientLabels(productId, state.ingredientModes);
 
   if (removedIngredients.length === 0)
   {

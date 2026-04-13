@@ -173,6 +173,16 @@ export function getProductToppingImage(productId: string): string | undefined
   return TOPPING_IMAGE_BY_PRODUCT_ID[productId];
 }
 
+export function deriveRemovedIngredientLabels(
+  productId: string,
+  ingredientModes: Readonly<Record<string, IngredientMode>>
+): readonly string[]
+{
+  return getIngredientOptionsForProduct(productId)
+    .filter((ingredient) => (ingredientModes[ingredient.id] ?? ingredient.defaultMode) === "senza")
+    .map((ingredient) => ingredient.label);
+}
+
 export const VARIANT_OPTIONS: readonly VariantOption[] = [
   {
     id: "variant-classica",
