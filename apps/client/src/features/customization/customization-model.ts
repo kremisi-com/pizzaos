@@ -159,6 +159,7 @@ export const PIZZA_BASE_OPTIONS: readonly PizzaBaseOption[] = [
 ];
 
 const TOPPING_IMAGE_BY_PRODUCT_ID: Readonly<Record<string, string>> = {
+  "product-marinara": "/images/topping/marinara.png",
   "product-margherita": "/images/topping/margherita.png",
   "product-diavola": "/images/topping/diavola.png",
   "product-capricciosa": "/images/topping/capricciosa.png",

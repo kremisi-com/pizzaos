@@ -121,4 +121,15 @@ describe("product detail screen", () => {
       document.querySelector('[src="/images/topping/vegetariana.png"]'),
     ).toBeNull();
   });
+
+  it("renders the marinara topping for the new menu product", () => {
+    renderDom(<ProductDetailScreen productId="product-marinara" />);
+
+    expect(
+      document.querySelector('[src="/images/topping/marinara.png"]'),
+    ).not.toBeNull();
+    expect(
+      domScreen.getByRole("heading", { name: "Marinara" }).textContent,
+    ).toBe("Marinara");
+  });
 });

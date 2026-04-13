@@ -72,6 +72,9 @@ export function ProductDetailScreen(props: ProductDetailScreenProps): ReactEleme
   }, []);
 
   const product = seed.products.find((candidateProduct) => candidateProduct.id === props.productId);
+  const availability = product
+    ? deriveProductAvailability(product)
+    : { label: "Non disponibile", tone: "neutral" as const, isOrderable: false };
 
   useEffect(() =>
   {
@@ -102,9 +105,6 @@ export function ProductDetailScreen(props: ProductDetailScreenProps): ReactEleme
     });
   }, [product]);
 
-  const availability = product
-    ? deriveProductAvailability(product)
-    : { label: "Non disponibile", tone: "neutral" as const, isOrderable: false };
   const priceBreakdown = deriveCustomizationPrice(props.productId, product?.basePrice.amountCents ?? 0, state);
 
   // Price pulse micro-animation: trigger when total changes after initial render

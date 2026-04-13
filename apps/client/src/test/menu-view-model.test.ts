@@ -17,7 +17,15 @@ describe("menu view model helpers", () =>
 
     expect(sections.map((section) => section.id)).toEqual([
       "section-pizze-classiche",
-      "section-speciali"
+      "section-speciali",
+      "section-forno",
+      "section-creare-pizza"
+    ]);
+    expect(sections[0].products.map((product) => product.id)).toEqual([
+      "product-marinara",
+      "product-margherita",
+      "product-diavola",
+      "product-capricciosa"
     ]);
     expect(sections[1].products.map((product) => product.id)).toEqual([
       "product-vegetariana",

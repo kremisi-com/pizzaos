@@ -41,6 +41,17 @@ export const STORES: readonly StoreProfile[] = [
 
 export const PRODUCTS: readonly Product[] = [
   {
+    id: "product-marinara",
+    sku: "PIZ-MARI-00",
+    name: "Marinara",
+    description: "Pomodoro San Marzano, aglio, origano e olio EVO.",
+    basePrice: toMoney(750),
+    status: "available",
+    tags: ["classica", "vegana"],
+    preparationMode: "cotto",
+    allergens: [{ code: "GLU", label: "Glutine" }]
+  },
+  {
     id: "product-margherita",
     sku: "PIZ-MARG-01",
     name: "Margherita Classica",
@@ -185,6 +196,7 @@ export const CLIENT_MENU: Menu = {
       id: "section-pizze-classiche",
       name: "Pizze Classiche",
       productRefs: [
+        { productId: "product-marinara", isFeatured: true },
         { productId: "product-margherita", isFeatured: true },
         { productId: "product-diavola", isFeatured: true },
         { productId: "product-capricciosa", isFeatured: false }

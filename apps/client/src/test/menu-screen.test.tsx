@@ -16,6 +16,10 @@ describe("menu screen", () => {
   it("renders the menu header, category tabs, and visible products", () => {
     renderDom(<MenuScreen />);
 
+    const orderableProductLinks = Array.from(
+      document.querySelectorAll('a[href^="/product/"]'),
+    ).map((element) => element.getAttribute("href"));
+
     expect(
       domScreen
         .getByRole("img", { name: "Anteprima pizza" })
@@ -38,8 +42,15 @@ describe("menu screen", () => {
       document.querySelector('[src="/images/topping/margherita.png"]'),
     ).not.toBeNull();
     expect(
+      document.querySelector('[src="/images/topping/marinara.png"]'),
+    ).not.toBeNull();
+    expect(
       document.querySelector('[src="/images/topping/diavola.png"]'),
     ).not.toBeNull();
+    expect(orderableProductLinks.slice(0, 2)).toEqual([
+      "/product/product-marinara",
+      "/product/product-margherita",
+    ]);
     expect(
       domScreen
         .getByRole("radio", { name: /Rossa/i })
@@ -65,10 +76,10 @@ describe("menu screen", () => {
     ).not.toBeNull();
 
     expect(
-      domScreen.queryByRole("tab", { name: /Forno Espresso/i }),
-    ).toBeNull();
-    expect(domScreen.queryByText("Focaccia al Rosmarino")).toBeNull();
-    expect(domScreen.queryByText("Calzone Tradizione")).toBeNull();
+      domScreen.getByRole("tab", { name: /Forno Espresso/i }).getAttribute("aria-selected"),
+    ).toBe("false");
+    expect(domScreen.getByText("Focaccia al Rosmarino").textContent).toBe("Focaccia al Rosmarino");
+    expect(domScreen.getByText("Calzone Tradizione").textContent).toBe("Calzone Tradizione");
   });
 
   it("updates the preview image when base and dough change", () => {
@@ -114,7 +125,7 @@ describe("menu screen", () => {
         .getAttribute("aria-selected"),
     ).toBe("true");
     expect(
-      domScreen.queryByRole("tab", { name: /Forno Espresso/i }),
-    ).toBeNull();
+      domScreen.getByRole("tab", { name: /Forno Espresso/i }).getAttribute("aria-selected"),
+    ).toBe("false");
   });
 });

@@ -39,7 +39,7 @@ describe("customization model", () =>
     ];
     const configuredState = actions.reduce(customizationReducer, initialState);
 
-    const breakdown = deriveCustomizationPrice(900, configuredState);
+    const breakdown = deriveCustomizationPrice("product-margherita", 900, configuredState);
 
     expect(breakdown).toEqual({
       basePriceCents: 900,
