@@ -26,7 +26,8 @@ describe("client shell", () =>
     expect(markup).toContain("Pizzeria PizzaOS");
     expect(markup).not.toContain("Ordine in corso");
     expect(markup).toContain("Ordina come l&#x27;ultima volta");
-    expect(markup).toContain("Crea la tua pizza");
+    expect(markup).toContain("mostra ordinazione");
+    expect(markup).toContain("Voglio creare la mia pizza");
     expect(markup).toContain("Ordina con i tuoi amici");
     expect(markup).toContain("Esplora le categorie");
     expect(markup).toContain("Stuzzicherie");
@@ -125,5 +126,17 @@ describe("client shell", () =>
 
     expect(persistedCartPayload).not.toBeNull();
     expect(await domScreen.findByText("Carrello aggiornato!")).toBeDefined();
+  });
+
+  it("reveals the previous order lines when expanding the reorder summary", async () =>
+  {
+    renderDom(<ClientShell />);
+
+    expect(domScreen.queryByText("1x Capricciosa")).toBeNull();
+
+    domFireEvent.click(await domScreen.findByRole("button", { name: "mostra ordinazione" }));
+
+    expect(await domScreen.findByText("1x Capricciosa")).toBeDefined();
+    expect(domScreen.getByRole("button", { name: "nascondi ordinazione" }).getAttribute("aria-expanded")).toBe("true");
   });
 });

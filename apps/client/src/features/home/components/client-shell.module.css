@@ -207,6 +207,7 @@
   display: grid;
   gap: 6px;
   flex: 1;
+  min-width: 0;
 }
 
 .reorderTitle
@@ -217,23 +218,65 @@
   letter-spacing: -0.01em;
 }
 
-.reorderMeta
-{
-  margin: 0;
-  font-size: 0.85rem;
-  color: var(--pizzaos-color-foreground-muted);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 200px;
-}
-
 .reorderPrice
 {
   margin: 0;
   font-weight: 700;
   color: var(--pizzaos-color-primary);
   font-size: 1.1rem;
+}
+
+.reorderToggle
+{
+  width: fit-content;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--pizzaos-color-foreground-muted);
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: lowercase;
+  cursor: pointer;
+}
+
+.reorderToggle:hover
+{
+  color: var(--pizzaos-color-primary);
+}
+
+.reorderDetails
+{
+  display: grid;
+  grid-template-rows: 0fr;
+  overflow: hidden;
+  transition:
+    grid-template-rows var(--pizzaos-motion-duration-slow) var(--pizzaos-motion-ease-standard),
+    opacity var(--pizzaos-motion-duration-slow) var(--pizzaos-motion-ease-standard),
+    margin-top var(--pizzaos-motion-duration-slow) var(--pizzaos-motion-ease-standard);
+  opacity: 0;
+  margin-top: 0;
+}
+
+.reorderDetailsExpanded
+{
+  grid-template-rows: 1fr;
+  opacity: 1;
+  margin-top: 2px;
+}
+
+.reorderDetailsList
+{
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.reorderDetailsItem
+{
+  font-size: 0.85rem;
+  color: var(--pizzaos-color-foreground);
+  line-height: 1.4;
 }
 
 .reorderButton

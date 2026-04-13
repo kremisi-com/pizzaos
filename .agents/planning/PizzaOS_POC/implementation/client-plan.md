@@ -180,6 +180,7 @@ Support the repeat-customer narrative that is central to PizzaOS.
 **Implementation note**
 
 - The `orders` route no longer renders the hero CTA `Ordina come l'ultima volta`, the `Nuovo ordine` CTA, or the `Dettagli ordine` and `Riepilogo ordine` cards; repeat ordering remains available from the home prompt and directly inside each history card via `Riordina veloce`. The default client seed now includes three archived orders to keep the history view fuller in demos.
+- The home reorder card now keeps the main summary intentionally compact and exposes the previous basket through a `mostra ordinazione` inline toggle with slide-down details such as `1x Capricciosa`.
 
 ## Step 7: Implement loyalty, rewards, coupons, and subscription UI
 

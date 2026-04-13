@@ -41,8 +41,8 @@ function resolveStorage(): Storage | undefined
 export function ClientShell(): ReactElement
 {
   const [seed, setSeed] = useState<ClientSeed>(() => loadClientDemoState());
-
   const [isQuickReorderReady, setIsQuickReorderReady] = useState(false);
+  const [isLastOrderExpanded, setIsLastOrderExpanded] = useState(false);
 
   useEffect(() =>
   {
@@ -149,10 +149,26 @@ export function ClientShell(): ReactElement
             <div className={styles.reorderCard}>
               <div className={styles.reorderInfo}>
                 <p className={styles.reorderTitle}>Ordina come l&apos;ultima volta</p>
-                <div className={styles.reorderMeta}>
-                  {latestOrder.lines.map(line => getProductName(line.productId, seed.products)).join(", ")}
-                </div>
                 <p className={styles.reorderPrice}>{formatMoney(latestOrder.total.amountCents)}</p>
+                <button
+                  type="button"
+                  className={styles.reorderToggle}
+                  aria-expanded={isLastOrderExpanded}
+                  onClick={() => setIsLastOrderExpanded((current) => !current)}
+                >
+                  {isLastOrderExpanded ? "nascondi ordinazione" : "mostra ordinazione"}
+                </button>
+                {isLastOrderExpanded ? (
+                  <div className={`${styles.reorderDetails} ${styles.reorderDetailsExpanded}`}>
+                    <ul className={styles.reorderDetailsList}>
+                      {latestOrder.lines.map((line) => (
+                        <li key={`${latestOrder.id}-${line.productId}`} className={styles.reorderDetailsItem}>
+                          {formatOrderLine(line.quantity, getProductName(line.productId, seed.products))}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ) : null}
               </div>
               <Button onClick={handleOrderLikeLastTime} data-testid="client-quick-reorder-button" className={styles.reorderButton}>
                 Ripeti
@@ -246,4 +262,9 @@ function formatSlot(isoTimestamp: string): string
 function getProductName(productId: Product["id"], products: readonly Product[]): string
 {
   return products.find((product) => product.id === productId)?.name ?? productId;
+}
+
+function formatOrderLine(quantity: number, productName: string): string
+{
+  return `${quantity}x ${productName}`;
 }
