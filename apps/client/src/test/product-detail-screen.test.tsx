@@ -41,7 +41,7 @@ describe("product detail screen", () => {
     );
   });
 
-  it("shows allergens, updates total, and switches the preview image", () => {
+  it("shows allergens, updates the ingredient toggles, and switches the preview image", () => {
     renderDom(<ProductDetailScreen productId="product-margherita" />);
 
     expect(domScreen.getByText("Glutine").textContent).toBe("Glutine");
@@ -66,12 +66,19 @@ describe("product detail screen", () => {
 
     domFireEvent.click(domScreen.getByRole("button", { name: /Ingredienti/i }));
     domFireEvent.click(
-      domScreen.getAllByRole("button", { name: "Aggiungi porzione extra" })[0],
+      domScreen.getByRole("button", { name: "Fiordilatte incluso" }),
+    );
+
+    expect(
+      domScreen.getByRole("button", { name: "Fiordilatte escluso" }).getAttribute("aria-pressed"),
+    ).toBe("false");
+    expect(domScreen.getByText("Senza Fiordilatte").textContent).toBe(
+      "Senza Fiordilatte",
     );
 
     expect(
       domScreen.getByTestId("customization-total-value").textContent,
-    ).toContain("10,60");
+    ).toContain("10,20");
   });
 
   it("renders the topping for the requested product", () => {

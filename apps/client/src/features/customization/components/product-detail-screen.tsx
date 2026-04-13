@@ -30,12 +30,6 @@ const MONEY_FORMATTER = new Intl.NumberFormat("it-IT", {
   currency: "EUR"
 });
 
-const INGREDIENT_MODE_LABEL: Readonly<Record<IngredientMode, string>> = {
-  normale: "Normale",
-  extra: "Extra",
-  senza: "Senza"
-};
-
 type OpenSection = "dough" | "base" | "variant" | "ingredients" | "extras" | null;
 
 interface ProductDetailScreenProps
@@ -405,7 +399,7 @@ interface CollapsibleSectionProps
 function CollapsibleSection(props: CollapsibleSectionProps): ReactElement
 {
   return (
-    <div className={styles.sectionCard}>
+    <div className={`${styles.sectionCard} ${props.isOpen ? styles.sectionCardOpen : ""}`}>
       <button
         type="button"
         className={styles.sectionHeader}
@@ -583,51 +577,30 @@ function IngredientSelector(props: IngredientSelectorProps): ReactElement
       {INGREDIENT_OPTIONS.map((ingredient) =>
       {
         const currentMode = (props.state.ingredientModes[ingredient.id] ?? ingredient.defaultMode) as IngredientMode;
+        const isSelected = currentMode !== "senza";
 
         return (
           <div key={ingredient.id} className={styles.ingredientRow}>
             <div className={styles.ingredientInfo}>
               <h3 className={styles.ingredientName}>{ingredient.label}</h3>
               {ingredient.description && <p className={styles.ingredientDesc}>{ingredient.description}</p>}
-              {currentMode === "extra" && (
-                <span className={styles.ingredientExtraPrice}>+{formatMoney(ingredient.extraPriceCents)}</span>
-              )}
             </div>
-            
-            <div className={styles.ingredientControls}>
-              {currentMode === "senza" ? (
-                <button
-                  type="button"
-                  className={`${styles.circleButton} ${styles.circleButtonSenza}`}
-                  onClick={() => props.dispatch({ type: "set_ingredient_mode", ingredientId: ingredient.id, mode: ingredient.defaultMode })}
-                  aria-label="Ripristina ingrediente normale"
-                >
-                  <span className={styles.circleButtonIcon}>✕</span>
-                </button>
-              ) : (
-                <button
-                  type="button"
-                  className={styles.circleButton}
-                  onClick={() => props.dispatch({ type: "set_ingredient_mode", ingredientId: ingredient.id, mode: "senza" })}
-                  aria-label="Rimuovi ingrediente"
-                >
-                  <span className={styles.circleButtonIcon}>−</span>
-                </button>
-              )}
 
-              <span className={styles.ingredientAmount}>
-                {currentMode === "extra" ? "2" : currentMode === "senza" ? "0" : "1"}
-              </span>
-
-              <button
-                type="button"
-                className={`${styles.circleButton} ${currentMode === "extra" ? styles.circleButtonExtra : ""}`}
-                onClick={() => props.dispatch({ type: "set_ingredient_mode", ingredientId: ingredient.id, mode: currentMode === "extra" ? "normale" : "extra" })}
-                aria-label={currentMode === "extra" ? "Rimuovi porzione extra" : "Aggiungi porzione extra"}
-              >
-                <span className={styles.circleButtonIcon}>＋</span>
-              </button>
-            </div>
+            <button
+              type="button"
+              className={`${styles.ingredientToggle} ${isSelected ? styles.ingredientToggleActive : ""}`}
+              onClick={() =>
+                props.dispatch({
+                  type: "set_ingredient_mode",
+                  ingredientId: ingredient.id,
+                  mode: isSelected ? "senza" : ingredient.defaultMode
+                })}
+              aria-pressed={isSelected}
+              aria-label={`${ingredient.label} ${isSelected ? "incluso" : "escluso"}`}
+            >
+              <span className={styles.ingredientToggleIndicator} aria-hidden="true" />
+              <span className={styles.ingredientToggleLabel}>{isSelected ? "Incluso" : "Escluso"}</span>
+            </button>
           </div>
         );
       })}
@@ -721,26 +694,24 @@ function formatDelta(amountCents: number): string
 
 function deriveIngredientChangesSummary(state: CustomizationState): string
 {
-  const changes: string[] = [];
+  const removedIngredients: string[] = [];
 
   for (const ingredient of INGREDIENT_OPTIONS)
   {
     const currentMode = state.ingredientModes[ingredient.id] ?? ingredient.defaultMode;
 
-    if (currentMode !== ingredient.defaultMode)
+    if (currentMode === "senza")
     {
-      const modeLabel = INGREDIENT_MODE_LABEL[currentMode as IngredientMode];
-
-      changes.push(`${ingredient.label}: ${modeLabel}`);
+      removedIngredients.push(ingredient.label);
     }
   }
 
-  if (changes.length === 0)
+  if (removedIngredients.length === 0)
   {
     return "Ricetta originale";
   }
 
-  return changes.join(", ");
+  return `Senza ${removedIngredients.join(", ")}`;
 }
 
 function createCustomizationNotes(input: {
