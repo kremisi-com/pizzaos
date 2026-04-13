@@ -19,10 +19,11 @@ const PlusIcon = () => (
   </svg>
 );
 
-const UserIcon = () => (
+const CartIcon = () => (
   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-    <circle cx="12" cy="7" r="4" />
+    <circle cx="9" cy="20" r="1.5" />
+    <circle cx="17" cy="20" r="1.5" />
+    <path d="M3 4h2l2.4 10.4a1 1 0 0 0 1 .8h8.9a1 1 0 0 0 1-.8L20 8H7" />
   </svg>
 );
 
@@ -45,10 +46,10 @@ export function BottomNav(): ReactElement {
       isProminent: true
     },
     {
-      id: "profile",
-      label: "Profilo",
-      icon: <UserIcon />,
-      href: "/profile"
+      id: "cart",
+      label: "Carrello",
+      icon: <CartIcon />,
+      href: "/cart"
     }
   ];
 
@@ -56,8 +57,13 @@ export function BottomNav(): ReactElement {
   let activeItemId = "order"; // Default to central
   if (pathname === "/orders" || pathname.startsWith("/orders/")) {
     activeItemId = "orders";
-  } else if (pathname === "/profile" || pathname.startsWith("/profile/")) {
-    activeItemId = "profile";
+  } else if (
+    pathname === "/cart" ||
+    pathname.startsWith("/cart/") ||
+    pathname === "/checkout" ||
+    pathname.startsWith("/checkout/")
+  ) {
+    activeItemId = "cart";
   } else if (pathname === "/") {
     activeItemId = "order";
   }
