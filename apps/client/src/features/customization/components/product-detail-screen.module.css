@@ -19,6 +19,50 @@
   padding: 24px 20px 20px;
 }
 
+.generatorPreview
+{
+  margin-bottom: 20px;
+}
+
+.generatorPreviewFrame
+{
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 240px;
+  padding: 20px;
+  border-radius: 28px;
+  background:
+    radial-gradient(circle at top, rgba(255, 255, 255, 0.95), rgba(255, 245, 240, 0.88) 54%, rgba(255, 234, 223, 0.8) 100%);
+  border: 1px solid rgba(209, 73, 46, 0.14);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.7),
+    0 18px 40px rgba(209, 73, 46, 0.12);
+  overflow: hidden;
+}
+
+.generatorPreviewFrame::before
+{
+  content: "";
+  position: absolute;
+  inset: 18px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.95) 0%, rgba(255, 246, 241, 0.55) 60%, transparent 78%);
+  pointer-events: none;
+}
+
+.generatorPreviewImage
+{
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: min(100%, 280px);
+  height: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 22px 28px rgba(92, 29, 11, 0.2));
+}
+
 .heroTopRow
 {
   display: flex;
@@ -127,19 +171,16 @@
 /* ── Customization sections ── */
 .customizationArea
 {
-  padding: 0 20px;
   display: grid;
-  gap: 12px;
+  gap: 0;
+  border-top: 1px solid var(--pizzaos-color-border);
 }
 
 .sectionCard
 {
-  background: white;
-  border-radius: 16px;
-  border: 1px solid rgba(0, 0, 0, 0.05);
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+  background: transparent;
+  border-bottom: 1px solid var(--pizzaos-color-border);
   overflow: hidden;
-  transition: box-shadow 0.2s ease;
 }
 
 .sectionHeader
@@ -147,7 +188,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 14px 16px;
+  padding: 24px 20px;
   cursor: pointer;
   user-select: none;
   transition: background 0.15s ease;
@@ -189,7 +230,7 @@
 .sectionTitle
 {
   margin: 0;
-  font-size: 0.95rem;
+  font-size: 1.1rem;
   font-weight: 800;
   letter-spacing: -0.01em;
   line-height: 1.2;
@@ -252,50 +293,33 @@
 
 .sectionContent
 {
-  padding: 0 16px 16px;
+  padding: 0 0 8px;
 }
 
-/* ── Option selector (pills for dough, variant) ── */
-.optionPillGroup
-{
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.optionPill
+/* ── Option Lists (Dough, Variant) ── */
+.optionList
 {
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  padding: 10px 14px;
-  border-radius: 12px;
-  border: 1.5px solid rgba(0, 0, 0, 0.08);
-  background: rgba(250, 250, 250, 0.9);
+}
+
+.optionRow
+{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  background: transparent;
   cursor: pointer;
-  transition:
-    border-color 0.2s ease,
-    background 0.2s ease,
-    box-shadow 0.2s ease,
-    transform 0.12s ease;
-  flex: 1;
-  min-width: 0;
-  position: relative;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.04);
 }
 
-.optionPill:active
+.optionRow:last-child
 {
-  transform: scale(0.97);
+  border-bottom: none;
 }
 
-.optionPillActive
-{
-  border-color: var(--pizzaos-color-primary);
-  background: rgba(209, 73, 46, 0.06);
-  box-shadow: 0 0 0 1px rgba(209, 73, 46, 0.15);
-}
-
-.optionPill input
+.hiddenInput
 {
   position: absolute;
   opacity: 0;
@@ -304,209 +328,169 @@
   pointer-events: none;
 }
 
-.optionPillTitle
+.optionInfo
 {
-  font-weight: 700;
-  font-size: 0.88rem;
-  line-height: 1.2;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
 }
 
-.optionPillDescription
+.optionTitle
 {
-  font-size: 0.78rem;
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+.optionDescription
+{
+  font-size: 0.85rem;
   color: var(--pizzaos-color-foreground-muted);
-  line-height: 1.3;
 }
 
-.optionPillDelta
+.optionRight
 {
-  font-size: 0.78rem;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.optionDelta
+{
   font-weight: 700;
-  color: var(--pizzaos-color-primary);
-  margin-top: 2px;
+  color: var(--pizzaos-color-foreground-muted);
 }
 
-/* ── Ingredient toggles ── */
-.ingredientList
+.radioCircle
 {
-  display: grid;
-  gap: 8px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(0, 0, 0, 0.2);
+  position: relative;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.ingredientRow
+.radioCircleActive
+{
+  border-color: var(--pizzaos-color-primary);
+  border-width: 6px;
+}
+
+/* ── Ingredient & Extra row ── */
+.ingredientList, .extraList
+{
+  display: flex;
+  flex-direction: column;
+}
+
+.ingredientRow, .extraRow
 {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 10px;
-  padding: 10px 12px;
-  border-radius: 12px;
-  background: rgba(250, 250, 250, 0.8);
-  border: 1px solid rgba(0, 0, 0, 0.04);
+  padding: 16px 20px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.04);
 }
 
-.ingredientInfo
+.ingredientRow:last-child, .extraRow:last-child
+{
+  border-bottom: none;
+}
+
+.ingredientInfo, .extraInfo
 {
   display: flex;
   flex-direction: column;
-  gap: 1px;
-  min-width: 0;
+  gap: 2px;
   flex: 1;
+  padding-right: 16px;
 }
 
-.ingredientName
+.ingredientName, .extraName
 {
-  font-size: 0.88rem;
+  font-size: 1rem;
   font-weight: 700;
   margin: 0;
 }
 
-.ingredientDesc
+.ingredientDesc, .extraDesc
 {
-  font-size: 0.78rem;
+  font-size: 0.85rem;
   color: var(--pizzaos-color-foreground-muted);
   margin: 0;
+}
+
+.ingredientExtraPrice, .extraPrice
+{
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--pizzaos-color-primary);
+  margin-top: 2px;
 }
 
 .ingredientControls
 {
   display: flex;
   align-items: center;
-  gap: 4px;
-  flex-shrink: 0;
-}
-
-.modeButton
-{
-  padding: 5px 10px;
-  border-radius: 8px;
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  background: white;
-  font-size: 0.75rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition:
-    background 0.15s ease,
-    border-color 0.15s ease,
-    color 0.15s ease;
-  color: var(--pizzaos-color-foreground-muted);
-}
-
-.modeButton:hover
-{
-  background: rgba(0, 0, 0, 0.03);
-}
-
-.modeButtonActive
-{
-  background: var(--pizzaos-color-foreground);
-  color: white;
-  border-color: var(--pizzaos-color-foreground);
-}
-
-.modeButtonExtra
-{
-  background: var(--pizzaos-color-primary);
-  color: white;
-  border-color: var(--pizzaos-color-primary);
-}
-
-.modeButtonSenza
-{
-  background: rgba(220, 38, 38, 0.08);
-  color: #dc2626;
-  border-color: rgba(220, 38, 38, 0.2);
-}
-
-.ingredientExtraPrice
-{
-  font-size: 0.72rem;
-  color: var(--pizzaos-color-foreground-muted);
-  margin-top: 2px;
-}
-
-/* ── Extra toggles (checkbox-style) ── */
-.extraList
-{
-  display: grid;
-  gap: 8px;
-}
-
-.extraRow
-{
-  display: flex;
-  align-items: center;
   gap: 12px;
-  padding: 10px 12px;
-  border-radius: 12px;
-  border: 1.5px solid rgba(0, 0, 0, 0.06);
-  background: rgba(250, 250, 250, 0.9);
-  cursor: pointer;
-  transition:
-    border-color 0.2s ease,
-    background 0.2s ease,
-    transform 0.12s ease;
 }
 
-.extraRow:active
+.ingredientAmount
 {
-  transform: scale(0.98);
+  font-weight: 700;
+  font-size: 1.1rem;
+  width: 14px;
+  text-align: center;
 }
 
-.extraRowActive
+.circleButton
 {
-  border-color: var(--pizzaos-color-primary);
-  background: rgba(209, 73, 46, 0.04);
-}
-
-.extraCheckbox
-{
-  width: 22px;
-  height: 22px;
-  border-radius: 6px;
-  border: 2px solid rgba(0, 0, 0, 0.15);
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid rgba(0, 0, 0, 0.15);
   background: white;
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-shrink: 0;
+  cursor: pointer;
+  color: var(--pizzaos-color-foreground);
   transition: all 0.2s ease;
-  font-size: 0.7rem;
-  color: white;
 }
 
-.extraCheckboxActive
+.circleButtonIcon
 {
-  background: var(--pizzaos-color-primary);
+  font-size: 1.2rem;
+  line-height: 1;
+}
+
+.circleButton:active
+{
+  transform: scale(0.92);
+}
+
+.circleButton:disabled
+{
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.circleButtonActive, .circleButtonExtra
+{
   border-color: var(--pizzaos-color-primary);
-}
-
-.extraInfo
-{
-  flex: 1;
-  min-width: 0;
-}
-
-.extraName
-{
-  font-size: 0.88rem;
-  font-weight: 700;
-  margin: 0;
-}
-
-.extraDesc
-{
-  font-size: 0.78rem;
-  color: var(--pizzaos-color-foreground-muted);
-  margin: 0;
-}
-
-.extraPrice
-{
-  font-size: 0.82rem;
-  font-weight: 700;
   color: var(--pizzaos-color-primary);
-  flex-shrink: 0;
+  background: rgba(209, 73, 46, 0.05);
+}
+
+.circleButtonSenza
+{
+  border-color: rgba(0, 0, 0, 0.2);
+  color: var(--pizzaos-color-foreground-muted);
 }
 
 /* ── Pairings section ── */

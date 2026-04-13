@@ -178,6 +178,16 @@ export function ProductDetailScreen(props: ProductDetailScreenProps): ReactEleme
           </div>
         </div>
 
+        <div className={styles.generatorPreview}>
+          <div className={styles.generatorPreviewFrame}>
+            <img
+              src="/images/pizza/pizza-rossa.png"
+              alt={`Anteprima pizza ${product.name}`}
+              className={styles.generatorPreviewImage}
+            />
+          </div>
+        </div>
+
         <h1 id="product-detail-title" className={styles.heroTitle}>{product.name}</h1>
         <p className={styles.heroDescription}>{product.description}</p>
 
@@ -377,7 +387,7 @@ interface DoughSelectorProps
 function DoughSelector(props: DoughSelectorProps): ReactElement
 {
   return (
-    <div className={styles.optionPillGroup} role="radiogroup" aria-label="Scelta impasto">
+    <div className={styles.optionList} role="radiogroup" aria-label="Scelta impasto">
       {DOUGH_OPTIONS.map((option) =>
       {
         const isActive = props.state.selectedDoughId === option.id;
@@ -385,17 +395,23 @@ function DoughSelector(props: DoughSelectorProps): ReactElement
         return (
           <label
             key={option.id}
-            className={`${styles.optionPill} ${isActive ? styles.optionPillActive : ""}`}
+            className={`${styles.optionRow} ${isActive ? styles.optionRowActive : ""}`}
           >
             <input
               type="radio"
               name="dough-option"
+              className={styles.hiddenInput}
               checked={isActive}
               onChange={() => props.dispatch({ type: "set_dough", doughId: option.id })}
             />
-            <span className={styles.optionPillTitle}>{option.label}</span>
-            <span className={styles.optionPillDescription}>{option.description}</span>
-            <span className={styles.optionPillDelta}>{formatDelta(option.priceDeltaCents)}</span>
+            <div className={styles.optionInfo}>
+              <span className={styles.optionTitle}>{option.label}</span>
+              {option.description ? <span className={styles.optionDescription}>{option.description}</span> : null}
+            </div>
+            <div className={styles.optionRight}>
+              {option.priceDeltaCents !== 0 && <span className={styles.optionDelta}>{formatDelta(option.priceDeltaCents)}</span>}
+              <div className={`${styles.radioCircle} ${isActive ? styles.radioCircleActive : ""}`} />
+            </div>
           </label>
         );
       })}
@@ -460,47 +476,45 @@ function IngredientSelector(props: IngredientSelectorProps): ReactElement
           <div key={ingredient.id} className={styles.ingredientRow}>
             <div className={styles.ingredientInfo}>
               <h3 className={styles.ingredientName}>{ingredient.label}</h3>
-              <p className={styles.ingredientDesc}>{ingredient.description}</p>
-              {currentMode === "extra" ? (
+              {ingredient.description && <p className={styles.ingredientDesc}>{ingredient.description}</p>}
+              {currentMode === "extra" && (
                 <span className={styles.ingredientExtraPrice}>+{formatMoney(ingredient.extraPriceCents)}</span>
-              ) : null}
+              )}
             </div>
-            <div className={styles.ingredientControls} role="radiogroup" aria-label={ingredient.label}>
-              {(Object.entries(INGREDIENT_MODE_LABEL) as [IngredientMode, string][]).map(([mode, modeLabel]) =>
-              {
-                const isActive = currentMode === mode;
-                let activeClass = "";
+            
+            <div className={styles.ingredientControls}>
+              {currentMode === "senza" ? (
+                <button
+                  type="button"
+                  className={`${styles.circleButton} ${styles.circleButtonSenza}`}
+                  onClick={() => props.dispatch({ type: "set_ingredient_mode", ingredientId: ingredient.id, mode: ingredient.defaultMode })}
+                  aria-label="Ripristina ingrediente normale"
+                >
+                  <span className={styles.circleButtonIcon}>✕</span>
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  className={styles.circleButton}
+                  onClick={() => props.dispatch({ type: "set_ingredient_mode", ingredientId: ingredient.id, mode: "senza" })}
+                  aria-label="Rimuovi ingrediente"
+                >
+                  <span className={styles.circleButtonIcon}>−</span>
+                </button>
+              )}
 
-                if (isActive && mode === "extra")
-                {
-                  activeClass = styles.modeButtonExtra;
-                }
-                else if (isActive && mode === "senza")
-                {
-                  activeClass = styles.modeButtonSenza;
-                }
-                else if (isActive)
-                {
-                  activeClass = styles.modeButtonActive;
-                }
+              <span className={styles.ingredientAmount}>
+                {currentMode === "extra" ? "2" : currentMode === "senza" ? "0" : "1"}
+              </span>
 
-                return (
-                  <button
-                    key={mode}
-                    type="button"
-                    className={`${styles.modeButton} ${activeClass}`}
-                    onClick={() =>
-                      props.dispatch({
-                        type: "set_ingredient_mode",
-                        ingredientId: ingredient.id,
-                        mode
-                      })}
-                    aria-pressed={isActive}
-                  >
-                    {modeLabel}
-                  </button>
-                );
-              })}
+              <button
+                type="button"
+                className={`${styles.circleButton} ${currentMode === "extra" ? styles.circleButtonExtra : ""}`}
+                onClick={() => props.dispatch({ type: "set_ingredient_mode", ingredientId: ingredient.id, mode: currentMode === "extra" ? "normale" : "extra" })}
+                aria-label={currentMode === "extra" ? "Rimuovi porzione extra" : "Aggiungi porzione extra"}
+              >
+                <span className={styles.circleButtonIcon}>＋</span>
+              </button>
             </div>
           </div>
         );
@@ -526,22 +540,45 @@ function ExtraSelector(props: ExtraSelectorProps): ReactElement
         const isActive = props.state.selectedExtraIds.includes(extra.id);
 
         return (
-          <button
-            key={extra.id}
-            type="button"
-            className={`${styles.extraRow} ${isActive ? styles.extraRowActive : ""}`}
-            onClick={() => props.dispatch({ type: "toggle_extra", extraId: extra.id })}
-            aria-pressed={isActive}
-          >
-            <span className={`${styles.extraCheckbox} ${isActive ? styles.extraCheckboxActive : ""}`}>
-              {isActive ? "✓" : ""}
-            </span>
+          <div key={extra.id} className={styles.extraRow}>
             <div className={styles.extraInfo}>
               <p className={styles.extraName}>{extra.label}</p>
               <p className={styles.extraDesc}>{extra.description}</p>
+              <span className={styles.extraPrice}>{formatDelta(extra.priceCents)}</span>
             </div>
-            <span className={styles.extraPrice}>{formatDelta(extra.priceCents)}</span>
-          </button>
+            <div className={styles.ingredientControls}>
+              {isActive ? (
+                <>
+                  <button
+                    type="button"
+                    className={`${styles.circleButton} ${styles.circleButtonActive}`}
+                    onClick={() => props.dispatch({ type: "toggle_extra", extraId: extra.id })}
+                    aria-label="Rimuovi extra"
+                  >
+                    <span className={styles.circleButtonIcon}>−</span>
+                  </button>
+                  <span className={styles.ingredientAmount}>1</span>
+                  <button
+                    type="button"
+                    className={styles.circleButton}
+                    disabled
+                    aria-label="Aggiungi extra"
+                  >
+                    <span className={styles.circleButtonIcon}>＋</span>
+                  </button>
+                </>
+              ) : (
+                <button
+                  type="button"
+                  className={styles.circleButton}
+                  onClick={() => props.dispatch({ type: "toggle_extra", extraId: extra.id })}
+                  aria-label="Aggiungi extra"
+                >
+                  <span className={styles.circleButtonIcon}>＋</span>
+                </button>
+              )}
+            </div>
+          </div>
         );
       })}
     </div>

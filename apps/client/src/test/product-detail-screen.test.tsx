@@ -10,17 +10,15 @@ describe("product detail screen", () =>
     window.localStorage.clear();
   });
 
-  it("supports guided step progression with next and back actions", () =>
+  it("renders the pizza generator preview and customization sections", () =>
   {
     renderDom(<ProductDetailScreen productId="product-margherita" />);
 
-    expect(domScreen.getByRole("heading", { name: "Impasto e base" }).textContent).toBe("Impasto e base");
-
-    domFireEvent.click(domScreen.getByRole("button", { name: "Continua" }));
-    expect(domScreen.getByRole("heading", { name: "Variante e formato" }).textContent).toBe("Variante e formato");
-
-    domFireEvent.click(domScreen.getByRole("button", { name: "Indietro" }));
-    expect(domScreen.getByRole("heading", { name: "Impasto e base" }).textContent).toBe("Impasto e base");
+    expect(domScreen.getByRole("img", { name: "Anteprima pizza Margherita Classica" }).getAttribute("src")).toBe("/images/pizza/pizza-rossa.png");
+    expect(domScreen.getByRole("heading", { name: "Impasto" }).textContent).toBe("Impasto");
+    expect(domScreen.getByRole("heading", { name: "Formato" }).textContent).toBe("Formato");
+    expect(domScreen.getByRole("heading", { name: "Ingredienti" }).textContent).toBe("Ingredienti");
+    expect(domScreen.getByRole("heading", { name: "Extra" }).textContent).toBe("Extra");
   });
 
   it("shows allergens and updates total while customizing", () =>
@@ -34,12 +32,9 @@ describe("product detail screen", () =>
     domFireEvent.click(domScreen.getByRole("radio", { name: /Integrale/i }));
     expect(domScreen.getByTestId("customization-total-value").textContent).toContain("10,20");
 
-    domFireEvent.click(domScreen.getByRole("button", { name: "Continua" }));
-    domFireEvent.click(domScreen.getByRole("button", { name: "Continua" }));
-    domFireEvent.click(domScreen.getByRole("button", { name: "Continua" }));
-    domFireEvent.click(domScreen.getByRole("checkbox", { name: /Filetti di acciuga/i }));
+    domFireEvent.click(domScreen.getByRole("button", { name: /Ingredienti/i }));
+    domFireEvent.click(domScreen.getAllByRole("button", { name: "Aggiungi porzione extra" })[0]);
 
-    expect(domScreen.getByText("Pesce").textContent).toBe("Pesce");
-    expect(domScreen.getByTestId("customization-total-value").textContent).toContain("11,80");
+    expect(domScreen.getByTestId("customization-total-value").textContent).toContain("10,60");
   });
 });
