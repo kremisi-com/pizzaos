@@ -19,6 +19,7 @@ describe("menu screen", () =>
   {
     renderDom(<MenuScreen />);
 
+    expect(domScreen.getByRole("img", { name: "Anteprima pizza" }).getAttribute("src")).toBe("/images/pizza/pizza-rossa.png");
     expect(domScreen.getByRole("heading", { name: "Scegli la tua pizza" }).textContent).toBe("Scegli la tua pizza");
     expect(domScreen.getByRole("tablist", { name: "Sezioni menu" })).toBeTruthy();
     expect(domScreen.getByRole("button", { name: /Consegna prevista:/i }).textContent).toContain("Oggi, 19:10");

@@ -13,6 +13,20 @@
   overflow-x: hidden;
 }
 
+.heroImageWrap {
+  display: flex;
+  justify-content: center;
+  padding: 20px 20px 0;
+}
+
+.heroImage {
+  display: block;
+  width: min(100%, 300px);
+  height: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 18px 24px rgba(92, 29, 11, 0.18));
+}
+
 /* ── Header ── */
 .header {
   padding: 24px 20px 20px;

@@ -87,6 +87,14 @@ export function MenuScreen(props: MenuScreenProps): ReactElement
 
   return (
     <div className={`${getThemeClass(seed.surface)} ${styles.screen}`}>
+      <div className={styles.heroImageWrap}>
+        <img
+          src="/images/pizza/pizza-rossa.png"
+          alt="Anteprima pizza"
+          className={styles.heroImage}
+        />
+      </div>
+
       <header className={styles.header}>
         <div className={styles.headerTop}>
           <a href="/" className={styles.backButton}>
