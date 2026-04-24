@@ -18,26 +18,29 @@ export function InventoryManager({
   onToggleDynamicPricing,
   onUpdateInventoryItem
 }: InventoryManagerProps): ReactElement {
-  
   function getProductName(productId: EntityIdentifier): string {
-    return products.find(p => p.id === productId)?.name ?? "Prodotto Sconosciuto";
+    return products.find((product) => product.id === productId)?.name ?? "Prodotto Sconosciuto";
   }
 
-  function getStatusTone(status: string): "success" | "warning" | "critical" {
+  function getStatusTone(status: InventoryItem["status"]): "success" | "warning" | "critical" {
     switch (status) {
-      case "in_stock": return "success";
-      case "low_stock": return "warning";
-      case "out_of_stock": return "critical";
-      default: return "neutral" as any;
+      case "in_stock":
+        return "success";
+      case "low_stock":
+        return "warning";
+      case "out_of_stock":
+        return "critical";
     }
   }
 
-  function getStatusLabel(status: string): string {
+  function getStatusLabel(status: InventoryItem["status"]): string {
     switch (status) {
-      case "in_stock": return "In Stock";
-      case "low_stock": return "Scorte Basse";
-      case "out_of_stock": return "Esaurito";
-      default: return status;
+      case "in_stock":
+        return "In Stock";
+      case "low_stock":
+        return "Scorte Basse";
+      case "out_of_stock":
+        return "Esaurito";
     }
   }
 

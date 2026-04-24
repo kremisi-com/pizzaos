@@ -9,7 +9,7 @@ import {
   deriveRoutingStation,
   getNextOrderStatuses,
 } from "@pizzaos/domain";
-import { Badge, Button, Card } from "@pizzaos/ui";
+import { Badge, Button } from "@pizzaos/ui";
 import { type ReactElement, useMemo, useState } from "react";
 import styles from "./order-details.module.css";
 

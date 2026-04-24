@@ -42,6 +42,16 @@ packages/
 - `pnpm test:workspaces`: run package and app test scripts through Turbo
 - `pnpm e2e`: run Playwright tests
 
+## Vercel Deployment
+
+Deploy each app as a separate Vercel project:
+
+- `client` -> `apps/client`
+- `admin` -> `apps/admin`
+- `landing` -> `apps/landing`
+
+Use `pnpm install` for install and `pnpm build` for build in each project. The app-level `vercel.json` files keep those commands explicit.
+
 ## Ownership Boundaries
 
 - `apps/*`: routing, page composition, and app-specific UX

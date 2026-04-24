@@ -35,3 +35,9 @@ From repository root:
 - `pnpm --filter @pizzaos/landing lint`
 - `pnpm --filter @pizzaos/landing typecheck`
 - `pnpm --filter @pizzaos/landing test`
+
+## Vercel
+
+- Create a dedicated Vercel project for this app.
+- Set `Root Directory` to `apps/landing`.
+- Keep install and build aligned with the app-level `vercel.json`.

@@ -71,7 +71,7 @@ export function IntegrationsManager(): ReactElement {
           <div className={styles.placeholderContent}>
             <h3>Sviluppo API Personalizzate</h3>
             <p>
-              Hai bisogno di un'integrazione specifica per il tuo business? PizzaOS offre API robuste per 
+              Hai bisogno di un&apos;integrazione specifica per il tuo business? PizzaOS offre API robuste per
               sviluppatori.
             </p>
             <Button variant="ghost">Leggi la documentazione API →</Button>

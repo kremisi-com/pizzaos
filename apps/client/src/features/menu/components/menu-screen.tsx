@@ -2,7 +2,6 @@
 
 import { getThemeClass } from "@pizzaos/brand";
 import type { ClientSeed } from "@pizzaos/mock-data";
-import { Badge } from "@pizzaos/ui";
 import { useEffect, useState, type ReactElement } from "react";
 import { loadClientDemoState } from "../../home/client-demo-state";
 import {

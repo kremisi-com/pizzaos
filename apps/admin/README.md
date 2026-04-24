@@ -36,3 +36,9 @@ From repository root:
 - `pnpm --filter @pizzaos/admin lint`
 - `pnpm --filter @pizzaos/admin typecheck`
 - `pnpm --filter @pizzaos/admin test`
+
+## Vercel
+
+- Create a dedicated Vercel project for this app.
+- Set `Root Directory` to `apps/admin`.
+- Keep install and build aligned with the app-level `vercel.json`.

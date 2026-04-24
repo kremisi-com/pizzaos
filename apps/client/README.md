@@ -50,3 +50,9 @@ From repository root:
 - `pnpm --filter @pizzaos/client lint`
 - `pnpm --filter @pizzaos/client typecheck`
 - `pnpm --filter @pizzaos/client test`
+
+## Vercel
+
+- Create a dedicated Vercel project for this app.
+- Set `Root Directory` to `apps/client`.
+- Keep install and build aligned with the app-level `vercel.json`.

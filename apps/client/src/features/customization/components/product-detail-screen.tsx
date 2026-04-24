@@ -2,7 +2,7 @@
 
 import type { Product, ProductAllergen } from "@pizzaos/domain";
 import type { ClientSeed } from "@pizzaos/mock-data";
-import { Dialog } from "@pizzaos/ui";
+import { Badge, Dialog } from "@pizzaos/ui";
 import { useCallback, useEffect, useReducer, useRef, useState, type Dispatch, type ReactElement } from "react";
 import { addCartItem } from "../../cart/cart-model";
 import { loadClientDemoState } from "../../home/client-demo-state";
@@ -252,6 +252,16 @@ export function ProductDetailScreen(props: ProductDetailScreenProps): ReactEleme
         <div className={styles.heroMeta}>
           <span className={styles.heroPrice}>{formatMoney(product.basePrice.amountCents)}</span>
         </div>
+
+        {visibleAllergens.length > 0 && (
+          <div className={styles.allergenSummary} aria-label="Allergeni attivi">
+            {visibleAllergens.map((allergen) => (
+              <Badge key={allergen.code} tone="warning">
+                {allergen.label}
+              </Badge>
+            ))}
+          </div>
+        )}
       </section>
 
       <IngredientsModal

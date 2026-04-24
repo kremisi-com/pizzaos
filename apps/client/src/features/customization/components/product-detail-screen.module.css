@@ -168,6 +168,16 @@
   gap: 12px;
 }
 
+.allergenSummary
+{
+  position: relative;
+  z-index: 3;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
 .heroPrice
 {
   font-size: 1.6rem;

@@ -18,11 +18,6 @@ import {
 } from "../../orders/orders-model";
 import styles from "./client-shell.module.css";
 
-const MONEY_FORMATTER = new Intl.NumberFormat("it-IT", {
-  style: "currency",
-  currency: "EUR",
-});
-
 const SLOT_FORMATTER = new Intl.DateTimeFormat("it-IT", {
   weekday: "short",
   day: "2-digit",
@@ -283,10 +278,6 @@ export function ClientShell(): ReactElement {
       </div>
     </main>
   );
-}
-
-function formatMoney(amountCents: number): string {
-  return MONEY_FORMATTER.format(amountCents / 100);
 }
 
 function formatSlot(isoTimestamp: string): string {
