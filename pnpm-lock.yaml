@@ -115,6 +115,9 @@ importers:
       '@pizzaos/eslint-config':
         specifier: workspace:*
         version: link:../../packages/eslint-config
+      '@pizzaos/testing':
+        specifier: workspace:*
+        version: link:../../packages/testing
       '@pizzaos/typescript-config':
         specifier: workspace:*
         version: link:../../packages/typescript-config
