@@ -25,6 +25,7 @@ Current exports from `src/index.ts`:
   - `createLandingSeed()`
   - `createClientSeed()`
   - `createAdminSeed(storeId?)`
+- client seed browse state includes deterministic `slots` plus visible sold-out and preparation-mode products
 - storage and recovery helpers:
   - `getDemoStateStorageKey(appId)`
   - `loadDemoState(appId, options?)`

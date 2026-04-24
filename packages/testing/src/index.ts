@@ -1,4 +1,5 @@
 import type { ReactElement } from "react";
+import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { renderToStaticMarkup } from "react-dom/server";
 
 export interface StorageAdapter
@@ -57,6 +58,20 @@ export function renderForTest(element: ReactElement): string
 {
   return renderToStaticMarkup(element);
 }
+
+export function renderDom(element: ReactElement)
+{
+  return render(element);
+}
+
+export function cleanupDom(): void
+{
+  cleanup();
+}
+
+export const domFireEvent = fireEvent;
+export const domScreen = screen;
+export const domWithin = within;
 
 export function withFrozenDateNow<Result>(isoTimestamp: string, callback: () => Result): Result
 {

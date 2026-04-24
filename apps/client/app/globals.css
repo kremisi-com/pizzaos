@@ -1,3 +1,10 @@
+*,
+*::before,
+*::after
+{
+  box-sizing: border-box;
+}
+
 html,
 body
 {
@@ -32,8 +39,5 @@ p
 
 main
 {
-  max-width: 520px;
-  margin: 0 auto;
-  padding: calc(var(--pizzaos-spacing-page-y) * 0.7) calc(var(--pizzaos-spacing-page-x) * 0.65)
-    var(--pizzaos-spacing-page-y);
+  /* Removed restrictive max-width and padding to allow full-width features */
 }

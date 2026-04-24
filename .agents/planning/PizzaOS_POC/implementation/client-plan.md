@@ -2,14 +2,14 @@
 
 ## Checklist
 
-- [ ] Step 1: Build the client shell, seeded home state, and demo reset flow.
-- [ ] Step 2: Implement menu browsing with availability and slot visibility.
-- [ ] Step 3: Implement product detail and pizza customization.
-- [ ] Step 4: Implement cart, checkout, mock payment, and tip flow.
-- [ ] Step 5: Implement order status, notifications, and rider tracking.
-- [ ] Step 6: Implement order history, quick reorder, and "order like last time".
-- [ ] Step 7: Implement loyalty, rewards, coupons, and subscription UI.
-- [ ] Step 8: Implement feedback prompts, selected edge states, and end-to-end demo polish.
+- [X] Step 1: Build the client shell, seeded home state, and demo reset flow.
+- [X] Step 2: Implement menu browsing with availability and slot visibility.
+- [X] Step 3: Implement product detail and pizza customization.
+- [X] Step 4: Implement cart, checkout, mock payment, and tip flow.
+- [X] Step 5: Implement order status, notifications, and rider tracking.
+- [X] Step 6: Implement order history, quick reorder, and "order like last time".
+- [X] Step 7: Implement loyalty, rewards, coupons, and subscription UI.
+- [X] Step 8: Implement feedback prompts, selected edge states, and end-to-end demo polish.
 
 ## Step 1: Build the client shell, seeded home state, and demo reset flow
 
@@ -89,6 +89,12 @@ Deliver the richest customer interaction in the app without losing clarity.
 
 - A presenter can fully customize a pizza, see the price update live, and add it to the cart confidently.
 
+**Implementation note**
+
+- The pizza preview now persists both dough and base selection (`rossa` or `bianca`) and uses those choices to resolve deterministic images from `apps/client/public/images/pizza`.
+- The product detail overlay now resolves the topping image from the selected menu product, so `/product/[id]` stays visually aligned with the previous selection.
+- The product detail page now includes a free-text "Note per la cucina" field near the bottom of the flow and appends that message to the cart line notes alongside the structured customization summary.
+
 ## Step 4: Implement cart, checkout, mock payment, and tip flow
 
 **Objective**
@@ -114,6 +120,10 @@ Complete the core order placement journey from configured product to confirmed o
 **Demo**
 
 - A presenter can place a full mock order, including slot choice and tip, and reach a convincing confirmation state.
+
+**Implementation note**
+
+- Cart line items now persist removed base ingredients as structured metadata and render them in cart review as `Senza: ...`, separate from dough/base/format notes.
 
 ## Step 5: Implement order status, notifications, and rider tracking
 
@@ -167,6 +177,11 @@ Support the repeat-customer narrative that is central to PizzaOS.
 
 - A presenter can reopen the app and demonstrate fast repeat ordering with minimal steps.
 
+**Implementation note**
+
+- The `orders` route no longer renders the hero CTA `Ordina come l'ultima volta`, the `Nuovo ordine` CTA, or the `Dettagli ordine` and `Riepilogo ordine` cards; repeat ordering remains available from the home prompt and directly inside each history card via `Riordina veloce`. The default client seed now includes three archived orders to keep the history view fuller in demos.
+- The home reorder card now keeps the main summary intentionally compact and exposes the previous basket through a `mostra ordinazione` inline toggle with slide-down details such as `1x Capricciosa`.
+
 ## Step 7: Implement loyalty, rewards, coupons, and subscription UI
 
 **Objective**
@@ -212,6 +227,10 @@ Finish the client app as a polished, demo-ready mobile product.
 **Test requirements**
 
 - Add E2E coverage for the full happy path and at least one selected edge-state path.
+
+**Implementation note**
+
+- The cart summary footer was refined into a full-width bottom band without the previous outlined card, keeping the checkout CTA more contemporary and visually aligned with the mobile-first client polish goals.
 - Add component tests for feedback and empty or invalid states.
 
 **Integration with previous work**
@@ -222,3 +241,12 @@ Finish the client app as a polished, demo-ready mobile product.
 
 - The client app is ready for a full walkthrough from first open to feedback, with credible edge cases available when
 needed.
+
+**Implementation note**
+
+- Menu-level dough and base selection cards keep a light surface even when selected; selection is communicated through
+  the check marker, accent border, and elevation so labels stay legible in the mobile customization teaser.
+- The menu header now uses a dedicated group emoji CTA that routes to `/group-order`, matching the existing "Ordina con
+  i tuoi amici" narrative from the client home and avoiding a dead-end demo link.
+- The `/group-order` hub now presents a shared-cart narrative with inline QR placeholder, copy-link CTA, and QR
+  visibility toggle so the group-order demo reads as self-serve ordering from each guest's phone.

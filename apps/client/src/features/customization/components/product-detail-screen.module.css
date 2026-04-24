@@ -1,0 +1,1399 @@
+/* ── Screen container ── */
+.screen
+{
+  min-height: 100dvh;
+  margin: 0 auto;
+  padding: 0 0 160px;
+  max-width: 520px;
+  width: 100%;
+  background: #ffffff;
+  overflow-x: hidden;
+}
+
+/* ── Hero section ── */
+.hero
+{
+  position: relative;
+  padding: 24px 20px 20px;
+}
+
+.generatorPreview
+{
+  position: relative;
+  z-index: 1;
+  margin-bottom: 20px;
+}
+
+.generatorPreviewFrame
+{
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 320px;
+  padding: 0;
+  background: transparent;
+  overflow: visible;
+  isolation: isolate;
+}
+
+
+.generatorPreviewImage
+{
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: min(100%, 360px);
+  height: auto;
+  object-fit: contain;
+  /* Balanced scale for the base */
+  transform: scale(1.25);
+  transform-origin: center;
+}
+
+.generatorPreviewOverlay
+{
+  position: absolute;
+  z-index: 2;
+  width: min(100%, 330px);
+  height: auto;
+  object-fit: contain;
+  pointer-events: none;
+  /* Center the toppings on the pizza face and scale them to match the base */
+  transform: translateY(-4px) scale(0.94);
+  clip-path: circle(48%);
+  opacity: 1;
+}
+
+.heroTopRow
+{
+  position: relative;
+  z-index: 3;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.backButton
+{
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  text-decoration: none;
+  color: var(--pizzaos-color-foreground);
+  font-weight: 800;
+  font-size: 0.85rem;
+  padding: 10px 16px;
+  border-radius: 99px;
+  background: #f8fafc;
+  border: 1px solid rgba(0, 0, 0, 0.04);
+  transition: all 0.2s ease;
+}
+
+.backButton:hover
+{
+  background: #f1f5f9;
+  transform: translateX(-2px);
+}
+
+.backIcon
+{
+  font-size: 1.1rem;
+}
+
+.titleWrapper
+{
+  position: relative;
+  z-index: 3;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  margin: 0 0 8px;
+}
+
+.heroTitle
+{
+  margin: 0;
+  font-size: 2.2rem;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  font-weight: 900;
+  flex: 1;
+}
+
+.infoButton
+{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 42px;
+  min-height: 42px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  font-size: 1.25rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: var(--pizzaos-color-foreground);
+}
+
+.infoButton:hover
+{
+  transform: scale(1.05);
+}
+
+.infoButton:active
+{
+  transform: scale(0.95);
+}
+
+.heroDescription
+{
+  position: relative;
+  z-index: 3;
+  margin: 0 0 16px;
+  color: var(--pizzaos-color-foreground-muted);
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.heroMeta
+{
+  position: relative;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.heroPrice
+{
+  font-size: 1.6rem;
+  font-weight: 900;
+  color: var(--pizzaos-color-foreground);
+  letter-spacing: -0.02em;
+}
+
+/* ── Ingredients modal styles ── */
+.modalIngredientList
+{
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin-top: 0;
+}
+
+.modalIngredientRow
+{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  gap: 12px;
+}
+
+.modalIngredientRow:first-child
+{
+  padding-top: 0;
+}
+
+.modalIngredientRow:last-child
+{
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.modalIngredientName
+{
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--pizzaos-color-foreground);
+  letter-spacing: -0.01em;
+  line-height: 1.4;
+  flex: 1;
+}
+
+.modalAllergenDots
+{
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.allergenEmojiDot
+{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  transition: transform 0.15s ease;
+  cursor: default;
+}
+
+.allergenEmojiDot:hover
+{
+  transform: scale(1.15);
+}
+
+.allergenLegend
+{
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.legendItem
+{
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.78rem;
+  color: var(--pizzaos-color-foreground-muted);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  background: rgba(0, 0, 0, 0.04);
+  border-radius: 999px;
+  padding: 5px 10px 5px 8px;
+}
+
+.legendEmoji
+{
+  font-size: 1rem;
+  line-height: 1;
+}
+
+/* ── Customization sections ── */
+.customizationArea
+{
+  display: grid;
+  gap: 0;
+  margin-top: 12px;
+}
+
+.sectionCard
+{
+  background: transparent;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.sectionCardOpen
+{
+  background: #fdfdfd;
+  box-shadow: inset 4px 0 0 var(--pizzaos-color-primary);
+}
+
+.sectionHeader
+{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24px 20px;
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.15s ease;
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: left;
+  color: inherit;
+  font-family: inherit;
+}
+
+.sectionHeader:hover
+{
+  background: #f8fafc;
+}
+
+.sectionHeaderLeft
+{
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.sectionIcon
+{
+  font-size: 1.4rem;
+  flex-shrink: 0;
+}
+
+.sectionTitleGroup
+{
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.sectionTitle
+{
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+}
+
+.sectionCurrentValue
+{
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--pizzaos-color-foreground-muted);
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 200px;
+}
+
+.sectionHeaderRight
+{
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.sectionDelta
+{
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--pizzaos-color-primary);
+}
+
+.chevron
+{
+  font-size: 0.85rem;
+  color: var(--pizzaos-color-foreground-muted);
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  align-items: center;
+}
+
+.chevronOpen
+{
+  transform: rotate(180deg);
+}
+
+.sectionBody
+{
+  overflow: hidden;
+  transition: max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.25s ease;
+  max-height: 0;
+  opacity: 0;
+}
+
+.sectionBodyOpen
+{
+  max-height: 2000px;
+  opacity: 1;
+}
+
+.sectionContent
+{
+  padding: 0 0 12px;
+}
+
+/* ── Option Pill Group (Size/Variant) ── */
+.optionPillGroup
+{
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  padding: 8px 20px 16px;
+}
+
+.optionPill
+{
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 16px 8px;
+  background: #f8fafc;
+  border-radius: 16px;
+  border: 1.5px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  user-select: none;
+}
+
+.optionPill:hover
+{
+  background: #f1f5f9;
+}
+
+.optionPillActive
+{
+  background: #ffffff;
+  border-color: var(--pizzaos-color-primary);
+  box-shadow: 0 4px 16px rgba(209, 73, 46, 0.12);
+  transform: translateY(-2px);
+}
+
+.optionPill input
+{
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.optionPillTitle
+{
+  font-weight: 800;
+  font-size: 0.85rem;
+  color: var(--pizzaos-color-foreground);
+  margin-bottom: 4px;
+  line-height: 1.2;
+}
+
+.optionPillDescription
+{
+  font-size: 0.68rem;
+  color: var(--pizzaos-color-foreground-muted);
+  font-weight: 500;
+  line-height: 1.3;
+  margin-bottom: 8px;
+  min-height: 1.8rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.optionPillDelta
+{
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: var(--pizzaos-color-primary);
+  background: rgba(209, 73, 46, 0.08);
+  padding: 4px 8px;
+  border-radius: 99px;
+  margin-top: auto;
+}
+
+.optionPillActive .optionPillDelta
+{
+  background: var(--pizzaos-color-primary);
+  color: white;
+}
+
+/* ── Option Lists (Dough, Base) ── */
+.optionList
+{
+  display: flex;
+  flex-direction: column;
+}
+
+.optionRow
+{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 20px;
+  background: transparent;
+  cursor: pointer;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.03);
+  transition: all 0.2s ease;
+}
+
+.optionRowActive
+{
+  background: rgba(209, 73, 46, 0.02);
+}
+
+.optionRow:hover
+{
+  background: #f8fafc;
+}
+
+.optionRowActive:hover
+{
+  background: rgba(209, 73, 46, 0.04);
+}
+
+.optionRow:last-child
+{
+  border-bottom: none;
+}
+
+.hiddenInput
+{
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+.optionInfo
+{
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+}
+
+.optionTitle
+{
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+.optionDescription
+{
+  font-size: 0.85rem;
+  color: var(--pizzaos-color-foreground-muted);
+}
+
+.optionRight
+{
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.optionDelta
+{
+  font-weight: 700;
+  color: var(--pizzaos-color-foreground-muted);
+}
+
+.radioCircle
+{
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(0, 0, 0, 0.2);
+  position: relative;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.radioCircleActive
+{
+  border-color: var(--pizzaos-color-primary);
+  border-width: 6px;
+}
+
+/* ── Ingredient & Extra row ── */
+.ingredientList, .extraList
+{
+  display: flex;
+  flex-direction: column;
+}
+
+.extraCategory
+{
+  display: flex;
+  flex-direction: column;
+}
+
+.extraCategory + .extraCategory
+{
+  border-top: 1px solid rgba(15, 23, 42, 0.06);
+}
+
+.extraCategoryTitle
+{
+  margin: 0;
+  font-size: 0.86rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #334155;
+}
+
+.extraCategoryCount
+{
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--pizzaos-color-foreground-muted);
+}
+
+.extraCategoryHeader
+{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 18px 20px;
+  width: 100%;
+  border: none;
+  background: none;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.2s ease;
+}
+
+.extraCategoryHeader:hover
+{
+  background: rgba(0, 0, 0, 0.02);
+}
+
+.extraCategoryChevron
+{
+  font-size: 0.8rem;
+  color: var(--pizzaos-color-foreground-muted);
+  transition: transform 0.2s ease;
+}
+
+.extraCategoryHeaderOpen .extraCategoryChevron
+{
+  transform: rotate(180deg);
+}
+
+.extraCategoryContent
+{
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.extraCategoryContentOpen
+{
+  max-height: 1000px;
+  opacity: 1;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.ingredientRow, .extraRow
+{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 20px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.03);
+}
+
+.ingredientRow:last-child, .extraRow:last-child
+{
+  border-bottom: none;
+}
+
+.ingredientInfo, .extraInfo
+{
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  padding-right: 16px;
+}
+
+.ingredientName, .extraName
+{
+  font-size: 1rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.ingredientDesc, .extraDesc
+{
+  font-size: 0.85rem;
+  color: var(--pizzaos-color-foreground-muted);
+  margin: 0;
+}
+
+.extraPrice
+{
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--pizzaos-color-primary);
+  margin-top: 2px;
+}
+
+.extraPriceGroup
+{
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 2px;
+}
+
+.extraPriceStrikethrough
+{
+  font-size: 0.82rem;
+  color: var(--pizzaos-color-foreground-muted);
+  text-decoration: line-through;
+  opacity: 0.7;
+}
+
+.extraPriceDiscounted
+{
+  font-size: 0.88rem;
+  font-weight: 800;
+  color: #10b981; /* Premium green for discount */
+}
+
+.bundleQuotaSummary
+{
+  margin: 4px 20px 16px;
+  padding: 10px 16px;
+  background: rgba(16, 185, 129, 0.08);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid rgba(16, 185, 129, 0.15);
+}
+
+.bundleQuotaIcon
+{
+  font-size: 1.1rem;
+}
+
+.bundleQuotaText
+{
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #065f46;
+}
+
+.bundleQuotaCount
+{
+  color: #10b981;
+  font-weight: 900;
+}
+
+.ingredientControls
+{
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.ingredientToggle
+{
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 116px;
+  justify-content: center;
+  padding: 10px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  background: #f8fafc;
+  color: #64748b;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.ingredientToggle:active
+{
+  transform: scale(0.97);
+}
+
+.ingredientToggleActive
+{
+  border-color: rgba(209, 73, 46, 0.2);
+  background: rgba(209, 73, 46, 0.08);
+  color: var(--pizzaos-color-primary);
+}
+
+.ingredientToggleIndicator
+{
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: currentColor;
+  opacity: 0.45;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.ingredientToggleActive .ingredientToggleIndicator
+{
+  opacity: 1;
+  transform: scale(1.15);
+}
+
+.ingredientToggleLabel
+{
+  font-size: 0.85rem;
+  line-height: 1;
+}
+
+.ingredientAmount
+{
+  font-weight: 700;
+  font-size: 1.1rem;
+  width: 14px;
+  text-align: center;
+}
+
+.circleButton
+{
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--pizzaos-color-foreground);
+  transition: all 0.2s ease;
+}
+
+.circleButtonIcon
+{
+  font-size: 1.2rem;
+  line-height: 1;
+}
+
+.circleButton:active
+{
+  transform: scale(0.92);
+}
+
+.circleButton:disabled
+{
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.circleButtonActive, .circleButtonExtra
+{
+  border-color: var(--pizzaos-color-primary);
+  color: var(--pizzaos-color-primary);
+  background: rgba(209, 73, 46, 0.05);
+}
+
+.circleButtonSenza
+{
+  border-color: rgba(0, 0, 0, 0.2);
+  color: var(--pizzaos-color-foreground-muted);
+}
+
+/* ── Note section ── */
+.noteSection
+{
+  padding: 24px 20px 32px;
+  background:
+    linear-gradient(180deg, rgba(248, 250, 252, 0.92) 0%, rgba(255, 255, 255, 1) 100%);
+  border-top: 1px solid rgba(15, 23, 42, 0.05);
+}
+
+.noteHeader
+{
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.noteIcon
+{
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 14px;
+  background: rgba(209, 73, 46, 0.1);
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+
+.noteCopy
+{
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.noteTitle
+{
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  color: var(--pizzaos-color-foreground);
+}
+
+.noteDescription
+{
+  margin: 0;
+  font-size: 0.86rem;
+  line-height: 1.45;
+  color: var(--pizzaos-color-foreground-muted);
+}
+
+.noteField
+{
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.noteLabel
+{
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #475569;
+}
+
+.noteTextarea
+{
+  width: 100%;
+  resize: vertical;
+  min-height: 112px;
+  padding: 14px 16px;
+  border-radius: 20px;
+  border: 1px solid rgba(15, 23, 42, 0.1);
+  background: #ffffff;
+  color: var(--pizzaos-color-foreground);
+  font: inherit;
+  line-height: 1.5;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.05);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.noteTextarea::placeholder
+{
+  color: #94a3b8;
+}
+
+.noteTextarea:focus
+{
+  outline: none;
+  border-color: rgba(209, 73, 46, 0.38);
+  box-shadow: 0 0 0 4px rgba(209, 73, 46, 0.12);
+}
+
+/* ── Pairings section ── */
+.pairingsSection
+{
+  padding: 32px 20px;
+  margin-top: 12px;
+  background: #f8fafc;
+  border-top: 1px solid rgba(0, 0, 0, 0.04);
+}
+
+.pairingsTitle
+{
+  margin: 0 0 20px;
+  font-size: 1.2rem;
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  color: var(--pizzaos-color-foreground);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.pairingsTitle::before
+{
+  content: "";
+  display: block;
+  width: 4px;
+  height: 18px;
+  background: var(--pizzaos-color-primary);
+  border-radius: 99px;
+}
+
+.pairingsList
+{
+  display: grid;
+  gap: 12px;
+}
+
+.pairingCard
+{
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 18px;
+  background: white;
+  border-radius: 18px;
+  border: 1px solid rgba(0, 0, 0, 0.04);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02), 0 1px 2px rgba(0, 0, 0, 0.03);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.pairingCard:hover
+{
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.04), 0 2px 4px rgba(0, 0, 0, 0.03);
+  border-color: rgba(209, 73, 46, 0.1);
+}
+
+.pairingInfo
+{
+  min-width: 0;
+  flex: 1;
+}
+
+.pairingName
+{
+  margin: 0;
+  font-weight: 800;
+  font-size: 0.95rem;
+  color: var(--pizzaos-color-foreground);
+  letter-spacing: -0.01em;
+}
+
+.pairingDescription
+{
+  margin: 4px 0 0;
+  font-size: 0.8rem;
+  color: var(--pizzaos-color-foreground-muted);
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.pairingPriceGroup
+{
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.pairingPrice
+{
+  font-weight: 900;
+  font-size: 0.95rem;
+  color: var(--pizzaos-color-foreground);
+  white-space: nowrap;
+}
+
+.pairingAddButton
+{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--pizzaos-color-primary);
+  color: white;
+  border: none;
+  font-size: 1.25rem;
+  font-weight: 400;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(209, 73, 46, 0.25);
+}
+
+.pairingAddButton:hover
+{
+  transform: scale(1.1);
+  filter: brightness(1.1);
+}
+
+.pairingAddButton:active
+{
+  transform: scale(0.9);
+}
+
+/* ── Sticky CTA ── */
+.stickyCtaWrapper
+{
+  position: fixed;
+  bottom: 72px;
+  left: 0;
+  right: 0;
+  z-index: 45;
+  padding: 12px 16px;
+  padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+  background: linear-gradient(
+    to top,
+    rgba(255, 255, 255, 0.98) 60%,
+    rgba(255, 255, 255, 0.85) 85%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  pointer-events: none;
+}
+
+.stickyCtaButton
+{
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  max-width: 520px;
+  margin: 0 auto;
+  height: 56px;
+  padding: 0 24px;
+  background: var(--pizzaos-color-primary);
+  color: white;
+  border: none;
+  border-radius: 16px;
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  cursor: pointer;
+  box-shadow: 0 4px 20px rgba(209, 73, 46, 0.3);
+  transition:
+    transform 0.15s cubic-bezier(0.4, 0, 0.2, 1),
+    filter 0.2s ease,
+    background-color 0.3s ease,
+    box-shadow 0.3s ease;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+
+.stickyCtaButton:hover
+{
+  filter: brightness(1.06);
+}
+
+.stickyCtaButton:active
+{
+  transform: scale(0.97);
+}
+
+.stickyCtaButton:disabled
+{
+  opacity: 0.4;
+  cursor: not-allowed;
+  box-shadow: none;
+  filter: none;
+}
+
+.stickyCtaButton:disabled:active
+{
+  transform: none;
+}
+
+.ctaPrice
+{
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+.ctaPricePulse
+{
+  animation: pricePulse 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes pricePulse
+{
+  0%
+  {
+    transform: scale(1);
+  }
+  50%
+  {
+    transform: scale(1.12);
+  }
+  100%
+  {
+    transform: scale(1);
+  }
+}
+
+.ctaDot
+{
+  opacity: 0.55;
+  font-weight: 600;
+}
+
+.ctaLabel
+{
+  font-weight: 700;
+}
+
+/* ── CTA success flash ── */
+.stickyCtaSuccess
+{
+  background-color: #16a34a;
+  box-shadow: 0 4px 20px rgba(22, 163, 74, 0.35);
+}
+
+/* ── Toast overlay ── */
+.toastOverlay
+{
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 0 16px 32px;
+  background: rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(4px);
+}
+
+.toastCard
+{
+  width: 100%;
+  max-width: 400px;
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 20px 20px 16px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.18);
+  animation: toastSlideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes toastSlideUp
+{
+  from
+  {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to
+  {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.toastTitle
+{
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--pizzaos-color-foreground);
+  margin: 0 0 6px;
+  letter-spacing: -0.02em;
+}
+
+.toastIcon
+{
+  font-size: 1.1rem;
+}
+
+.toastMessage
+{
+  font-size: 0.9rem;
+  color: #64748b;
+  margin: 0 0 16px;
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+.toastActions
+{
+  display: flex;
+  gap: 10px;
+}
+
+.toastLink,
+.toastLinkSecondary
+{
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 16px;
+  border-radius: 12px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+  font-family: inherit;
+  border: none;
+}
+
+.toastLink:active,
+.toastLinkSecondary:active
+{
+  transform: scale(0.97);
+}
+
+.toastLink
+{
+  background: var(--pizzaos-color-primary);
+  color: #ffffff;
+  box-shadow: 0 6px 16px rgba(209, 73, 46, 0.28);
+}
+
+.toastLinkSecondary
+{
+  background: #f1f5f9;
+  color: var(--pizzaos-color-foreground);
+}
+
+/* ── Not found ── */
+.notFound
+{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 24px;
+  text-align: center;
+  gap: 12px;
+}
+
+.notFoundIcon
+{
+  font-size: 3rem;
+  opacity: 0.5;
+}
+
+.notFoundTitle
+{
+  margin: 0;
+  font-size: 1.3rem;
+  font-weight: 800;
+}
+
+.notFoundText
+{
+  margin: 0;
+  color: var(--pizzaos-color-foreground-muted);
+  font-size: 0.9rem;
+  max-width: 260px;
+}
+
+.notFoundLink
+{
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+  padding: 10px 20px;
+  background: var(--pizzaos-color-foreground);
+  color: white;
+  text-decoration: none;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+/* ── Responsive ── */
+@media (min-width: 768px)
+{
+  .screen
+  {
+    max-width: 680px;
+  }
+
+  .optionPillGroup
+  {
+    gap: 16px;
+  }
+
+  .heroTitle
+  {
+    font-size: 2.2rem;
+  }
+}

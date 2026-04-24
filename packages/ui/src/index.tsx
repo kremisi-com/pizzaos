@@ -192,7 +192,18 @@ export function Dialog(props: DialogProps): ReactElement | null
     <div
       role="presentation"
       onClick={props.onClose}
-      style={{ inset: 0, position: "fixed", backgroundColor: "rgba(15, 23, 36, 0.45)", zIndex: 100 }}
+      style={{
+        inset: 0,
+        position: "fixed",
+        backgroundColor: "rgba(0, 0, 0, 0.35)",
+        backdropFilter: "blur(16px)",
+        WebkitBackdropFilter: "blur(16px)",
+        zIndex: 100,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: "20px"
+      }}
     >
       <div
         role="dialog"
@@ -201,37 +212,78 @@ export function Dialog(props: DialogProps): ReactElement | null
         aria-describedby={descriptionId}
         onClick={(e) => e.stopPropagation()}
         style={{
-          width: "min(520px, calc(100vw - 32px))",
-          margin: "10vh auto",
-          borderRadius: "var(--pizzaos-radius-card)",
-          backgroundColor: "var(--pizzaos-color-background)",
-          border: "1px solid var(--pizzaos-color-border)",
-          boxShadow: "var(--pizzaos-elevation-overlay)",
-          padding: "20px",
-          position: "relative"
+          width: "100%",
+          maxWidth: "480px",
+          maxHeight: "85vh",
+          overflowY: "auto",
+          borderRadius: "28px",
+          backgroundColor: "#ffffff",
+          boxShadow: "0 24px 48px -8px rgba(0, 0, 0, 0.18), 0 0 0 1px rgba(0,0,0,0.04)",
+          padding: "32px 28px 28px",
+          position: "relative",
+          animation: "pizzaos-fade-up 0.35s cubic-bezier(0.16, 1, 0.3, 1)"
         }}
       >
-        <button
-          onClick={props.onClose}
-          style={{
-            position: "absolute",
-            top: "16px",
-            right: "16px",
-            background: "none",
-            border: "none",
-            fontSize: "1.5rem",
-            cursor: "pointer",
-            color: "var(--pizzaos-color-foreground-muted)"
-          }}
-          aria-label="Chiudi"
-        >
-          &times;
-        </button>
-        <h2 id={titleId} style={{ marginTop: 0 }}>{props.title}</h2>
-        {props.description ? <p id={descriptionId}>{props.description}</p> : null}
+        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: "16px", marginBottom: "24px" }}>
+          <h2
+            id={titleId}
+            style={{
+              margin: 0,
+              fontSize: "1.25rem",
+              fontWeight: 800,
+              letterSpacing: "-0.025em",
+              lineHeight: 1.2,
+              color: "var(--pizzaos-color-foreground)"
+            }}
+          >
+            {props.title}
+          </h2>
+          <button
+            onClick={props.onClose}
+            className="pizzaos-dialog-close"
+            aria-label="Chiudi"
+          >
+            &times;
+          </button>
+        </div>
+        {props.description ? <p id={descriptionId} style={{ color: "var(--pizzaos-color-foreground-muted)", marginTop: "-12px", marginBottom: "20px", fontSize: "0.875rem" }}>{props.description}</p> : null}
         <div>{props.children}</div>
-        {props.footer ? <footer style={{ marginTop: "20px" }}>{props.footer}</footer> : null}
+        {props.footer ? <footer style={{ marginTop: "28px" }}>{props.footer}</footer> : null}
       </div>
+
+      <style>{`
+        @keyframes pizzaos-fade-up {
+          from { opacity: 0; transform: translateY(16px) scale(0.97); }
+          to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        .pizzaos-dialog-close {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          flex-shrink: 0;
+          width: 32px;
+          height: 32px;
+          background: rgba(0, 0, 0, 0.05);
+          border: none;
+          border-radius: 50%;
+          font-size: 1.25rem;
+          cursor: pointer;
+          color: var(--pizzaos-color-foreground);
+          opacity: 0.55;
+          transition: opacity 0.15s ease, background 0.15s ease, transform 0.15s ease;
+          padding: 0;
+          line-height: 1;
+          margin-top: -2px;
+        }
+        .pizzaos-dialog-close:hover {
+          opacity: 1;
+          background: rgba(0, 0, 0, 0.09);
+          transform: scale(1.05);
+        }
+        .pizzaos-dialog-close:active {
+          transform: scale(0.94);
+        }
+      `}</style>
     </div>
   );
 }
@@ -449,5 +501,99 @@ export function StatusIndicator(props: StatusIndicatorProps): ReactElement
       />
       <span>{props.label}</span>
     </span>
+  );
+}
+
+export interface BottomNavigationItem
+{
+  readonly id: string;
+  readonly label: string;
+  readonly icon: ReactNode;
+  readonly href: string;
+  readonly isProminent?: boolean;
+}
+
+export interface BottomNavigationProps
+{
+  readonly items: readonly BottomNavigationItem[];
+  readonly activeItemId: string;
+  readonly onNavigate?: (href: string) => void;
+}
+
+export function BottomNavigation(props: BottomNavigationProps): ReactElement
+{
+  return (
+    <nav
+      style={{
+        position: "fixed",
+        bottom: 0,
+        left: 0,
+        right: 0,
+        backgroundColor: "var(--pizzaos-color-background)",
+        borderTop: "1px solid var(--pizzaos-color-border)",
+        display: "flex",
+        justifyContent: "space-around",
+        alignItems: "center",
+        padding: "8px 0 calc(8px + env(safe-area-inset-bottom))",
+        zIndex: 50,
+        boxShadow: "0 -4px 12px rgba(0, 0, 0, 0.05)"
+      }}
+    >
+      {props.items.map((item) => {
+        const isActive = item.id === props.activeItemId;
+
+        const baseStyle: React.CSSProperties = {
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          border: "none",
+          background: "none",
+          cursor: "pointer",
+          transition: "all 0.2s ease"
+        };
+
+        if (item.isProminent) {
+          return (
+            <button
+              key={item.id}
+              onClick={() => props.onNavigate?.(item.href)}
+              style={{
+                ...baseStyle,
+                gap: "4px",
+                background: "var(--pizzaos-color-primary)",
+                color: "var(--pizzaos-color-primary-foreground)",
+                width: "64px",
+                height: "64px",
+                borderRadius: "50%",
+                marginTop: "-32px",
+                boxShadow: "0 4px 12px rgba(209, 73, 46, 0.4)",
+                transform: isActive ? "scale(1.1)" : "scale(1)"
+              }}
+            >
+              <span style={{ fontSize: "24px", display: "flex" }}>{item.icon}</span>
+              <span style={{ fontSize: "10px", fontWeight: 700 }}>{item.label}</span>
+            </button>
+          );
+        }
+
+        return (
+          <button
+            key={item.id}
+            onClick={() => props.onNavigate?.(item.href)}
+            style={{
+              ...baseStyle,
+              gap: "4px",
+              color: isActive ? "var(--pizzaos-color-primary)" : "var(--pizzaos-color-foreground-muted)",
+              flex: 1,
+              padding: "8px 0"
+            }}
+          >
+            <span style={{ fontSize: "20px", display: "flex" }}>{item.icon}</span>
+            <span style={{ fontSize: "12px", fontWeight: isActive ? 700 : 500 }}>{item.label}</span>
+          </button>
+        );
+      })}
+    </nav>
   );
 }

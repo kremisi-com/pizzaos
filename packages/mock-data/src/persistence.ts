@@ -3,6 +3,7 @@ import { DEMO_STORAGE_KEY_PREFIX } from "./constants";
 import { createAdminSeed, createClientSeed, createLandingSeed } from "./seeds";
 import type {
   AdminSeed,
+  ClientSeed,
   DemoAppId,
   DemoStateByApp,
   PersistOptions,
@@ -66,6 +67,16 @@ export function recoverPersistedDemoState<AppId extends DemoAppId>(
     if (!hasValidAdminActiveStoreDataset(adminState))
     {
       return createAdminSeed(options.storeId) as DemoStateByApp[AppId];
+    }
+  }
+
+  if (appId === "client")
+  {
+    const clientState = parsedState as Partial<ClientSeed>;
+
+    if (!hasRequiredClientSeedFields(clientState))
+    {
+      return createClientSeed() as DemoStateByApp[AppId];
     }
   }
 
@@ -155,6 +166,21 @@ function hasValidAdminActiveStoreDataset(state: Partial<AdminSeed>): boolean
   const activeStoreDataset = state.datasetsByStoreId[state.activeStoreId];
 
   return hasRequiredAdminStoreDatasetFields(activeStoreDataset);
+}
+
+function hasRequiredClientSeedFields(state: Partial<ClientSeed>): boolean
+{
+  return (
+    isRecord(state.store) &&
+    isRecord(state.menu) &&
+    Array.isArray(state.products) &&
+    Array.isArray(state.slots) &&
+    isRecord(state.loyalty) &&
+    Array.isArray(state.coupons) &&
+    Array.isArray(state.activeOrders) &&
+    Array.isArray(state.orderHistory) &&
+    typeof state.simulationCursorIso === "string"
+  );
 }
 
 function hasRequiredAdminStoreDatasetFields(dataset: unknown): boolean

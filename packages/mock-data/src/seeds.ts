@@ -7,6 +7,7 @@ import {
   DEFAULT_CLIENT_COUPONS,
   DEFAULT_CLIENT_LOYALTY,
   DEFAULT_CLIENT_ORDER_HISTORY,
+  DEFAULT_CLIENT_SLOTS,
   PRODUCTS,
   STORES
 } from "./data";
@@ -40,6 +41,7 @@ export function createClientSeed(): ClientSeed
     products: cloneData(PRODUCTS),
     loyalty: cloneData(DEFAULT_CLIENT_LOYALTY),
     coupons: cloneData(DEFAULT_CLIENT_COUPONS),
+    slots: cloneData(DEFAULT_CLIENT_SLOTS),
     activeOrders: cloneData(DEFAULT_CLIENT_ACTIVE_ORDERS),
     orderHistory: cloneData(DEFAULT_CLIENT_ORDER_HISTORY),
     simulationCursorIso: "2026-03-25T18:42:00.000Z"

@@ -8,13 +8,16 @@ import {
   MENU_STATUS,
   ORDER_STATUS,
   ORDER_STATUS_TRANSITIONS,
+  PREPARATION_MODES,
   PRODUCT_STATUS,
+  SLOT_AVAILABILITY_STATUSES,
   deriveRoutingStation,
   getNextOrderStatuses,
   isOrderStatusTransitionAllowed,
   progressOrderStatus,
   type AppSurface,
-  type Product
+  type Product,
+  type SlotAvailability
 } from "./index";
 
 describe("domain contracts", () =>
@@ -38,11 +41,20 @@ describe("domain contracts", () =>
       "unavailable",
       "sold_out"
     ]);
+    expect(PREPARATION_MODES).toEqual([
+      "cotto",
+      "crudo"
+    ]);
     expect(MENU_STATUS).toEqual([
       "draft",
       "scheduled",
       "active",
       "archived"
+    ]);
+    expect(SLOT_AVAILABILITY_STATUSES).toEqual([
+      "available",
+      "limited",
+      "sold_out"
     ]);
     expect(ORDER_STATUS).toEqual([
       "received",
@@ -90,11 +102,26 @@ describe("domain contracts", () =>
           code: "gluten",
           label: "Glutine"
         }
-      ]
+      ],
+      preparationMode: "cotto"
     };
 
     expect(product.basePrice.amountCents).toBe(1100);
     expect(product.status).toBe("available");
+    expect(product.preparationMode).toBe("cotto");
+  });
+
+  test("accepts slot availability contracts", () =>
+  {
+    const slot: SlotAvailability = {
+      slotId: "slot-1",
+      label: "Oggi, 19:20",
+      status: "limited",
+      etaMinutes: 35
+    };
+
+    expect(slot.status).toBe("limited");
+    expect(slot.etaMinutes).toBe(35);
   });
 });
 
@@ -135,14 +162,14 @@ describe("order status helpers", () =>
 
   describe("deriveRoutingStation", () => {
     test("routes PIZ-* and FOC-* to kitchen", () => {
-      const pizza: any = { sku: "PIZ-MARG-01" };
-      const focaccia: any = { sku: "FOC-ROSM-08" };
+      const pizza = { sku: "PIZ-MARG-01" } as Product;
+      const focaccia = { sku: "FOC-ROSM-08" } as Product;
       expect(deriveRoutingStation(pizza)).toBe("kitchen");
       expect(deriveRoutingStation(focaccia)).toBe("kitchen");
     });
 
     test("routes other items to bar", () => {
-      const drink: any = { sku: "DRINK-COKE-01" };
+      const drink = { sku: "DRINK-COKE-01" } as Product;
       expect(deriveRoutingStation(drink)).toBe("bar");
     });
   });

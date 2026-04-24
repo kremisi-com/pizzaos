@@ -25,6 +25,11 @@ Current exports from `src/index.ts`:
 - `resetStorage(storage)`
 - `resetStorageKeys(storage, keys)`
 - `renderForTest(element)`
+- `renderDom(element)`
+- `cleanupDom()`
+- `domScreen`
+- `domFireEvent`
+- `domWithin`
 - `withFrozenDateNow(isoTimestamp, callback)`
 - `createDeterministicClock(startIso, stepMilliseconds)`
 

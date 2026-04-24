@@ -1,50 +1,316 @@
 "use client";
 
 import { getThemeClass } from "@pizzaos/brand";
+import type { Product } from "@pizzaos/domain";
+import { Button } from "@pizzaos/ui";
+import { useEffect, useState, type ReactElement } from "react";
+import type { ClientSeed } from "@pizzaos/mock-data";
+import { clearCartState, saveCartState } from "../../cart/cart-model";
+import { clearClientFeedbackState } from "../../feedback/feedback-model";
 import {
-  getDemoStateStorageKey,
-  loadDemoState,
-  resetDemoState,
-  type ClientSeed
-} from "@pizzaos/mock-data";
-import { Button, ShellCard } from "@pizzaos/ui";
-import { useState, type ReactElement } from "react";
+  loadClientDemoState,
+  resetClientDemoState,
+} from "../client-demo-state";
+import {
+  clearOrderNotifications,
+  createCartStateFromOrder,
+  deriveLastReorderOrder,
+} from "../../orders/orders-model";
+import styles from "./client-shell.module.css";
 
-const APP_ID = "client" as const;
+const MONEY_FORMATTER = new Intl.NumberFormat("it-IT", {
+  style: "currency",
+  currency: "EUR",
+});
 
-function resolveStorage(): Storage | undefined
-{
-  if (typeof window === "undefined")
-  {
+const SLOT_FORMATTER = new Intl.DateTimeFormat("it-IT", {
+  weekday: "short",
+  day: "2-digit",
+  month: "short",
+  hour: "2-digit",
+  minute: "2-digit",
+});
+
+function resolveStorage(): Storage | undefined {
+  if (typeof window === "undefined") {
     return undefined;
   }
 
   return window.localStorage;
 }
 
-export function ClientShell(): ReactElement
-{
-  const [seed, setSeed] = useState<ClientSeed>(() => loadDemoState(APP_ID, { storage: resolveStorage() }));
+export function ClientShell(): ReactElement {
+  const [seed, setSeed] = useState<ClientSeed>(() => loadClientDemoState());
+  const [isQuickReorderReady, setIsQuickReorderReady] = useState(false);
+  const [isLastOrderExpanded, setIsLastOrderExpanded] = useState(false);
 
-  function handleResetClick(): void
-  {
-    const resetSeed = resetDemoState(APP_ID, { storage: resolveStorage() });
+  useEffect(() => {
+    const storage = resolveStorage();
+    const hydratedSeed = loadClientDemoState(storage);
 
-    setSeed(resetSeed);
+    setSeed(hydratedSeed);
+  }, []);
+
+  function handleResetClick(): void {
+    const storage = resolveStorage();
+
+    clearCartState(storage);
+    clearClientFeedbackState(storage);
+    clearOrderNotifications(storage);
+    setSeed(resetClientDemoState(storage));
+    setIsQuickReorderReady(false);
   }
 
+  function handleOrderLikeLastTime(): void {
+    const storage = resolveStorage();
+    const lastReorderOrder = deriveLastReorderOrder(seed.orderHistory);
+
+    if (!lastReorderOrder) {
+      return;
+    }
+
+    saveCartState(
+      createCartStateFromOrder(lastReorderOrder, seed.products),
+      storage,
+    );
+    setIsQuickReorderReady(true);
+  }
+
+  const activeOrder = seed.activeOrders[0];
+  const latestOrder = deriveLastReorderOrder(seed.orderHistory) ?? activeOrder;
   return (
-    <main className={getThemeClass(seed.surface)}>
-      <h1>{seed.title}</h1>
-      <p>{seed.subtitle}</p>
-      <ShellCard title="Entrata rapida">
-        <p>Home mobile con accesso immediato a riordino e nuovo ordine.</p>
-        <p>Prodotti seed: {seed.products.length}</p>
-        <p>Storage key: {getDemoStateStorageKey(APP_ID)}</p>
-        <Button onClick={handleResetClick} data-testid="client-reset-button" variant="secondary">
-          Reset demo
-        </Button>
-      </ShellCard>
+    <main className={`${getThemeClass(seed.surface)} ${styles.shell}`}>
+      <div className={styles.headerBanner}></div>
+
+      <section className={styles.hero} aria-labelledby="client-home-title">
+        <a
+          className={styles.profileLink}
+          href="/rewards"
+          aria-label="Apri premi e reward"
+          title="Apri premi e reward"
+        >
+          👤
+        </a>
+
+        <h1 id="client-home-title" className={styles.heroTitle}>
+          Pizzeria PizzaOS
+        </h1>
+
+        <div className={styles.heroStatsRow}>
+          <div className={styles.statItem}>
+            <span className={styles.statIcon}>★</span>
+            <span className={styles.ratingText}>
+              4.8 Eccellente <span className={styles.ratingCount}>(500+)</span>
+            </span>
+            <span className={styles.statLink}>›</span>
+          </div>
+          <div className={styles.statItem}>
+            <span className={styles.statIcon}>ⓘ</span>
+            <span>Allergeni e informazioni</span>
+            <span className={styles.statLink}>›</span>
+          </div>
+          <div className={styles.statItem}>
+            <span className={styles.statIcon}>🛵</span>
+            <span>Consegna fra circa 25 min · 1.5 km</span>
+            <span className={styles.statLink}>›</span>
+          </div>
+          <div className={styles.statItem}>
+            <span className={styles.statIcon}>💰</span>
+            <span>
+              Minimo d&apos;ordine: 10,00 € · <strong>Aperto</strong>
+            </span>
+          </div>
+        </div>
+
+        <div className={styles.heroActions}>
+          <a
+            className={styles.primaryActionLink}
+            href="/menu?section=section-creare-pizza"
+          >
+            Voglio creare la mia pizza
+          </a>
+          <a className={styles.secondaryActionLink} href="/group-order">
+            Ordina con i tuoi amici
+          </a>
+        </div>
+      </section>
+
+      {activeOrder ? (
+        <a
+          className={styles.activeOrderStrip}
+          href="/orders"
+          aria-label="Ordine in corso — Segui l'ordine"
+        >
+          <span className={styles.activeOrderAccent} />
+          <span className={styles.activeOrderPulse} />
+          <span className={styles.activeOrderBody}>
+            <span className={styles.activeOrderLabel}>Ordine in corso</span>
+            <span className={styles.activeOrderMeta}>
+              Consegna prevista {formatSlot(activeOrder.scheduledSlot)}
+            </span>
+          </span>
+          <span className={styles.activeOrderCta}>
+            Segui &rarr;
+          </span>
+        </a>
+      ) : null}
+
+      <div className={styles.contentGrid}>
+        {latestOrder && !activeOrder ? (
+          <section className={styles.reorderSection}>
+            <h2 className={styles.sectionTitle}>Bentornato!</h2>
+            <div className={styles.reorderCard}>
+              <div className={styles.reorderInfo}>
+                <p className={styles.reorderTitle}>
+                  Ordina come l&apos;ultima volta
+                </p>
+                <button
+                  type="button"
+                  className={styles.reorderToggle}
+                  aria-expanded={isLastOrderExpanded}
+                  onClick={() => setIsLastOrderExpanded((current) => !current)}
+                >
+                  {isLastOrderExpanded
+                    ? "nascondi ordinazione"
+                    : "mostra ordinazione"}
+                </button>
+                {isLastOrderExpanded ? (
+                  <div
+                    className={`${styles.reorderDetails} ${styles.reorderDetailsExpanded}`}
+                  >
+                    <ul className={styles.reorderDetailsList}>
+                      {latestOrder.lines.map((line) => (
+                        <li
+                          key={`${latestOrder.id}-${line.productId}`}
+                          className={styles.reorderDetailsItem}
+                        >
+                          {formatOrderLine(
+                            line.quantity,
+                            getProductName(line.productId, seed.products),
+                          )}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ) : null}
+              </div>
+              <Button
+                onClick={handleOrderLikeLastTime}
+                data-testid="client-quick-reorder-button"
+                className={styles.reorderButton}
+              >
+                Ripeti
+              </Button>
+            </div>
+            {isQuickReorderReady ? (
+              <div className={styles.quickReorderNotice}>
+                <span>Carrello aggiornato!</span>
+                <a className={styles.cartLink} href="/cart">
+                  Vai al carrello
+                </a>
+              </div>
+            ) : null}
+          </section>
+        ) : null}
+
+        <section className={styles.categoriesSection}>
+          <h2 className={styles.sectionTitle}>Esplora le categorie</h2>
+          <div className={styles.categoryGrid}>
+            <a
+              href="/menu?section=section-classiche"
+              className={styles.categoryTab}
+            >
+              <span className={styles.categoryIcon}>🍕</span>
+              <span className={styles.categoryLabel}>Classiche</span>
+            </a>
+            <a
+              href="/products?section=section-stuzzicherie"
+              className={styles.categoryTab}
+            >
+              <span className={styles.categoryIcon}>🥨</span>
+              <span className={styles.categoryLabel}>Stuzzicherie</span>
+            </a>
+            <a
+              href="/products?section=section-bevande"
+              className={styles.categoryTab}
+            >
+              <span className={styles.categoryIcon}>🥤</span>
+              <span className={styles.categoryLabel}>Bevande</span>
+            </a>
+            <a href="/products?section=section-dolci" className={styles.categoryTab}>
+              <span className={styles.categoryIcon}>🧁</span>
+              <span className={styles.categoryLabel}>Dolci</span>
+            </a>
+          </div>
+        </section>
+
+        <section className={styles.loyaltySection}>
+          <div className={styles.loyaltyCard}>
+            <div className={styles.loyaltyPoints}>
+              <span className={styles.pointsValue}>
+                {seed.loyalty.pointsBalance}
+              </span>
+              <span className={styles.pointsLabel}>Punti</span>
+            </div>
+            <div className={styles.loyaltyPromo}>
+              <p>
+                Hai {seed.coupons.filter((c) => c.status === "active").length}{" "}
+                coupon attivi
+              </p>
+              <a href="/rewards" className={styles.rewardsLink}>
+                Scopri i tuoi vantaggi
+              </a>
+            </div>
+          </div>
+        </section>
+
+        <section className={styles.rewardsActionSection}>
+          <a href="/rewards" className={styles.secondaryActionButton}>
+            I tuoi premi e coupon
+          </a>
+        </section>
+
+        <section className={styles.demoSection}>
+          <Button
+            onClick={handleResetClick}
+            data-testid="client-reset-button"
+            variant="ghost"
+            className={styles.resetButton}
+          >
+            Svuota sessione demo
+          </Button>
+        </section>
+      </div>
     </main>
   );
+}
+
+function formatMoney(amountCents: number): string {
+  return MONEY_FORMATTER.format(amountCents / 100);
+}
+
+function formatSlot(isoTimestamp: string): string {
+  const normalizedValue = isoTimestamp.startsWith("slot-")
+    ? isoTimestamp.replace(/^slot-/, "")
+    : isoTimestamp;
+  const parsedDate = new Date(normalizedValue);
+
+  if (Number.isNaN(parsedDate.getTime())) {
+    return isoTimestamp;
+  }
+
+  return SLOT_FORMATTER.format(parsedDate);
+}
+
+function getProductName(
+  productId: Product["id"],
+  products: readonly Product[],
+): string {
+  return (
+    products.find((product) => product.id === productId)?.name ?? productId
+  );
+}
+
+function formatOrderLine(quantity: number, productName: string): string {
+  return `${quantity}x ${productName}`;
 }

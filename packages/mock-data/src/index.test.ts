@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   APP_SURFACES,
   ORDER_STATUS,
+  SLOT_AVAILABILITY_STATUSES,
   getNextOrderStatuses
 } from "@pizzaos/domain";
 import {
@@ -70,10 +71,58 @@ describe("seed factories", () =>
       expect(ORDER_STATUS).toContain(order.status);
     }
 
+    for (const slot of clientSeed.slots)
+    {
+      expect(SLOT_AVAILABILITY_STATUSES).toContain(slot.status);
+    }
+
     for (const storeId of ADMIN_STORE_IDS)
     {
       expect(adminSeed.datasetsByStoreId[storeId]).toBeDefined();
     }
+  });
+
+  it("provides deterministic client slots and browse edge cases", () =>
+  {
+    const clientSeed = createClientSeed();
+    const rosemaryFocaccia = clientSeed.products.find(
+      (product) => product.id === "product-focaccia-rosmarino"
+    );
+
+    expect(clientSeed.slots).toEqual([
+      {
+        slotId: "slot-2026-03-25T19:10",
+        label: "Oggi, 19:10",
+        status: "available",
+        etaMinutes: 25
+      },
+      {
+        slotId: "slot-2026-03-25T19:30",
+        label: "Oggi, 19:30",
+        status: "limited",
+        etaMinutes: 40
+      },
+      {
+        slotId: "slot-2026-03-25T19:50",
+        label: "Oggi, 19:50",
+        status: "sold_out",
+        etaMinutes: 55
+      },
+      {
+        slotId: "slot-2026-03-25T20:10",
+        label: "Oggi, 20:10",
+        status: "available",
+        etaMinutes: 70
+      }
+    ]);
+    expect(rosemaryFocaccia?.status).toBe("sold_out");
+    expect(clientSeed.products.some((product) => product.status === "sold_out")).toBe(true);
+    expect(clientSeed.products.some((product) => product.preparationMode === "crudo")).toBe(true);
+    expect(clientSeed.orderHistory.map((order) => order.id)).toEqual([
+      "order-client-history-001",
+      "order-client-history-002",
+      "order-client-history-003"
+    ]);
   });
 });
 
@@ -154,6 +203,20 @@ describe("reset, reseed, and recovery", () =>
     expect(recovered).toEqual(createLandingSeed());
   });
 
+  it("recovers client state when persisted payload is from the previous schema", () =>
+  {
+    const recovered = recoverPersistedDemoState("client", {
+      surface: "client",
+      title: "PizzaOS Client",
+      subtitle: "Schema precedente",
+      store: { id: "store-roma-centro" },
+      menu: {},
+      products: []
+    });
+
+    expect(recovered).toEqual(createClientSeed());
+  });
+
   it("recovers admin state when persisted payload has malformed datasets or active store id", () =>
   {
     const adminSeed = createAdminSeed();
@@ -195,9 +258,16 @@ describe("order simulation", () =>
   it("deterministically progresses order statuses based on explicit time", () =>
   {
     const clientSeed = createClientSeed();
+    const simulatedOrder = {
+      ...clientSeed.orderHistory[0],
+      id: "order-client-active-001",
+      status: "confirmed" as const,
+      createdAtIso: "2026-03-25T18:40:00.000Z",
+      updatedAtIso: "2026-03-25T18:42:00.000Z"
+    };
 
     const initialState = {
-      orders: clientSeed.activeOrders,
+      orders: [simulatedOrder],
       simulationCursorIso: clientSeed.simulationCursorIso
     };
 
@@ -222,9 +292,16 @@ describe("order simulation", () =>
   it("is deterministic for same input state and timestamp", () =>
   {
     const clientSeed = createClientSeed();
+    const simulatedOrder = {
+      ...clientSeed.orderHistory[0],
+      id: "order-client-active-001",
+      status: "confirmed" as const,
+      createdAtIso: "2026-03-25T18:40:00.000Z",
+      updatedAtIso: "2026-03-25T18:42:00.000Z"
+    };
 
     const state = {
-      orders: clientSeed.activeOrders,
+      orders: [simulatedOrder],
       simulationCursorIso: clientSeed.simulationCursorIso
     };
 

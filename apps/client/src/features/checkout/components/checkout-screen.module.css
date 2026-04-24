@@ -1,0 +1,607 @@
+/* ── Screen container ── */
+.screen
+{
+  min-height: 100dvh;
+  margin: 0 auto;
+  padding: 0 0 160px;
+  max-width: 520px;
+  width: 100%;
+  background: var(--pizzaos-color-background);
+  background-image:
+    radial-gradient(circle at top right, rgba(209, 73, 46, 0.06), transparent 40%),
+    radial-gradient(circle at bottom left, rgba(238, 248, 255, 0.5), transparent 50%);
+  overflow-x: hidden;
+}
+
+@keyframes confirmFadeUp
+{
+  from
+  {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+
+  to
+  {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ── Hero section ── */
+.hero,
+.confirmationHero
+{
+  padding: 32px 20px 24px;
+  animation: confirmFadeUp 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.heroTopRow
+{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.backLink
+{
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  text-decoration: none;
+  color: var(--pizzaos-color-foreground);
+  font-weight: 700;
+  font-size: 0.9rem;
+  padding: 6px 12px 6px 8px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  transition: background 0.2s ease;
+}
+
+.backLink:hover
+{
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.heroTitle
+{
+  margin: 0 0 8px;
+  font-size: 1.8rem;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+  font-weight: var(--pizzaos-font-weight-heading, 800);
+}
+
+.heroCopy
+{
+  margin: 0;
+  color: var(--pizzaos-color-foreground-muted);
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+/* ── Form ── */
+.form
+{
+  display: grid;
+  gap: 0;
+  border-top: 1px solid var(--pizzaos-color-border);
+}
+
+/* ── Section ── */
+.section
+{
+  padding: 24px 20px;
+  border-bottom: 1px solid var(--pizzaos-color-border);
+}
+
+.sectionTitle
+{
+  margin: 0 0 16px;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--pizzaos-color-foreground-muted);
+}
+
+/* ── Slot options ── */
+.slotList
+{
+  display: grid;
+  gap: 8px;
+}
+
+.slotOption
+{
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  border: 1.5px solid rgba(31, 37, 48, 0.1);
+  background: rgba(255, 255, 255, 0.9);
+  cursor: pointer;
+  transition: border-color 0.18s ease, background 0.18s ease;
+}
+
+.slotOption:hover:not(.slotOptionDisabled)
+{
+  border-color: rgba(209, 73, 46, 0.3);
+  background: #fff;
+}
+
+.slotOptionActive
+{
+  border-color: rgba(209, 73, 46, 0.55) !important;
+  background: linear-gradient(120deg, rgba(209, 73, 46, 0.07), rgba(255, 255, 255, 0.98)) !important;
+}
+
+.slotOptionDisabled
+{
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.slotLabel
+{
+  margin: 0 0 2px;
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+.slotMeta
+{
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--pizzaos-color-foreground-muted);
+}
+
+/* ── Tip buttons ── */
+.tipRow
+{
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.tipOption
+{
+  min-height: 44px;
+  border-radius: 12px;
+  border: 1.5px solid rgba(31, 37, 48, 0.1);
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--pizzaos-color-foreground);
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: border-color 0.18s ease, background 0.18s ease, transform 0.12s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.tipOption:hover
+{
+  border-color: rgba(209, 73, 46, 0.3);
+  background: #fff;
+}
+
+.tipOption:active
+{
+  transform: scale(0.95);
+}
+
+.tipOptionActive
+{
+  border-color: rgba(209, 73, 46, 0.55);
+  background: rgba(209, 73, 46, 0.1);
+  color: var(--pizzaos-color-foreground);
+}
+
+/* ── Coupon ── */
+.couponStack
+{
+  display: grid;
+  gap: 12px;
+}
+
+.fieldLabel
+{
+  display: block;
+  font-size: 0.82rem;
+  font-weight: 700;
+  margin-bottom: 6px;
+  color: var(--pizzaos-color-foreground-muted);
+  letter-spacing: 0.02em;
+}
+
+.couponInputRow
+{
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px;
+}
+
+.textInput
+{
+  min-height: 44px;
+  border-radius: 12px;
+  border: 1.5px solid rgba(31, 37, 48, 0.12);
+  padding: 0 14px;
+  color: var(--pizzaos-color-foreground);
+  font-size: 0.95rem;
+  background: rgba(255, 255, 255, 0.9);
+  font-family: inherit;
+  transition: border-color 0.18s ease;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.textInput:focus
+{
+  outline: none;
+  border-color: rgba(209, 73, 46, 0.5);
+}
+
+.couponFeedback
+{
+  margin: 0;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--pizzaos-color-foreground-muted);
+}
+
+.appliedCouponRow
+{
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.metaCopy
+{
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--pizzaos-color-foreground-muted);
+}
+
+.secondaryLink
+{
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--pizzaos-color-foreground);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  transition: opacity 0.15s ease;
+}
+
+.secondaryLink:hover
+{
+  opacity: 0.7;
+}
+
+/* ── Payment ── */
+.paymentStack
+{
+  display: grid;
+  gap: 10px;
+}
+
+.paymentMethod
+{
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  border: 1.5px solid rgba(31, 37, 48, 0.1);
+  background: rgba(255, 255, 255, 0.9);
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.95rem;
+  transition: border-color 0.18s ease, background 0.18s ease;
+}
+
+.paymentMethod:has(input:checked)
+{
+  border-color: rgba(209, 73, 46, 0.55);
+  background: rgba(209, 73, 46, 0.06);
+}
+
+.cardFields
+{
+  display: grid;
+  gap: 14px;
+  margin-top: 8px;
+}
+
+/* ── Summary grid ── */
+.summaryGrid
+{
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 12px 16px;
+  padding: 16px 18px;
+  margin-bottom: 16px;
+  background: rgba(255, 255, 255, 0.72);
+  border-radius: 18px;
+}
+
+.summaryGrid p
+{
+  margin: 0;
+  font-size: 0.92rem;
+  color: var(--pizzaos-color-foreground-muted);
+}
+
+.summaryGrid p:nth-child(even)
+{
+  text-align: right;
+  font-weight: 600;
+  color: var(--pizzaos-color-foreground);
+}
+
+.summaryTotalLabel
+{
+  font-weight: 700 !important;
+  font-size: 1rem !important;
+  color: var(--pizzaos-color-foreground) !important;
+}
+
+.summaryTotalValue
+{
+  font-weight: 900 !important;
+  font-size: 1.35rem !important;
+  letter-spacing: -0.02em !important;
+  color: var(--pizzaos-color-foreground) !important;
+  text-align: right !important;
+}
+
+/* ── Submit ── */
+.submitRow
+{
+  margin-top: 8px;
+}
+
+.submitRow button
+{
+  width: 100%;
+  height: 56px;
+  border-radius: 16px;
+  font-size: 1rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  box-shadow: 0 4px 20px rgba(209, 73, 46, 0.3);
+  transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1), filter 0.2s ease, box-shadow 0.3s ease;
+}
+
+.submitRow button:hover:not(:disabled)
+{
+  filter: brightness(1.06);
+}
+
+.submitRow button:active:not(:disabled)
+{
+  transform: scale(0.97);
+}
+
+/* ── Errors ── */
+.errorMessage
+{
+  margin: 8px 0 0;
+  color: #9f1239;
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+/* ── Confirmation state ── */
+.confirmationIconWrap
+{
+  width: 56px;
+  height: 56px;
+  margin-bottom: 20px;
+  color: #22a861;
+  animation: confirmFadeUp 0.5s cubic-bezier(0.22, 1, 0.36, 1) 0.05s both;
+}
+
+.confirmationIcon
+{
+  width: 100%;
+  height: 100%;
+}
+
+.confirmationPill
+{
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: rgba(34, 168, 97, 0.12);
+  color: #16803c;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin-bottom: 14px;
+}
+
+.confirmationList
+{
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0;
+}
+
+.confirmationRow
+{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 13px 0;
+  border-bottom: 1px solid var(--pizzaos-color-border);
+}
+
+.confirmationRow:last-child
+{
+  border-bottom: none;
+}
+
+.confirmationRow dt
+{
+  font-size: 0.92rem;
+  color: var(--pizzaos-color-foreground-muted);
+  margin: 0;
+}
+
+.confirmationRow dd
+{
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--pizzaos-color-foreground);
+  margin: 0;
+  text-align: right;
+}
+
+.confirmationPointsBadge
+{
+  color: #b45309 !important;
+  background: rgba(251, 191, 36, 0.12);
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 0.82rem !important;
+  font-weight: 800 !important;
+}
+
+.confirmationTotalRow
+{
+  padding-top: 16px !important;
+  border-bottom: none !important;
+  margin-top: 4px;
+}
+
+.confirmationTotalRow dt
+{
+  font-size: 1rem !important;
+  font-weight: 800 !important;
+  color: var(--pizzaos-color-foreground) !important;
+}
+
+.confirmationTotalRow dd
+{
+  font-size: 1.6rem !important;
+  font-weight: 900 !important;
+  letter-spacing: -0.03em !important;
+  color: var(--pizzaos-color-foreground) !important;
+}
+
+.confirmationActions
+{
+  display: grid;
+  gap: 10px;
+  padding: 24px 20px 32px;
+  animation: confirmFadeUp 0.5s cubic-bezier(0.22, 1, 0.36, 1) 0.12s both;
+}
+
+.primaryLink
+{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  height: 56px;
+  padding: 0 24px;
+  background: var(--pizzaos-color-primary);
+  color: white;
+  border: none;
+  border-radius: 16px;
+  text-decoration: none;
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  cursor: pointer;
+  box-shadow: 0 4px 20px rgba(209, 73, 46, 0.28);
+  transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1), filter 0.2s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.primaryLink:hover
+{
+  filter: brightness(1.06);
+}
+
+.primaryLink:active
+{
+  transform: scale(0.97);
+}
+
+.outlineLink
+{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 52px;
+  padding: 0 24px;
+  background: transparent;
+  color: var(--pizzaos-color-foreground);
+  border: 1.5px solid rgba(31, 37, 48, 0.14);
+  border-radius: 16px;
+  text-decoration: none;
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  cursor: pointer;
+  transition: border-color 0.18s ease, background 0.18s ease, transform 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.outlineLink:hover
+{
+  border-color: rgba(209, 73, 46, 0.3);
+  background: rgba(209, 73, 46, 0.04);
+}
+
+.outlineLink:active
+{
+  transform: scale(0.98);
+}
+
+.tertiaryLinks
+{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding-top: 4px;
+}
+
+.dot
+{
+  color: var(--pizzaos-color-foreground-muted);
+  font-size: 1.1rem;
+  user-select: none;
+}
+
+
+/* ── Responsive ── */
+@media (min-width: 768px)
+{
+  .screen
+  {
+    max-width: 680px;
+  }
+
+  .heroTitle
+  {
+    font-size: 2.2rem;
+  }
+}
