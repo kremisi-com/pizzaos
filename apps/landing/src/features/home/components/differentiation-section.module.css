@@ -1,0 +1,143 @@
+.section {
+  padding-block: var(--section-pad-desktop);
+  background-color: var(--color-bg-soft);
+}
+
+.inner {
+  width: 100%;
+  max-width: var(--max-width);
+  margin-inline: auto;
+  padding-inline: var(--page-gutter);
+}
+
+.header {
+  text-align: center;
+  max-width: 640px;
+  margin-inline: auto;
+  margin-bottom: 72px;
+}
+
+.eyebrow {
+  display: inline-block;
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-brand-red);
+  margin-bottom: 16px;
+}
+
+.title {
+  font-family: var(--font-heading);
+  font-size: var(--font-size-h2);
+  font-weight: 800;
+  line-height: 1.0;
+  letter-spacing: -0.03em;
+  color: var(--color-dark);
+  margin-bottom: 16px;
+}
+
+.description {
+  font-size: 18px;
+  color: var(--color-muted);
+  line-height: 1.5;
+}
+
+/* Comparison table */
+.table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  background-color: var(--color-white);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  border: 1px solid var(--color-border);
+  overflow: hidden;
+}
+
+.tableHead {
+  background-color: var(--color-dark);
+}
+
+.tableHead th {
+  padding: 20px 28px;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-align: left;
+}
+
+.tableHead th:first-child {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.tableHead th:nth-child(2) {
+  color: rgba(255, 255, 255, 0.7);
+  text-align: center;
+}
+
+.tableHead th:last-child {
+  color: var(--color-white);
+  text-align: center;
+}
+
+.colHeaderPizzaos {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.colHeaderBadge {
+  background-color: var(--color-brand-red);
+  color: white;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.tableRow {
+  border-top: 1px solid var(--color-border);
+}
+
+.tableRow td {
+  padding: 18px 28px;
+  font-size: 15px;
+  vertical-align: middle;
+}
+
+.featureLabel {
+  color: var(--color-dark);
+  font-weight: 500;
+}
+
+.check {
+  text-align: center;
+  font-size: 18px;
+}
+
+.yes {
+  color: var(--color-success);
+}
+
+.no {
+  color: var(--color-muted);
+  opacity: 0.4;
+}
+
+@media (max-width: 768px) {
+  .section {
+    padding-block: var(--section-pad-mobile);
+  }
+
+  .table {
+    font-size: 13px;
+    border-radius: 16px;
+  }
+
+  .tableHead th,
+  .tableRow td {
+    padding: 14px 16px;
+  }
+}

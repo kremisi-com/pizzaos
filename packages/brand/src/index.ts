@@ -67,17 +67,17 @@ const BASE_THEME_TOKENS: Omit<SurfaceThemeTokens, "color" | "type"> = {
     sectionGap: "24px"
   },
   radius: {
-    card: "16px",
-    control: "10px"
+    card: "24px",
+    control: "16px"
   },
   motion: {
-    durationFast: "140ms",
+    durationFast: "220ms",
     durationSlow: "320ms",
-    easeStandard: "cubic-bezier(0.2, 0, 0, 1)"
+    easeStandard: "cubic-bezier(0.22, 1, 0.36, 1)"
   },
   elevation: {
-    card: "0 12px 28px -16px rgba(15, 23, 36, 0.32)",
-    overlay: "0 20px 60px -24px rgba(15, 23, 36, 0.42)"
+    card: "0 10px 30px rgba(0, 0, 0, 0.06)",
+    overlay: "0 25px 60px rgba(0, 0, 0, 0.12)"
   }
 };
 
@@ -85,18 +85,18 @@ export const SURFACE_THEME_TOKENS: Record<AppSurface, SurfaceThemeTokens> = {
   landing: {
     ...BASE_THEME_TOKENS,
     color: {
-      background: "#fff6ea",
-      backgroundAccent: "#f7f8ff",
-      foreground: "#1f1f1f",
-      foregroundMuted: "#454f5b",
-      border: "rgba(31, 31, 31, 0.18)",
-      primary: "#b5431f",
-      primaryForeground: "#fff7ef"
+      background: "#FAF8F6",
+      backgroundAccent: "#FFFFFF",
+      foreground: "#111111",
+      foregroundMuted: "#5F6368",
+      border: "#EAE7E4",
+      primary: "#F43A26",
+      primaryForeground: "#FFFFFF"
     },
     type: {
-      family: "\"Avenir Next\", \"Segoe UI\", sans-serif",
-      headingWeight: "650",
-      bodyWeight: "450"
+      family: "\"Inter Tight\", \"Inter\", \"Segoe UI\", sans-serif",
+      headingWeight: "800",
+      bodyWeight: "400"
     }
   },
   client: {

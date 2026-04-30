@@ -2,11 +2,11 @@
 
 ## Checklist
 
-- [ ] Step 1: Build the landing shell, content model, and responsive layout foundation.
-- [ ] Step 2: Implement the hero section and primary CTA behaviors.
-- [ ] Step 3: Implement the advanced ordering and marketing story sections.
-- [ ] Step 4: Implement delivery, analytics, operations, ecosystem, and differentiation sections.
-- [ ] Step 5: Add motion, responsive polish, form states, and landing smoke coverage.
+- [x] Step 1: Build the landing shell, content model, and responsive layout foundation.
+- [x] Step 2: Implement the hero section and primary CTA behaviors.
+- [x] Step 3: Implement the advanced ordering and marketing story sections.
+- [x] Step 4: Implement delivery, analytics, operations, ecosystem, and differentiation sections.
+- [x] Step 5: Add motion, responsive polish, form states, and landing smoke coverage.
 
 ## Step 1: Build the landing shell, content model, and responsive layout foundation
 

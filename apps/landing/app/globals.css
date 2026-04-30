@@ -1,38 +1,675 @@
-html,
-body
-{
+/* ==========================================================================
+   PizzaOS Landing – Global Design System
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. Google Fonts Import
+   -------------------------------------------------------------------------- */
+@import url("https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap");
+
+/* --------------------------------------------------------------------------
+   2. Design Tokens (CSS Custom Properties)
+      These extend the surface tokens injected via getThemeStyleVariables().
+   -------------------------------------------------------------------------- */
+:root {
+  /* ── Color palette ── */
+  --color-brand-red: #f43a26;
+  --color-brand-red-dark: #d42e1b;
+  --color-brand-red-light: #ff5a44;
+  --color-brand-red-subtle: rgba(244, 58, 38, 0.08);
+
+  --color-dark: #111111;
+  --color-muted: #5f6368;
+  --color-bg-soft: #faf8f6;
+  --color-white: #ffffff;
+  --color-border: #eae7e4;
+  --color-border-strong: #d4d0cc;
+
+  --color-success: #19b36b;
+  --color-warning: #f59e0b;
+  --color-success-subtle: rgba(25, 179, 107, 0.1);
+
+  /* ── Typography ── */
+  --font-heading: "Inter Tight", "Inter", "Segoe UI", sans-serif;
+  --font-body: "Inter", "Segoe UI", sans-serif;
+
+  --font-size-h1: clamp(48px, 7vw, 92px);
+  --font-size-h2: clamp(34px, 5vw, 58px);
+  --font-size-h3: 28px;
+  --font-size-body-lg: 22px;
+  --font-size-body: 18px;
+  --font-size-sm: 14px;
+  --font-size-xs: 12px;
+
+  --font-weight-black: 900;
+  --font-weight-extrabold: 800;
+  --font-weight-bold: 700;
+  --font-weight-semibold: 600;
+  --font-weight-medium: 500;
+  --font-weight-regular: 400;
+
+  --line-height-tight: 0.95;
+  --line-height-snug: 1.1;
+  --line-height-normal: 1.4;
+  --line-height-relaxed: 1.6;
+
+  --letter-spacing-tight: -0.04em;
+  --letter-spacing-snug: -0.02em;
+  --letter-spacing-normal: 0;
+  --letter-spacing-wide: 0.06em;
+  --letter-spacing-wider: 0.1em;
+
+  /* ── Layout ── */
+  --max-width: 1280px;
+  --section-pad-desktop: 120px;
+  --section-pad-tablet: 80px;
+  --section-pad-mobile: 56px;
+
+  --page-gutter: clamp(20px, 5vw, 80px);
+
+  /* ── Border radius ── */
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-btn: 16px;
+  --radius-card: 24px;
+  --radius-mockup: 32px;
+  --radius-full: 9999px;
+
+  /* ── Shadows ── */
+  --shadow-card: 0 10px 30px rgba(0, 0, 0, 0.06);
+  --shadow-card-hover: 0 20px 40px rgba(0, 0, 0, 0.1);
+  --shadow-device: 0 25px 60px rgba(0, 0, 0, 0.12);
+  --shadow-btn-primary: 0 4px 14px rgba(244, 58, 38, 0.35);
+  --shadow-btn-primary-hover: 0 6px 20px rgba(244, 58, 38, 0.45);
+
+  /* ── Motion ── */
+  --duration-fast: 220ms;
+  --duration-base: 320ms;
+  --duration-slow: 500ms;
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --ease-out: cubic-bezier(0, 0, 0.2, 1);
+
+  /* ── Z-index scale ── */
+  --z-base: 0;
+  --z-sticky: 100;
+  --z-modal-backdrop: 200;
+  --z-modal: 300;
+  --z-toast: 400;
+}
+
+/* --------------------------------------------------------------------------
+   3. Reset & Base
+   -------------------------------------------------------------------------- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
   margin: 0;
   padding: 0;
-  font-family: var(--pizzaos-font-family);
-  color: var(--pizzaos-color-foreground);
-  background: linear-gradient(
-    160deg,
-    var(--pizzaos-color-background) 0%,
-    var(--pizzaos-color-background-accent) 100%
-  );
 }
 
-body
-{
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+  font-size: 16px;
+}
+
+body {
+  font-family: var(--font-body);
+  font-weight: var(--font-weight-regular);
+  color: var(--color-dark);
+  background-color: var(--color-bg-soft);
+  line-height: var(--line-height-relaxed);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
   min-height: 100vh;
+  overflow-x: hidden;
 }
 
+img,
+video,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+ul,
+ol {
+  list-style: none;
+}
+
+button {
+  font: inherit;
+  cursor: pointer;
+  border: none;
+  background: none;
+}
+
+/* --------------------------------------------------------------------------
+   4. Typography System
+   -------------------------------------------------------------------------- */
+
+/* Headings */
 h1,
 h2,
-h3
-{
-  font-weight: var(--pizzaos-font-weight-heading);
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-heading);
+  font-weight: var(--font-weight-extrabold);
+  line-height: var(--line-height-tight);
+  letter-spacing: var(--letter-spacing-tight);
+  color: var(--color-dark);
 }
 
-p
-{
-  font-weight: var(--pizzaos-font-weight-body);
-  color: var(--pizzaos-color-foreground-muted);
+h1 {
+  font-size: var(--font-size-h1);
+  font-weight: var(--font-weight-black);
 }
 
-main
-{
-  max-width: 880px;
-  margin: 0 auto;
-  padding: var(--pizzaos-spacing-page-y) var(--pizzaos-spacing-page-x);
+h2 {
+  font-size: var(--font-size-h2);
+  font-weight: 750;
+}
+
+h3 {
+  font-size: var(--font-size-h3);
+  letter-spacing: var(--letter-spacing-snug);
+}
+
+p {
+  font-family: var(--font-body);
+  color: var(--color-muted);
+  line-height: var(--line-height-relaxed);
+}
+
+/* Utility typography classes */
+.text-eyebrow {
+  font-family: var(--font-body);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: var(--letter-spacing-wider);
+  text-transform: uppercase;
+  color: var(--color-brand-red);
+}
+
+.text-hero {
+  font-size: var(--font-size-h1);
+  font-weight: var(--font-weight-black);
+  line-height: var(--line-height-tight);
+  letter-spacing: var(--letter-spacing-tight);
+  font-family: var(--font-heading);
+  color: var(--color-dark);
+}
+
+.text-h2 {
+  font-size: var(--font-size-h2);
+  font-weight: 750;
+  line-height: var(--line-height-tight);
+  letter-spacing: var(--letter-spacing-tight);
+  font-family: var(--font-heading);
+  color: var(--color-dark);
+}
+
+.text-body-lg {
+  font-size: var(--font-size-body-lg);
+  line-height: var(--line-height-normal);
+  color: var(--color-muted);
+}
+
+.text-body {
+  font-size: var(--font-size-body);
+  line-height: var(--line-height-relaxed);
+  color: var(--color-muted);
+}
+
+.text-sm {
+  font-size: var(--font-size-sm);
+}
+
+.text-red {
+  color: var(--color-brand-red);
+}
+
+.text-dark {
+  color: var(--color-dark);
+}
+
+/* --------------------------------------------------------------------------
+   5. Button System
+   -------------------------------------------------------------------------- */
+
+/* Primary CTA */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0 28px;
+  height: 56px;
+  background-color: var(--color-brand-red);
+  color: var(--color-white);
+  font-family: var(--font-body);
+  font-size: var(--font-size-body);
+  font-weight: var(--font-weight-bold);
+  line-height: 1;
+  border-radius: var(--radius-btn);
+  box-shadow: var(--shadow-btn-primary);
+  transition:
+    transform var(--duration-fast) var(--ease),
+    box-shadow var(--duration-fast) var(--ease),
+    background-color var(--duration-fast) var(--ease);
+  white-space: nowrap;
+  user-select: none;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-btn-primary-hover);
+  background-color: var(--color-brand-red-dark);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+  box-shadow: var(--shadow-btn-primary);
+}
+
+.btn-primary:focus-visible {
+  outline: 2px solid var(--color-brand-red);
+  outline-offset: 3px;
+}
+
+/* Secondary CTA */
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0 28px;
+  height: 56px;
+  background-color: var(--color-white);
+  color: var(--color-dark);
+  font-family: var(--font-body);
+  font-size: var(--font-size-body);
+  font-weight: var(--font-weight-semibold);
+  line-height: 1;
+  border-radius: var(--radius-btn);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-card);
+  transition:
+    transform var(--duration-fast) var(--ease),
+    box-shadow var(--duration-fast) var(--ease),
+    border-color var(--duration-fast) var(--ease);
+  white-space: nowrap;
+  user-select: none;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.btn-secondary:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-card-hover);
+  border-color: var(--color-border-strong);
+}
+
+.btn-secondary:active {
+  transform: translateY(0);
+}
+
+.btn-secondary:focus-visible {
+  outline: 2px solid var(--color-dark);
+  outline-offset: 3px;
+}
+
+/* Ghost link button */
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--font-size-body);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-muted);
+  text-decoration: none;
+  transition: color var(--duration-fast) var(--ease);
+}
+
+.btn-ghost:hover {
+  color: var(--color-dark);
+}
+
+/* --------------------------------------------------------------------------
+   6. Layout Utilities
+   -------------------------------------------------------------------------- */
+
+.container {
+  width: 100%;
+  max-width: var(--max-width);
+  margin-inline: auto;
+  padding-inline: var(--page-gutter);
+}
+
+.section {
+  padding-block: var(--section-pad-desktop);
+}
+
+.section--white {
+  background-color: var(--color-white);
+}
+
+.section--beige {
+  background-color: var(--color-bg-soft);
+}
+
+.section--dark {
+  background-color: var(--color-dark);
+  color: var(--color-white);
+}
+
+.section--dark h2,
+.section--dark h3,
+.section--dark h1 {
+  color: var(--color-white);
+}
+
+.section--dark p {
+  color: rgba(255, 255, 255, 0.65);
+}
+
+/* Grid */
+.grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 32px;
+}
+
+.grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+.grid-4 {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+}
+
+.grid-12 {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 24px;
+}
+
+/* Flex utilities */
+.flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.flex-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.flex-col {
+  display: flex;
+  flex-direction: column;
+}
+
+/* --------------------------------------------------------------------------
+   7. Card System
+   -------------------------------------------------------------------------- */
+
+.card {
+  background-color: var(--color-white);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  border: 1px solid var(--color-border);
+  padding: 32px;
+  transition:
+    transform var(--duration-fast) var(--ease),
+    box-shadow var(--duration-fast) var(--ease);
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-card-hover);
+}
+
+.card--compact {
+  padding: 24px;
+}
+
+.card--flat {
+  box-shadow: none;
+  border: 1px solid var(--color-border);
+}
+
+.card--accent {
+  background-color: var(--color-brand-red-subtle);
+  border-color: rgba(244, 58, 38, 0.2);
+}
+
+/* --------------------------------------------------------------------------
+   8. Section Header Pattern
+   -------------------------------------------------------------------------- */
+
+.section-header {
+  text-align: center;
+  max-width: 720px;
+  margin-inline: auto;
+  margin-bottom: 72px;
+}
+
+.section-header--left {
+  text-align: left;
+  margin-inline: 0;
+}
+
+.section-header__eyebrow {
+  display: inline-block;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: var(--letter-spacing-wider);
+  text-transform: uppercase;
+  color: var(--color-brand-red);
+  margin-bottom: 16px;
+}
+
+.section-header__title {
+  font-size: var(--font-size-h2);
+  font-weight: 750;
+  line-height: var(--line-height-tight);
+  letter-spacing: var(--letter-spacing-tight);
+  font-family: var(--font-heading);
+  color: var(--color-dark);
+  margin-bottom: 20px;
+}
+
+.section-header__description {
+  font-size: var(--font-size-body-lg);
+  line-height: var(--line-height-normal);
+  color: var(--color-muted);
+}
+
+/* --------------------------------------------------------------------------
+   9. KPI / Stat Block
+   -------------------------------------------------------------------------- */
+
+.kpi-value {
+  font-family: var(--font-heading);
+  font-size: clamp(40px, 5vw, 72px);
+  font-weight: var(--font-weight-black);
+  letter-spacing: var(--letter-spacing-tight);
+  color: var(--color-dark);
+  line-height: 1;
+}
+
+.kpi-label {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-muted);
+  margin-top: 8px;
+}
+
+/* --------------------------------------------------------------------------
+   10. Badge / Tag
+   -------------------------------------------------------------------------- */
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 12px;
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.badge--red {
+  background-color: var(--color-brand-red-subtle);
+  color: var(--color-brand-red);
+}
+
+.badge--success {
+  background-color: var(--color-success-subtle);
+  color: var(--color-success);
+}
+
+.badge--neutral {
+  background-color: rgba(17, 17, 17, 0.06);
+  color: var(--color-dark);
+}
+
+/* --------------------------------------------------------------------------
+   11. Dividers
+   -------------------------------------------------------------------------- */
+
+.divider {
+  height: 1px;
+  background-color: var(--color-border);
+  border: none;
+}
+
+/* --------------------------------------------------------------------------
+   12. Animation Utilities
+   -------------------------------------------------------------------------- */
+
+/* Fade up — used with JS IntersectionObserver */
+.animate-fade-up {
+  opacity: 0;
+  transform: translateY(24px);
+  transition:
+    opacity var(--duration-base) var(--ease),
+    transform var(--duration-base) var(--ease);
+}
+
+.animate-fade-up.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Stagger children delay helpers */
+.stagger-1 { transition-delay: 0ms; }
+.stagger-2 { transition-delay: 80ms; }
+.stagger-3 { transition-delay: 160ms; }
+.stagger-4 { transition-delay: 240ms; }
+.stagger-5 { transition-delay: 320ms; }
+.stagger-6 { transition-delay: 400ms; }
+
+/* Hover lift */
+.hover-lift {
+  transition: transform var(--duration-fast) var(--ease);
+}
+
+.hover-lift:hover {
+  transform: translateY(-4px);
+}
+
+/* --------------------------------------------------------------------------
+   13. Responsive Breakpoints
+   -------------------------------------------------------------------------- */
+
+/* Tablet: ≤ 1024px */
+@media (max-width: 1024px) {
+  .section {
+    padding-block: var(--section-pad-tablet);
+  }
+
+  .section-header {
+    margin-bottom: 56px;
+  }
+
+  .grid-2 {
+    gap: 24px;
+  }
+
+  .grid-3 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .grid-4 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Mobile: ≤ 768px */
+@media (max-width: 768px) {
+  :root {
+    --section-pad-desktop: var(--section-pad-mobile);
+  }
+
+  .section {
+    padding-block: var(--section-pad-mobile);
+  }
+
+  .section-header {
+    margin-bottom: 40px;
+  }
+
+  .section-header__description {
+    font-size: var(--font-size-body);
+  }
+
+  .grid-2 {
+    grid-template-columns: 1fr;
+  }
+
+  .grid-3 {
+    grid-template-columns: 1fr;
+  }
+
+  .grid-4 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .card {
+    padding: 24px;
+  }
+
+  .btn-primary,
+  .btn-secondary {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* Small mobile: ≤ 480px */
+@media (max-width: 480px) {
+  .grid-4 {
+    grid-template-columns: 1fr;
+  }
 }
