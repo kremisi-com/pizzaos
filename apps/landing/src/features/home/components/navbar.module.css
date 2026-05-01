@@ -4,7 +4,7 @@
   left: 0;
   right: 0;
   z-index: var(--z-sticky, 100);
-  background-color: rgba(250, 248, 246, 0.8);
+  background-color: rgba(255, 255, 255, 0.92);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border-bottom: 1px solid var(--color-border);
@@ -28,28 +28,24 @@
 .logo {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   text-decoration: none;
   flex-shrink: 0;
 }
 
 .logoMark {
-  width: 34px;
-  height: 34px;
+  width: 32px;
+  height: 32px;
   background-color: var(--color-brand-red);
-  border-radius: 10px;
+  border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
 }
 
-.logoMarkText {
-  color: white;
-  font-family: var(--font-heading);
-  font-weight: 900;
-  font-size: 15px;
-  letter-spacing: -0.02em;
+.logoMarkIcon {
+  font-size: 16px;
   line-height: 1;
 }
 
@@ -58,23 +54,31 @@
   font-weight: 800;
   font-size: 18px;
   letter-spacing: -0.03em;
+}
+
+.logoNamePizza {
   color: var(--color-dark);
+}
+
+.logoNameOs {
+  color: var(--color-brand-red);
 }
 
 /* Nav links */
 .navLinks {
   display: flex;
   align-items: center;
-  gap: 32px;
+  gap: 28px;
   list-style: none;
 }
 
 .navLink {
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 500;
   color: var(--color-muted);
   text-decoration: none;
   transition: color var(--duration-fast) var(--ease);
+  white-space: nowrap;
 }
 
 .navLink:hover {
@@ -89,8 +93,8 @@
   flex-shrink: 0;
 }
 
-.demoLink {
-  font-size: 15px;
+.loginLink {
+  font-size: 14px;
   font-weight: 600;
   color: var(--color-muted);
   text-decoration: none;
@@ -98,7 +102,7 @@
   white-space: nowrap;
 }
 
-.demoLink:hover {
+.loginLink:hover {
   color: var(--color-dark);
 }
 
@@ -110,9 +114,12 @@
   height: 40px;
   background-color: var(--color-brand-red);
   color: white;
+  font-family: var(--font-body);
   font-size: 14px;
   font-weight: 700;
-  border-radius: 12px;
+  border-radius: var(--radius-full);
+  border: none;
+  cursor: pointer;
   text-decoration: none;
   box-shadow: 0 2px 8px rgba(244, 58, 38, 0.3);
   transition:
@@ -129,23 +136,6 @@
 }
 
 /* Mobile */
-.mobileMenuToggle {
-  display: none;
-  flex-direction: column;
-  gap: 5px;
-  cursor: pointer;
-  padding: 4px;
-}
-
-.mobileMenuToggle span {
-  display: block;
-  width: 22px;
-  height: 2px;
-  background-color: var(--color-dark);
-  border-radius: 2px;
-  transition: transform var(--duration-fast) var(--ease);
-}
-
 @media (max-width: 1024px) {
   .navLinks {
     display: none;
@@ -153,11 +143,7 @@
 }
 
 @media (max-width: 768px) {
-  .demoLink {
+  .loginLink {
     display: none;
-  }
-
-  .mobileMenuToggle {
-    display: flex;
   }
 }

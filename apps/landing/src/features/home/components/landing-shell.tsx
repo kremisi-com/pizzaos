@@ -3,12 +3,14 @@
 import { loadDemoState, resetDemoState, type LandingSeed } from "@pizzaos/mock-data";
 import { useState, type ReactElement } from "react";
 import { DemoRequestModal } from "./demo-request-modal";
+import { CompletePlatformSection } from "./complete-platform-section";
 import { DifferentiationSection } from "./differentiation-section";
 import { EcosystemSection } from "./ecosystem-section";
 import { FeatureSection } from "./feature-section";
 import { FinalCtaSection } from "./final-cta-section";
 import { Footer } from "./footer";
 import { HeroSection } from "./hero-section";
+import { ChallengesSection } from "./challenges-section";
 import { Navbar } from "./navbar";
 import { StatsSection } from "./stats-section";
 
@@ -89,13 +91,19 @@ export function LandingShell(): ReactElement
   return (
     <>
       {/* Navigation */}
-      <Navbar />
+      <Navbar onRequestDemo={handleOpenModal} />
 
       {/* Main content */}
       <main id="main-content">
 
         {/* Hero */}
         <HeroSection onRequestDemo={handleOpenModal} />
+
+        {/* Challenges Section */}
+        <ChallengesSection />
+
+        {/* Complete platform visual section */}
+        <CompletePlatformSection />
 
         {/* Stats strip */}
         <StatsSection />

@@ -110,6 +110,10 @@ Complete the product story so the landing page covers the full PizzaOS value pro
 
 - The landing page now covers the complete commercial narrative without obvious gaps.
 
+**Implementation note**
+
+- Added the supplied complete-platform design as a coded third landing section, immediately after the challenge section, while keeping it owned by `apps/landing`.
+
 ## Step 5: Add motion, responsive polish, form states, and landing smoke coverage
 
 **Objective**

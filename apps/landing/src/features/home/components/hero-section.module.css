@@ -1,125 +1,119 @@
+/* ================================================================
+   Hero Section — PizzaOS Landing
+   Layout: Two-column split (copy left, visual right)
+   Background: white
+   ================================================================ */
+
 .hero {
   position: relative;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
+  background-color: var(--color-white);
   padding-top: 68px; /* navbar height */
-  padding-bottom: 80px;
   overflow: hidden;
-  background-color: var(--color-bg-soft);
 }
 
-/* Subtle radial glow behind hero */
-.hero::before {
-  content: "";
-  position: absolute;
-  top: -10%;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 900px;
-  height: 700px;
-  background: radial-gradient(ellipse at center, rgba(244, 58, 38, 0.07) 0%, transparent 65%);
-  pointer-events: none;
-}
-
+/* ── Inner layout ── */
 .inner {
   position: relative;
-  z-index: 1;
   width: 100%;
   max-width: var(--max-width);
   margin-inline: auto;
   padding-inline: var(--page-gutter);
-  display: flex;
-  flex-direction: column;
+  padding-top: 60px;
+  padding-bottom: 40px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   align-items: center;
-  text-align: center;
-  gap: 0;
+  gap: 40px;
+  min-height: calc(100vh - 68px - 80px); /* minus navbar and strip */
 }
 
-/* Badge */
+/* ================================================================
+   LEFT COLUMN — COPY
+   ================================================================ */
+
+.copy {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0;
+  max-width: 560px;
+}
+
+/* ── Badge pill ── */
 .badge {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 6px 16px 6px 8px;
-  background-color: var(--color-white);
-  border: 1px solid var(--color-border);
+  padding: 6px 14px 6px 8px;
+  background-color: rgba(244, 58, 38, 0.08);
+  border: 1px solid rgba(244, 58, 38, 0.18);
   border-radius: 9999px;
-  box-shadow: var(--shadow-card);
-  margin-bottom: 32px;
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--color-muted);
+  margin-bottom: 28px;
 }
 
-.badgeDot {
-  width: 20px;
-  height: 20px;
-  background-color: var(--color-brand-red);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  font-size: 10px;
+.badgeIcon {
+  font-size: 14px;
+  line-height: 1;
 }
 
-.badgeHighlight {
-  color: var(--color-dark);
-  font-weight: 600;
+.badgeText {
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--color-brand-red);
+  text-transform: uppercase;
 }
 
-/* Headline */
+/* ── Headline ── */
 .headline {
   font-family: var(--font-heading);
-  font-size: var(--font-size-h1);
+  font-size: clamp(38px, 4.5vw, 62px);
   font-weight: 900;
-  line-height: 0.95;
-  letter-spacing: -0.04em;
+  line-height: 1.0;
+  letter-spacing: -0.03em;
   color: var(--color-dark);
-  max-width: 900px;
-  margin-bottom: 28px;
+  margin-bottom: 24px;
 }
 
 .headlineAccent {
   color: var(--color-brand-red);
-  font-style: italic;
+  display: block;
 }
 
-/* Subline */
+/* ── Subline ── */
 .subline {
-  font-size: var(--font-size-body-lg);
-  line-height: 1.5;
+  font-family: var(--font-body);
+  font-size: 17px;
+  line-height: 1.6;
   color: var(--color-muted);
-  max-width: 600px;
-  margin-bottom: 48px;
+  margin-bottom: 40px;
 }
 
-/* CTA row */
+/* ── CTA row ── */
 .ctaRow {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 20px;
   flex-wrap: wrap;
-  justify-content: center;
-  margin-bottom: 64px;
 }
 
 .primaryCta {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 0 32px;
-  height: 60px;
+  gap: 6px;
+  padding: 0 28px;
+  height: 52px;
   background-color: var(--color-brand-red);
-  color: white;
-  font-size: 17px;
+  color: #ffffff;
+  font-family: var(--font-body);
+  font-size: 16px;
   font-weight: 700;
-  border-radius: 18px;
+  border-radius: var(--radius-full);
   text-decoration: none;
-  box-shadow: var(--shadow-btn-primary);
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(244, 58, 38, 0.35);
   transition:
     transform var(--duration-fast) var(--ease),
     box-shadow var(--duration-fast) var(--ease),
@@ -128,8 +122,8 @@
 }
 
 .primaryCta:hover {
-  transform: translateY(-3px);
-  box-shadow: var(--shadow-btn-primary-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(244, 58, 38, 0.45);
   background-color: var(--color-brand-red-dark);
 }
 
@@ -137,265 +131,730 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 0 32px;
-  height: 60px;
-  background-color: var(--color-white);
-  color: var(--color-dark);
-  font-size: 17px;
+  font-family: var(--font-body);
+  font-size: 16px;
   font-weight: 600;
-  border-radius: 18px;
-  border: 1px solid var(--color-border);
+  color: var(--color-dark);
   text-decoration: none;
-  box-shadow: var(--shadow-card);
-  transition:
-    transform var(--duration-fast) var(--ease),
-    box-shadow var(--duration-fast) var(--ease);
-  white-space: nowrap;
+  transition: color var(--duration-fast) var(--ease);
 }
 
 .secondaryCta:hover {
-  transform: translateY(-3px);
-  box-shadow: var(--shadow-card-hover);
+  color: var(--color-brand-red);
 }
 
-.modalTrigger {
+.playIcon {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  font-size: 15px;
-  font-weight: 500;
-  color: var(--color-muted);
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 0;
-  text-decoration: underline;
-  text-decoration-color: transparent;
-  transition:
-    color var(--duration-fast) var(--ease),
-    text-decoration-color var(--duration-fast) var(--ease);
-}
-
-.modalTrigger:hover {
-  color: var(--color-dark);
-  text-decoration-color: var(--color-border);
-}
-
-/* Social proof */
-.socialProof {
-  display: flex;
-  align-items: center;
-  gap: 24px;
-  flex-wrap: wrap;
   justify-content: center;
-  margin-bottom: 72px;
+  width: 36px;
+  height: 36px;
+  border: 1.5px solid var(--color-border-strong);
+  border-radius: 50%;
+  font-size: 10px;
+  color: var(--color-dark);
+  flex-shrink: 0;
+  transition: border-color var(--duration-fast) var(--ease);
 }
 
-.socialProofItem {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 14px;
-  color: var(--color-muted);
+.secondaryCta:hover .playIcon {
+  border-color: var(--color-brand-red);
+  color: var(--color-brand-red);
 }
 
-.socialProofDivider {
-  width: 1px;
-  height: 16px;
-  background-color: var(--color-border);
-}
+/* ================================================================
+   RIGHT COLUMN — VISUAL
+   ================================================================ */
 
-/* Dashboard mockup */
-.mockupWrapper {
-  width: 100%;
-  max-width: 1100px;
+.visual {
   position: relative;
+  height: 560px;
 }
 
-.mockup {
-  width: 100%;
-  border-radius: var(--radius-mockup);
-  box-shadow: var(--shadow-device);
-  background-color: var(--color-white);
+/* ── Admin dashboard card ── */
+.dashboardCard {
+  position: absolute;
+  top: 10px;
+  right: 0;
+  width: 380px;
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.12);
   border: 1px solid var(--color-border);
   overflow: hidden;
-  aspect-ratio: 16 / 9;
-  display: flex;
-  flex-direction: column;
+  z-index: 1;
 }
 
-.mockupBar {
-  height: 40px;
-  background-color: #f5f5f5;
-  border-bottom: 1px solid var(--color-border);
+.dashboardHeader {
   display: flex;
   align-items: center;
-  padding: 0 16px;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--color-border);
+  background: #ffffff;
+}
+
+.dashboardLogo {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.dashboardLogoIcon {
+  font-size: 14px;
+}
+
+.dashboardLogoText {
+  font-family: var(--font-heading);
+  font-weight: 800;
+  font-size: 14px;
+  color: var(--color-dark);
+  letter-spacing: -0.02em;
+}
+
+.dashboardTitle {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--color-dark);
+}
+
+.dashboardLayout {
+  display: grid;
+  grid-template-columns: 90px 1fr;
+  height: 320px;
+  overflow: hidden;
+}
+
+/* sidebar */
+.dashboardSidebar {
+  background: #f8f8f8;
+  border-right: 1px solid var(--color-border);
+  padding: 12px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.sidebarItem {
+  padding: 6px 8px;
+  font-size: 11px;
+  color: var(--color-muted);
+  border-radius: 6px;
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.sidebarItemActive {
+  background-color: var(--color-brand-red);
+  color: #ffffff;
+  font-weight: 600;
+}
+
+/* content */
+.dashboardContent {
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  overflow: hidden;
+}
+
+.kpiRow {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
   gap: 8px;
+}
+
+.kpiCard {
+  background: #f8f8f8;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.kpiLabel {
+  font-size: 9px;
+  color: var(--color-muted);
+  line-height: 1.2;
+}
+
+.kpiValue {
+  font-family: var(--font-heading);
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--color-dark);
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+
+.kpiGrowth {
+  font-size: 9px;
+  color: var(--color-success);
+  font-weight: 600;
+}
+
+.chartArea {
+  background: #f8f8f8;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 8px;
   flex-shrink: 0;
 }
 
-.mockupDot {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-}
-
-.mockupDot:nth-child(1) { background-color: #ff5f57; }
-.mockupDot:nth-child(2) { background-color: #febc2e; }
-.mockupDot:nth-child(3) { background-color: #28c840; }
-
-.mockupContent {
-  flex: 1;
-  display: grid;
-  grid-template-columns: 220px 1fr;
-  overflow: hidden;
-}
-
-.mockupSidebar {
-  background-color: var(--color-dark);
-  padding: 20px 16px;
+.chartHeader {
   display: flex;
-  flex-direction: column;
-  gap: 8px;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
 }
 
-.mockupSidebarItem {
-  height: 32px;
-  border-radius: 8px;
-  background-color: rgba(255, 255, 255, 0.08);
-}
-
-.mockupSidebarItem:first-child {
-  background-color: var(--color-brand-red);
-}
-
-.mockupMain {
-  padding: 24px;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.mockupKpiRow {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 12px;
-}
-
-.mockupKpiCard {
-  background-color: var(--color-bg-soft);
-  border-radius: 12px;
-  padding: 16px;
-  border: 1px solid var(--color-border);
-}
-
-.mockupKpiValue {
-  font-family: var(--font-heading);
-  font-size: 22px;
-  font-weight: 800;
+.chartTitle {
+  font-size: 10px;
+  font-weight: 600;
   color: var(--color-dark);
-  letter-spacing: -0.03em;
-  margin-bottom: 4px;
 }
 
-.mockupKpiLabel {
-  font-size: 11px;
+.chartBadge {
+  font-size: 9px;
+  padding: 2px 6px;
+  background: white;
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
   color: var(--color-muted);
 }
 
-.mockupChartArea {
+.chartLine {
+  height: 40px;
+}
+
+.chartSvg {
+  width: 100%;
+  height: 100%;
+}
+
+.ordersSection {
   flex: 1;
-  background-color: var(--color-bg-soft);
-  border-radius: 12px;
-  border: 1px solid var(--color-border);
-  padding: 16px;
+  overflow: hidden;
+}
+
+.ordersSectionHeader {
   display: flex;
-  align-items: flex-end;
-  gap: 8px;
-}
-
-.mockupBar2 {
-  flex: 1;
-  background: linear-gradient(to top, var(--color-brand-red), rgba(244, 58, 38, 0.3));
-  border-radius: 4px 4px 0 0;
-  min-height: 20px;
-}
-
-/* Floating cards */
-.floatCard {
-  position: absolute;
-  background-color: var(--color-white);
-  border-radius: 16px;
-  box-shadow: var(--shadow-device);
-  border: 1px solid var(--color-border);
-  padding: 14px 18px;
-  font-size: 13px;
-  white-space: nowrap;
-  pointer-events: none;
-}
-
-.floatCardLeft {
-  left: -60px;
-  top: 30%;
-  transform: translateY(-50%);
-}
-
-.floatCardRight {
-  right: -60px;
-  top: 55%;
-  transform: translateY(-50%);
-}
-
-.floatCardLabel {
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+  font-size: 10px;
   font-weight: 600;
+  color: var(--color-dark);
+}
+
+.ordersLink {
+  font-size: 9px;
+  color: var(--color-brand-red);
+  text-decoration: none;
+}
+
+.orderRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.orderRow:last-child {
+  border-bottom: none;
+}
+
+.orderAvatar {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #f43a26, #ff7a6a);
+  flex-shrink: 0;
+}
+
+.orderInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.orderId {
+  display: block;
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--color-dark);
+}
+
+.orderItem {
+  display: block;
+  font-size: 9px;
+  color: var(--color-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.orderType {
+  font-size: 9px;
+  padding: 1px 5px;
+  background: rgba(244, 58, 38, 0.08);
+  color: var(--color-brand-red);
+  border-radius: 3px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.orderTime {
+  font-size: 9px;
+  color: var(--color-muted);
+  flex-shrink: 0;
+}
+
+/* ── Phone mockup ── */
+.phoneMockup {
+  position: absolute;
+  top: 40px;
+  left: 60px;
+  z-index: 2;
+  width: 220px;
+}
+
+.phoneScreen {
+  background: #1a1a1a;
+  border-radius: 36px;
+  overflow: hidden;
+  box-shadow:
+    0 0 0 8px #2a2a2a,
+    0 0 0 10px #1a1a1a,
+    0 30px 80px rgba(0, 0, 0, 0.35);
+  display: flex;
+  flex-direction: column;
+}
+
+.phoneStatusBar {
+  background: #ffffff;
+  padding: 8px 16px 4px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 9px;
+  font-weight: 700;
+  color: #111;
+}
+
+.phoneStatusIcons {
+  display: flex;
+  gap: 4px;
+  font-size: 8px;
+}
+
+.phoneAppHeader {
+  background: #ffffff;
+  padding: 8px 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.phoneMenuIcon {
+  font-size: 16px;
+  color: var(--color-dark);
+}
+
+.phoneRestaurantInfo {
+  flex: 1;
+}
+
+.phoneRestaurantName {
+  display: block;
+  font-family: var(--font-heading);
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--color-dark);
+  letter-spacing: -0.01em;
+}
+
+.phoneRestaurantSub {
+  display: block;
+  font-size: 8px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: var(--color-muted);
+  text-transform: uppercase;
+}
+
+.phoneCartIcon {
+  font-size: 16px;
+}
+
+.phoneGreeting {
+  background: #ffffff;
+  padding: 12px 16px 8px;
+}
+
+.phoneGreetingTitle {
+  font-family: var(--font-heading);
+  font-size: 14px;
+  font-weight: 800;
   color: var(--color-dark);
   margin-bottom: 2px;
 }
 
-.floatCardValue {
-  color: var(--color-success);
-  font-weight: 700;
-  font-size: 16px;
+.phoneGreetingSubtitle {
+  font-size: 10px;
+  color: var(--color-muted);
 }
 
+.phoneFeaturedItem {
+  background: #ffffff;
+  padding: 10px 16px;
+  display: flex;
+  gap: 10px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.phonePizzaImage {
+  width: 52px;
+  height: 52px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #ffecd2, #fcb69f);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  flex-shrink: 0;
+}
+
+.phoneFeaturedInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.phoneFeaturedName {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--color-dark);
+  margin-bottom: 2px;
+}
+
+.phoneFeaturedDesc {
+  font-size: 9px;
+  color: var(--color-muted);
+  line-height: 1.3;
+  margin-bottom: 6px;
+}
+
+.phoneFeaturedRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.phoneFeaturedPrice {
+  font-family: var(--font-heading);
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--color-dark);
+}
+
+.phoneAddBtn {
+  padding: 4px 10px;
+  background: var(--color-brand-red);
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 700;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+}
+
+.phoneSection {
+  background: #ffffff;
+  padding: 10px 16px 6px;
+}
+
+.phoneSectionTitle {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--color-dark);
+  margin-bottom: 6px;
+}
+
+.phoneTabs {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.phoneTab {
+  font-size: 9px;
+  font-weight: 600;
+  color: var(--color-muted);
+  padding: 3px 8px;
+  border-radius: 12px;
+  border: 1px solid var(--color-border);
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.phoneTabActive {
+  background: var(--color-dark);
+  color: #ffffff;
+  border-color: var(--color-dark);
+}
+
+.phoneBottomNav {
+  background: #ffffff;
+  border-top: 1px solid var(--color-border);
+  padding: 8px 0 12px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+}
+
+.phoneNavItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  font-size: 8px;
+  color: var(--color-muted);
+}
+
+.phoneNavItemActive {
+  color: var(--color-brand-red);
+}
+
+/* ── Delivery floating card ── */
+.deliveryCard {
+  position: absolute;
+  bottom: 30px;
+  right: 0;
+  width: 200px;
+  background: #ffffff;
+  border-radius: 14px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+  border: 1px solid var(--color-border);
+  padding: 12px;
+  z-index: 3;
+}
+
+.deliveryCardBadge {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--color-dark);
+  margin-bottom: 8px;
+  line-height: 1.3;
+}
+
+.deliveryStatus {
+  color: var(--color-brand-red);
+  font-weight: 600;
+}
+
+.deliveryMap {
+  width: 100%;
+  height: 60px;
+  background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
+  border-radius: 8px;
+  margin-bottom: 8px;
+  position: relative;
+  overflow: hidden;
+}
+
+.deliveryMapDot {
+  position: absolute;
+  top: 50%;
+  left: 60%;
+  transform: translate(-50%, -50%);
+  width: 10px;
+  height: 10px;
+  background: var(--color-brand-red);
+  border-radius: 50%;
+  box-shadow: 0 0 0 4px rgba(244, 58, 38, 0.2);
+}
+
+.riderInfo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.riderAvatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  flex-shrink: 0;
+}
+
+.riderLabel {
+  font-size: 9px;
+  color: var(--color-muted);
+}
+
+.riderName {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--color-dark);
+}
+
+.riderActions {
+  margin-left: auto;
+  display: flex;
+  gap: 6px;
+}
+
+.riderAction {
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.deliveryEta {
+  font-size: 10px;
+  color: var(--color-muted);
+}
+
+/* ── Basil decoration ── */
+.basilDecoration {
+  position: absolute;
+  top: -20px;
+  right: -30px;
+  font-size: 72px;
+  opacity: 0.85;
+  pointer-events: none;
+  z-index: 4;
+  transform: rotate(20deg);
+  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.1));
+}
+
+/* ================================================================
+   BOTTOM FEATURE STRIP
+   ================================================================ */
+
+.featureStrip {
+  width: 100%;
+  border-top: 1px solid var(--color-border);
+  background: var(--color-white);
+  padding: 20px 0;
+}
+
+.featureStripInner {
+  width: 100%;
+  max-width: var(--max-width);
+  margin-inline: auto;
+  padding-inline: var(--page-gutter);
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+}
+
+.featureItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.featureIcon {
+  font-size: 20px;
+  color: var(--color-muted);
+  flex-shrink: 0;
+}
+
+.featureTitle {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--color-dark);
+  line-height: 1.2;
+}
+
+.featureSub {
+  font-size: 12px;
+  color: var(--color-muted);
+  line-height: 1.3;
+}
+
+/* ================================================================
+   RESPONSIVE
+   ================================================================ */
+
 @media (max-width: 1100px) {
-  .floatCardLeft,
-  .floatCardRight {
+  .dashboardCard {
+    width: 320px;
+  }
+
+  .basilDecoration {
     display: none;
   }
 }
 
-@media (max-width: 768px) {
-  .hero {
-    padding-bottom: 56px;
+@media (max-width: 900px) {
+  .inner {
+    grid-template-columns: 1fr;
+    padding-top: 48px;
+    padding-bottom: 32px;
     min-height: auto;
-    padding-top: calc(68px + 32px);
+    gap: 40px;
   }
 
-  .headline {
-    font-size: clamp(36px, 10vw, 56px);
+  .copy {
+    max-width: 100%;
+    align-items: flex-start;
   }
 
-  .subline {
-    font-size: 18px;
+  .visual {
+    height: 480px;
+    width: 100%;
+  }
+
+  .dashboardCard {
+    right: 0;
+    top: 0;
+    width: 280px;
+  }
+
+  .phoneMockup {
+    left: 0;
+    top: 20px;
+  }
+
+  .featureStripInner {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .visual {
+    height: 400px;
+  }
+
+  .dashboardCard {
+    width: 230px;
+    right: 0;
+  }
+
+  .phoneMockup {
+    width: 170px;
+  }
+
+  .deliveryCard {
+    display: none;
   }
 
   .primaryCta,
   .secondaryCta {
-    width: 100%;
-    justify-content: center;
+    font-size: 14px;
   }
 
-  .mockupContent {
-    grid-template-columns: 1fr;
-  }
-
-  .mockupSidebar {
-    display: none;
-  }
-
-  .mockupKpiRow {
-    grid-template-columns: repeat(2, 1fr);
+  .featureStripInner {
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
   }
 }
