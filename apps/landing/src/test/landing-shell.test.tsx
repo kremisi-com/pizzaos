@@ -5,6 +5,7 @@ import { AnalyticsGrowthSection } from "../features/home/components/analytics-gr
 import { ChallengesSection } from "../features/home/components/challenges-section";
 import { CompletePlatformSection } from "../features/home/components/complete-platform-section";
 import { FeatureDifferenceSection } from "../features/home/components/feature-difference-section";
+import { FinalCtaSection } from "../features/home/components/final-cta-section";
 import { LandingShell } from "../features/home/components/landing-shell";
 import { MarginComparisonSection } from "../features/home/components/margin-comparison-section";
 
@@ -20,6 +21,7 @@ describe("landing shell", () =>
     expect(markup).toContain("funzionalita-differenza");
     expect(markup).toContain("MENO COSTI, PIÙ MARGINE");
     expect(markup).toContain("dati-crescita");
+    expect(markup).toContain("PRONTO A FAR CRESCERE LA TUA PIZZERIA?");
     expect(markup).toContain("Ecosistema");
     expect(markup).toContain("Reset demo");
   });
@@ -100,5 +102,24 @@ describe("landing shell", () =>
     expect(markup).toContain("Questo cliente torna ogni venerdì");
     expect(markup).toContain("Trasforma i dati in crescita reale");
     expect(markup).toContain("Scopri come i dati fanno la differenza");
+  });
+
+  it("renders the eleventh CTA section from the supplied screen", () =>
+  {
+    const markup = renderToString(createElement(FinalCtaSection, { onRequestDemo: () => undefined }));
+
+    expect(markup).toContain("PRONTO A FAR CRESCERE LA TUA PIZZERIA?");
+    expect(markup).toContain("Inizia oggi.");
+    expect(markup).toContain("Trasforma la tua pizzeria.");
+    expect(markup).toContain("Più ordini, più clienti, più fatturato");
+    expect(markup).toContain("Prova PizzaOS gratis per 14 giorni");
+    expect(markup).toContain("Senza impegno. Senza carta di credito.");
+    expect(markup).toContain("Inizia la prova gratuita");
+    expect(markup).toContain("Prenota una demo personalizzata");
+    expect(markup).toContain("Oltre 300 pizzerie già con PizzaOS");
+    expect(markup).toContain("Integrato con i migliori partner");
+    expect(markup).toContain("4,8 su 5 su Trustpilot");
+    expect(markup).toContain("Onboarding rapido");
+    expect(markup).toContain("Risultati misurabili");
   });
 });
