@@ -6,6 +6,7 @@ import { DemoRequestModal } from "./demo-request-modal";
 import { CompletePlatformSection } from "./complete-platform-section";
 import { DifferentiationSection } from "./differentiation-section";
 import { EcosystemSection } from "./ecosystem-section";
+import { FeatureDifferenceSection } from "./feature-difference-section";
 import { FeatureSection } from "./feature-section";
 import { FinalCtaSection } from "./final-cta-section";
 import { Footer } from "./footer";
@@ -104,6 +105,9 @@ export function LandingShell(): ReactElement
 
         {/* Complete platform visual section */}
         <CompletePlatformSection />
+
+        {/* Feature difference visual section */}
+        <FeatureDifferenceSection />
 
         {/* Stats strip */}
         <StatsSection />

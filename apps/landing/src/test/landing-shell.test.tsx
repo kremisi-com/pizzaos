@@ -3,6 +3,7 @@ import { createElement } from "react";
 import { renderToString } from "react-dom/server";
 import { ChallengesSection } from "../features/home/components/challenges-section";
 import { CompletePlatformSection } from "../features/home/components/complete-platform-section";
+import { FeatureDifferenceSection } from "../features/home/components/feature-difference-section";
 import { LandingShell } from "../features/home/components/landing-shell";
 
 describe("landing shell", () =>
@@ -14,6 +15,7 @@ describe("landing shell", () =>
     expect(markup).toContain("Trasforma la tua");
     expect(markup).toContain("LE SFIDE DI OGNI PIZZERIA");
     expect(markup).toContain("soluzione-completa");
+    expect(markup).toContain("funzionalita-differenza");
     expect(markup).toContain("Ecosistema");
     expect(markup).toContain("Reset demo");
   });
@@ -42,5 +44,20 @@ describe("landing shell", () =>
     expect(markup).toContain("Growth Engine");
     expect(markup).toContain("Lista allergeni e impasti");
     expect(markup).toContain("Zero commissioni");
+  });
+
+  it("renders the fourth feature difference section from the supplied screen", () =>
+  {
+    const markup = renderToString(createElement(FeatureDifferenceSection));
+
+    expect(markup).toContain("FUNZIONALITÀ CHE FANNO LA DIFFERENZA");
+    expect(markup).toContain("Funzionalità pensate");
+    expect(markup).toContain("vendere di più");
+    expect(markup).toContain("Pizza Builder avanzato");
+    expect(markup).toContain("Ordina come l&#x27;ultima volta");
+    expect(markup).toContain("Tracciamento live del rider");
+    expect(markup).toContain("AI che lavora per te");
+    expect(markup).toContain("Tutte le funzionalità sono integrate");
+    expect(markup).toContain("Scopri tutte le funzionalità");
   });
 });

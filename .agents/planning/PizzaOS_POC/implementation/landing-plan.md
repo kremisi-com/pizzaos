@@ -113,6 +113,7 @@ Complete the product story so the landing page covers the full PizzaOS value pro
 **Implementation note**
 
 - Added the supplied complete-platform design as a coded third landing section, immediately after the challenge section, while keeping it owned by `apps/landing`.
+- Added the supplied feature-difference screen as a coded fourth landing section, immediately after the complete-platform section, with four navigable feature cards and a CTA into the existing ordering story.
 
 ## Step 5: Add motion, responsive polish, form states, and landing smoke coverage
 
