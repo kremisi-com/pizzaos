@@ -5,6 +5,7 @@ import { AnalyticsGrowthSection } from "../features/home/components/analytics-gr
 import { ChainManagementSection } from "../features/home/components/chain-management-section";
 import { ChallengesSection } from "../features/home/components/challenges-section";
 import { CompletePlatformSection } from "../features/home/components/complete-platform-section";
+import { EcosystemSection } from "../features/home/components/ecosystem-section";
 import { FaqSection } from "../features/home/components/faq-section";
 import { FeatureDifferenceSection } from "../features/home/components/feature-difference-section";
 import { FinalCtaSection } from "../features/home/components/final-cta-section";
@@ -170,6 +171,20 @@ describe("landing shell", () =>
     expect(markup).toContain("Trasparenza totale");
     expect(markup).toContain("Risparmi fino al 30%");
     expect(markup).toContain("Prova gratuita di 14 giorni");
+  });
+
+  it("renders the ecosystem section with the current landing visual language", () =>
+  {
+    const markup = renderToString(createElement(EcosystemSection));
+
+    expect(markup).toContain("ECOSISTEMA");
+    expect(markup).toContain("Tutto ciò che una pizzeria moderna può <span>immaginare.</span>");
+    expect(markup).toContain("moduli live nel POC");
+    expect(markup).toContain("Ordini digitali");
+    expect(markup).toContain("Analytics AI");
+    expect(markup).toContain("Marketing automation");
+    expect(markup).toContain("POS &amp; integrazioni");
+    expect(markup).toContain("In roadmap");
   });
 
   it("renders the FAQ section from the supplied screen", () =>
