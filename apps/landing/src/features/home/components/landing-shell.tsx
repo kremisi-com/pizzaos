@@ -12,6 +12,7 @@ import { FinalCtaSection } from "./final-cta-section";
 import { Footer } from "./footer";
 import { HeroSection } from "./hero-section";
 import { ChallengesSection } from "./challenges-section";
+import { MarginComparisonSection } from "./margin-comparison-section";
 import { Navbar } from "./navbar";
 import { StatsSection } from "./stats-section";
 
@@ -108,6 +109,9 @@ export function LandingShell(): ReactElement
 
         {/* Feature difference visual section */}
         <FeatureDifferenceSection />
+
+        {/* Margin comparison section */}
+        <MarginComparisonSection onRequestDemo={handleOpenModal} />
 
         {/* Stats strip */}
         <StatsSection />

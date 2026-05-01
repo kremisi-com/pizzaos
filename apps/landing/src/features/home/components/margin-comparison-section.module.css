@@ -1,0 +1,599 @@
+.section {
+  overflow: hidden;
+  padding: 34px 0 78px;
+  background:
+    radial-gradient(circle at 50% 2%, rgba(244, 58, 38, 0.055), transparent 36%),
+    linear-gradient(180deg, #fffdfb 0%, #ffffff 50%, #fffdfb 100%);
+}
+
+.inner {
+  width: min(100%, 1536px);
+  margin-inline: auto;
+  padding-inline: clamp(24px, 3vw, 46px);
+}
+
+.eyebrow {
+  width: max-content;
+  max-width: 100%;
+  margin: 0 auto 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 22px;
+  border-radius: 999px;
+  background: rgba(244, 58, 38, 0.06);
+  color: var(--color-brand-red);
+  font-size: clamp(13px, 1vw, 17px);
+  font-weight: 900;
+  line-height: 1;
+}
+
+.eyebrow svg,
+.featureIcon svg,
+.marketplaceCell > svg,
+.pizzaosCell > svg,
+.logoMark svg,
+.bottomIcon svg,
+.cta svg,
+.ctaNote svg {
+  width: 22px;
+  height: 22px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2.2;
+}
+
+.title {
+  max-width: 850px;
+  margin: 0 auto;
+  color: #050505;
+  font-family: var(--font-heading);
+  font-size: clamp(50px, 5.55vw, 88px);
+  font-weight: 900;
+  line-height: 0.96;
+  letter-spacing: 0;
+  text-align: center;
+}
+
+.title span {
+  color: var(--color-brand-red);
+}
+
+.subtitle {
+  max-width: 780px;
+  margin: 20px auto 34px;
+  color: #4f5560;
+  font-size: clamp(18px, 1.25vw, 22px);
+  line-height: 1.42;
+  text-align: center;
+}
+
+.comparisonArea {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 286px;
+  align-items: center;
+  gap: 34px;
+}
+
+.matrix {
+  min-width: 0;
+  position: relative;
+}
+
+.columnHeaders {
+  display: grid;
+  grid-template-columns: 31% 33% 36%;
+  position: relative;
+  padding-left: 0;
+}
+
+.blankHeader {
+  min-height: 108px;
+}
+
+.marketplaceHeader,
+.pizzaosHeader {
+  min-height: 108px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  border: 1px solid rgba(31, 28, 25, 0.1);
+  background: rgba(255, 255, 255, 0.72);
+  text-align: center;
+}
+
+.marketplaceHeader {
+  border-radius: 16px 0 0 0;
+}
+
+.pizzaosHeader {
+  border-color: rgba(244, 58, 38, 0.18);
+  border-left: 0;
+  border-radius: 0 16px 0 0;
+  background: rgba(244, 58, 38, 0.045);
+}
+
+.marketplaceHeader strong {
+  color: #111318;
+  font-family: var(--font-heading);
+  font-size: clamp(24px, 1.7vw, 30px);
+  font-weight: 900;
+  letter-spacing: 0;
+  line-height: 1;
+}
+
+.marketplaceHeader span,
+.pizzaosHeader > span {
+  color: #626a75;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+.logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  color: #090909;
+  font-family: var(--font-heading);
+  font-size: clamp(30px, 2.2vw, 40px);
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: 0;
+}
+
+.logo > span:last-child span {
+  color: var(--color-brand-red);
+}
+
+.logoMark {
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border-radius: 9px;
+  background: var(--color-brand-red);
+  color: #ffffff;
+  transform: rotate(-12deg);
+}
+
+.logoMark svg {
+  width: 25px;
+  height: 25px;
+}
+
+.vsBadge {
+  width: 54px;
+  height: 54px;
+  position: absolute;
+  left: 64%;
+  top: 50%;
+  z-index: 4;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(31, 28, 25, 0.08);
+  border-radius: 50%;
+  background: #ffffff;
+  color: var(--color-brand-red);
+  font-size: 13px;
+  font-weight: 900;
+  box-shadow: 0 14px 28px rgba(32, 25, 20, 0.1);
+  transform: translate(-50%, -50%);
+}
+
+.rows {
+  border: 1px solid rgba(31, 28, 25, 0.1);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.76);
+  box-shadow: 0 24px 56px rgba(32, 25, 20, 0.08);
+  overflow: hidden;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 31% 33% 36%;
+  min-height: 82px;
+  border-bottom: 1px solid rgba(31, 28, 25, 0.08);
+}
+
+.row:last-child {
+  border-bottom: 0;
+}
+
+.rowLabel,
+.marketplaceCell,
+.pizzaosCell {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+}
+
+.rowLabel {
+  gap: 18px;
+  padding: 16px 22px;
+}
+
+.featureIcon {
+  width: 52px;
+  height: 52px;
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: rgba(244, 58, 38, 0.08);
+  color: #111318;
+}
+
+.featureIcon svg {
+  width: 28px;
+  height: 28px;
+  stroke-width: 1.9;
+}
+
+.rowLabel strong,
+.marketplaceCell strong,
+.pizzaosCell strong {
+  display: block;
+  color: #111318;
+  font-size: clamp(15px, 1.04vw, 18px);
+  font-weight: 900;
+  line-height: 1.1;
+}
+
+.rowLabel span,
+.marketplaceCell span,
+.pizzaosCell span {
+  display: block;
+  margin-top: 6px;
+  color: #4f5661;
+  font-size: clamp(12px, 0.8vw, 14px);
+  line-height: 1.24;
+}
+
+.marketplaceCell,
+.pizzaosCell {
+  gap: 20px;
+  padding: 16px 28px;
+}
+
+.marketplaceCell > svg,
+.pizzaosCell > svg {
+  width: 27px;
+  height: 27px;
+  flex: 0 0 auto;
+}
+
+.marketplaceCell > svg {
+  color: var(--color-brand-red);
+}
+
+.pizzaosCell {
+  background: rgba(244, 58, 38, 0.018);
+}
+
+.pizzaosCell > svg {
+  color: #139b63;
+}
+
+.pizzaosCell strong:first-child {
+  color: #111318;
+}
+
+.row:first-child .pizzaosCell strong {
+  color: #149a62;
+}
+
+.savingsCard {
+  padding: 28px 28px 26px;
+  border: 1px solid rgba(31, 28, 25, 0.08);
+  border-radius: 16px;
+  background: #ffffff;
+  box-shadow: 0 24px 58px rgba(32, 25, 20, 0.1);
+}
+
+.savingsCard h3 {
+  margin: 0 0 8px;
+  color: #111318;
+  font-family: var(--font-heading);
+  font-size: 20px;
+  font-weight: 900;
+  letter-spacing: 0;
+  line-height: 1.1;
+}
+
+.orderCount {
+  margin: 0 0 18px;
+  color: #4c535e;
+  font-size: 20px;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.savingsBlock {
+  padding: 22px 0;
+  border-top: 1px solid rgba(31, 28, 25, 0.1);
+}
+
+.savingsBlock > span,
+.savingsBlock p {
+  color: #111318;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.savingsBlock p {
+  margin: 8px 0 0;
+  font-weight: 600;
+}
+
+.savingsBlock strong {
+  display: block;
+  margin-top: 10px;
+  font-family: var(--font-heading);
+  font-size: 40px;
+  font-weight: 900;
+  line-height: 0.95;
+  letter-spacing: 0;
+}
+
+.savingsBlock small {
+  font-family: var(--font-body);
+  font-size: 21px;
+  font-weight: 800;
+}
+
+.loss {
+  color: #111318;
+}
+
+.gain {
+  color: #149a62;
+}
+
+.yearlyGain {
+  margin-top: 8px;
+  padding: 20px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, rgba(17, 168, 101, 0.12), rgba(244, 58, 38, 0.045));
+}
+
+.yearlyGain strong,
+.yearlyGain span {
+  display: block;
+  color: #111318;
+  line-height: 1.2;
+}
+
+.yearlyGain strong {
+  color: #148e5d;
+  font-size: 24px;
+  font-weight: 900;
+}
+
+.yearlyGain span {
+  margin-top: 5px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.bottomCta {
+  width: min(100%, 1080px);
+  margin: 42px auto 0;
+  display: grid;
+  grid-template-columns: 72px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 24px;
+  padding: 26px 36px;
+  border-radius: 16px;
+  background: rgba(244, 58, 38, 0.055);
+  box-shadow: 0 22px 52px rgba(32, 25, 20, 0.06);
+}
+
+.bottomIcon {
+  width: 64px;
+  height: 64px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #ffffff;
+  color: var(--color-brand-red);
+  box-shadow: 0 14px 30px rgba(244, 58, 38, 0.09);
+}
+
+.bottomIcon svg {
+  width: 34px;
+  height: 34px;
+}
+
+.bottomCopy strong,
+.bottomCopy span {
+  display: block;
+}
+
+.bottomCopy strong {
+  color: #111318;
+  font-size: clamp(17px, 1.2vw, 20px);
+  font-weight: 900;
+  line-height: 1.2;
+}
+
+.bottomCopy span {
+  margin-top: 8px;
+  color: #4e555f;
+  font-size: clamp(14px, 1vw, 17px);
+  line-height: 1.45;
+}
+
+.ctaStack {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.cta {
+  min-width: 318px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  padding: 18px 24px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #f43a26, #e92818);
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 900;
+  line-height: 1;
+  box-shadow: 0 18px 34px rgba(244, 58, 38, 0.22);
+}
+
+.cta svg {
+  width: 20px;
+  height: 20px;
+}
+
+.ctaNote {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #4f5661;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.ctaNote svg {
+  width: 17px;
+  height: 17px;
+  color: #139b63;
+}
+
+@media (max-width: 1180px) {
+  .comparisonArea {
+    grid-template-columns: 1fr;
+  }
+
+  .savingsCard {
+    width: min(100%, 560px);
+    margin-inline: auto;
+  }
+
+  .bottomCta {
+    grid-template-columns: 64px 1fr;
+  }
+
+  .ctaStack {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 860px) {
+  .section {
+    padding-block: 54px 64px;
+  }
+
+  .subtitle br {
+    display: none;
+  }
+
+  .columnHeaders {
+    display: none;
+  }
+
+  .rows {
+    border-radius: 14px;
+  }
+
+  .row {
+    grid-template-columns: 1fr;
+    min-height: 0;
+  }
+
+  .rowLabel,
+  .marketplaceCell,
+  .pizzaosCell {
+    padding: 16px 18px;
+  }
+
+  .marketplaceCell,
+  .pizzaosCell {
+    border-top: 1px solid rgba(31, 28, 25, 0.08);
+  }
+
+  .marketplaceCell::before,
+  .pizzaosCell::before {
+    min-width: 92px;
+    color: #69717d;
+    font-size: 12px;
+    font-weight: 900;
+    text-transform: uppercase;
+  }
+
+  .marketplaceCell::before {
+    content: "Marketplace";
+  }
+
+  .pizzaosCell::before {
+    content: "PizzaOS";
+  }
+
+  .bottomCta {
+    grid-template-columns: 1fr;
+    justify-items: center;
+    text-align: center;
+    padding: 28px 22px;
+  }
+
+  .cta {
+    width: min(100%, 360px);
+    min-width: 0;
+  }
+}
+
+@media (max-width: 560px) {
+  .inner {
+    padding-inline: 18px;
+  }
+
+  .eyebrow {
+    font-size: 12px;
+    padding-inline: 16px;
+  }
+
+  .title {
+    font-size: clamp(42px, 13vw, 58px);
+  }
+
+  .subtitle {
+    margin-bottom: 26px;
+  }
+
+  .rowLabel {
+    align-items: flex-start;
+  }
+
+  .featureIcon {
+    width: 46px;
+    height: 46px;
+  }
+
+  .marketplaceCell,
+  .pizzaosCell {
+    display: grid;
+    grid-template-columns: 92px 24px 1fr;
+    gap: 12px;
+  }
+
+  .savingsCard {
+    padding: 24px 22px;
+  }
+
+  .bottomCopy span {
+    font-size: 14px;
+  }
+}

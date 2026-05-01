@@ -5,6 +5,7 @@ import { ChallengesSection } from "../features/home/components/challenges-sectio
 import { CompletePlatformSection } from "../features/home/components/complete-platform-section";
 import { FeatureDifferenceSection } from "../features/home/components/feature-difference-section";
 import { LandingShell } from "../features/home/components/landing-shell";
+import { MarginComparisonSection } from "../features/home/components/margin-comparison-section";
 
 describe("landing shell", () =>
 {
@@ -16,6 +17,7 @@ describe("landing shell", () =>
     expect(markup).toContain("LE SFIDE DI OGNI PIZZERIA");
     expect(markup).toContain("soluzione-completa");
     expect(markup).toContain("funzionalita-differenza");
+    expect(markup).toContain("MENO COSTI, PIÙ MARGINE");
     expect(markup).toContain("Ecosistema");
     expect(markup).toContain("Reset demo");
   });
@@ -59,5 +61,23 @@ describe("landing shell", () =>
     expect(markup).toContain("AI che lavora per te");
     expect(markup).toContain("Tutte le funzionalità sono integrate");
     expect(markup).toContain("Scopri tutte le funzionalità");
+  });
+
+  it("renders the fifth margin comparison section from the supplied screen", () =>
+  {
+    const markup = renderToString(createElement(MarginComparisonSection, { onRequestDemo: () => undefined }));
+
+    expect(markup).toContain("MENO COSTI, PIÙ MARGINE");
+    expect(markup).toContain("Più ordini diretti.");
+    expect(markup).toContain("Più <span>margine</span> per te.");
+    expect(markup).toContain("Marketplace");
+    expect(markup).toContain("Pizza<span>OS</span>");
+    expect(markup).toContain("Commissioni sugli ordini");
+    expect(markup).toContain("Il cliente è tuo");
+    expect(markup).toContain("Dati e analytics");
+    expect(markup).toContain("0%");
+    expect(markup).toContain("500 ordini al mese");
+    expect(markup).toContain("9.000 € in più");
+    expect(markup).toContain("Scopri quanto puoi risparmiare");
   });
 });

@@ -18,7 +18,7 @@ This app does not own shared tokens, domain contracts, or reusable cross-app pri
 
 - `app/layout.tsx`: root metadata and layout shell
 - `app/page.tsx`: landing route entry
-- `src/features/home`: landing shell composition, including the hero, challenge grid, complete-platform visual section, product story sections, differentiation, and final CTA
+- `src/features/home`: landing shell composition, including the hero, challenge grid, complete-platform visual section, feature-difference section, margin comparison section, product story sections, differentiation, and final CTA
 
 ## Shared Dependencies
 
