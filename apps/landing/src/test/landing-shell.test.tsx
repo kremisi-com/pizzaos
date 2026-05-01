@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { createElement } from "react";
 import { renderToString } from "react-dom/server";
+import { AnalyticsGrowthSection } from "../features/home/components/analytics-growth-section";
 import { ChallengesSection } from "../features/home/components/challenges-section";
 import { CompletePlatformSection } from "../features/home/components/complete-platform-section";
 import { FeatureDifferenceSection } from "../features/home/components/feature-difference-section";
@@ -18,6 +19,7 @@ describe("landing shell", () =>
     expect(markup).toContain("soluzione-completa");
     expect(markup).toContain("funzionalita-differenza");
     expect(markup).toContain("MENO COSTI, PIÙ MARGINE");
+    expect(markup).toContain("dati-crescita");
     expect(markup).toContain("Ecosistema");
     expect(markup).toContain("Reset demo");
   });
@@ -79,5 +81,24 @@ describe("landing shell", () =>
     expect(markup).toContain("500 ordini al mese");
     expect(markup).toContain("9.000 € in più");
     expect(markup).toContain("Scopri quanto puoi risparmiare");
+  });
+
+  it("renders the sixth analytics growth section from the supplied screen", () =>
+  {
+    const markup = renderToString(createElement(AnalyticsGrowthSection));
+
+    expect(markup).toContain("DATI, ANALISI, CRESCITA");
+    expect(markup).toContain("Dati che contano.");
+    expect(markup).toContain("Decisioni che <span>fanno crescere.</span>");
+    expect(markup).toContain("Analytics avanzate");
+    expect(markup).toContain("Previsioni di vendita");
+    expect(markup).toContain("Panoramica");
+    expect(markup).toContain("Fatturato");
+    expect(markup).toContain("Vendite per categoria");
+    expect(markup).toContain("Insight AI per il tuo business");
+    expect(markup).toContain("Hai troppo impasto Kamut");
+    expect(markup).toContain("Questo cliente torna ogni venerdì");
+    expect(markup).toContain("Trasforma i dati in crescita reale");
+    expect(markup).toContain("Scopri come i dati fanno la differenza");
   });
 });

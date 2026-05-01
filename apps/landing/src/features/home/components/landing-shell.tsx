@@ -2,6 +2,7 @@
 
 import { loadDemoState, resetDemoState, type LandingSeed } from "@pizzaos/mock-data";
 import { useState, type ReactElement } from "react";
+import { AnalyticsGrowthSection } from "./analytics-growth-section";
 import { DemoRequestModal } from "./demo-request-modal";
 import { CompletePlatformSection } from "./complete-platform-section";
 import { DifferentiationSection } from "./differentiation-section";
@@ -112,6 +113,9 @@ export function LandingShell(): ReactElement
 
         {/* Margin comparison section */}
         <MarginComparisonSection onRequestDemo={handleOpenModal} />
+
+        {/* Analytics growth visual section */}
+        <AnalyticsGrowthSection />
 
         {/* Stats strip */}
         <StatsSection />
