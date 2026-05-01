@@ -4,17 +4,21 @@ import { loadDemoState, resetDemoState, type LandingSeed } from "@pizzaos/mock-d
 import { useState, type ReactElement } from "react";
 import { AnalyticsGrowthSection } from "./analytics-growth-section";
 import { DemoRequestModal } from "./demo-request-modal";
+import { ChainManagementSection } from "./chain-management-section";
 import { CompletePlatformSection } from "./complete-platform-section";
 import { DifferentiationSection } from "./differentiation-section";
 import { EcosystemSection } from "./ecosystem-section";
+import { FaqSection } from "./faq-section";
 import { FeatureDifferenceSection } from "./feature-difference-section";
 import { FeatureSection } from "./feature-section";
 import { FinalCtaSection } from "./final-cta-section";
 import { Footer } from "./footer";
 import { HeroSection } from "./hero-section";
+import { IntelligentOrdersSection } from "./intelligent-orders-section";
 import { ChallengesSection } from "./challenges-section";
 import { MarginComparisonSection } from "./margin-comparison-section";
 import { Navbar } from "./navbar";
+import { PricingSection } from "./pricing-section";
 import { StatsSection } from "./stats-section";
 
 const APP_ID = "landing" as const;
@@ -117,6 +121,9 @@ export function LandingShell(): ReactElement
         {/* Analytics growth visual section */}
         <AnalyticsGrowthSection />
 
+        {/* Intelligent orders visual section */}
+        <IntelligentOrdersSection />
+
         {/* Stats strip */}
         <StatsSection />
 
@@ -160,6 +167,12 @@ export function LandingShell(): ReactElement
           variant="white"
         />
 
+        {/* Chain management section */}
+        <ChainManagementSection />
+
+        {/* Pricing section */}
+        <PricingSection onRequestDemo={handleOpenModal} />
+
         {/* Delivery section */}
         <FeatureSection
           id="delivery"
@@ -192,6 +205,9 @@ export function LandingShell(): ReactElement
 
         {/* Differentiation */}
         <DifferentiationSection />
+
+        {/* FAQ */}
+        <FaqSection />
 
         {/* Final CTA */}
         <FinalCtaSection onRequestDemo={handleOpenModal} />

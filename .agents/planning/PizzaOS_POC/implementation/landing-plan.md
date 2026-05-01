@@ -116,7 +116,11 @@ Complete the product story so the landing page covers the full PizzaOS value pro
 - Added the supplied feature-difference screen as a coded fourth landing section, immediately after the complete-platform section, with four navigable feature cards and a CTA into the existing ordering story.
 - Added the supplied margin-comparison screen as a coded fifth landing section, immediately after the feature-difference section, with a marketplace vs PizzaOS matrix, savings example, and demo-request CTA.
 - Added the supplied final CTA screen as a coded landing section, preserving the existing trial and demo-request actions while adding the benefit list, trial card, product mockups, partner strip, ratings, and onboarding/support/training/results trust bar.
+- Added the supplied FAQ screen as a coded landing section near the final conversion area, with category chips, two-column FAQ cards, support contact options, and structural test coverage.
 - Added the supplied analytics-growth screen as a coded sixth landing section, immediately after the margin comparison section, with KPI cards, category and order charts, AI insight cards, and a CTA into the admin dashboard.
+- Added the supplied intelligent order-management dashboard screen as a coded seventh landing section, immediately after the analytics-growth section, with automatic routing pillars, Rush Hours controls, live order board, integrations, device mockups, benefit strip, and structural test coverage.
+- Added the supplied chain-management screen as a coded eighth landing section, after the analytics product section, with multi-store admin mockup, consolidated KPIs, store table, map, operational alerts, testimonial, and CTA into the admin dashboard.
+- Added the supplied simple-pricing screen as a coded ninth landing section after chain management, with plan cards, a comparison table, transparency panel, trial CTA, and structural test coverage.
 
 ## Step 5: Add motion, responsive polish, form states, and landing smoke coverage
 
