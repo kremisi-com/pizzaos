@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import type { ReactElement } from "react";
 import styles from "./navbar.module.css";
@@ -26,13 +27,14 @@ export function Navbar({ onRequestDemo }: NavbarProps): ReactElement
       <div className={styles.inner}>
         {/* Logo */}
         <Link href="/" className={styles.logo} aria-label="PizzaOS – torna alla home">
-          <div className={styles.logoMark} aria-hidden="true">
-            <span className={styles.logoMarkIcon}>🍕</span>
-          </div>
-          <span className={styles.logoName}>
-            <span className={styles.logoNamePizza}>Pizza</span>
-            <span className={styles.logoNameOs}>OS</span>
-          </span>
+          <Image
+            className={styles.logoImage}
+            src="/images/logo.png"
+            alt="PizzaOS"
+            width={1663}
+            height={332}
+            priority
+          />
         </Link>
 
         {/* Desktop nav links */}

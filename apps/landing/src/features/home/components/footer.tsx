@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import type { ReactElement } from "react";
 import styles from "./footer.module.css";
@@ -47,10 +48,13 @@ export function Footer({ onResetDemo }: FooterProps): ReactElement
           {/* Brand column */}
           <div className={styles.brand}>
             <Link href="/" className={styles.logo} aria-label="PizzaOS home">
-              <div className={styles.logoMark} aria-hidden="true">
-                <span className={styles.logoMarkText}>P</span>
-              </div>
-              <span className={styles.logoName}>PizzaOS</span>
+              <Image
+                className={styles.logoImage}
+                src="/images/logo.png"
+                alt="PizzaOS"
+                width={1663}
+                height={332}
+              />
             </Link>
             <p className={styles.tagline}>
               Il software più elegante per pizzerie serie. Ordini, marketing,

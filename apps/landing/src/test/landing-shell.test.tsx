@@ -33,6 +33,7 @@ describe("landing shell", () =>
     expect(markup).toContain("PRONTO A FAR CRESCERE LA TUA PIZZERIA?");
     expect(markup).toContain("Ecosistema");
     expect(markup).toContain("Reset demo");
+    expect(markup).toContain("%2Fimages%2Flogo.png");
   });
 
   it("renders the challenges section with all demo problem cards", () =>

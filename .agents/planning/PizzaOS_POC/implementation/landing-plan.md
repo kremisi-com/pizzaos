@@ -148,3 +148,7 @@ Polish the landing app into a demo-ready marketing surface.
 
 - The landing page is presentation-ready on desktop and still convincing on smaller screens, with working CTA paths and
 clean interaction states.
+
+**Implementation note**
+
+- Updated the global landing brand treatment to use the curated `public/images/logo.png` asset in the navbar and footer.

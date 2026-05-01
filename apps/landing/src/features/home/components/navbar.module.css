@@ -28,40 +28,14 @@
 .logo {
   display: flex;
   align-items: center;
-  gap: 8px;
   text-decoration: none;
   flex-shrink: 0;
 }
 
-.logoMark {
-  width: 32px;
-  height: 32px;
-  background-color: var(--color-brand-red);
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.logoMarkIcon {
-  font-size: 16px;
-  line-height: 1;
-}
-
-.logoName {
-  font-family: var(--font-heading);
-  font-weight: 800;
-  font-size: 18px;
-  letter-spacing: -0.03em;
-}
-
-.logoNamePizza {
-  color: var(--color-dark);
-}
-
-.logoNameOs {
-  color: var(--color-brand-red);
+.logoImage {
+  display: block;
+  width: clamp(138px, 11vw, 168px);
+  height: auto;
 }
 
 /* Nav links */
@@ -143,6 +117,10 @@
 }
 
 @media (max-width: 768px) {
+  .logoImage {
+    width: 132px;
+  }
+
   .loginLink {
     display: none;
   }

@@ -28,34 +28,14 @@
 .logo {
   display: flex;
   align-items: center;
-  gap: 10px;
   text-decoration: none;
 }
 
-.logoMark {
-  width: 32px;
-  height: 32px;
-  background-color: var(--color-brand-red);
-  border-radius: 9px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.logoMarkText {
-  color: white;
-  font-family: var(--font-heading);
-  font-weight: 900;
-  font-size: 14px;
-}
-
-.logoName {
-  font-family: var(--font-heading);
-  font-weight: 800;
-  font-size: 17px;
-  letter-spacing: -0.03em;
-  color: var(--color-white);
+.logoImage {
+  display: block;
+  width: 132px;
+  height: auto;
+  border-radius: 3px;
 }
 
 .tagline {
