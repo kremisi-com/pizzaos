@@ -11,40 +11,37 @@ const NAV_COLUMNS = [
       { label: "Marketing automation", href: "#marketing" },
       { label: "Analytics & AI", href: "#analytics" },
       { label: "Delivery & ops", href: "#operazioni" },
-      { label: "Ecosistema", href: "#ecosistema" }
-    ]
+      { label: "Ecosistema", href: "#ecosistema" },
+    ],
   },
   {
     title: "Demo",
     links: [
       { label: "App cliente", href: "/client" },
-      { label: "Dashboard admin", href: "/admin" }
-    ]
+      { label: "Dashboard admin", href: "/admin" },
+    ],
   },
   {
     title: "Differenziali",
     links: [
       { label: "Zero commissioni", href: "#differenziazione" },
       { label: "Dati tuoi", href: "#differenziazione" },
-      { label: "Setup 24h", href: "#differenziazione" }
-    ]
-  }
+      { label: "Setup 24h", href: "#differenziazione" },
+    ],
+  },
 ] as const;
 
-interface FooterProps
-{
-  readonly onResetDemo: () => void;
+interface FooterProps {
+  readonly onResetDemo?: () => void;
 }
 
-export function Footer({ onResetDemo }: FooterProps): ReactElement
-{
+export function Footer({ onResetDemo }: FooterProps): ReactElement {
   const year = new Date().getFullYear();
 
   return (
     <footer className={styles.footer} role="contentinfo">
       <div className={styles.inner}>
         <div className={styles.top}>
-
           {/* Brand column */}
           <div className={styles.brand}>
             <Link href="/" className={styles.logo} aria-label="PizzaOS home">
@@ -73,23 +70,32 @@ export function Footer({ onResetDemo }: FooterProps): ReactElement
               ))}
             </div>
           ))}
-
         </div>
 
         {/* Bottom bar */}
         <div className={styles.bottom}>
           <span className={styles.copyright}>
-            © {year} PizzaOS — Proof of Concept. Tutti i diritti riservati.
+            © {year}{" "}
+            <a
+              href="https://kremisi.com"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Kremisi
+            </a>{" "}
+            — Proof of Concept. Tutti i diritti riservati.
           </span>
-          <button
-            type="button"
-            onClick={onResetDemo}
-            className={styles.resetLink}
-            id="footer-reset-demo"
-            aria-label="Reimposta stato demo"
-          >
-            Reset demo
-          </button>
+          {onResetDemo ? (
+            <button
+              type="button"
+              onClick={onResetDemo}
+              className={styles.resetLink}
+              id="footer-reset-demo"
+              aria-label="Reimposta stato demo"
+            >
+              Reset demo
+            </button>
+          ) : null}
         </div>
       </div>
     </footer>

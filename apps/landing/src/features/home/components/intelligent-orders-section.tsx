@@ -160,7 +160,7 @@ const LANES = [
 
 type IntegrationPartner = {
   readonly name: string;
-  readonly logo?: {
+  readonly logo: {
     readonly src: string;
     readonly width: number;
     readonly height: number;
@@ -175,9 +175,6 @@ const INTEGRATIONS = [
       width: 1280,
       height: 342,
     },
-  },
-  {
-    name: "UberEats",
   },
 ] satisfies readonly IntegrationPartner[];
 
@@ -256,13 +253,11 @@ export function IntelligentOrdersSection(): ReactElement {
 
         <div className={styles.integrationPanel}>
           <div className={styles.deliveryPartner}>
-            <span className={styles.panelTitle}>
-              Anche senza gestire rider
-            </span>
             <p className={styles.deliveryPartnerText}>
-              PizzaOS è indicata anche per chi non vuole gestire una flotta di
-              rider interna: gli ordini possono integrarsi con Deliveroo,
-              mantenendo controllo operativo e semplicità di gestione.
+              <b>Non possiedi riders?</b> PizzaOS è indicata anche per chi non
+              vuole gestire una flotta di rider interna: gli ordini possono
+              integrarsi con Deliveroo, mantenendo controllo operativo e
+              semplicità di gestione.
             </p>
             <div className={styles.integrationLogos}>
               {INTEGRATIONS.map((integration) => (
@@ -270,17 +265,13 @@ export function IntelligentOrdersSection(): ReactElement {
                   className={styles.integrationLogo}
                   key={integration.name}
                 >
-                  {integration.logo ? (
-                    <Image
-                      className={styles.integrationLogoImage}
-                      src={integration.logo.src}
-                      alt={integration.name}
-                      width={integration.logo.width}
-                      height={integration.logo.height}
-                    />
-                  ) : (
-                    integration.name
-                  )}
+                  <Image
+                    className={styles.integrationLogoImage}
+                    src={integration.logo.src}
+                    alt={integration.name}
+                    width={integration.logo.width}
+                    height={integration.logo.height}
+                  />
                 </strong>
               ))}
             </div>
