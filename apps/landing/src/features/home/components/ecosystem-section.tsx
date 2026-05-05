@@ -31,7 +31,6 @@ interface EcosystemItem {
   readonly status: EcosystemStatus;
   readonly title: string;
   readonly description: string;
-  readonly highlights: readonly string[];
   readonly features: readonly string[];
 }
 
@@ -54,7 +53,6 @@ const ECOSYSTEM_ITEMS: readonly EcosystemItem[] = [
     title: "Ordini digitali",
     description:
       "Ricevi ordini online con menu personalizzato, checkout guidato, pagamenti e disponibilità sempre aggiornata.",
-    highlights: ["Ordinazione da app/web", "Pagamento online", "Riordino rapido"],
     features: [
       "Menu digitale personalizzato",
       "Ordinazione da app/web",
@@ -76,7 +74,6 @@ const ECOSYSTEM_ITEMS: readonly EcosystemItem[] = [
     title: "Pizza builder",
     description:
       "Permetti ai clienti di creare pizze personalizzate con impasti, basi, topping, allergeni e prezzo in tempo reale.",
-    highlights: ["Impasti diversi", "Topping configurabili", "Prezzo in tempo reale"],
     features: [
       "Personalizzazione estrema della pizza",
       "Impasti diversi",
@@ -96,7 +93,6 @@ const ECOSYSTEM_ITEMS: readonly EcosystemItem[] = [
     title: "Ordine di gruppo",
     description:
       "Fai ordinare più persone dallo stesso menu condiviso, ognuna dal proprio dispositivo.",
-    highlights: ["Menu condiviso", "Carrello condiviso", "Split conto"],
     features: [
       "Menu condiviso tra più dispositivi",
       "Ognuno personalizza il proprio ordine",
@@ -113,7 +109,6 @@ const ECOSYSTEM_ITEMS: readonly EcosystemItem[] = [
     title: "Marketing automation",
     description:
       "Automatizza coupon, promo, recupero clienti inattivi, compleanni, feedback e recensioni Google.",
-    highlights: ["Coupon dall’app", "Promo automatiche", "Recensioni Google"],
     features: [
       "Coupon dall’app",
       "Cliente inattivo → sconto automatico",
@@ -133,7 +128,6 @@ const ECOSYSTEM_ITEMS: readonly EcosystemItem[] = [
     title: "Loyalty & abbonamenti",
     description:
       "Costruisci relazioni continuative con tessere fedeltà, punti, premi, card mensili e abbonamenti pizza.",
-    highlights: ["Tessera fedeltà", "Raccolta punti", "Abbonamento pizze"],
     features: [
       "Tessera fedeltà",
       "Raccolta punti",
@@ -151,7 +145,6 @@ const ECOSYSTEM_ITEMS: readonly EcosystemItem[] = [
     title: "Analytics AI",
     description:
       "Analizza vendite, domanda e comportamento dei clienti con insight automatici e suggerimenti operativi.",
-    highlights: ["Dashboard operativa", "Forecasting domanda", "Suggerimenti AI"],
     features: [
       "Dashboard operativa",
       "Pattern di vendita",
@@ -170,11 +163,6 @@ const ECOSYSTEM_ITEMS: readonly EcosystemItem[] = [
     title: "Delivery & tracciamento",
     description:
       "Gestisci consegne, rider, notifiche e tracciamento live con stato ordine sempre chiaro per il cliente.",
-    highlights: [
-      "Stato ordine chiaro",
-      "Tracciamento rider",
-      "Ottimizzazione consegne",
-    ],
     features: [
       "Stato ordine chiaro",
       "Notifiche sugli ordini",
@@ -192,7 +180,6 @@ const ECOSYSTEM_ITEMS: readonly EcosystemItem[] = [
     title: "Gestione ristorante",
     description:
       "Coordina ordini, reparti, staff, priorità e sedi da un pannello pensato per il lavoro quotidiano.",
-    highlights: ["Pannello ordini", "Comande per reparto", "Multi-sede"],
     features: [
       "Pannello amministrativo ordini",
       "Prioritizzazione ordini",
@@ -212,7 +199,6 @@ const ECOSYSTEM_ITEMS: readonly EcosystemItem[] = [
     title: "Gestione magazzino",
     description:
       "Collega inventario, ingredienti e menu per evitare vendite impossibili e aggiornare gli esauriti in tempo reale.",
-    highlights: ["Inventario live", "Esaurito automatico", "Promo su scorte"],
     features: [
       "Inventario in tempo reale",
       "Collegamento prodotti-menu",
@@ -229,7 +215,6 @@ const ECOSYSTEM_ITEMS: readonly EcosystemItem[] = [
     title: "Pagamenti & integrazioni",
     description:
       "Unifica pagamenti, split conto, fatture, scontrini elettronici, POS e integrazioni con la cassa.",
-    highlights: ["Split conto", "Fattura automatica", "Integrazione POS"],
     features: [
       "Pagamento da app",
       "Split conto",
@@ -247,7 +232,6 @@ const ECOSYSTEM_ITEMS: readonly EcosystemItem[] = [
     title: "Brand & canali proprietari",
     description:
       "Trasforma il menu in un canale proprietario, brandizzato e senza commissioni sugli ordini.",
-    highlights: ["Dominio personale", "Menu su misura", "Zero commissioni"],
     features: [
       "Dominio personale",
       "Ecosistema monobrand",
@@ -274,9 +258,7 @@ export function EcosystemSection(): ReactElement {
   }
 
   function handleCardToggle(title: string): void {
-    setOpenCardTitle((currentTitle) =>
-      currentTitle === title ? null : title,
-    );
+    setOpenCardTitle((currentTitle) => (currentTitle === title ? null : title));
   }
 
   return (
@@ -334,10 +316,8 @@ export function EcosystemSection(): ReactElement {
               .toLowerCase()
               .replaceAll(" ", "-")
               .replaceAll("&", "e")}`;
-            const additionalFeatureCount =
-              item.features.length - item.highlights.length;
+            const additionalFeatureCount = item.features.length;
             const additionalFeatureLabel = `+${additionalFeatureCount} funzioni incluse`;
-            const includedFeatureLabel = `Include ${item.features.length} funzioni`;
             const statusClassName = getStatusClassName(item.status);
 
             return (
@@ -359,20 +339,9 @@ export function EcosystemSection(): ReactElement {
                   <span className={styles.category}>{item.category}</span>
                   <h3 className={styles.cardTitle}>{item.title}</h3>
                   <p className={styles.cardDescription}>{item.description}</p>
-                  <ul
-                    className={styles.highlightList}
-                    aria-label="Funzioni in evidenza"
-                  >
-                    {item.highlights.map((feature) => (
-                      <li key={feature}>{feature}</li>
-                    ))}
-                  </ul>
                 </div>
 
                 <div className={styles.cardFooter}>
-                  <span className={styles.includedCount}>
-                    {includedFeatureLabel}
-                  </span>
                   <button
                     type="button"
                     className={styles.detailsButton}
@@ -416,11 +385,9 @@ export function EcosystemSection(): ReactElement {
 }
 
 function getStatusClassName(status: EcosystemStatus): string {
-  if (status === "Live nella demo")
-    return styles.statusLive;
+  if (status === "Live nella demo") return styles.statusLive;
 
-  if (status === "Prossimamente")
-    return styles.statusSoon;
+  if (status === "Prossimamente") return styles.statusSoon;
 
   return styles.statusRoadmap;
 }

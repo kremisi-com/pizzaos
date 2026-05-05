@@ -303,7 +303,7 @@ export function IntelligentOrdersSection(): ReactElement {
             </article>
           ))}
 
-          <Link className={styles.cta} href="/admin">
+          <Link className={styles.cta} href="#ecosistema">
             Scopri tutte le funzionalità
             <ArrowIcon />
           </Link>

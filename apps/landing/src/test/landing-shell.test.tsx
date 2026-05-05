@@ -276,7 +276,9 @@ describe("landing shell", () => {
     expect(markup).toContain("I miei dati e i pagamenti sono sicuri?");
     expect(markup).toContain("Serve ancora aiuto o sei interessato a PizzaOS?");
     expect(markup).toContain("WhatsApp");
+    expect(markup).toContain('href="https://wa.me/393517444749"');
     expect(markup).toContain("Email");
+    expect(markup).toContain('href="mailto:info@kremisi.com"');
     expect(markup).toContain("%2Fimages%2Flogo.png");
     expect(markup).toContain("La piattaforma completa per pizzerie moderne.");
   });

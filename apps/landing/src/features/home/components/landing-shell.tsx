@@ -1,9 +1,6 @@
 "use client";
 
-import {
-  loadDemoState,
-  type LandingSeed,
-} from "@pizzaos/mock-data";
+import { loadDemoState, type LandingSeed } from "@pizzaos/mock-data";
 import { useState, type ReactElement } from "react";
 import {
   DEFAULT_DEMO_SUCCESS_LINKS,
@@ -15,7 +12,6 @@ import { DemoRequestModal } from "./demo-request-modal";
 import { ChainManagementSection } from "./chain-management-section";
 import { CompletePlatformSection } from "./complete-platform-section";
 import { EcosystemSection } from "./ecosystem-section";
-import { FaqSection } from "./faq-section";
 import { Footer } from "./footer";
 import { HeroSection } from "./hero-section";
 import { IntelligentOrdersSection } from "./intelligent-orders-section";
@@ -118,11 +114,6 @@ export function LandingShell({
         {/* Ecosystem */}
         <MotionReveal delay={60} stagger variant="fade-up">
           <EcosystemSection />
-        </MotionReveal>
-
-        {/* FAQ */}
-        <MotionReveal delay={60} stagger variant="fade-up">
-          <FaqSection />
         </MotionReveal>
       </main>
 
