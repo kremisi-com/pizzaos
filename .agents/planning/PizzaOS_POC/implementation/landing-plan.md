@@ -157,3 +157,4 @@ clean interaction states.
   `data-motion` styles, reduced-motion handling, and a subtle navbar load animation.
 - Added CTA source tracking for the landing demo form so submissions opened from "Inizia la prova gratuita" include that
   intent in the form message sent to the mail endpoint.
+- Added favicon and app icon assets cropped from the PizzaOS logo mark, plus complete SEO metadata, manifest, robots, and sitemap route coverage for the landing app.

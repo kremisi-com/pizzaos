@@ -11,6 +11,13 @@ interface PngChunk {
 const PNG_SIGNATURE = Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]);
 const LOGO_PATH = resolve(process.cwd(), "public/images/logo.png");
 const LOGO_LIGHT_PATH = resolve(process.cwd(), "public/images/logo-light.png");
+const FAVICON_ASSETS = [
+  ["favicon-16x16.png", 16],
+  ["favicon-32x32.png", 32],
+  ["apple-touch-icon.png", 180],
+  ["icon-192.png", 192],
+  ["icon-512.png", 512],
+] as const;
 
 interface PngPixelAnalysis {
   readonly width: number;
@@ -201,5 +208,37 @@ describe("landing logo asset", () => {
     expect(lightAnalysis.redOpaquePixels).toBe(defaultAnalysis.redOpaquePixels);
     expect(lightAnalysis.darkOpaquePixels).toBe(0);
     expect(lightAnalysis.whiteOpaquePixels).toBeGreaterThan(80_000);
+  });
+
+  it("uses a cropped logo mark for favicon and app icon assets", () => {
+    for (const [fileName, expectedSize] of FAVICON_ASSETS) {
+      const buffer = readFileSync(
+        resolve(process.cwd(), "public/favicon", fileName),
+      );
+      const chunks = readPngChunks(buffer);
+      const header = chunks.find((chunk) => chunk.type === "IHDR");
+      const imageData = Buffer.concat(
+        chunks
+          .filter((chunk) => chunk.type === "IDAT")
+          .map((chunk) => chunk.data),
+      );
+
+      expect(buffer.subarray(0, PNG_SIGNATURE.length)).toEqual(PNG_SIGNATURE);
+      expect(header?.data[8]).toBe(8);
+      expect(header?.data[9]).toBe(6);
+
+      const analysis = analyzePngPixels(
+        inflateSync(imageData),
+        header?.data.readUInt32BE(0) ?? 0,
+        header?.data.readUInt32BE(4) ?? 0,
+      );
+      const totalPixels = expectedSize * expectedSize;
+
+      expect(analysis.width).toBe(expectedSize);
+      expect(analysis.height).toBe(expectedSize);
+      expect(analysis.transparentPixels).toBeGreaterThan(totalPixels * 0.4);
+      expect(analysis.redOpaquePixels).toBeGreaterThan(totalPixels * 0.35);
+      expect(analysis.darkOpaquePixels).toBe(0);
+    }
   });
 });

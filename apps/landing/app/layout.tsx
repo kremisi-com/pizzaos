@@ -1,25 +1,11 @@
 import { getThemeClass, getThemeStyleVariables } from "@pizzaos/brand";
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import type { CSSProperties, ReactElement, ReactNode } from "react";
 import "./globals.css";
+import { landingMetadata, landingViewport } from "./seo";
 
-export const metadata: Metadata = {
-  title: "PizzaOS – Il software più elegante per pizzerie serie",
-  description:
-    "Ordini online, marketing automatico, analytics AI e gestione operativa in un unico sistema. PizzaOS trasforma ogni pizzeria in un brand digitale di successo.",
-  keywords: ["pizzeria software", "ordini online pizzeria", "gestione pizzeria", "food tech", "POS pizzeria"],
-  authors: [{ name: "PizzaOS" }],
-  openGraph: {
-    title: "PizzaOS – Il software più elegante per pizzerie serie",
-    description: "Ordini, marketing, analytics e operazioni. Tutto in uno.",
-    type: "website",
-    locale: "it_IT"
-  },
-  robots: {
-    index: true,
-    follow: true
-  }
-};
+export const metadata: Metadata = landingMetadata;
+export const viewport: Viewport = landingViewport;
 
 interface RootLayoutProps
 {
