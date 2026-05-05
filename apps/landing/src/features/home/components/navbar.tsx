@@ -6,11 +6,11 @@ import type { ReactElement } from "react";
 import styles from "./navbar.module.css";
 
 const NAV_LINKS = [
-  { label: "Funzionalità", href: "#funzionalita" },
-  { label: "Perché PizzaOS", href: "#perche-pizzaos" },
-  { label: "Prezzi", href: "#prezzi" },
-  { label: "Risorse", href: "#risorse" },
-  { label: "Chi siamo", href: "#chi-siamo" },
+  { label: "Piattaforma", href: "#soluzione-completa" },
+  { label: "Ordini", href: "#gestione-ordini" },
+  { label: "Crescita", href: "#dati-crescita" },
+  { label: "Operazioni", href: "#gestione-catene" },
+  { label: "Prezzi", href: "#piani" },
 ] as const;
 
 interface NavbarProps {
@@ -58,7 +58,7 @@ export function Navbar({ onRequestDemo }: NavbarProps): ReactElement {
             id="navbar-cta-btn"
             onClick={onRequestDemo}
           >
-            Prova la demo
+            Apri la demo
           </button>
         </div>
       </div>
