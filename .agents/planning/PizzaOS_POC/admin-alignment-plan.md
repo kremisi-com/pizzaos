@@ -85,6 +85,7 @@ Pseudo-correlazione forte tra Client e Admin, senza sync runtime:
   **Done quando:** demo client->admin risulta seamless pur restando simulata localmente.
 ---
 ### Fase 8 — QA, Test, Documentazione
+- Stato: ✅ completata (test admin verdi, README admin aggiornato, planning admin sincronizzato con gli interventi di allineamento)
 - Aggiornare test unit/component interessati
 - Aggiornare `apps/admin/README.md`
 - Aggiornare planning docs admin (requirements/design/implementation plan)

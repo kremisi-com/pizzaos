@@ -11,6 +11,14 @@
 - [x] Step 7: Implement analytics, heatmap, AI insights, and local simulated update loops.
 - [x] Step 8: Implement delivery simulation, integration placeholders, and end-to-end admin polish.
 
+## Alignment Notes (Client Narrative Cohesion)
+
+- Dynamic Pricing control is surfaced in Marketing (not Inventory) to match the current admin information architecture.
+- Inventory is ingredient-first and drives operational alerts from ingredient stock levels.
+- Orders expose `demoOrderRef` and customer-facing milestone language aligned with the client POC narrative.
+- Analytics section is presented as "Analytics and AI" with simulated live-typing AI output tied to local order telemetry.
+- Profile area includes active subscription state, simulated plan switching, and locally persisted billing status.
+
 ## Step 1: Build the admin shell, seeded operator state, store switching, and reset flow
 
 **Objective**
