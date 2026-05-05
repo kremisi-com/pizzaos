@@ -339,6 +339,13 @@ export function DemoRequestModal({ isOpen, onClose }: DemoRequestModalProps): Re
                   />
                 </div>
 
+                <div className={styles.trialNote} aria-label="Offerta PizzaOS">
+                  <span className={styles.trialBadge}>2 mesi gratis</span>
+                  <span>
+                    I primi due mesi sono gratuiti, senza canone iniziale.
+                  </span>
+                </div>
+
                 {submitError ? (
                   <p className={styles.submitError} role="alert">
                     {submitError}

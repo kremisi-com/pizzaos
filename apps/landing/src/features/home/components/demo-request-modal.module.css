@@ -182,6 +182,32 @@
   outline-offset: 3px;
 }
 
+.trialNote {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  border: 1px solid rgba(25, 179, 107, 0.22);
+  border-radius: var(--radius-md);
+  background-color: var(--color-success-subtle);
+  color: var(--color-dark);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.trialBadge {
+  flex: 0 0 auto;
+  border-radius: var(--radius-full);
+  background-color: var(--color-success);
+  color: var(--color-white);
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1;
+  padding: 7px 9px;
+  text-transform: uppercase;
+}
+
 /* Success state */
 .success {
   text-align: center;
@@ -293,5 +319,10 @@
 
   .title {
     font-size: 24px;
+  }
+
+  .trialNote {
+    align-items: flex-start;
+    flex-direction: column;
   }
 }
