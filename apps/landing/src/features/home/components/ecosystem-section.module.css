@@ -1,6 +1,6 @@
 .section {
   overflow: hidden;
-  padding: 42px 0 84px;
+  padding: 42px 0 80px;
   background:
     radial-gradient(circle at 50% 0%, rgba(244, 58, 38, 0.06), transparent 34%),
     linear-gradient(180deg, #fffdfb 0%, #ffffff 50%, #fffdfb 100%);

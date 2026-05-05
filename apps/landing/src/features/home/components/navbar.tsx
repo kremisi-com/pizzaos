@@ -11,7 +11,7 @@ const NAV_LINKS = [
   { label: "Crescita", href: "#dati-crescita" },
   { label: "Funzionalità", href: "#ecosistema" },
   { label: "Prezzi", href: "#piani" },
-  { label: "Contatti", href: "#contatti" },
+  { label: "Contatti", href: "#faq" },
 ] as const;
 
 interface NavbarProps {
