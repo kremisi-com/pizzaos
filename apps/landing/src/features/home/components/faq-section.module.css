@@ -300,7 +300,7 @@
 
 .contactGrid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 12px;
 }
 
@@ -316,6 +316,9 @@
   border-radius: 14px;
   background: rgba(255, 255, 255, 0.74);
   box-shadow: 0 14px 32px rgba(32, 25, 20, 0.04);
+}
+.contactItem:nth-child(1) {
+  grid-column: 2;
 }
 
 .contactIcon,
@@ -364,24 +367,10 @@
   color: #17191d;
 }
 
-.brandMark {
-  width: 24px;
-  height: 24px;
-  display: inline-grid;
-  place-items: center;
-  border-radius: 50% 50% 50% 8px;
-  background: var(--color-brand-red);
-  color: #ffffff;
-  font-family: var(--font-heading);
-  font-size: 14px;
-  font-weight: 900;
-  line-height: 1;
-  transform: rotate(-16deg);
-}
-
-.signature strong {
-  font-size: 17px;
-  font-weight: 900;
+.signatureLogo {
+  display: block;
+  width: 118px;
+  height: auto;
 }
 
 .signature > span[aria-hidden="true"] {

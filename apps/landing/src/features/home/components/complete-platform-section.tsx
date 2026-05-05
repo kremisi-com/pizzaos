@@ -23,7 +23,7 @@ const CHECKLISTS = [
   ],
   [
     "Tracking live dell'ordine",
-    "Percorso ottimizzato",
+    "Percorso ottimizzato = +consegne -benzina",
     "Integrazione con Deliveroo",
     "Assegnazione rider automatica",
   ],

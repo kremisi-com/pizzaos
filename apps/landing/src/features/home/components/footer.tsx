@@ -31,11 +31,7 @@ const NAV_COLUMNS = [
   },
 ] as const;
 
-interface FooterProps {
-  readonly onResetDemo?: () => void;
-}
-
-export function Footer({ onResetDemo }: FooterProps): ReactElement {
+export function Footer(): ReactElement {
   const year = new Date().getFullYear();
 
   return (
@@ -85,17 +81,6 @@ export function Footer({ onResetDemo }: FooterProps): ReactElement {
             </a>{" "}
             — Proof of Concept. Tutti i diritti riservati.
           </span>
-          {onResetDemo ? (
-            <button
-              type="button"
-              onClick={onResetDemo}
-              className={styles.resetLink}
-              id="footer-reset-demo"
-              aria-label="Reimposta stato demo"
-            >
-              Reset demo
-            </button>
-          ) : null}
         </div>
       </div>
     </footer>

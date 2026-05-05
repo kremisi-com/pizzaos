@@ -1,3 +1,4 @@
+import Image from "next/image";
 import type { ReactElement } from "react";
 import styles from "./faq-section.module.css";
 
@@ -76,25 +77,15 @@ const QUESTIONS = [
 
 const CONTACTS = [
   {
-    icon: <ChatIcon />,
-    title: "Chat live",
-    text: "Risposta immediata da lunedì a domenica 9:00 – 23:00",
-  },
-  {
     icon: <WhatsAppIcon />,
-    title: "WhatsApp",
-    text: "Scrivici su WhatsApp +39 123 456 7890",
+    title: "Telefono e WhatsApp",
+    text: "Scrivici o chiama il numero +39 351 744 4749",
     green: true,
   },
   {
     icon: <MailIcon />,
     title: "Email",
-    text: "Inviaci una email supporto@pizzaos.it",
-  },
-  {
-    icon: <BookIcon />,
-    title: "Centro assistenza",
-    text: "Guide, tutorial e risposte a portata di click",
+    text: "Inviaci una email info@kremisi.com",
   },
 ] satisfies readonly {
   readonly icon: ReactElement;
@@ -183,8 +174,13 @@ export function FaqSection(): ReactElement {
         </div>
 
         <div className={styles.signature}>
-          <span className={styles.brandMark}>P</span>
-          <strong>PizzaOS</strong>
+          <Image
+            className={styles.signatureLogo}
+            src="/images/logo.png"
+            alt="PizzaOS"
+            width={1663}
+            height={332}
+          />
           <span aria-hidden="true" />
           <p>La piattaforma completa per pizzerie moderne.</p>
         </div>
@@ -370,14 +366,6 @@ function HeadsetIcon(): ReactElement {
   );
 }
 
-function ChatIcon(): ReactElement {
-  return (
-    <IconBase>
-      <path d="M5 6h14v10H9l-4 3V6Z" />
-    </IconBase>
-  );
-}
-
 function WhatsAppIcon(): ReactElement {
   return (
     <IconBase>
@@ -392,15 +380,6 @@ function MailIcon(): ReactElement {
     <IconBase>
       <path d="M4 6h16v12H4V6Z" />
       <path d="m4 8 8 6 8-6" />
-    </IconBase>
-  );
-}
-
-function BookIcon(): ReactElement {
-  return (
-    <IconBase>
-      <path d="M5 5.5c2.4 0 4.5.5 7 2v12c-2.5-1.5-4.6-2-7-2v-12Z" />
-      <path d="M19 5.5c-2.4 0-4.5.5-7 2v12c2.5-1.5 4.6-2 7-2v-12Z" />
     </IconBase>
   );
 }

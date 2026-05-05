@@ -9,8 +9,9 @@ const NAV_LINKS = [
   { label: "Piattaforma", href: "#soluzione-completa" },
   { label: "Ordini", href: "#gestione-ordini" },
   { label: "Crescita", href: "#dati-crescita" },
-  { label: "Operazioni", href: "#gestione-catene" },
+  { label: "Funzionalità", href: "#ecosistema" },
   { label: "Prezzi", href: "#piani" },
+  { label: "Contatti", href: "#contatti" },
 ] as const;
 
 interface NavbarProps {
