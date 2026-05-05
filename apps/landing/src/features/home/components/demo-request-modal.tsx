@@ -210,26 +210,7 @@ export function DemoRequestModal({
               Grazie {formData.name}! Ora puoi provare subito le due superfici
               demo di PizzaOS.
             </p>
-            <div className={styles.successActions}>
-              {demoLinks.map((link, index) => (
-                <Link
-                  href={link.href}
-                  className={
-                    index === 0
-                      ? styles.successPrimaryLink
-                      : styles.successSecondaryLink
-                  }
-                  id={
-                    index === 0
-                      ? "demo-modal-client-link"
-                      : "demo-modal-admin-link"
-                  }
-                  key={link.href}
-                >
-                  {link.label}
-                </Link>
-              ))}
-            </div>
+            <DemoSuccessActions demoLinks={demoLinks} />
           </div>
         ) : (
           /* Form */
@@ -366,6 +347,33 @@ export function DemoRequestModal({
           </>
         )}
       </div>
+    </div>
+  );
+}
+
+export function DemoSuccessActions({
+  demoLinks,
+}: {
+  readonly demoLinks: DemoSuccessLinks;
+}): ReactElement {
+  return (
+    <div className={styles.successActions}>
+      {demoLinks.map((link, index) => (
+        <Link
+          href={link.href}
+          target="_blank"
+          rel="noopener noreferrer"
+          className={
+            index === 0
+              ? styles.successPrimaryLink
+              : styles.successSecondaryLink
+          }
+          id={index === 0 ? "demo-modal-client-link" : "demo-modal-admin-link"}
+          key={link.href}
+        >
+          {link.label}
+        </Link>
+      ))}
     </div>
   );
 }

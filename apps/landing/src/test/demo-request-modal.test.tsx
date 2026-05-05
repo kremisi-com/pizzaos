@@ -1,7 +1,10 @@
 import { createElement } from "react";
 import { renderToString } from "react-dom/server";
 import { describe, expect, it } from "vitest";
-import { DemoRequestModal } from "../features/home/components/demo-request-modal";
+import {
+  DemoRequestModal,
+  DemoSuccessActions,
+} from "../features/home/components/demo-request-modal";
 import { createDemoSuccessLinks } from "../features/home/demo-links";
 
 describe("demo request modal", () => {
@@ -31,5 +34,19 @@ describe("demo request modal", () => {
       { label: "Demo Web-App Cliente", href: "https://client.example.test" },
       { label: "Demo Dashboard Admin", href: "https://admin.example.test" },
     ]);
+  });
+
+  it("opens success links in a new browser tab", () => {
+    const markup = renderToString(
+      createElement(DemoSuccessActions, {
+        demoLinks: createDemoSuccessLinks({
+          clientHref: "https://client.example.test",
+          adminHref: "https://admin.example.test",
+        }),
+      }),
+    );
+
+    expect(markup).toContain('target="_blank"');
+    expect(markup).toContain('rel="noopener noreferrer"');
   });
 });
