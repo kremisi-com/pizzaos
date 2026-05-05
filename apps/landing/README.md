@@ -36,6 +36,10 @@ From repository root:
 - `pnpm --filter @pizzaos/landing typecheck`
 - `pnpm --filter @pizzaos/landing test`
 
+## Environment
+
+- `KREMISI_MAIL_ENDPOINT`: optional server-only endpoint for demo request submissions. Defaults to `https://api.kremisi.com/pizzaos-mail.php`.
+
 ## Vercel
 
 - Create a dedicated Vercel project for this app.

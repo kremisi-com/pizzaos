@@ -1,9 +1,11 @@
 "use client";
 
+import Link from "next/link";
 import {
   type ChangeEvent,
   type FormEvent,
   type KeyboardEvent,
+  type MouseEvent,
   type ReactElement,
   useCallback,
   useEffect,
@@ -33,12 +35,25 @@ interface FormErrors
   readonly pizzeriaName?: string;
 }
 
+interface DemoRequestSubmitResponse
+{
+  readonly success?: boolean;
+  readonly message?: string;
+  readonly error?: string;
+  readonly errors?: readonly string[];
+}
+
 const EMPTY_FORM: FormData = {
   name: "",
   email: "",
   pizzeriaName: "",
   city: ""
 };
+
+export const DEMO_SUCCESS_LINKS = [
+  { label: "Demo Web-App Cliente", href: "/client" },
+  { label: "Demo Dashboard Admin", href: "/admin" }
+] as const;
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -70,6 +85,7 @@ export function DemoRequestModal({ isOpen, onClose }: DemoRequestModalProps): Re
   const [errors, setErrors] = useState<FormErrors>({});
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
   const backdropRef = useRef<HTMLDivElement>(null);
   const firstInputRef = useRef<HTMLInputElement>(null);
 
@@ -102,6 +118,7 @@ export function DemoRequestModal({ isOpen, onClose }: DemoRequestModalProps): Re
         setErrors({});
         setSubmitted(false);
         setSubmitting(false);
+        setSubmitError(null);
       }, 400);
     }
   }, [isOpen]);
@@ -111,7 +128,7 @@ export function DemoRequestModal({ isOpen, onClose }: DemoRequestModalProps): Re
     return null;
   }
 
-  function handleBackdropClick(e: React.MouseEvent<HTMLDivElement>): void
+  function handleBackdropClick(e: MouseEvent<HTMLDivElement>): void
   {
     if (e.target === backdropRef.current)
     {
@@ -124,6 +141,7 @@ export function DemoRequestModal({ isOpen, onClose }: DemoRequestModalProps): Re
     return (e) =>
     {
       setFormData((prev) => ({ ...prev, [field]: e.target.value }));
+      setSubmitError(null);
       if (errors[field as keyof FormErrors])
       {
         setErrors((prev) => ({ ...prev, [field]: undefined }));
@@ -131,7 +149,7 @@ export function DemoRequestModal({ isOpen, onClose }: DemoRequestModalProps): Re
     };
   }
 
-  function handleSubmit(e: FormEvent<HTMLFormElement>): void
+  async function handleSubmit(e: FormEvent<HTMLFormElement>): Promise<void>
   {
     e.preventDefault();
     const validationErrors = validateForm(formData);
@@ -143,13 +161,40 @@ export function DemoRequestModal({ isOpen, onClose }: DemoRequestModalProps): Re
     }
 
     setSubmitting(true);
+    setSubmitError(null);
 
-    /* Simulate async submission */
-    setTimeout(() =>
+    try
+    {
+      const response = await fetch("/api/demo-request", {
+        method: "POST",
+        body: new URLSearchParams({
+          name: formData.name,
+          email: formData.email,
+          pizzeriaName: formData.pizzeriaName,
+          city: formData.city
+        }),
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded"
+        }
+      });
+      const result = await readSubmitResponse(response);
+
+      if (!response.ok || !result.success)
+      {
+        setSubmitError(getSubmitErrorMessage(result));
+        return;
+      }
+
+      setSubmitted(true);
+    }
+    catch
+    {
+      setSubmitError("Impossibile inviare il form. Riprova tra poco.");
+    }
+    finally
     {
       setSubmitting(false);
-      setSubmitted(true);
-    }, 1200);
+    }
   }
 
   return (
@@ -180,31 +225,44 @@ export function DemoRequestModal({ isOpen, onClose }: DemoRequestModalProps): Re
           ? (
             /* Success state */
             <div className={styles.success} role="status" aria-live="polite">
-              <div className={styles.successIcon} aria-hidden="true">🎉</div>
-              <h2 className={styles.successTitle}>Richiesta inviata!</h2>
+              <div className={styles.successIcon} aria-hidden="true">✓</div>
+              <h2 className={styles.successTitle}>Dati inviati!</h2>
               <p className={styles.successDescription}>
-                Grazie {formData.name}! Il nostro team ti contatterà entro 24 ore
-                per organizzare la tua demo personalizzata di PizzaOS.
+                Grazie {formData.name}! Ora puoi provare subito le due superfici
+                demo di PizzaOS.
               </p>
-              <button
-                type="button"
-                onClick={onClose}
-                className={styles.successClose}
-                id="demo-modal-success-close"
-              >
-                Chiudi
-              </button>
+              <div className={styles.successActions}>
+                {DEMO_SUCCESS_LINKS.map((link, index) => (
+                  <Link
+                    href={link.href}
+                    className={
+                      index === 0
+                        ? styles.successPrimaryLink
+                        : styles.successSecondaryLink
+                    }
+                    id={
+                      index === 0
+                        ? "demo-modal-client-link"
+                        : "demo-modal-admin-link"
+                    }
+                    key={link.href}
+                  >
+                    {link.label}
+                  </Link>
+                ))}
+              </div>
             </div>
           )
           : (
             /* Form */
             <>
-              <div className={styles.eyebrow}>Demo gratuita</div>
+              <div className={styles.eyebrow}>Accesso demo</div>
               <h2 className={styles.title} id="demo-modal-title">
                 Scopri PizzaOS per la tua pizzeria
               </h2>
               <p className={styles.description}>
-                Lasciaci i tuoi dati e ti mostreremo tutto in una call di 20 minuti.
+                Lasciaci i tuoi dati e accedi subito alla web-app cliente e alla
+                dashboard admin.
               </p>
 
               <form className={styles.form} onSubmit={handleSubmit} noValidate>
@@ -281,13 +339,19 @@ export function DemoRequestModal({ isOpen, onClose }: DemoRequestModalProps): Re
                   />
                 </div>
 
+                {submitError ? (
+                  <p className={styles.submitError} role="alert">
+                    {submitError}
+                  </p>
+                ) : null}
+
                 <button
                   type="submit"
                   className={styles.submitBtn}
                   disabled={submitting}
                   id="demo-modal-submit"
                 >
-                  {submitting ? "Invio in corso…" : "Prenota la tua demo →"}
+                  {submitting ? "Invio in corso…" : "Invia i dati →"}
                 </button>
               </form>
             </>
@@ -296,4 +360,35 @@ export function DemoRequestModal({ isOpen, onClose }: DemoRequestModalProps): Re
       </div>
     </div>
   );
+}
+
+async function readSubmitResponse(response: Response): Promise<DemoRequestSubmitResponse>
+{
+  try
+  {
+    const jsonValue: unknown = await response.json();
+
+    if (jsonValue && typeof jsonValue === "object")
+    {
+      return jsonValue as DemoRequestSubmitResponse;
+    }
+  }
+  catch
+  {
+    return {};
+  }
+
+  return {};
+}
+
+function getSubmitErrorMessage(result: DemoRequestSubmitResponse): string
+{
+  if (typeof result.error === "string" && result.error.trim())
+  {
+    return result.error;
+  }
+
+  const firstError = result.errors?.find((error) => error.trim() !== "");
+
+  return firstError ?? "Impossibile inviare il form. Riprova tra poco.";
 }

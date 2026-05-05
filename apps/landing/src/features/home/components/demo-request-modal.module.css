@@ -189,7 +189,16 @@
 }
 
 .successIcon {
-  font-size: 48px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background-color: var(--color-success-subtle);
+  color: var(--color-success);
+  font-size: 32px;
+  font-weight: 800;
   margin-bottom: 16px;
 }
 
@@ -209,33 +218,71 @@
   margin-bottom: 28px;
 }
 
-.successClose {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  height: 48px;
-  padding: 0 28px;
-  background-color: var(--color-dark);
-  color: white;
-  border-radius: 14px;
-  font-size: 15px;
-  font-weight: 600;
-  border: none;
-  cursor: pointer;
-  transition:
-    opacity var(--duration-fast) var(--ease),
-    transform var(--duration-fast) var(--ease);
+.successActions {
+  display: grid;
+  gap: 12px;
 }
 
-.successClose:hover {
-  opacity: 0.85;
+.successPrimaryLink,
+.successSecondaryLink {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 50px;
+  padding: 12px 20px;
+  border-radius: 14px;
+  font-size: 15px;
+  font-weight: 700;
+  text-decoration: none;
+  transition:
+    background-color var(--duration-fast) var(--ease),
+    border-color var(--duration-fast) var(--ease),
+    color var(--duration-fast) var(--ease),
+    transform var(--duration-fast) var(--ease),
+    box-shadow var(--duration-fast) var(--ease);
+}
+
+.successPrimaryLink {
+  background-color: var(--color-brand-red);
+  color: var(--color-white);
+  box-shadow: var(--shadow-btn-primary);
+}
+
+.successSecondaryLink {
+  background-color: var(--color-white);
+  color: var(--color-dark);
+  border: 1.5px solid var(--color-border-strong);
+}
+
+.successPrimaryLink:hover {
+  background-color: var(--color-brand-red-dark);
+  box-shadow: var(--shadow-btn-primary-hover);
   transform: translateY(-1px);
+}
+
+.successSecondaryLink:hover {
+  border-color: var(--color-dark);
+  transform: translateY(-1px);
+}
+
+.successPrimaryLink:focus-visible,
+.successSecondaryLink:focus-visible {
+  outline: 2px solid var(--color-brand-red);
+  outline-offset: 3px;
 }
 
 .error {
   color: var(--color-brand-red);
   font-size: 13px;
   margin-top: 2px;
+}
+
+.submitError {
+  color: var(--color-brand-red);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.4;
+  margin: 0;
 }
 
 @media (max-width: 560px) {

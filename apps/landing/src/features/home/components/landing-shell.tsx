@@ -2,7 +2,6 @@
 
 import {
   loadDemoState,
-  resetDemoState,
   type LandingSeed,
 } from "@pizzaos/mock-data";
 import { useState, type ReactElement } from "react";
@@ -31,7 +30,7 @@ function resolveStorage(): Storage | undefined {
 }
 
 export function LandingShell(): ReactElement {
-  const [seed, setSeed] = useState<LandingSeed>(() =>
+  const [seed] = useState<LandingSeed>(() =>
     loadDemoState(APP_ID, { storage: resolveStorage() }),
   );
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -44,12 +43,6 @@ export function LandingShell(): ReactElement {
 
   function handleCloseModal(): void {
     setIsModalOpen(false);
-  }
-
-  function handleResetDemo(): void {
-    const resetSeed = resetDemoState(APP_ID, { storage: resolveStorage() });
-
-    setSeed(resetSeed);
   }
 
   return (
@@ -99,7 +92,7 @@ export function LandingShell(): ReactElement {
       </main>
 
       {/* Footer */}
-      <Footer onResetDemo={handleResetDemo} />
+      <Footer />
 
       {/* Demo request modal */}
       <DemoRequestModal isOpen={isModalOpen} onClose={handleCloseModal} />
