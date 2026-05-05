@@ -194,7 +194,7 @@ export function ChainManagementSection(): ReactElement
           <div className={styles.ctaCard}>
             <strong>Gestisci tutte le tue pizzerie con una sola piattaforma.</strong>
             <a href="/admin" className={styles.cta}>
-              Richiedi una demo gratuita
+              Prova la demo gratuitamente
               <ArrowIcon />
             </a>
             <span>

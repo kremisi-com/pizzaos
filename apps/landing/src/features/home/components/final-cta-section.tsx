@@ -8,68 +8,90 @@ const BENEFITS = [
   {
     icon: <GrowthIcon />,
     title: "Più ordini, più clienti, più fatturato",
-    description: "Attira nuovi clienti e fidelizza quelli esistenti con un'esperienza d'ordine impeccabile."
+    description:
+      "Attira nuovi clienti e fidelizza quelli esistenti con un'esperienza d'ordine impeccabile.",
   },
   {
     icon: <ClockIcon />,
     title: "Meno lavoro, più tempo",
-    description: "Automatizza ordini, marketing e operazioni per concentrarti su ciò che conta davvero."
+    description:
+      "Automatizza ordini, marketing e operazioni per concentrarti su ciò che conta davvero.",
   },
   {
     icon: <ShieldIcon />,
     title: "Zero commissioni",
-    description: "Paghi solo un canone mensile trasparente. Nessuna sorpresa, nessun costo nascosto."
+    description:
+      "Paghi solo un canone mensile trasparente. Nessuna sorpresa, nessun costo nascosto.",
   },
   {
     icon: <HeartIcon />,
     title: "Clienti più felici, recensioni migliori",
-    description: "Consegne puntuali, comunicazione chiara e un servizio che fa la differenza."
-  }
+    description:
+      "Consegne puntuali, comunicazione chiara e un servizio che fa la differenza.",
+  },
 ] as const;
 
 const TRIAL_ITEMS = [
   "Tutte le funzionalità incluse",
   "Setup guidato e onboarding dedicato",
   "Assistenza 7/7 sempre al tuo fianco",
-  "Disdici quando vuoi"
+  "Disdici quando vuoi",
 ] as const;
 
 const REAL_TIME_ORDERS = [
-  { id: "#1058", channel: "Consegna", status: "In preparazione", time: "18 min", tone: "red" },
-  { id: "#1057", channel: "Asporto", status: "Pronto", time: "5 min", tone: "green" },
-  { id: "#1056", channel: "Tavolo 7", status: "In forno", time: "8 min", tone: "amber" }
+  {
+    id: "#1058",
+    channel: "Consegna",
+    status: "In preparazione",
+    time: "18 min",
+    tone: "red",
+  },
+  {
+    id: "#1057",
+    channel: "Asporto",
+    status: "Pronto",
+    time: "5 min",
+    tone: "green",
+  },
+  {
+    id: "#1056",
+    channel: "Tavolo 7",
+    status: "In forno",
+    time: "8 min",
+    tone: "amber",
+  },
 ] as const;
 
 const TRUST_FEATURES = [
   {
     icon: <RocketIcon />,
     title: "Onboarding rapido",
-    description: "Il tuo account è attivo in meno di 24 ore."
+    description: "Il tuo account è attivo in meno di 24 ore.",
   },
   {
     icon: <HeadsetIcon />,
     title: "Supporto dedicato",
-    description: "Un team di esperti sempre disponibile per te."
+    description: "Un team di esperti sempre disponibile per te.",
   },
   {
     icon: <TrainingIcon />,
     title: "Formazione inclusa",
-    description: "Guide, tutorial e consigli per usare al meglio PizzaOS."
+    description: "Guide, tutorial e consigli per usare al meglio PizzaOS.",
   },
   {
     icon: <BarsIcon />,
     title: "Risultati misurabili",
-    description: "Dati, analytics e insight per far crescere il tuo business."
-  }
+    description: "Dati, analytics e insight per far crescere il tuo business.",
+  },
 ] as const;
 
-interface FinalCtaSectionProps
-{
+interface FinalCtaSectionProps {
   readonly onRequestDemo: () => void;
 }
 
-export function FinalCtaSection({ onRequestDemo }: FinalCtaSectionProps): ReactElement
-{
+export function FinalCtaSection({
+  onRequestDemo,
+}: FinalCtaSectionProps): ReactElement {
   return (
     <section className={styles.section} aria-labelledby="final-cta-title">
       <div className={styles.inner}>
@@ -79,12 +101,14 @@ export function FinalCtaSection({ onRequestDemo }: FinalCtaSectionProps): ReactE
         </div>
 
         <h2 className={styles.title} id="final-cta-title">
-          Inizia oggi.<br />
+          Inizia oggi.
+          <br />
           <span>Trasforma la tua pizzeria.</span>
         </h2>
 
         <p className={styles.description}>
-          Unisciti a centinaia di pizzerie che già usano PizzaOS<br />
+          Unisciti a centinaia di pizzerie che già usano PizzaOS
+          <br />
           per vendere di più, lavorare meglio e far felici i propri clienti.
         </p>
 
@@ -138,48 +162,18 @@ export function FinalCtaSection({ onRequestDemo }: FinalCtaSectionProps): ReactE
 
             <p className={styles.securityNote}>
               <ShieldSmallIcon />
-              I tuoi dati sono al sicuro con noi.<br />
+              I tuoi dati sono al sicuro con noi.
+              <br />
               Conforme al GDPR e agli standard di sicurezza più elevati.
             </p>
           </div>
 
-          <div className={styles.productVisual} aria-label="Anteprima dashboard PizzaOS">
+          <div
+            className={styles.productVisual}
+            aria-label="Anteprima dashboard PizzaOS"
+          >
             <DashboardMockup />
             <PhoneMockup />
-          </div>
-        </div>
-
-        <div className={styles.socialProof}>
-          <div className={styles.ratingBlock}>
-            <div className={styles.avatars} aria-hidden="true">
-              <span className={styles.avatarOne}>M</span>
-              <span className={styles.avatarTwo}>G</span>
-              <span className={styles.avatarThree}>L</span>
-              <span className={styles.avatarFour}>A</span>
-            </div>
-            <div>
-              <div className={styles.stars} aria-label="Valutazione cinque stelle">★★★★★</div>
-              <strong>Oltre 300 pizzerie già con PizzaOS</strong>
-              <p>E migliaia di clienti soddisfatti ogni giorno.</p>
-            </div>
-          </div>
-
-          <div className={styles.partnerBlock}>
-            <span>Integrato con i migliori partner</span>
-            <div className={styles.partnerLogos} aria-label="Partner delivery">
-              <strong className={styles.deliveroo}>deliveroo</strong>
-              <strong className={styles.glovo}>Glovo</strong>
-              <strong className={styles.justEat}>JUST EAT</strong>
-              <span>e molti altri</span>
-            </div>
-          </div>
-
-          <div className={styles.trustpilotBlock}>
-            <span>Eccellente</span>
-            <div className={styles.trustStars} aria-hidden="true">
-              <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
-            </div>
-            <strong>4,8 su 5 su Trustpilot</strong>
           </div>
         </div>
 
@@ -199,8 +193,7 @@ export function FinalCtaSection({ onRequestDemo }: FinalCtaSectionProps): ReactE
   );
 }
 
-function DashboardMockup(): ReactElement
-{
+function DashboardMockup(): ReactElement {
   return (
     <div className={styles.dashboardMockup}>
       <div className={styles.dashboardHeader}>
@@ -218,28 +211,41 @@ function DashboardMockup(): ReactElement
           <path d="M2 66 C20 66 21 55 38 57 C54 59 60 65 76 55 C93 45 99 48 114 39 C129 30 138 50 154 48 C171 46 176 31 193 33 C211 35 214 23 231 26 C249 29 254 14 272 18 C290 22 295 8 312 14 C322 18 325 10 328 4" />
         </svg>
         <div className={styles.chartTicks}>
-          <span>12 Mag</span><span>13 Mag</span><span>14 Mag</span><span>15 Mag</span>
+          <span>12 Mag</span>
+          <span>13 Mag</span>
+          <span>14 Mag</span>
+          <span>15 Mag</span>
         </div>
       </div>
       <div className={styles.tableCard}>
         <strong>Ordini in tempo reale</strong>
-        <div><span>#1058</span><span>Via Torino, 123</span><em>In preparazione</em></div>
-        <div><span>#1057</span><span>Asporto</span><em>Pronto</em></div>
-        <div><span>#1056</span><span>Tavolo 7</span><em>In forno</em></div>
+        <div>
+          <span>#1058</span>
+          <span>Via Torino, 123</span>
+          <em>In preparazione</em>
+        </div>
+        <div>
+          <span>#1057</span>
+          <span>Asporto</span>
+          <em>Pronto</em>
+        </div>
+        <div>
+          <span>#1056</span>
+          <span>Tavolo 7</span>
+          <em>In forno</em>
+        </div>
       </div>
     </div>
   );
 }
 
-interface KpiCardProps
-{
+interface KpiCardProps {
   readonly label: string;
   readonly value: string;
   readonly delta: string;
 }
 
-function KpiCard({ label, value, delta }: KpiCardProps): ReactElement
-{
+function KpiCard({ label, value, delta }: KpiCardProps): ReactElement {
   return (
     <div className={styles.kpiCard}>
       <span>{label}</span>
@@ -249,8 +255,7 @@ function KpiCard({ label, value, delta }: KpiCardProps): ReactElement
   );
 }
 
-function PhoneMockup(): ReactElement
-{
+function PhoneMockup(): ReactElement {
   return (
     <div className={styles.phoneMockup}>
       <div className={styles.phoneSpeaker} />
@@ -266,13 +271,25 @@ function PhoneMockup(): ReactElement
           <span>Ordini oggi</span>
           <strong>128</strong>
           <em>+21% vs ieri</em>
-          <svg aria-hidden="true" viewBox="0 0 180 52" preserveAspectRatio="none">
+          <svg
+            aria-hidden="true"
+            viewBox="0 0 180 52"
+            preserveAspectRatio="none"
+          >
             <path d="M2 42 C20 38 25 34 39 37 C52 40 58 27 72 30 C85 33 91 21 105 24 C120 27 124 15 138 18 C153 21 160 8 178 5" />
           </svg>
         </div>
         <div className={styles.phoneKpis}>
-          <div><span>Fatturato oggi</span><strong>2.450 €</strong><em>+18%</em></div>
-          <div><span>Tempo medio</span><strong>24 min</strong><em>+15%</em></div>
+          <div>
+            <span>Fatturato oggi</span>
+            <strong>2.450 €</strong>
+            <em>+18%</em>
+          </div>
+          <div>
+            <span>Tempo medio</span>
+            <strong>24 min</strong>
+            <em>+15%</em>
+          </div>
         </div>
         <div className={styles.phoneOrders}>
           <div className={styles.phoneOrdersHeader}>
@@ -282,22 +299,28 @@ function PhoneMockup(): ReactElement
           {REAL_TIME_ORDERS.map((order) => (
             <div className={styles.phoneOrder} key={order.id}>
               <span className={styles[`orderDot${order.tone}`]} />
-              <div><strong>{order.id}</strong><em>{order.channel}</em></div>
+              <div>
+                <strong>{order.id}</strong>
+                <em>{order.channel}</em>
+              </div>
               <p>{order.status}</p>
               <time>{order.time}</time>
             </div>
           ))}
         </div>
         <div className={styles.phoneNav}>
-          <span>Dashboard</span><span>Ordini</span><span>Menu</span><span>Analytics</span><span>Altro</span>
+          <span>Dashboard</span>
+          <span>Ordini</span>
+          <span>Menu</span>
+          <span>Analytics</span>
+          <span>Altro</span>
         </div>
       </div>
     </div>
   );
 }
 
-function GrowthIcon(): ReactElement
-{
+function GrowthIcon(): ReactElement {
   return (
     <svg aria-hidden="true" viewBox="0 0 24 24">
       <path d="M4 19V9" />
@@ -310,8 +333,7 @@ function GrowthIcon(): ReactElement
   );
 }
 
-function ClockIcon(): ReactElement
-{
+function ClockIcon(): ReactElement {
   return (
     <svg aria-hidden="true" viewBox="0 0 24 24">
       <circle cx="12" cy="12" r="8" />
@@ -320,8 +342,7 @@ function ClockIcon(): ReactElement
   );
 }
 
-function ShieldIcon(): ReactElement
-{
+function ShieldIcon(): ReactElement {
   return (
     <svg aria-hidden="true" viewBox="0 0 24 24">
       <path d="M12 3.5 19 6v5.2c0 4.3-2.5 7.6-7 9.3-4.5-1.7-7-5-7-9.3V6l7-2.5Z" />
@@ -330,8 +351,7 @@ function ShieldIcon(): ReactElement
   );
 }
 
-function HeartIcon(): ReactElement
-{
+function HeartIcon(): ReactElement {
   return (
     <svg aria-hidden="true" viewBox="0 0 24 24">
       <path d="M12 20s-7-4.4-8.5-9.2C2.4 7.2 4.7 4.5 8 4.5c1.8 0 3.2 1 4 2.2.8-1.2 2.2-2.2 4-2.2 3.3 0 5.6 2.7 4.5 6.3C19 15.6 12 20 12 20Z" />
@@ -339,8 +359,7 @@ function HeartIcon(): ReactElement
   );
 }
 
-function RocketIcon(): ReactElement
-{
+function RocketIcon(): ReactElement {
   return (
     <svg aria-hidden="true" viewBox="0 0 24 24">
       <path d="M14 4c2.4-.7 4.4-.7 5.8.2.8 1.5.8 3.4.1 5.9l-5 5-4.9-4.9 4-6.2Z" />
@@ -351,8 +370,7 @@ function RocketIcon(): ReactElement
   );
 }
 
-function GiftIcon(): ReactElement
-{
+function GiftIcon(): ReactElement {
   return (
     <svg aria-hidden="true" viewBox="0 0 24 24">
       <path d="M4 10h16v10H4z" />
@@ -364,8 +382,7 @@ function GiftIcon(): ReactElement
   );
 }
 
-function CheckIcon(): ReactElement
-{
+function CheckIcon(): ReactElement {
   return (
     <svg aria-hidden="true" viewBox="0 0 24 24">
       <circle cx="12" cy="12" r="8.2" />
@@ -374,8 +391,7 @@ function CheckIcon(): ReactElement
   );
 }
 
-function ArrowIcon(): ReactElement
-{
+function ArrowIcon(): ReactElement {
   return (
     <svg aria-hidden="true" viewBox="0 0 24 24">
       <path d="M5 12h13" />
@@ -384,8 +400,7 @@ function ArrowIcon(): ReactElement
   );
 }
 
-function ShieldSmallIcon(): ReactElement
-{
+function ShieldSmallIcon(): ReactElement {
   return (
     <svg aria-hidden="true" viewBox="0 0 24 24">
       <path d="M12 4.5 18 7v4.4c0 3.8-2.1 6.4-6 8.1-3.9-1.7-6-4.3-6-8.1V7l6-2.5Z" />
@@ -394,8 +409,7 @@ function ShieldSmallIcon(): ReactElement
   );
 }
 
-function HeadsetIcon(): ReactElement
-{
+function HeadsetIcon(): ReactElement {
   return (
     <svg aria-hidden="true" viewBox="0 0 24 24">
       <path d="M5 13v-1a7 7 0 0 1 14 0v1" />
@@ -406,8 +420,7 @@ function HeadsetIcon(): ReactElement
   );
 }
 
-function TrainingIcon(): ReactElement
-{
+function TrainingIcon(): ReactElement {
   return (
     <svg aria-hidden="true" viewBox="0 0 24 24">
       <path d="m3 8.5 9-4 9 4-9 4-9-4Z" />
@@ -417,8 +430,7 @@ function TrainingIcon(): ReactElement
   );
 }
 
-function BarsIcon(): ReactElement
-{
+function BarsIcon(): ReactElement {
   return (
     <svg aria-hidden="true" viewBox="0 0 24 24">
       <path d="M5 20V9" />

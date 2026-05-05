@@ -15,16 +15,16 @@
 .inner {
   position: relative;
   width: 100%;
-  max-width: var(--max-width);
+  max-width: 1440px;
   margin-inline: auto;
-  padding-inline: var(--page-gutter);
-  padding-top: 60px;
-  padding-bottom: 40px;
+  padding-inline: clamp(28px, 4vw, 80px);
+  padding-top: 20px;
+  padding-bottom: 100px;
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1.1fr 1fr;
   align-items: center;
-  gap: 40px;
-  min-height: calc(100vh - 68px - 80px); /* minus navbar and strip */
+  gap: 0;
+  min-height: 860px;
 }
 
 /* ================================================================
@@ -36,31 +36,36 @@
   flex-direction: column;
   align-items: flex-start;
   gap: 0;
-  max-width: 560px;
+  max-width: 548px;
+  position: relative;
+  z-index: 4;
 }
 
 /* ── Badge pill ── */
 .badge {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 6px 14px 6px 8px;
-  background-color: rgba(244, 58, 38, 0.08);
-  border: 1px solid rgba(244, 58, 38, 0.18);
+  gap: 10px;
+  padding: 9px 18px 9px 16px;
+  background-color: rgba(244, 58, 38, 0.075);
+  border: 0;
   border-radius: 9999px;
-  margin-bottom: 28px;
+  margin-bottom: 34px;
 }
 
 .badgeIcon {
-  font-size: 14px;
-  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-brand-red);
+  flex-shrink: 0;
 }
 
 .badgeText {
   font-family: var(--font-body);
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 700;
-  letter-spacing: 0.06em;
+  letter-spacing: 0;
   color: var(--color-brand-red);
   text-transform: uppercase;
 }
@@ -68,671 +73,215 @@
 /* ── Headline ── */
 .headline {
   font-family: var(--font-heading);
-  font-size: clamp(38px, 4.5vw, 62px);
-  font-weight: 900;
-  line-height: 1.0;
-  letter-spacing: -0.03em;
+  font-size: clamp(48px, 5.5vw, 72px);
+  font-weight: 850;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
   color: var(--color-dark);
-  margin-bottom: 24px;
+  margin-bottom: 16px;
 }
 
 .headlineAccent {
   color: var(--color-brand-red);
-  display: block;
 }
 
 /* ── Subline ── */
 .subline {
   font-family: var(--font-body);
-  font-size: 17px;
-  line-height: 1.6;
-  color: var(--color-muted);
-  margin-bottom: 40px;
+  font-size: 20px;
+  line-height: 1.5;
+  color: #666666;
+  margin-bottom: 20px;
+  font-weight: 400;
 }
 
 /* ── CTA row ── */
 .ctaRow {
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: 28px;
   flex-wrap: wrap;
 }
 
 .primaryCta {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 0 28px;
-  height: 52px;
+  justify-content: center;
+  gap: 12px;
+  padding: 0 32px;
+  height: 64px;
   background-color: var(--color-brand-red);
   color: #ffffff;
   font-family: var(--font-body);
   font-size: 16px;
-  font-weight: 700;
+  font-weight: 600;
   border-radius: var(--radius-full);
   text-decoration: none;
   border: none;
   cursor: pointer;
-  box-shadow: 0 4px 14px rgba(244, 58, 38, 0.35);
-  transition:
-    transform var(--duration-fast) var(--ease),
-    box-shadow var(--duration-fast) var(--ease),
-    background-color var(--duration-fast) var(--ease);
+  box-shadow: 0 8px 20px rgba(244, 58, 38, 0.25);
+  transition: all var(--duration-fast) var(--ease);
   white-space: nowrap;
+}
+
+.ctaArrowIcon {
+  margin-left: 4px;
 }
 
 .primaryCta:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(244, 58, 38, 0.45);
+  box-shadow: 0 12px 28px rgba(244, 58, 38, 0.35);
   background-color: var(--color-brand-red-dark);
 }
 
 .secondaryCta {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  justify-content: center;
+  gap: 14px;
+  height: 64px;
+  padding: 0 36px;
   font-family: var(--font-body);
   font-size: 16px;
   font-weight: 600;
   color: var(--color-dark);
   text-decoration: none;
-  transition: color var(--duration-fast) var(--ease);
+  border: 1.5px solid #e5e5e5;
+  border-radius: var(--radius-full);
+  transition: all var(--duration-fast) var(--ease);
 }
 
 .secondaryCta:hover {
-  color: var(--color-brand-red);
+  border-color: var(--color-dark);
+  background-color: rgba(0, 0, 0, 0.02);
 }
 
-.playIcon {
+.playIconWrapper {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
-  border: 1.5px solid var(--color-border-strong);
+  width: 28px;
+  height: 28px;
+  border: 1.5px solid #e5e5e5;
   border-radius: 50%;
-  font-size: 10px;
   color: var(--color-dark);
   flex-shrink: 0;
-  transition: border-color var(--duration-fast) var(--ease);
+  transition: all var(--duration-fast) var(--ease);
 }
 
-.secondaryCta:hover .playIcon {
-  border-color: var(--color-brand-red);
-  color: var(--color-brand-red);
+.secondaryCta:hover .playIconWrapper {
+  border-color: var(--color-dark);
 }
 
 /* ================================================================
-   RIGHT COLUMN — VISUAL
+   RIGHT COLUMN — VISUAL (Image-based mockups)
    ================================================================ */
 
 .visual {
   position: relative;
-  height: 560px;
+  height: 760px;
+  margin-left: 0;
+  isolation: isolate;
 }
 
-/* ── Admin dashboard card ── */
-.dashboardCard {
+/* ── Admin dashboard image ── */
+.dashboardImage {
   position: absolute;
-  top: 10px;
-  right: 0;
-  width: 380px;
-  background: #ffffff;
-  border-radius: 16px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.12);
-  border: 1px solid var(--color-border);
-  overflow: hidden;
+  top: 0;
+  right: -120px;
+  width: 780px;
+  height: 580px;
   z-index: 1;
+  transform: rotate(4.5deg);
+  transform-origin: center;
+  filter: drop-shadow(0 32px 64px rgba(0, 0, 0, 0.1));
 }
 
-.dashboardHeader {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 12px 16px;
-  border-bottom: 1px solid var(--color-border);
-  background: #ffffff;
-}
-
-.dashboardLogo {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.dashboardLogoIcon {
-  font-size: 14px;
-}
-
-.dashboardLogoText {
-  font-family: var(--font-heading);
-  font-weight: 800;
-  font-size: 14px;
-  color: var(--color-dark);
-  letter-spacing: -0.02em;
-}
-
-.dashboardTitle {
-  font-family: var(--font-heading);
-  font-weight: 700;
-  font-size: 15px;
-  color: var(--color-dark);
-}
-
-.dashboardLayout {
-  display: grid;
-  grid-template-columns: 90px 1fr;
-  height: 320px;
-  overflow: hidden;
-}
-
-/* sidebar */
-.dashboardSidebar {
-  background: #f8f8f8;
-  border-right: 1px solid var(--color-border);
-  padding: 12px 8px;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.sidebarItem {
-  padding: 6px 8px;
-  font-size: 11px;
-  color: var(--color-muted);
-  border-radius: 6px;
-  cursor: pointer;
-  white-space: nowrap;
-  overflow: hidden;
-}
-
-.sidebarItemActive {
-  background-color: var(--color-brand-red);
-  color: #ffffff;
-  font-weight: 600;
-}
-
-/* content */
-.dashboardContent {
-  padding: 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  overflow: hidden;
-}
-
-.kpiRow {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
-}
-
-.kpiCard {
-  background: #f8f8f8;
-  border: 1px solid var(--color-border);
-  border-radius: 8px;
-  padding: 8px;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.kpiLabel {
-  font-size: 9px;
-  color: var(--color-muted);
-  line-height: 1.2;
-}
-
-.kpiValue {
-  font-family: var(--font-heading);
-  font-size: 15px;
-  font-weight: 800;
-  color: var(--color-dark);
-  letter-spacing: -0.02em;
-  line-height: 1.1;
-}
-
-.kpiGrowth {
-  font-size: 9px;
-  color: var(--color-success);
-  font-weight: 600;
-}
-
-.chartArea {
-  background: #f8f8f8;
-  border: 1px solid var(--color-border);
-  border-radius: 8px;
-  padding: 8px;
-  flex-shrink: 0;
-}
-
-.chartHeader {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 6px;
-}
-
-.chartTitle {
-  font-size: 10px;
-  font-weight: 600;
-  color: var(--color-dark);
-}
-
-.chartBadge {
-  font-size: 9px;
-  padding: 2px 6px;
-  background: white;
-  border: 1px solid var(--color-border);
-  border-radius: 4px;
-  color: var(--color-muted);
-}
-
-.chartLine {
-  height: 40px;
-}
-
-.chartSvg {
-  width: 100%;
-  height: 100%;
-}
-
-.ordersSection {
-  flex: 1;
-  overflow: hidden;
-}
-
-.ordersSectionHeader {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 6px;
-  font-size: 10px;
-  font-weight: 600;
-  color: var(--color-dark);
-}
-
-.ordersLink {
-  font-size: 9px;
-  color: var(--color-brand-red);
-  text-decoration: none;
-}
-
-.orderRow {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 5px 0;
-  border-bottom: 1px solid var(--color-border);
-}
-
-.orderRow:last-child {
-  border-bottom: none;
-}
-
-.orderAvatar {
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #f43a26, #ff7a6a);
-  flex-shrink: 0;
-}
-
-.orderInfo {
-  flex: 1;
-  min-width: 0;
-}
-
-.orderId {
-  display: block;
-  font-size: 9px;
-  font-weight: 700;
-  color: var(--color-dark);
-}
-
-.orderItem {
-  display: block;
-  font-size: 9px;
-  color: var(--color-muted);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.orderType {
-  font-size: 9px;
-  padding: 1px 5px;
-  background: rgba(244, 58, 38, 0.08);
-  color: var(--color-brand-red);
-  border-radius: 3px;
-  font-weight: 600;
-  flex-shrink: 0;
-}
-
-.orderTime {
-  font-size: 9px;
-  color: var(--color-muted);
-  flex-shrink: 0;
-}
-
-/* ── Phone mockup ── */
-.phoneMockup {
+/* ── Phone mockup image ── */
+.phoneImage {
   position: absolute;
-  top: 40px;
-  left: 60px;
-  z-index: 2;
-  width: 220px;
-}
-
-.phoneScreen {
-  background: #1a1a1a;
-  border-radius: 36px;
-  overflow: hidden;
-  box-shadow:
-    0 0 0 8px #2a2a2a,
-    0 0 0 10px #1a1a1a,
-    0 30px 80px rgba(0, 0, 0, 0.35);
-  display: flex;
-  flex-direction: column;
-}
-
-.phoneStatusBar {
-  background: #ffffff;
-  padding: 8px 16px 4px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  font-size: 9px;
-  font-weight: 700;
-  color: #111;
-}
-
-.phoneStatusIcons {
-  display: flex;
-  gap: 4px;
-  font-size: 8px;
-}
-
-.phoneAppHeader {
-  background: #ffffff;
-  padding: 8px 16px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  border-bottom: 1px solid var(--color-border);
-}
-
-.phoneMenuIcon {
-  font-size: 16px;
-  color: var(--color-dark);
-}
-
-.phoneRestaurantInfo {
-  flex: 1;
-}
-
-.phoneRestaurantName {
-  display: block;
-  font-family: var(--font-heading);
-  font-size: 12px;
-  font-weight: 800;
-  color: var(--color-dark);
-  letter-spacing: -0.01em;
-}
-
-.phoneRestaurantSub {
-  display: block;
-  font-size: 8px;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  color: var(--color-muted);
-  text-transform: uppercase;
-}
-
-.phoneCartIcon {
-  font-size: 16px;
-}
-
-.phoneGreeting {
-  background: #ffffff;
-  padding: 12px 16px 8px;
-}
-
-.phoneGreetingTitle {
-  font-family: var(--font-heading);
-  font-size: 14px;
-  font-weight: 800;
-  color: var(--color-dark);
-  margin-bottom: 2px;
-}
-
-.phoneGreetingSubtitle {
-  font-size: 10px;
-  color: var(--color-muted);
-}
-
-.phoneFeaturedItem {
-  background: #ffffff;
-  padding: 10px 16px;
-  display: flex;
-  gap: 10px;
-  border-bottom: 1px solid var(--color-border);
-}
-
-.phonePizzaImage {
-  width: 52px;
-  height: 52px;
-  border-radius: 10px;
-  background: linear-gradient(135deg, #ffecd2, #fcb69f);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 24px;
-  flex-shrink: 0;
-}
-
-.phoneFeaturedInfo {
-  flex: 1;
-  min-width: 0;
-}
-
-.phoneFeaturedName {
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--color-dark);
-  margin-bottom: 2px;
-}
-
-.phoneFeaturedDesc {
-  font-size: 9px;
-  color: var(--color-muted);
-  line-height: 1.3;
-  margin-bottom: 6px;
-}
-
-.phoneFeaturedRow {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.phoneFeaturedPrice {
-  font-family: var(--font-heading);
-  font-size: 12px;
-  font-weight: 800;
-  color: var(--color-dark);
-}
-
-.phoneAddBtn {
-  padding: 4px 10px;
-  background: var(--color-brand-red);
-  color: #ffffff;
-  font-size: 10px;
-  font-weight: 700;
-  border-radius: 6px;
-  border: none;
-  cursor: pointer;
-}
-
-.phoneSection {
-  background: #ffffff;
-  padding: 10px 16px 6px;
-}
-
-.phoneSectionTitle {
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--color-dark);
-  margin-bottom: 6px;
-}
-
-.phoneTabs {
-  display: flex;
-  gap: 6px;
-  overflow-x: auto;
-  scrollbar-width: none;
-}
-
-.phoneTab {
-  font-size: 9px;
-  font-weight: 600;
-  color: var(--color-muted);
-  padding: 3px 8px;
-  border-radius: 12px;
-  border: 1px solid var(--color-border);
-  white-space: nowrap;
-  cursor: pointer;
-}
-
-.phoneTabActive {
-  background: var(--color-dark);
-  color: #ffffff;
-  border-color: var(--color-dark);
-}
-
-.phoneBottomNav {
-  background: #ffffff;
-  border-top: 1px solid var(--color-border);
-  padding: 8px 0 12px;
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-}
-
-.phoneNavItem {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2px;
-  font-size: 8px;
-  color: var(--color-muted);
-}
-
-.phoneNavItemActive {
-  color: var(--color-brand-red);
-}
-
-/* ── Delivery floating card ── */
-.deliveryCard {
-  position: absolute;
-  bottom: 30px;
-  right: 0;
-  width: 200px;
-  background: #ffffff;
-  border-radius: 14px;
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
-  border: 1px solid var(--color-border);
-  padding: 12px;
+  top: 30px;
+  left: -140px;
+  width: 320px;
+  height: 650px;
   z-index: 3;
+  transform: rotate(-5.5deg);
+  filter: drop-shadow(0 42px 52px rgba(0, 0, 0, 0.18));
 }
 
-.deliveryCardBadge {
-  font-size: 10px;
-  font-weight: 700;
-  color: var(--color-dark);
-  margin-bottom: 8px;
-  line-height: 1.3;
-}
-
-.deliveryStatus {
-  color: var(--color-brand-red);
-  font-weight: 600;
-}
-
-.deliveryMap {
-  width: 100%;
-  height: 60px;
-  background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
-  border-radius: 8px;
-  margin-bottom: 8px;
-  position: relative;
-  overflow: hidden;
-}
-
-.deliveryMapDot {
+/* ── Delivery card image ── */
+.deliveryImage {
   position: absolute;
-  top: 50%;
-  left: 60%;
-  transform: translate(-50%, -50%);
-  width: 10px;
-  height: 10px;
-  background: var(--color-brand-red);
-  border-radius: 50%;
-  box-shadow: 0 0 0 4px rgba(244, 58, 38, 0.2);
+  top: 360px;
+  right: 100px;
+  width: 280px;
+  height: 380px;
+  z-index: 2;
+  transform: rotate(7.5deg);
+  filter: drop-shadow(0 22px 34px rgba(0, 0, 0, 0.12));
 }
 
-.riderInfo {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 6px;
-}
-
-.riderAvatar {
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #667eea, #764ba2);
-  flex-shrink: 0;
-}
-
-.riderLabel {
-  font-size: 9px;
-  color: var(--color-muted);
-}
-
-.riderName {
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--color-dark);
-}
-
-.riderActions {
-  margin-left: auto;
-  display: flex;
-  gap: 6px;
-}
-
-.riderAction {
-  font-size: 14px;
-  cursor: pointer;
-}
-
-.deliveryEta {
-  font-size: 10px;
-  color: var(--color-muted);
-}
-
-/* ── Basil decoration ── */
 .basilDecoration {
   position: absolute;
-  top: -20px;
-  right: -30px;
-  font-size: 72px;
-  opacity: 0.85;
+  top: -60px;
+  right: -100px;
+  z-index: 5;
+  width: 180px;
+  height: 150px;
   pointer-events: none;
-  z-index: 4;
-  transform: rotate(20deg);
-  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.1));
+}
+
+.basilLeaf {
+  position: absolute;
+  display: block;
+  width: 82px;
+  height: 50px;
+  border-radius: 80% 12% 80% 12%;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.4), transparent 40%),
+    linear-gradient(135deg, #a4e637 0%, #29a32f 56%, #157a22 100%);
+  box-shadow: 0 8px 16px rgba(28, 91, 19, 0.18);
+  transform: rotate(34deg);
+}
+
+.basilLeaf::after {
+  content: "";
+  position: absolute;
+  inset: 50% 12% auto 12%;
+  height: 1.5px;
+  background: rgba(255, 255, 255, 0.5);
+  transform: rotate(-10deg);
+  filter: blur(0.5px);
+}
+
+.basilLeaf:nth-child(1) {
+  right: 64px;
+  top: 28px;
+  transform: rotate(18deg) scale(0.72);
+}
+
+.basilLeaf:nth-child(2) {
+  right: 12px;
+  top: 0;
+  transform: rotate(48deg);
+}
+
+.basilLeaf:nth-child(3) {
+  right: -20px;
+  top: 60px;
+  transform: rotate(-12deg) scale(1.1);
+}
+
+/* ── Pizza decoration ── */
+.pizzaDecoration {
+  position: absolute;
+  bottom: -220px;
+  right: -80px;
+  width: 680px;
+  height: 680px;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 1;
 }
 
 /* ================================================================
@@ -741,44 +290,54 @@
 
 .featureStrip {
   width: 100%;
-  border-top: 1px solid var(--color-border);
-  background: var(--color-white);
-  padding: 20px 0;
+  margin-top: 40px;
 }
 
 .featureStripInner {
   width: 100%;
-  max-width: var(--max-width);
+  max-width: 1440px;
   margin-inline: auto;
-  padding-inline: var(--page-gutter);
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 24px;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px 40px;
 }
 
 .featureItem {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 16px;
 }
 
 .featureIcon {
-  font-size: 20px;
-  color: var(--color-muted);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  background: rgba(244, 58, 38, 0.08);
+  color: var(--color-brand-red);
   flex-shrink: 0;
+  transition: all var(--duration-fast) var(--ease);
+}
+
+.featureItem:hover .featureIcon {
+  background: var(--color-brand-red);
+  color: #ffffff;
+  transform: translateY(-2px);
 }
 
 .featureTitle {
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 700;
   color: var(--color-dark);
   line-height: 1.2;
 }
 
 .featureSub {
-  font-size: 12px;
-  color: var(--color-muted);
-  line-height: 1.3;
+  font-size: 14px;
+  color: var(--color-dark);
+  line-height: 1.35;
 }
 
 /* ================================================================
@@ -786,21 +345,70 @@
    ================================================================ */
 
 @media (max-width: 1100px) {
-  .dashboardCard {
-    width: 320px;
+  .inner {
+    grid-template-columns: 1fr;
+    padding-top: 64px;
+    padding-bottom: 40px;
+    min-height: auto;
+    gap: 44px;
+  }
+
+  .copy {
+    max-width: 720px;
+  }
+
+  .visual {
+    height: 580px;
+    width: min(100%, 760px);
+    margin-inline: auto;
+  }
+
+  .dashboardImage {
+    width: 520px;
+    height: 390px;
+    right: 0;
+  }
+
+  .phoneImage {
+    top: 120px;
+    width: 250px;
+    height: 444px;
+    left: 30px;
+  }
+
+  .deliveryImage {
+    width: 200px;
+    height: 267px;
+    right: 10px;
+    bottom: 20px;
   }
 
   .basilDecoration {
-    display: none;
+    right: -18px;
+    top: -38px;
+  }
+
+  .pizzaDecoration {
+    width: 320px;
+    height: 320px;
+    right: 0;
+    bottom: 40px;
+  }
+
+  .featureStrip {
+    position: static;
+    padding: 24px 0 44px;
+  }
+
+  .featureStripInner {
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 
 @media (max-width: 900px) {
   .inner {
-    grid-template-columns: 1fr;
     padding-top: 48px;
     padding-bottom: 32px;
-    min-height: auto;
     gap: 40px;
   }
 
@@ -814,38 +422,64 @@
     width: 100%;
   }
 
-  .dashboardCard {
+  .dashboardImage {
     right: 0;
     top: 0;
-    width: 280px;
+    width: 300px;
+    height: 240px;
   }
 
-  .phoneMockup {
+  .phoneImage {
     left: 0;
     top: 20px;
+    width: 200px;
+    height: 400px;
   }
 
-  .featureStripInner {
-    grid-template-columns: repeat(2, 1fr);
+  .deliveryImage {
+    right: 0;
+    bottom: 20px;
+    width: 160px;
+    height: 210px;
+  }
+
+  .pizzaDecoration {
+    width: 200px;
+    height: 200px;
+    right: -40px;
+    bottom: -30px;
+  }
+
+  .basilDecoration {
+    display: none;
   }
 }
 
 @media (max-width: 600px) {
   .visual {
-    height: 400px;
+    height: 380px;
   }
 
-  .dashboardCard {
-    width: 230px;
+  .dashboardImage {
+    width: 240px;
+    height: 190px;
     right: 0;
   }
 
-  .phoneMockup {
-    width: 170px;
+  .phoneImage {
+    width: 160px;
+    height: 320px;
   }
 
-  .deliveryCard {
+  .deliveryImage {
     display: none;
+  }
+
+  .pizzaDecoration {
+    width: 150px;
+    height: 150px;
+    right: -20px;
+    bottom: -20px;
   }
 
   .primaryCta,
