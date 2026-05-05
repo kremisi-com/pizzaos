@@ -41,7 +41,8 @@ export function createOrder(
   scheduledSlot: string,
   lines: readonly OrderLineInput[],
   deliveryFeeCents: number,
-  riderId?: EntityIdentifier
+  riderId?: EntityIdentifier,
+  demoOrderRef?: string
 ): Order
 {
   const subtotalAmountCents = lines.reduce(
@@ -62,6 +63,7 @@ export function createOrder(
     scheduledSlot,
     createdAtIso,
     updatedAtIso: createdAtIso,
+    demoOrderRef,
     riderId
   };
 }

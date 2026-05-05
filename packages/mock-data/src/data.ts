@@ -8,6 +8,7 @@ import type {
   Product,
   StoreProfile
 } from "@pizzaos/domain";
+import { formatDemoOrderRef } from "@pizzaos/domain";
 import { DEFAULT_CLIENT_STORE_ID } from "./constants";
 import { createInventoryItem, createLine, createOrder, toMoney } from "./factories";
 import type { AdminDatasetTemplate } from "./types";
@@ -729,7 +730,9 @@ export const ADMIN_DATASET_TEMPLATES: Readonly<Record<EntityIdentifier, AdminDat
           createLine("product-margherita", 1, 900, "Senza basilico"),
           createLine("product-focaccia-rosmarino", 1, 550, "")
         ],
-        120
+        120,
+        undefined,
+        formatDemoOrderRef(1001)
       ),
       createOrder(
         "order-roma-002",
@@ -739,7 +742,9 @@ export const ADMIN_DATASET_TEMPLATES: Readonly<Record<EntityIdentifier, AdminDat
         "2026-03-25T11:20:00.000Z",
         "2026-03-25T11:46:00.000Z",
         [createLine("product-capricciosa", 2, 1250, "Una ben cotta")],
-        180
+        180,
+        undefined,
+        formatDemoOrderRef(1002)
       ),
       createOrder(
         "order-roma-003",
@@ -749,7 +754,9 @@ export const ADMIN_DATASET_TEMPLATES: Readonly<Record<EntityIdentifier, AdminDat
         "2026-03-25T10:55:00.000Z",
         "2026-03-25T11:22:00.000Z",
         [createLine("product-diavola", 1, 1150, "Extra piccante")],
-        200
+        200,
+        undefined,
+        formatDemoOrderRef(1003)
       ),
       createOrder(
         "order-roma-004",
@@ -759,7 +766,9 @@ export const ADMIN_DATASET_TEMPLATES: Readonly<Record<EntityIdentifier, AdminDat
         "2026-03-25T12:05:00.000Z",
         "2026-03-25T12:25:00.000Z",
         [createLine("product-margherita", 2, 900, "")],
-        150
+        150,
+        undefined,
+        formatDemoOrderRef(1004)
       ),
       createOrder(
         "order-roma-005",
@@ -770,7 +779,8 @@ export const ADMIN_DATASET_TEMPLATES: Readonly<Record<EntityIdentifier, AdminDat
         "2026-03-25T12:15:00.000Z",
         [createLine("product-4-formaggi", 1, 1300, "")],
         180,
-        "rider-roma-2"
+        "rider-roma-2",
+        formatDemoOrderRef(1005)
       )
     ],
     inventory: [
@@ -897,7 +907,9 @@ export const ADMIN_DATASET_TEMPLATES: Readonly<Record<EntityIdentifier, AdminDat
         "2026-03-25T17:50:00.000Z",
         "2026-03-25T18:01:00.000Z",
         [createLine("product-4-formaggi", 1, 1300, "Aggiungere pepe")],
-        250
+        250,
+        undefined,
+        formatDemoOrderRef(2001)
       ),
       createOrder(
         "order-milano-102",
@@ -910,7 +922,9 @@ export const ADMIN_DATASET_TEMPLATES: Readonly<Record<EntityIdentifier, AdminDat
           createLine("product-tonno-cipolla", 1, 1220, ""),
           createLine("product-focaccia-rosmarino", 2, 550, "")
         ],
-        250
+        250,
+        undefined,
+        formatDemoOrderRef(2002)
       ),
       createOrder(
         "order-milano-103",
@@ -920,7 +934,9 @@ export const ADMIN_DATASET_TEMPLATES: Readonly<Record<EntityIdentifier, AdminDat
         "2026-03-25T16:44:00.000Z",
         "2026-03-25T16:49:00.000Z",
         [createLine("product-calzone", 1, 1280, "")],
-        250
+        250,
+        undefined,
+        formatDemoOrderRef(2003)
       )
     ],
     inventory: [
@@ -1040,7 +1056,9 @@ export const ADMIN_DATASET_TEMPLATES: Readonly<Record<EntityIdentifier, AdminDat
         "2026-03-25T09:02:00.000Z",
         "2026-03-25T09:02:00.000Z",
         [createLine("product-vegetariana", 1, 1200, "")],
-        150
+        150,
+        undefined,
+        formatDemoOrderRef(3001)
       ),
       createOrder(
         "order-torino-202",
@@ -1050,7 +1068,9 @@ export const ADMIN_DATASET_TEMPLATES: Readonly<Record<EntityIdentifier, AdminDat
         "2026-03-25T08:30:00.000Z",
         "2026-03-25T09:20:00.000Z",
         [createLine("product-margherita", 2, 900, "")],
-        150
+        150,
+        undefined,
+        formatDemoOrderRef(3002)
       )
     ],
     inventory: [
@@ -1131,7 +1151,9 @@ export const DEFAULT_CLIENT_ORDER_HISTORY: readonly Order[] = [
       createLine("product-diavola", 1, 1150, ""),
       createLine("product-birra-bionda", 2, 450, "")
     ],
-    200
+    200,
+    undefined,
+    formatDemoOrderRef(1003)
   ),
   createOrder(
     "order-client-history-002",
@@ -1144,7 +1166,9 @@ export const DEFAULT_CLIENT_ORDER_HISTORY: readonly Order[] = [
       createLine("product-margherita", 1, 950, "Impasto integrale"),
       createLine("product-suppli-cacio-e-pepe", 1, 550, "")
     ],
-    200
+    200,
+    undefined,
+    formatDemoOrderRef(922)
   ),
   createOrder(
     "order-client-history-003",
@@ -1157,7 +1181,9 @@ export const DEFAULT_CLIENT_ORDER_HISTORY: readonly Order[] = [
       createLine("product-diavola", 2, 1300, "Una senza cipolla rossa"),
       createLine("product-acqua-frizzante", 1, 250, "")
     ],
-    300
+    300,
+    undefined,
+    formatDemoOrderRef(875)
   )
 ];
 

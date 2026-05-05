@@ -112,6 +112,32 @@ export const ORDER_STATUS = [
   "cancelled"
 ] as const;
 
+export const CANONICAL_ORDER_NARRATIVE_STATUSES = [
+  "received",
+  "confirmed",
+  "preparing",
+  "out_for_delivery",
+  "delivered"
+] as const;
+
+export type CanonicalOrderNarrativeStatus = (typeof CANONICAL_ORDER_NARRATIVE_STATUSES)[number];
+
+export const DEMO_ORDER_REF_PREFIX = "POC";
+export const DEMO_ORDER_REF_PATTERN = /^POC-\d{4}$/;
+
+export interface DemoCommercialNamingContract
+{
+  readonly loyaltyProgramLabel: string;
+  readonly couponPrefix: string;
+  readonly defaultMenuLabel: string;
+}
+
+export const DEMO_COMMERCIAL_NAMING_CONTRACT: DemoCommercialNamingContract = {
+  loyaltyProgramLabel: "PizzaOS Rewards",
+  couponPrefix: "PIZZAOS",
+  defaultMenuLabel: "Menu PizzaOS"
+};
+
 export type OrderStatus = (typeof ORDER_STATUS)[number];
 
 export interface OrderLine
@@ -136,7 +162,15 @@ export interface Order
   readonly scheduledSlot: string;
   readonly createdAtIso: string;
   readonly updatedAtIso: string;
+  readonly demoOrderRef?: string;
   readonly riderId?: EntityIdentifier;
+}
+
+export function formatDemoOrderRef(sequence: number): string
+{
+  const boundedSequence = Math.max(0, Math.floor(sequence));
+
+  return `${DEMO_ORDER_REF_PREFIX}-${String(boundedSequence).padStart(4, "0")}`;
 }
 
 export interface Rider

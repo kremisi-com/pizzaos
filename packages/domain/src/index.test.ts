@@ -3,7 +3,11 @@ import { describe, expect, test } from "vitest";
 import {
   AI_INSIGHT_STATUS,
   APP_SURFACES,
+  CANONICAL_ORDER_NARRATIVE_STATUSES,
   COUPON_STATUS,
+  DEMO_COMMERCIAL_NAMING_CONTRACT,
+  DEMO_ORDER_REF_PATTERN,
+  DEMO_ORDER_REF_PREFIX,
   INVENTORY_STATUS,
   MENU_STATUS,
   ORDER_STATUS,
@@ -12,6 +16,7 @@ import {
   PRODUCT_STATUS,
   SLOT_AVAILABILITY_STATUSES,
   deriveRoutingStation,
+  formatDemoOrderRef,
   getNextOrderStatuses,
   isOrderStatusTransitionAllowed,
   progressOrderStatus,
@@ -65,6 +70,13 @@ describe("domain contracts", () =>
       "delivered",
       "cancelled"
     ]);
+    expect(CANONICAL_ORDER_NARRATIVE_STATUSES).toEqual([
+      "received",
+      "confirmed",
+      "preparing",
+      "out_for_delivery",
+      "delivered"
+    ]);
     expect(INVENTORY_STATUS).toEqual([
       "in_stock",
       "low_stock",
@@ -80,6 +92,20 @@ describe("domain contracts", () =>
       "acknowledged",
       "dismissed"
     ]);
+    expect(DEMO_COMMERCIAL_NAMING_CONTRACT).toEqual({
+      loyaltyProgramLabel: "PizzaOS Rewards",
+      couponPrefix: "PIZZAOS",
+      defaultMenuLabel: "Menu PizzaOS"
+    });
+  });
+
+  test("formats deterministic demo order references", () =>
+  {
+    const reference = formatDemoOrderRef(42);
+
+    expect(reference).toBe("POC-0042");
+    expect(reference.startsWith(`${DEMO_ORDER_REF_PREFIX}-`)).toBe(true);
+    expect(DEMO_ORDER_REF_PATTERN.test(reference)).toBe(true);
   });
 
   test("accepts practical shared product contract", () =>
