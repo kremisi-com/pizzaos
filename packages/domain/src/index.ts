@@ -35,6 +35,13 @@ export interface ProductAllergen
   readonly label: string;
 }
 
+export interface Ingredient
+{
+  readonly id: EntityIdentifier;
+  readonly name: string;
+  readonly allergens: readonly ProductAllergen[];
+}
+
 export const PREPARATION_MODES = [
   "cotto",
   "crudo"
@@ -52,7 +59,26 @@ export interface Product
   readonly status: ProductStatus;
   readonly tags: readonly string[];
   readonly allergens: readonly ProductAllergen[];
+  readonly ingredients?: readonly Ingredient[];
   readonly preparationMode?: PreparationMode;
+}
+
+export function deriveAllergensFromIngredients(ingredients: readonly Ingredient[]): readonly ProductAllergen[]
+{
+  const allergensByCode = new Map<string, ProductAllergen>();
+
+  for (const ingredient of ingredients)
+  {
+    for (const allergen of ingredient.allergens)
+    {
+      if (!allergensByCode.has(allergen.code))
+      {
+        allergensByCode.set(allergen.code, allergen);
+      }
+    }
+  }
+
+  return Array.from(allergensByCode.values());
 }
 
 export interface MenuProductRef

@@ -8,7 +8,9 @@ import {
 } from "@pizzaos/domain";
 import {
   ADMIN_STORE_IDS,
+  INGREDIENT_CATALOG,
   advanceOrderSimulation,
+  createIngredientFromName,
   createAdminSeed,
   createClientSeed,
   createLandingSeed,
@@ -41,6 +43,17 @@ class InMemoryStorage
 
 describe("seed factories", () =>
 {
+  it("exports ingredient catalog and maps names deterministically", () =>
+  {
+    expect(INGREDIENT_CATALOG.some((ingredient) => ingredient.name === "Fiordilatte")).toBe(true);
+
+    expect(createIngredientFromName("Fiordilatte")).toEqual({
+      id: "ingredient-fiordilatte",
+      name: "Fiordilatte",
+      allergens: [{ code: "LAT", label: "Lattosio" }]
+    });
+  });
+
   it("creates deterministic landing, client, and admin seeds", () =>
   {
     const landingSeedA = createLandingSeed();

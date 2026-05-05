@@ -16,6 +16,7 @@ import {
   PRODUCT_STATUS,
   SLOT_AVAILABILITY_STATUSES,
   deriveRoutingStation,
+  deriveAllergensFromIngredients,
   formatDemoOrderRef,
   getNextOrderStatuses,
   isOrderStatusTransitionAllowed,
@@ -135,6 +136,106 @@ describe("domain contracts", () =>
     expect(product.basePrice.amountCents).toBe(1100);
     expect(product.status).toBe("available");
     expect(product.preparationMode).toBe("cotto");
+    expect(product.ingredients).toBeUndefined();
+  });
+
+  test("accepts product ingredients when present", () =>
+  {
+    const product: Product = {
+      id: "product-2",
+      sku: "DIAVOLA-001",
+      name: "Pizza Diavola",
+      description: "Pomodoro, fiordilatte e spianata piccante",
+      basePrice: {
+        amountCents: 1300,
+        currencyCode: "EUR"
+      },
+      status: "available",
+      tags: [
+        "piccante"
+      ],
+      allergens: [
+        {
+          code: "gluten",
+          label: "Glutine"
+        }
+      ],
+      ingredients: [
+        {
+          id: "ingredient-pomodoro-san-marzano",
+          name: "Pomodoro San Marzano",
+          allergens: []
+        },
+        {
+          id: "ingredient-fiordilatte",
+          name: "Fiordilatte",
+          allergens: [
+            {
+              code: "LAT",
+              label: "Lattosio"
+            }
+          ]
+        },
+        {
+          id: "ingredient-spianata-piccante",
+          name: "Spianata piccante",
+          allergens: []
+        }
+      ]
+    };
+
+    expect(product.ingredients?.map((ingredient) => ingredient.name)).toEqual([
+      "Pomodoro San Marzano",
+      "Fiordilatte",
+      "Spianata piccante"
+    ]);
+  });
+
+  test("derives product allergens from ingredient list", () =>
+  {
+    const allergens = deriveAllergensFromIngredients([
+      {
+        id: "ingredient-base",
+        name: "Base pizza",
+        allergens: [
+          {
+            code: "GLU",
+            label: "Glutine"
+          }
+        ]
+      },
+      {
+        id: "ingredient-mozzarella",
+        name: "Mozzarella",
+        allergens: [
+          {
+            code: "LAT",
+            label: "Lattosio"
+          }
+        ]
+      },
+      {
+        id: "ingredient-altro-formaggio",
+        name: "Altro formaggio",
+        allergens: [
+          {
+            code: "LAT",
+            label: "Lattosio"
+          }
+        ]
+      }
+    ]);
+
+    expect(allergens).toEqual([
+      {
+        code: "GLU",
+        label: "Glutine"
+      },
+      {
+        code: "LAT",
+        label: "Lattosio"
+      }
+    ]);
   });
 
   test("accepts slot availability contracts", () =>

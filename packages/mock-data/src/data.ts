@@ -1,6 +1,7 @@
 import type {
   Coupon,
   EntityIdentifier,
+  Ingredient,
   LoyaltyState,
   LoyaltySystemConfig,
   Menu,
@@ -8,7 +9,8 @@ import type {
   Product,
   StoreProfile
 } from "@pizzaos/domain";
-import { formatDemoOrderRef } from "@pizzaos/domain";
+import { deriveAllergensFromIngredients, formatDemoOrderRef } from "@pizzaos/domain";
+import { createIngredientsFromNames } from "./ingredients";
 import { DEFAULT_CLIENT_STORE_ID } from "./constants";
 import { createInventoryItem, createLine, createOrder, toMoney } from "./factories";
 import type { AdminDatasetTemplate } from "./types";
@@ -40,6 +42,11 @@ export const STORES: readonly StoreProfile[] = [
   }
 ] as const;
 
+function createIngredients(names: readonly string[]): readonly Ingredient[]
+{
+  return createIngredientsFromNames(names);
+}
+
 export const PRODUCTS: readonly Product[] = [
   {
     id: "product-marinara",
@@ -49,8 +56,9 @@ export const PRODUCTS: readonly Product[] = [
     basePrice: toMoney(750),
     status: "available",
     tags: ["classica", "vegana"],
+    ingredients: createIngredients(["Pomodoro San Marzano", "Aglio", "Origano", "Olio EVO"]),
     preparationMode: "cotto",
-    allergens: [{ code: "GLU", label: "Glutine" }]
+    allergens: deriveAllergensFromIngredients(createIngredients(["Pomodoro San Marzano", "Aglio", "Origano", "Olio EVO"]))
   },
   {
     id: "product-margherita",
@@ -60,11 +68,9 @@ export const PRODUCTS: readonly Product[] = [
     basePrice: toMoney(900),
     status: "available",
     tags: ["classica", "vegetariana"],
+    ingredients: createIngredients(["Pomodoro San Marzano", "Fiordilatte", "Basilico fresco"]),
     preparationMode: "cotto",
-    allergens: [
-      { code: "GLU", label: "Glutine" },
-      { code: "LAT", label: "Lattosio" }
-    ]
+    allergens: deriveAllergensFromIngredients(createIngredients(["Pomodoro San Marzano", "Fiordilatte", "Basilico fresco"]))
   },
   {
     id: "product-diavola",
@@ -74,10 +80,8 @@ export const PRODUCTS: readonly Product[] = [
     basePrice: toMoney(1150),
     status: "available",
     tags: ["piccante"],
-    allergens: [
-      { code: "GLU", label: "Glutine" },
-      { code: "LAT", label: "Lattosio" }
-    ]
+    ingredients: createIngredients(["Pomodoro", "Fiordilatte", "Spianata piccante", "Peperoncino"]),
+    allergens: deriveAllergensFromIngredients(createIngredients(["Pomodoro", "Fiordilatte", "Spianata piccante", "Peperoncino"]))
   },
   {
     id: "product-capricciosa",
@@ -87,10 +91,8 @@ export const PRODUCTS: readonly Product[] = [
     basePrice: toMoney(1250),
     status: "available",
     tags: ["tradizionale"],
-    allergens: [
-      { code: "GLU", label: "Glutine" },
-      { code: "LAT", label: "Lattosio" }
-    ]
+    ingredients: createIngredients(["Prosciutto cotto", "Funghi", "Carciofi", "Olive", "Fiordilatte"]),
+    allergens: deriveAllergensFromIngredients(createIngredients(["Prosciutto cotto", "Funghi", "Carciofi", "Olive", "Fiordilatte"]))
   },
   {
     id: "product-vegetariana",
@@ -100,10 +102,8 @@ export const PRODUCTS: readonly Product[] = [
     basePrice: toMoney(1200),
     status: "available",
     tags: ["vegetariana", "leggera"],
-    allergens: [
-      { code: "GLU", label: "Glutine" },
-      { code: "LAT", label: "Lattosio" }
-    ]
+    ingredients: createIngredients(["Verdure grigliate", "Fiordilatte", "Olio al basilico"]),
+    allergens: deriveAllergensFromIngredients(createIngredients(["Verdure grigliate", "Fiordilatte", "Olio al basilico"]))
   },
   {
     id: "product-4-formaggi",
@@ -113,10 +113,8 @@ export const PRODUCTS: readonly Product[] = [
     basePrice: toMoney(1300),
     status: "available",
     tags: ["cremosa"],
-    allergens: [
-      { code: "GLU", label: "Glutine" },
-      { code: "LAT", label: "Lattosio" }
-    ]
+    ingredients: createIngredients(["Fiordilatte", "Gorgonzola", "Fontina", "Parmigiano"]),
+    allergens: deriveAllergensFromIngredients(createIngredients(["Fiordilatte", "Gorgonzola", "Fontina", "Parmigiano"]))
   },
   {
     id: "product-tonno-cipolla",
@@ -126,11 +124,9 @@ export const PRODUCTS: readonly Product[] = [
     basePrice: toMoney(1220),
     status: "available",
     tags: ["mare"],
+    ingredients: createIngredients(["Tonno", "Cipolla rossa", "Pomodoro"]),
     preparationMode: "crudo",
-    allergens: [
-      { code: "GLU", label: "Glutine" },
-      { code: "PES", label: "Pesce" }
-    ]
+    allergens: deriveAllergensFromIngredients(createIngredients(["Tonno", "Cipolla rossa", "Pomodoro"]))
   },
   {
     id: "product-calzone",
@@ -140,10 +136,8 @@ export const PRODUCTS: readonly Product[] = [
     basePrice: toMoney(1280),
     status: "sold_out",
     tags: ["ripieno"],
-    allergens: [
-      { code: "GLU", label: "Glutine" },
-      { code: "LAT", label: "Lattosio" }
-    ]
+    ingredients: createIngredients(["Ricotta", "Salame dolce", "Provola"]),
+    allergens: deriveAllergensFromIngredients(createIngredients(["Ricotta", "Salame dolce", "Provola"]))
   },
   {
     id: "product-focaccia-rosmarino",
@@ -153,7 +147,8 @@ export const PRODUCTS: readonly Product[] = [
     basePrice: toMoney(550),
     status: "sold_out",
     tags: ["forno", "contorno"],
-    allergens: [{ code: "GLU", label: "Glutine" }]
+    ingredients: createIngredients(["Farina", "Olio EVO", "Rosmarino", "Sale"]),
+    allergens: deriveAllergensFromIngredients(createIngredients(["Farina", "Olio EVO", "Rosmarino", "Sale"]))
   },
   {
     id: "product-birra-bionda",

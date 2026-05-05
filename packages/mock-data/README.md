@@ -37,6 +37,10 @@ Current exports from `src/index.ts`:
 - constants:
   - `ADMIN_STORE_IDS`
   - `SUPPORTED_ORDER_STATUSES`
+- ingredient catalog helpers:
+  - `INGREDIENT_CATALOG`
+  - `createIngredientFromName(name)`
+  - `createIngredientsFromNames(names)`
 
 ## Import Rules
 

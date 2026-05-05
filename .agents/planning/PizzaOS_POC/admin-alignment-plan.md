@@ -42,11 +42,14 @@ Pseudo-correlazione forte tra Client e Admin, senza sync runtime:
   **Done quando:** issue Ordini + Integrazioni chiuse e test aggiornati.
 ---
 ### Fase 3 — Menù completo (Admin + Shared)
+- Stato: 🔄 in aggiornamento (ingredienti promossi a oggetti first-class con allergeni derivati)
 - Abilitare modifica `basePrice` nel form prodotto
 - Abilitare modifica ingredienti (lista add/remove/edit)
 - Estendere modello shared se manca il campo ingredienti
+- Promuovere gli ingredienti a oggetti first-class (id, nome, allergeni)
+- Derivare gli allergeni prodotto dalla lista ingredienti, non da campi statici prodotto
 - Aggiornare seed coerenti
-  **Done quando:** prodotto salvabile con nome/descrizione/prezzo/ingredienti.
+  **Done quando:** prodotto salvabile con nome/descrizione/prezzo/ingredienti e allergeni ricalcolati dagli ingredienti.
 ---
 ### Fase 4 — Magazzino ingredienti + move Dynamic Pricing (Admin + Shared)
 - Migrare Magazzino da stock pizze/prodotti a stock ingredienti
