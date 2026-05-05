@@ -3,7 +3,11 @@
   overflow: hidden;
   padding: 34px 0 64px;
   background:
-    radial-gradient(circle at 38% 6%, rgba(244, 58, 38, 0.055), transparent 33%),
+    radial-gradient(
+      circle at 38% 6%,
+      rgba(244, 58, 38, 0.055),
+      transparent 33%
+    ),
     linear-gradient(180deg, #ffffff 0%, #fffdfb 56%, #ffffff 100%);
 }
 
@@ -83,7 +87,11 @@
   display: grid;
   place-items: center;
   border-radius: 16px;
-  background: linear-gradient(135deg, rgba(244, 58, 38, 0.11), rgba(244, 58, 38, 0.035));
+  background: linear-gradient(
+    135deg,
+    rgba(244, 58, 38, 0.11),
+    rgba(244, 58, 38, 0.035)
+  );
   color: var(--color-brand-red);
 }
 
@@ -568,7 +576,11 @@
   align-items: center;
   padding: 12px;
   border-radius: 9px;
-  background: linear-gradient(135deg, rgba(244, 58, 38, 0.08), rgba(244, 58, 38, 0.025));
+  background: linear-gradient(
+    135deg,
+    rgba(244, 58, 38, 0.08),
+    rgba(244, 58, 38, 0.025)
+  );
 }
 
 .rushStats > svg {
@@ -603,8 +615,6 @@
 .deviceLayer {
   position: relative;
   z-index: 4;
-  height: 190px;
-  margin-top: -4px;
   pointer-events: none;
 }
 
@@ -705,11 +715,10 @@
   grid-template-columns: 1fr 1px 1.2fr;
   gap: 28px;
   align-items: center;
-  min-height: 132px;
-  margin-top: -36px;
   padding: 24px 34px;
   border-radius: 14px;
   max-width: 990px;
+  margin-top: 50px;
 }
 
 .panelTitle {
@@ -733,6 +742,12 @@
   font-size: 17px;
   font-weight: 900;
   letter-spacing: 0;
+}
+
+.integrationLogoImage {
+  display: block;
+  width: clamp(96px, 8vw, 124px);
+  height: auto;
 }
 
 .integrationLogo:nth-child(2) {

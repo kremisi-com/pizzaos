@@ -4,13 +4,6 @@ import Image from "next/image";
 import type { ReactElement } from "react";
 import styles from "./hero-section.module.css";
 
-const BOTTOM_FEATURES = [
-  { icon: "⊡", title: "Ordini online", sub: "rapidi e intuitivi" },
-  { icon: "⊕", title: "Pagamenti", sub: "sicuri" },
-  { icon: "◎", title: "Consegne", sub: "tracciate in tempo reale" },
-  { icon: "♡", title: "Clienti fidelizzati", sub: "e marketing automatico" },
-] as const;
-
 interface HeroSectionProps {
   readonly onRequestDemo: () => void;
 }

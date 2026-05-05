@@ -19,7 +19,6 @@ import { ChallengesSection } from "./challenges-section";
 import { MarginComparisonSection } from "./margin-comparison-section";
 import { Navbar } from "./navbar";
 import { PricingSection } from "./pricing-section";
-import { StatsSection } from "./stats-section";
 
 const APP_ID = "landing" as const;
 
@@ -70,16 +69,13 @@ export function LandingShell(): ReactElement {
         <CompletePlatformSection />
 
         {/* Margin comparison section */}
-        <MarginComparisonSection onRequestDemo={handleOpenModal} />
+        <MarginComparisonSection />
 
         {/* Analytics growth visual section */}
         <AnalyticsGrowthSection />
 
         {/* Intelligent orders visual section */}
         <IntelligentOrdersSection />
-
-        {/* Stats strip */}
-        <StatsSection />
 
         {/* Ordering section */}
 

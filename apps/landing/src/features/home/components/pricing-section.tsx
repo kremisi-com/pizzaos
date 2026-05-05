@@ -45,7 +45,7 @@ const PLANS: readonly Plan[] = [
   {
     name: "Scale",
     target: "Per pizzerie e catene",
-    price: "199 €",
+    price: "Da 199 €",
     suffix: "/ mese",
     features: [
       "Gestione multi-sede",

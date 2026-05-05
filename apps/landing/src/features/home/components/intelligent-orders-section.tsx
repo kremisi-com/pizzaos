@@ -12,7 +12,13 @@ const ORDER_PILLARS = [
   {
     icon: <PriorityIcon />,
     title: "Prioritizzazione intelligente",
-    text: "Al tavolo > Asporto > Delivery. Tu decidi le regole, PizzaOS le applica.",
+    text: (
+      <>
+        Al tavolo &gt; Asporto &gt; Delivery.
+        <br />
+        Tu decidi le regole, PizzaOS le applica.
+      </>
+    ),
   },
   {
     icon: <ClockIcon />,
@@ -152,7 +158,14 @@ const LANES = [
   },
 ] as const;
 
-const INTEGRATIONS = ["deliveroo", "Glovo", "JUST EAT"] as const;
+const INTEGRATIONS = [
+  {
+    name: "Deliveroo",
+    logoSrc: "/images/deliveroo.png",
+    logoWidth: 1280,
+    logoHeight: 342,
+  },
+] as const;
 
 const AUTO_SEND = [
   { label: "Stampante", icon: <PrinterIcon /> },
@@ -194,11 +207,6 @@ export function IntelligentOrdersSection(): ReactElement {
       <div className={styles.inner}>
         <div className={styles.topGrid}>
           <div className={styles.copyColumn}>
-            {/* <div className={styles.eyebrow}>
-              <RocketIcon />
-              GESTIONE ORDINI INTELLIGENTE
-            </div> */}
-
             <h2 className={styles.title} id="intelligent-orders-title">
               Tutto sotto controllo,
               <br />
@@ -229,7 +237,6 @@ export function IntelligentOrdersSection(): ReactElement {
         </div>
 
         <div className={styles.deviceLayer} aria-hidden="true">
-          <KitchenPrinter />
           <SmistaGraphic />
         </div>
 
@@ -238,8 +245,21 @@ export function IntelligentOrdersSection(): ReactElement {
             <span className={styles.panelTitle}>Integrazioni attive</span>
             <div className={styles.integrationLogos}>
               {INTEGRATIONS.map((integration) => (
-                <strong className={styles.integrationLogo} key={integration}>
-                  {integration}
+                <strong
+                  className={styles.integrationLogo}
+                  key={integration.name}
+                >
+                  {"logoSrc" in integration ? (
+                    <Image
+                      className={styles.integrationLogoImage}
+                      src={integration.logoSrc}
+                      alt={integration.name}
+                      width={integration.logoWidth}
+                      height={integration.logoHeight}
+                    />
+                  ) : (
+                    integration.name
+                  )}
                 </strong>
               ))}
               <span>e molti altri</span>
@@ -387,22 +407,6 @@ function DashboardMockup(): ReactElement {
   );
 }
 
-function KitchenPrinter(): ReactElement {
-  return (
-    <div className={styles.printer}>
-      <div className={styles.receipt}>
-        <span>COMANDA CUCINA</span>
-        <strong>#1258 - Tavolo 12</strong>
-        <p>2x Margherita DOP</p>
-        <p>1x Diavola</p>
-        <p>1x Bufalina</p>
-        <b>Prep. stimata: 12 min</b>
-      </div>
-      <span className={styles.printerLogo}>PizzaOS</span>
-    </div>
-  );
-}
-
 function SmistaGraphic(): ReactElement {
   return (
     <div className={styles.smistaGraphic}>
@@ -414,17 +418,6 @@ function SmistaGraphic(): ReactElement {
         style={{ objectFit: "contain", objectPosition: "center" }}
       />
     </div>
-  );
-}
-
-function RocketIcon(): ReactElement {
-  return (
-    <svg aria-hidden="true" viewBox="0 0 24 24">
-      <path d="M14 4c2.4-.7 4.4-.7 5.8.2.8 1.5.8 3.4.1 5.9l-5 5-4.9-4.9 4-6.2Z" />
-      <path d="m8.8 10.6-3.1.5-2 4 4-.8" />
-      <path d="m13.4 15.2-.6 3.1-4 2 .8-4" />
-      <path d="M16.8 7.2h.1" />
-    </svg>
   );
 }
 
@@ -452,14 +445,6 @@ function ClockIcon(): ReactElement {
     <svg aria-hidden="true" viewBox="0 0 24 24">
       <circle cx="12" cy="12" r="8.5" />
       <path d="M12 7v5l3.5 2" />
-    </svg>
-  );
-}
-
-function BoltIcon(): ReactElement {
-  return (
-    <svg aria-hidden="true" viewBox="0 0 24 24">
-      <path d="m13 2-8 12h7l-1 8 8-13h-7l1-7Z" />
     </svg>
   );
 }

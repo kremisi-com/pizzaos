@@ -1,10 +1,7 @@
 "use client";
 
-import Link from "next/link";
 import type { CSSProperties, ReactElement, ReactNode } from "react";
 import styles from "./challenges-section.module.css";
-
-const CLIENT_DEMO_URL = "/client" as const;
 
 const missedCalls = ["12:45", "12:47", "12:49"] as const;
 const unavailablePizzas = [
@@ -110,15 +107,6 @@ function ChartIcon(): ReactElement {
       <path d="M5 20V10" />
       <path d="M12 20V4" />
       <path d="M19 20v-7" />
-    </svg>
-  );
-}
-
-function CloseIcon(): ReactElement {
-  return (
-    <svg aria-hidden="true" viewBox="0 0 16 16">
-      <path d="m4.5 4.5 7 7" />
-      <path d="m11.5 4.5-7 7" />
     </svg>
   );
 }
@@ -275,16 +263,6 @@ export function ChallengesSection(): ReactElement {
           </ChallengeCard>
         </div>
 
-        {/* <div className={styles.footerBanner}>
-          <span className={styles.footerIcon}>✨</span>
-          PizzaOS risolve tutto in un&apos;unica piattaforma.
-        </div>
-
-        <div>
-          <Link href={CLIENT_DEMO_URL} className={styles.ctaButton}>
-            Scopri come funziona <span aria-hidden="true">→</span>
-          </Link>
-        </div> */}
       </div>
     </section>
   );

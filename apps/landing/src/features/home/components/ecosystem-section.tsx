@@ -28,7 +28,7 @@ const ECOSYSTEM_ITEMS: readonly EcosystemItem[] = [
     description:
       "Menù digitale con personalizzazione completa, disponibilità in tempo reale e checkout guidato.",
     status: "live",
-    statusLabel: "Live nel POC",
+    statusLabel: "Live nella Demo",
   },
   {
     icon: "analytics",
@@ -36,7 +36,7 @@ const ECOSYSTEM_ITEMS: readonly EcosystemItem[] = [
     description:
       "Dashboard operativa con insight automatici, previsione della domanda e suggerimenti di pricing.",
     status: "live",
-    statusLabel: "Live nel POC",
+    statusLabel: "Live nella Demo",
   },
   {
     icon: "marketing",
@@ -44,7 +44,7 @@ const ECOSYSTEM_ITEMS: readonly EcosystemItem[] = [
     description:
       "Campagne personalizzate per riattivare clienti inattivi, festeggiare compleanni e fare upsell.",
     status: "live",
-    statusLabel: "Live nel POC",
+    statusLabel: "Live nella Demo",
   },
   {
     icon: "delivery",
@@ -52,7 +52,7 @@ const ECOSYSTEM_ITEMS: readonly EcosystemItem[] = [
     description:
       "Integrazione con rider, mappa live per il cliente e ottimizzazione dei percorsi di consegna.",
     status: "live",
-    statusLabel: "Live nel POC",
+    statusLabel: "Live nella Demo",
   },
   {
     icon: "group",
@@ -68,7 +68,7 @@ const ECOSYSTEM_ITEMS: readonly EcosystemItem[] = [
     description:
       "Gestisci più locali da un unico pannello, con dati separati, menu differenziati e staff dedicato.",
     status: "live",
-    statusLabel: "Live nel POC",
+    statusLabel: "Live nella Demo",
   },
   {
     icon: "loyalty",
@@ -76,7 +76,7 @@ const ECOSYSTEM_ITEMS: readonly EcosystemItem[] = [
     description:
       "Programmi fedeltà a punti, card mensili e benefici esclusivi per i clienti più affezionati.",
     status: "live",
-    statusLabel: "Live nel POC",
+    statusLabel: "Live nella Demo",
   },
   {
     icon: "inventory",
@@ -94,12 +94,6 @@ const ECOSYSTEM_ITEMS: readonly EcosystemItem[] = [
     status: "roadmap",
     statusLabel: "In roadmap",
   },
-] as const;
-
-const STATUS_SUMMARY = [
-  { value: "6", label: "moduli live nel POC" },
-  { value: "2", label: "flussi pronti per evolvere" },
-  { value: "1", label: "area in roadmap" },
 ] as const;
 
 export function EcosystemSection(): ReactElement {

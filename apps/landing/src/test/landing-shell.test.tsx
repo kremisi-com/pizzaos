@@ -14,10 +14,8 @@ import { LandingShell } from "../features/home/components/landing-shell";
 import { MarginComparisonSection } from "../features/home/components/margin-comparison-section";
 import { PricingSection } from "../features/home/components/pricing-section";
 
-describe("landing shell", () =>
-{
-  it("mounts the primary landing sections", () =>
-  {
+describe("landing shell", () => {
+  it("mounts the primary landing sections", () => {
     const markup = renderToString(createElement(LandingShell));
 
     expect(markup).toContain("Trasforma la tua");
@@ -37,8 +35,7 @@ describe("landing shell", () =>
     expect(markup).not.toContain("hero-composite");
   });
 
-  it("renders the challenges section with all demo problem cards", () =>
-  {
+  it("renders the challenges section with all demo problem cards", () => {
     const markup = renderToString(createElement(ChallengesSection));
 
     expect(markup).toContain("Ti riconosci in");
@@ -51,8 +48,7 @@ describe("landing shell", () =>
     expect(markup).toContain("Scopri come funziona");
   });
 
-  it("renders the complete platform section as coded landing content", () =>
-  {
+  it("renders the complete platform section as coded landing content", () => {
     const markup = renderToString(createElement(CompletePlatformSection));
 
     expect(markup).toContain("LA SOLUZIONE COMPLETA");
@@ -68,8 +64,7 @@ describe("landing shell", () =>
     expect(markup).toContain("Zero commissioni");
   });
 
-  it("renders the fourth feature difference section from the supplied screen", () =>
-  {
+  it("renders the fourth feature difference section from the supplied screen", () => {
     const markup = renderToString(createElement(FeatureDifferenceSection));
 
     expect(markup).toContain("FUNZIONALITÀ CHE FANNO LA DIFFERENZA");
@@ -83,9 +78,8 @@ describe("landing shell", () =>
     expect(markup).toContain("Scopri tutte le funzionalità");
   });
 
-  it("renders the fifth margin comparison section from the supplied screen", () =>
-  {
-    const markup = renderToString(createElement(MarginComparisonSection, { onRequestDemo: () => undefined }));
+  it("renders the fifth margin comparison section from the supplied screen", () => {
+    const markup = renderToString(createElement(MarginComparisonSection));
 
     expect(markup).toContain("MENO COSTI, PIÙ MARGINE");
     expect(markup).toContain("Più ordini diretti.");
@@ -101,8 +95,7 @@ describe("landing shell", () =>
     expect(markup).toContain("Scopri quanto puoi risparmiare");
   });
 
-  it("renders the sixth analytics growth section from the supplied screen", () =>
-  {
+  it("renders the sixth analytics growth section from the supplied screen", () => {
     const markup = renderToString(createElement(AnalyticsGrowthSection));
 
     expect(markup).toContain("DATI, ANALISI, CRESCITA");
@@ -122,8 +115,7 @@ describe("landing shell", () =>
     expect(markup).toContain("Prova la dashboard");
   });
 
-  it("renders the seventh intelligent orders section from the supplied dashboard screen", () =>
-  {
+  it("renders the seventh intelligent orders section from the supplied dashboard screen", () => {
     const markup = renderToString(createElement(IntelligentOrdersSection));
 
     expect(markup).toContain("GESTIONE ORDINI INTELLIGENTE");
@@ -131,17 +123,29 @@ describe("landing shell", () =>
     expect(markup).toContain("ogni ordine al posto giusto");
     expect(markup).toContain("Smistamento automatico");
     expect(markup).toContain("Rush Hours");
+    expect(markup).toContain(
+      "Al tavolo &gt; Asporto &gt; Delivery.<br/>Tu decidi",
+    );
     expect(markup).toContain("Ordini in tempo reale");
     expect(markup).toContain("#1258");
     expect(markup).toContain("%2Fimages%2Flogo.png");
     expect(markup).toContain("pizza demo");
     expect(markup).toContain("Integrazioni attive");
+    expect(markup).toContain("%2Fimages%2Fdeliveroo.png");
+    expect(markup).not.toContain(">deliveroo</strong>");
     expect(markup).toContain("Invio comande automatico");
     expect(markup).toContain("Scopri tutte le funzionalità");
   });
 
-  it("renders the eighth chain management section from the supplied screen", () =>
-  {
+  it("renders the Deliveroo partner as an image in active integrations", () => {
+    const markup = renderToString(createElement(IntelligentOrdersSection));
+
+    expect(markup).toContain("%2Fimages%2Fdeliveroo.png");
+    expect(markup).toContain('alt="Deliveroo"');
+    expect(markup).not.toContain(">deliveroo</strong>");
+  });
+
+  it("renders the eighth chain management section from the supplied screen", () => {
     const markup = renderToString(createElement(ChainManagementSection));
 
     expect(markup).toContain("GESTIONE CATENE");
@@ -166,9 +170,10 @@ describe("landing shell", () =>
     expect(markup).toContain("Sincronizzazione totale");
   });
 
-  it("renders the ninth pricing section from the supplied screen", () =>
-  {
-    const markup = renderToString(createElement(PricingSection, { onRequestDemo: () => undefined }));
+  it("renders the ninth pricing section from the supplied screen", () => {
+    const markup = renderToString(
+      createElement(PricingSection, { onRequestDemo: () => undefined }),
+    );
 
     expect(markup).toContain("PREZZI SEMPLICI");
     expect(markup).toContain("Scegli il piano.");
@@ -188,13 +193,14 @@ describe("landing shell", () =>
     expect(markup).toContain("Prova gratuita di 14 giorni");
   });
 
-  it("renders the ecosystem section with the current landing visual language", () =>
-  {
+  it("renders the ecosystem section with the current landing visual language", () => {
     const markup = renderToString(createElement(EcosystemSection));
 
     expect(markup).toContain("ECOSISTEMA");
-    expect(markup).toContain("Tutto ciò che una pizzeria moderna può <span>immaginare.</span>");
-    expect(markup).toContain("moduli live nel POC");
+    expect(markup).toContain(
+      "Tutto ciò che una pizzeria moderna può <span>immaginare.</span>",
+    );
+    expect(markup).toContain("moduli live nella Demo");
     expect(markup).toContain("Ordini digitali");
     expect(markup).toContain("Analytics AI");
     expect(markup).toContain("Marketing automation");
@@ -202,14 +208,15 @@ describe("landing shell", () =>
     expect(markup).toContain("In roadmap");
   });
 
-  it("renders the FAQ section from the supplied screen", () =>
-  {
+  it("renders the FAQ section from the supplied screen", () => {
     const markup = renderToString(createElement(FaqSection));
 
     expect(markup).toContain("FAQ");
     expect(markup).toContain("Hai domande?");
     expect(markup).toContain("Abbiamo <span>le risposte.</span>");
-    expect(markup).toContain("Tutto quello che serve per usare PizzaOS al meglio.");
+    expect(markup).toContain(
+      "Tutto quello che serve per usare PizzaOS al meglio.",
+    );
     expect(markup).toContain("Riders e consegne");
     expect(markup).toContain("Come posso effettuare un ordine con PizzaOS?");
     expect(markup).toContain("Posso ordinare insieme ad amici o familiari?");
@@ -221,9 +228,10 @@ describe("landing shell", () =>
     expect(markup).toContain("La piattaforma completa per pizzerie moderne.");
   });
 
-  it("renders the eleventh CTA section from the supplied screen", () =>
-  {
-    const markup = renderToString(createElement(FinalCtaSection, { onRequestDemo: () => undefined }));
+  it("renders the eleventh CTA section from the supplied screen", () => {
+    const markup = renderToString(
+      createElement(FinalCtaSection, { onRequestDemo: () => undefined }),
+    );
 
     expect(markup).toContain("PRONTO A FAR CRESCERE LA TUA PIZZERIA?");
     expect(markup).toContain("Inizia oggi.");

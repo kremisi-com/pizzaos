@@ -83,13 +83,7 @@ const COMPARISON_ROWS = [
   },
 ] as const;
 
-interface MarginComparisonSectionProps {
-  readonly onRequestDemo: () => void;
-}
-
-export function MarginComparisonSection({
-  onRequestDemo,
-}: MarginComparisonSectionProps): ReactElement {
+export function MarginComparisonSection(): ReactElement {
   return (
     <section
       className={styles.section}
@@ -196,34 +190,6 @@ export function MarginComparisonSection({
           </aside>
         </div>
 
-        {/* <div className={styles.bottomCta}>
-          <span className={styles.bottomIcon}>
-            <GrowthIcon />
-          </span>
-          <div className={styles.bottomCopy}>
-            <strong>
-              Più ordini diretti, più clienti fedeli, più crescita.
-            </strong>
-            <span>
-              PizzaOS ti dà tutto ciò che serve per far crescere la tua pizzeria
-              senza dipendere da nessuno.
-            </span>
-          </div>
-          <div className={styles.ctaStack}>
-            <button
-              className={styles.cta}
-              type="button"
-              onClick={onRequestDemo}
-            >
-              Scopri quanto puoi risparmiare
-              <ArrowIcon />
-            </button>
-            <span className={styles.ctaNote}>
-              <CheckIcon />
-              Calcolo gratuito in 2 minuti
-            </span>
-          </div>
-        </div> */}
       </div>
     </section>
   );
@@ -327,25 +293,6 @@ function XIcon(): ReactElement {
     <svg aria-hidden="true" viewBox="0 0 20 20">
       <circle cx="10" cy="10" r="7.2" />
       <path d="m7.5 7.5 5 5M12.5 7.5l-5 5" />
-    </svg>
-  );
-}
-
-function GrowthIcon(): ReactElement {
-  return (
-    <svg aria-hidden="true" viewBox="0 0 24 24">
-      <path d="M5 20V10h3v10H5Z" />
-      <path d="M11 20V5h3v15h-3Z" />
-      <path d="M17 20v-8h3v8h-3Z" />
-    </svg>
-  );
-}
-
-function ArrowIcon(): ReactElement {
-  return (
-    <svg aria-hidden="true" viewBox="0 0 20 20">
-      <path d="M4 10h11" />
-      <path d="m11 5 5 5-5 5" />
     </svg>
   );
 }

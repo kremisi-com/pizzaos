@@ -5,8 +5,6 @@ import Link from "next/link";
 import type { ReactElement } from "react";
 import styles from "./navbar.module.css";
 
-const CLIENT_DEMO_URL = "/client" as const;
-
 const NAV_LINKS = [
   { label: "Funzionalità", href: "#funzionalita" },
   { label: "Perché PizzaOS", href: "#perche-pizzaos" },
