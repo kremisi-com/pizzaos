@@ -41,8 +41,9 @@ export function OrdersDashboard(props: OrdersDashboardProps): ReactElement {
     const total = orders.length;
     const received = orders.filter(o => o.status === "received").length;
     const preparing = orders.filter(o => o.status === "preparing").length;
+    const outForDelivery = orders.filter(o => o.status === "out_for_delivery").length;
 
-    return { active, total, received, preparing };
+    return { active, total, received, preparing, outForDelivery };
   }, [orders]);
 
   const selectedOrder = useMemo(() => {
@@ -63,6 +64,10 @@ export function OrdersDashboard(props: OrdersDashboardProps): ReactElement {
         <div className={styles.statCard}>
           <div className={styles.statLabel}>In preparazione</div>
           <div className={styles.statValue}>{stats.preparing}</div>
+        </div>
+        <div className={styles.statCard}>
+          <div className={styles.statLabel}>In consegna</div>
+          <div className={styles.statValue}>{stats.outForDelivery}</div>
         </div>
         <div className={styles.statCard}>
           <div className={styles.statLabel}>Totale oggi</div>

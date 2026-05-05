@@ -36,6 +36,7 @@ Pseudo-correlazione forte tra Client e Admin, senza sync runtime:
   **Done quando:** l’admin mostra riferimenti/stati coerenti col client senza cambi client.
 ---
 ### Fase 2 — Quick Fix immediati (Admin-only)
+- Stato: ✅ completata (KPI "In consegna" aggiunto, integrazioni ridotte a placeholder supportati)
 - Ordini: aggiungere KPI “In consegna” nel riepilogo top
 - Integrazioni: rimuovere opzioni non supportate e stati fuorvianti
   **Done quando:** issue Ordini + Integrazioni chiuse e test aggiornati.

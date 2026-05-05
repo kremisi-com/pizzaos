@@ -25,6 +25,27 @@ const MOCK_ORDERS: Order[] = [
     createdAtIso: new Date().toISOString(),
     updatedAtIso: new Date().toISOString(),
     scheduledSlot: "19:00"
+  },
+  {
+    id: "order-2",
+    customerId: "cust-2",
+    storeId: "store-1",
+    status: "out_for_delivery",
+    lines: [
+      {
+        productId: "product-5678",
+        quantity: 1,
+        unitPrice: { amountCents: 1200, currencyCode: "EUR" },
+        notes: ""
+      }
+    ],
+    subtotal: { amountCents: 1200, currencyCode: "EUR" },
+    discountTotal: { amountCents: 0, currencyCode: "EUR" },
+    deliveryFee: { amountCents: 100, currencyCode: "EUR" },
+    total: { amountCents: 1300, currencyCode: "EUR" },
+    createdAtIso: new Date().toISOString(),
+    updatedAtIso: new Date().toISOString(),
+    scheduledSlot: "19:20"
   }
 ];
 
@@ -39,6 +60,7 @@ describe("OrdersDashboard", () => {
     );
 
     expect(markup).toContain("Ordini Attivi");
+    expect(markup).toContain("In consegna");
     expect(markup).toContain("Totale oggi");
     expect(markup).toContain("Prodotto");
     expect(markup).toContain("1234");
