@@ -230,7 +230,7 @@ export function IntelligentOrdersSection(): ReactElement {
 
         <div className={styles.deviceLayer} aria-hidden="true">
           <KitchenPrinter />
-          <PhoneTracker />
+          <SmistaGraphic />
         </div>
 
         <div className={styles.integrationPanel}>
@@ -403,34 +403,16 @@ function KitchenPrinter(): ReactElement {
   );
 }
 
-function PhoneTracker(): ReactElement {
-  const steps = [
-    ["Ricevuto", "09:41", true],
-    ["In preparazione", "09:43", true],
-    ["In forno", "09:49", true],
-    ["Pronto", "09:58", true],
-    ["Consegnato", "", false],
-  ] as const;
-
+function SmistaGraphic(): ReactElement {
   return (
-    <div className={styles.phone}>
-      <div className={styles.phoneTop}>
-        <span>9:41</span>
-        <b />
-      </div>
-      <div className={styles.phoneScreen}>
-        <h3>Ordine #1258</h3>
-        <strong>Tavolo 12</strong>
-        <ol>
-          {steps.map(([label, time, done]) => (
-            <li className={done ? styles.stepDone : ""} key={label}>
-              <span />
-              <p>{label}</p>
-              <small>{time}</small>
-            </li>
-          ))}
-        </ol>
-      </div>
+    <div className={styles.smistaGraphic}>
+      <Image
+        src="/images/smista.png"
+        alt=""
+        fill
+        sizes="420px"
+        style={{ objectFit: "contain", objectPosition: "center" }}
+      />
     </div>
   );
 }

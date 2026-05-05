@@ -681,130 +681,13 @@
   font-weight: 800;
 }
 
-.phone {
+.smistaGraphic {
   position: absolute;
-  right: -4px;
-  top: -12px;
-  width: 188px;
-  height: 302px;
-  padding: 14px 11px 12px;
-  border: 7px solid #050505;
-  border-radius: 30px 30px 0 0;
-  background: #050505;
-  box-shadow: 0 22px 44px rgba(0, 0, 0, 0.22);
-}
-
-.phoneTop {
-  height: 25px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 10px;
-  color: #ffffff;
-  font-size: 9px;
-  font-weight: 800;
-}
-
-.phoneTop b {
-  width: 46px;
-  height: 8px;
-  border-radius: 999px;
-  background: #0c0c0c;
-}
-
-.phoneScreen {
-  height: 252px;
-  padding: 17px 14px;
-  border-radius: 14px 14px 0 0;
-  background: #ffffff;
-}
-
-.phoneScreen h3 {
-  margin: 0 0 5px;
-  color: #111318;
-  font-family: var(--font-heading);
-  font-size: 15px;
-  font-weight: 900;
-  letter-spacing: 0;
-}
-
-.phoneScreen > strong {
-  display: block;
-  margin-bottom: 20px;
-  color: var(--color-brand-red);
-  font-size: 12px;
-}
-
-.phoneScreen ol {
-  display: grid;
-  gap: 0;
-}
-
-.phoneScreen li {
-  position: relative;
-  display: grid;
-  grid-template-columns: 18px 1fr auto;
-  gap: 7px;
-  min-height: 35px;
-  color: #737b87;
-  font-size: 10px;
-}
-
-.phoneScreen li::after {
-  content: "";
-  position: absolute;
-  left: 7px;
-  top: 15px;
-  width: 2px;
-  height: 24px;
-  background: #e0e3e7;
-}
-
-.phoneScreen li:last-child::after {
-  display: none;
-}
-
-.phoneScreen li span {
-  width: 15px;
-  height: 15px;
-  display: grid;
-  place-items: center;
-  border-radius: 50%;
-  background: #dfe3e7;
-}
-
-.phoneScreen li span::before {
-  content: "";
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background: #ffffff;
-}
-
-.phoneScreen p {
-  margin: 0;
-  color: inherit;
-  font-size: 10px;
-  font-weight: 800;
-  line-height: 1.4;
-}
-
-.phoneScreen small {
-  color: #87909b;
-  font-size: 9px;
-  line-height: 1.4;
-}
-
-.stepDone {
-  color: #1c222b;
-}
-
-.phoneScreen .stepDone span {
-  background: var(--color-brand-red);
-}
-
-.phoneScreen .stepDone::after {
-  background: var(--color-brand-red);
+  right: -24px;
+  top: -82px;
+  width: 430px;
+  height: 322px;
+  filter: drop-shadow(0 22px 34px rgba(244, 58, 38, 0.12));
 }
 
 .integrationPanel,
@@ -964,8 +847,7 @@
 
 .logo svg,
 .rushStats svg,
-.customer svg,
-.phoneScreen svg {
+.customer svg {
   fill: none;
   stroke: currentColor;
   stroke-linecap: round;
