@@ -87,6 +87,83 @@
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  margin-top: 1rem;
+}
+
+.chartHeader {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #1f2a37;
+  margin-bottom: 0.75rem;
+}
+
+.trendChart {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.75rem;
+  min-height: 160px;
+  padding: 0.5rem 0;
+}
+
+.chartColumn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  flex: 1;
+}
+
+.chartBar {
+  width: 100%;
+  max-width: 28px;
+  border-radius: 6px 6px 3px 3px;
+  background: linear-gradient(180deg, #0ea5e9 0%, #0369a1 100%);
+  animation: riseIn 420ms ease-out;
+}
+
+.chartLabel {
+  font-size: 0.7rem;
+  color: #52606d;
+}
+
+.liveEventTitle {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #1f2a37;
+  margin-bottom: 0.35rem;
+}
+
+.liveEventSummary {
+  font-size: 0.82rem;
+  color: #425466;
+  line-height: 1.45;
+}
+
+.typingTitle {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #1f2a37;
+  margin-bottom: 0.4rem;
+}
+
+.typingText {
+  min-height: 3.25rem;
+  font-size: 0.82rem;
+  color: #1f2937;
+  line-height: 1.5;
+}
+
+@keyframes riseIn {
+  from {
+    transform: scaleY(0.4);
+    transform-origin: bottom;
+    opacity: 0.5;
+  }
+  to {
+    transform: scaleY(1);
+    transform-origin: bottom;
+    opacity: 1;
+  }
 }
 
 .insightCard {

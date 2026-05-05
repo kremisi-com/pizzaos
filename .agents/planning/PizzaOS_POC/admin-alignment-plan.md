@@ -59,6 +59,7 @@ Pseudo-correlazione forte tra Client e Admin, senza sync runtime:
   **Done quando:** Magazzino è ingredient-first, Dynamic Pricing solo in Marketing.
 ---
 ### Fase 5 — Analytics and AI upgrade (Admin-only)
+- Stato: ✅ completata (sezione rinominata, trend chart animati, insight arricchiti e AI live typing simulato collegato alla telemetria ordini locale)
 - Rinominare sezione in “Analytics and AI”
 - Aggiungere:
     - trend charts animati

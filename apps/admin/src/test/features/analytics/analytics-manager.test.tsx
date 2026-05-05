@@ -92,11 +92,25 @@ describe("AnalyticsManager", () => {
       })
     );
 
-    expect(markup).toContain("PizzaOS AI Insights");
+    expect(markup).toContain("Analytics and AI");
+    expect(markup).toContain("Assistente AI operativo");
     expect(markup).toContain("Picco previsto");
     expect(markup).toContain("Previsto picco di ordini");
     expect(markup).toContain("92");
     expect(markup).toContain("%");
+  });
+
+  it("renders animated trend chart section and local order events", () => {
+    const markup = renderToString(
+      createElement(AnalyticsManager, {
+        analytics: MOCK_ANALYTICS,
+        insights: MOCK_INSIGHTS,
+        products: MOCK_PRODUCTS
+      })
+    );
+
+    expect(markup).toContain("Trend ordini ultime 6 ore");
+    expect(markup).toContain("Evento ordine locale");
   });
 
   it("renders heatmap placeholder", () => {

@@ -31,7 +31,17 @@ function resolveStorage(): Storage | undefined
     return undefined;
   }
 
-  return window.localStorage;
+  const { localStorage } = window;
+
+  if (
+    typeof localStorage.getItem !== "function" ||
+    typeof localStorage.setItem !== "function" ||
+    typeof localStorage.removeItem !== "function"
+  ) {
+    return undefined;
+  }
+
+  return localStorage;
 }
 
 export function AdminShell(): ReactElement
@@ -273,7 +283,7 @@ export function AdminShell(): ReactElement
             onClick={() => setActiveTab("analytics")}
             className={`${styles.navButton} ${activeTab === "analytics" ? styles.navItemActive : ""}`}
           >
-            Analytics
+            Analytics and AI
           </button>
           <button
             onClick={() => setActiveTab("delivery")}
@@ -311,7 +321,7 @@ export function AdminShell(): ReactElement
             <h2>
               {activeTab === "dashboard" ? seed.title : 
                activeTab === "marketing" ? "Marketing & Loyalty" : 
-               activeTab === "analytics" ? "Analytics & Insights" : 
+               activeTab === "analytics" ? "Analytics and AI" : 
                activeTab === "delivery" ? "Gestione Consegne" :
                activeTab === "integrations" ? "Integrazioni Esterne" :
                "Gestione Operativa"}
