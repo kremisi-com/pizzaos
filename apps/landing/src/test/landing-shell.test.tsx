@@ -202,9 +202,17 @@ describe("landing shell", () => {
 
     expect(markup).toContain("ECOSISTEMA");
     expect(markup).toContain(
-      "Tutto ciò che una pizzeria moderna può <span>immaginare.</span>",
+      "Tutto il sistema operativo della tua pizzeria",
     );
-    expect(markup).toContain("canali proprietari e crescita senza commissioni");
+    expect(markup).toContain(
+      "Dagli ordini online alla fidelizzazione, dal magazzino alla consegna",
+    );
+    expect(markup).toContain("Filtra funzionalità PizzaOS");
+    expect(markup).toContain("Live nella demo");
+    expect(markup).toContain("Prossimamente");
+    expect(markup).toContain("In roadmap");
+    expect(markup).toContain("Vedi tutte le funzioni");
+    expect(markup).toContain("+8 funzioni incluse");
     expect(markup).toContain("Ordini digitali");
     expect(markup).toContain("Menu digitale personalizzato");
     expect(markup).toContain("Pizza builder");
@@ -218,7 +226,7 @@ describe("landing shell", () => {
     expect(markup).toContain("Loyalty &amp; abbonamenti");
     expect(markup).toContain("Delivery &amp; tracciamento");
     expect(markup).toContain("Gestione ristorante");
-    expect(markup).toContain("Magazzino");
+    expect(markup).toContain("Gestione magazzino");
     expect(markup).toContain("Pagamenti &amp; integrazioni");
     expect(markup).toContain("Brand &amp; canali proprietari");
   });

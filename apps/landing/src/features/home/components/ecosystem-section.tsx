@@ -1,5 +1,16 @@
-import type { ReactElement } from "react";
+"use client";
+
+import { useId, useState, type ReactElement } from "react";
 import styles from "./ecosystem-section.module.css";
+
+type EcosystemCategory =
+  | "Ordini"
+  | "Crescita"
+  | "AI"
+  | "Operatività"
+  | "Pagamenti";
+
+type EcosystemStatus = "Live nella demo" | "Prossimamente" | "In roadmap";
 
 type EcosystemIcon =
   | "orders"
@@ -16,14 +27,34 @@ type EcosystemIcon =
 
 interface EcosystemItem {
   readonly icon: EcosystemIcon;
+  readonly category: EcosystemCategory;
+  readonly status: EcosystemStatus;
   readonly title: string;
+  readonly description: string;
+  readonly highlights: readonly string[];
   readonly features: readonly string[];
 }
+
+const ECOSYSTEM_FILTERS = [
+  "Tutto",
+  "Ordini",
+  "Crescita",
+  "AI",
+  "Operatività",
+  "Pagamenti",
+] as const;
+
+type EcosystemFilter = (typeof ECOSYSTEM_FILTERS)[number];
 
 const ECOSYSTEM_ITEMS: readonly EcosystemItem[] = [
   {
     icon: "orders",
+    category: "Ordini",
+    status: "Live nella demo",
     title: "Ordini digitali",
+    description:
+      "Ricevi ordini online con menu personalizzato, checkout guidato, pagamenti e disponibilità sempre aggiornata.",
+    highlights: ["Ordinazione da app/web", "Pagamento online", "Riordino rapido"],
     features: [
       "Menu digitale personalizzato",
       "Ordinazione da app/web",
@@ -40,7 +71,12 @@ const ECOSYSTEM_ITEMS: readonly EcosystemItem[] = [
   },
   {
     icon: "pizza",
+    category: "Ordini",
+    status: "Live nella demo",
     title: "Pizza builder",
+    description:
+      "Permetti ai clienti di creare pizze personalizzate con impasti, basi, topping, allergeni e prezzo in tempo reale.",
+    highlights: ["Impasti diversi", "Topping configurabili", "Prezzo in tempo reale"],
     features: [
       "Personalizzazione estrema della pizza",
       "Impasti diversi",
@@ -55,7 +91,12 @@ const ECOSYSTEM_ITEMS: readonly EcosystemItem[] = [
   },
   {
     icon: "group",
+    category: "Ordini",
+    status: "Live nella demo",
     title: "Ordine di gruppo",
+    description:
+      "Fai ordinare più persone dallo stesso menu condiviso, ognuna dal proprio dispositivo.",
+    highlights: ["Menu condiviso", "Carrello condiviso", "Split conto"],
     features: [
       "Menu condiviso tra più dispositivi",
       "Ognuno personalizza il proprio ordine",
@@ -67,7 +108,12 @@ const ECOSYSTEM_ITEMS: readonly EcosystemItem[] = [
   },
   {
     icon: "marketing",
+    category: "Crescita",
+    status: "Live nella demo",
     title: "Marketing automation",
+    description:
+      "Automatizza coupon, promo, recupero clienti inattivi, compleanni, feedback e recensioni Google.",
+    highlights: ["Coupon dall’app", "Promo automatiche", "Recensioni Google"],
     features: [
       "Coupon dall’app",
       "Cliente inattivo → sconto automatico",
@@ -82,7 +128,12 @@ const ECOSYSTEM_ITEMS: readonly EcosystemItem[] = [
   },
   {
     icon: "loyalty",
+    category: "Crescita",
+    status: "Live nella demo",
     title: "Loyalty & abbonamenti",
+    description:
+      "Costruisci relazioni continuative con tessere fedeltà, punti, premi, card mensili e abbonamenti pizza.",
+    highlights: ["Tessera fedeltà", "Raccolta punti", "Abbonamento pizze"],
     features: [
       "Tessera fedeltà",
       "Raccolta punti",
@@ -95,7 +146,12 @@ const ECOSYSTEM_ITEMS: readonly EcosystemItem[] = [
   },
   {
     icon: "analytics",
+    category: "AI",
+    status: "Live nella demo",
     title: "Analytics AI",
+    description:
+      "Analizza vendite, domanda e comportamento dei clienti con insight automatici e suggerimenti operativi.",
+    highlights: ["Dashboard operativa", "Forecasting domanda", "Suggerimenti AI"],
     features: [
       "Dashboard operativa",
       "Pattern di vendita",
@@ -109,7 +165,16 @@ const ECOSYSTEM_ITEMS: readonly EcosystemItem[] = [
   },
   {
     icon: "delivery",
+    category: "Operatività",
+    status: "Live nella demo",
     title: "Delivery & tracciamento",
+    description:
+      "Gestisci consegne, rider, notifiche e tracciamento live con stato ordine sempre chiaro per il cliente.",
+    highlights: [
+      "Stato ordine chiaro",
+      "Tracciamento rider",
+      "Ottimizzazione consegne",
+    ],
     features: [
       "Stato ordine chiaro",
       "Notifiche sugli ordini",
@@ -122,7 +187,12 @@ const ECOSYSTEM_ITEMS: readonly EcosystemItem[] = [
   },
   {
     icon: "stores",
+    category: "Operatività",
+    status: "Live nella demo",
     title: "Gestione ristorante",
+    description:
+      "Coordina ordini, reparti, staff, priorità e sedi da un pannello pensato per il lavoro quotidiano.",
+    highlights: ["Pannello ordini", "Comande per reparto", "Multi-sede"],
     features: [
       "Pannello amministrativo ordini",
       "Prioritizzazione ordini",
@@ -137,7 +207,12 @@ const ECOSYSTEM_ITEMS: readonly EcosystemItem[] = [
   },
   {
     icon: "inventory",
-    title: "Magazzino",
+    category: "Operatività",
+    status: "Prossimamente",
+    title: "Gestione magazzino",
+    description:
+      "Collega inventario, ingredienti e menu per evitare vendite impossibili e aggiornare gli esauriti in tempo reale.",
+    highlights: ["Inventario live", "Esaurito automatico", "Promo su scorte"],
     features: [
       "Inventario in tempo reale",
       "Collegamento prodotti-menu",
@@ -149,7 +224,12 @@ const ECOSYSTEM_ITEMS: readonly EcosystemItem[] = [
   },
   {
     icon: "payments",
+    category: "Pagamenti",
+    status: "In roadmap",
     title: "Pagamenti & integrazioni",
+    description:
+      "Unifica pagamenti, split conto, fatture, scontrini elettronici, POS e integrazioni con la cassa.",
+    highlights: ["Split conto", "Fattura automatica", "Integrazione POS"],
     features: [
       "Pagamento da app",
       "Split conto",
@@ -162,7 +242,12 @@ const ECOSYSTEM_ITEMS: readonly EcosystemItem[] = [
   },
   {
     icon: "brand",
+    category: "Crescita",
+    status: "Live nella demo",
     title: "Brand & canali proprietari",
+    description:
+      "Trasforma il menu in un canale proprietario, brandizzato e senza commissioni sugli ordini.",
+    highlights: ["Dominio personale", "Menu su misura", "Zero commissioni"],
     features: [
       "Dominio personale",
       "Ecosistema monobrand",
@@ -175,6 +260,25 @@ const ECOSYSTEM_ITEMS: readonly EcosystemItem[] = [
 ] as const;
 
 export function EcosystemSection(): ReactElement {
+  const detailsBaseId = useId();
+  const [activeFilter, setActiveFilter] = useState<EcosystemFilter>("Tutto");
+  const [openCardTitle, setOpenCardTitle] = useState<string | null>(null);
+
+  const visibleItems = ECOSYSTEM_ITEMS.filter(
+    (item) => activeFilter === "Tutto" || item.category === activeFilter,
+  );
+
+  function handleFilterChange(nextFilter: EcosystemFilter): void {
+    setActiveFilter(nextFilter);
+    setOpenCardTitle(null);
+  }
+
+  function handleCardToggle(title: string): void {
+    setOpenCardTitle((currentTitle) =>
+      currentTitle === title ? null : title,
+    );
+  }
+
   return (
     <section
       id="ecosistema"
@@ -188,39 +292,137 @@ export function EcosystemSection(): ReactElement {
             ECOSISTEMA
           </span>
           <h2 className={styles.title}>
-            Tutto ciò che una pizzeria moderna può <span>immaginare.</span>
+            Tutto il sistema operativo della tua pizzeria
           </h2>
           <p className={styles.description}>
-            Dal primo ordine digitale alla gestione multi-sede: PizzaOS cresce
-            con te.
-            <br />
-            Ogni area è pensata per controllo operativo, canali proprietari e
-            crescita senza commissioni.
+            Dagli ordini online alla fidelizzazione, dal magazzino alla
+            consegna: PizzaOS riunisce in un’unica piattaforma le funzioni che
+            oggi sono sparse tra menu digitali, gestionali, POS e strumenti
+            marketing.
           </p>
         </div>
 
+        <div
+          className={styles.filters}
+          role="tablist"
+          aria-label="Filtra funzionalità PizzaOS"
+        >
+          {ECOSYSTEM_FILTERS.map((filter) => {
+            const isActive = filter === activeFilter;
+
+            return (
+              <button
+                key={filter}
+                type="button"
+                className={`${styles.filterButton} ${
+                  isActive ? styles.filterButtonActive : ""
+                }`}
+                role="tab"
+                aria-selected={isActive}
+                onClick={() => handleFilterChange(filter)}
+              >
+                {filter}
+              </button>
+            );
+          })}
+        </div>
+
         <div className={styles.grid} role="list">
-          {ECOSYSTEM_ITEMS.map((item) => (
-            <div key={item.title} className={styles.card} role="listitem">
-              <div className={styles.cardHeader}>
-                <div className={styles.cardIcon} aria-hidden="true">
-                  {renderIcon(item.icon)}
+          {visibleItems.map((item) => {
+            const isOpen = openCardTitle === item.title;
+            const detailsId = `${detailsBaseId}-${item.title
+              .toLowerCase()
+              .replaceAll(" ", "-")
+              .replaceAll("&", "e")}`;
+            const additionalFeatureCount =
+              item.features.length - item.highlights.length;
+            const additionalFeatureLabel = `+${additionalFeatureCount} funzioni incluse`;
+            const includedFeatureLabel = `Include ${item.features.length} funzioni`;
+            const statusClassName = getStatusClassName(item.status);
+
+            return (
+              <article
+                key={item.title}
+                className={`${styles.card} ${isOpen ? styles.cardOpen : ""}`}
+                role="listitem"
+              >
+                <div className={styles.cardHeader}>
+                  <div className={styles.cardIcon} aria-hidden="true">
+                    {renderIcon(item.icon)}
+                  </div>
+                  <span className={`${styles.statusBadge} ${statusClassName}`}>
+                    {item.status}
+                  </span>
                 </div>
-              </div>
-              <div>
-                <h3 className={styles.cardTitle}>{item.title}</h3>
-                <ul className={styles.featureList}>
-                  {item.features.map((feature) => (
-                    <li key={feature}>{feature}</li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-          ))}
+
+                <div className={styles.cardBody}>
+                  <span className={styles.category}>{item.category}</span>
+                  <h3 className={styles.cardTitle}>{item.title}</h3>
+                  <p className={styles.cardDescription}>{item.description}</p>
+                  <ul
+                    className={styles.highlightList}
+                    aria-label="Funzioni in evidenza"
+                  >
+                    {item.highlights.map((feature) => (
+                      <li key={feature}>{feature}</li>
+                    ))}
+                  </ul>
+                </div>
+
+                <div className={styles.cardFooter}>
+                  <span className={styles.includedCount}>
+                    {includedFeatureLabel}
+                  </span>
+                  <button
+                    type="button"
+                    className={styles.detailsButton}
+                    aria-expanded={isOpen}
+                    aria-controls={detailsId}
+                    onClick={() => handleCardToggle(item.title)}
+                  >
+                    <span>
+                      {isOpen ? "Nascondi dettagli" : "Vedi tutte le funzioni"}
+                    </span>
+                    {!isOpen && additionalFeatureCount > 0 ? (
+                      <span className={styles.moreCount}>
+                        {additionalFeatureLabel}
+                      </span>
+                    ) : null}
+                  </button>
+                </div>
+
+                <div
+                  className={`${styles.detailsPanel} ${
+                    isOpen ? styles.detailsPanelOpen : ""
+                  }`}
+                  id={detailsId}
+                  aria-hidden={!isOpen}
+                >
+                  <div className={styles.detailsInner}>
+                    <ul className={styles.featureList}>
+                      {item.features.map((feature) => (
+                        <li key={feature}>{feature}</li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              </article>
+            );
+          })}
         </div>
       </div>
     </section>
   );
+}
+
+function getStatusClassName(status: EcosystemStatus): string {
+  if (status === "Live nella demo")
+    return styles.statusLive;
+
+  if (status === "Prossimamente")
+    return styles.statusSoon;
+
+  return styles.statusRoadmap;
 }
 
 function renderIcon(icon: EcosystemIcon): ReactElement {
