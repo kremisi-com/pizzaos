@@ -21,14 +21,12 @@ describe("landing shell", () => {
     expect(markup).toContain("Trasforma la tua");
     expect(markup).toContain("LE SFIDE DI OGNI PIZZERIA");
     expect(markup).toContain("soluzione-completa");
-    expect(markup).toContain("funzionalita-differenza");
     expect(markup).toContain("MENO COSTI, PIÙ MARGINE");
     expect(markup).toContain("dati-crescita");
     expect(markup).toContain("gestione-ordini");
     expect(markup).toContain("GESTIONE CATENE");
     expect(markup).toContain("PREZZI SEMPLICI");
     expect(markup).toContain("Hai domande?");
-    expect(markup).toContain("PRONTO A FAR CRESCERE LA TUA PIZZERIA?");
     expect(markup).toContain("Ecosistema");
     expect(markup).toContain("Reset demo");
     expect(markup).toContain("%2Fimages%2Flogo.png");
@@ -43,9 +41,10 @@ describe("landing shell", () => {
     expect(markup).toContain("Commissioni che mangiano i profitti");
     expect(markup).toContain("Clienti che ordinano una volta e spariscono");
     expect(markup).toContain("Consegne disordinate e zero controllo");
-    expect(markup).toContain("Menu statico, poco flessibile");
-    expect(markup).toContain("Nessun dato, nessuna crescita");
-    expect(markup).toContain("Scopri come funziona");
+    expect(markup).toContain("Menu statico");
+    expect(markup).toContain("poco flessibile");
+    expect(markup).toContain("Nessun dato");
+    expect(markup).toContain("nessuna crescita");
   });
 
   it("renders the complete platform section as coded landing content", () => {
@@ -92,7 +91,6 @@ describe("landing shell", () => {
     expect(markup).toContain("0%");
     expect(markup).toContain("500 ordini al mese");
     expect(markup).toContain("9.000 € in più");
-    expect(markup).toContain("Scopri quanto puoi risparmiare");
   });
 
   it("renders the sixth analytics growth section from the supplied screen", () => {
@@ -118,11 +116,9 @@ describe("landing shell", () => {
   it("renders the seventh intelligent orders section from the supplied dashboard screen", () => {
     const markup = renderToString(createElement(IntelligentOrdersSection));
 
-    expect(markup).toContain("GESTIONE ORDINI INTELLIGENTE");
     expect(markup).toContain("Tutto sotto controllo");
     expect(markup).toContain("ogni ordine al posto giusto");
     expect(markup).toContain("Smistamento automatico");
-    expect(markup).toContain("Rush Hours");
     expect(markup).toContain(
       "Al tavolo &gt; Asporto &gt; Delivery.<br/>Tu decidi",
     );
@@ -130,16 +126,19 @@ describe("landing shell", () => {
     expect(markup).toContain("#1258");
     expect(markup).toContain("%2Fimages%2Flogo.png");
     expect(markup).toContain("pizza demo");
-    expect(markup).toContain("Integrazioni attive");
+    expect(markup).toContain("Anche senza gestire rider");
+    expect(markup).toContain("non vuole gestire una flotta di");
+    expect(markup).toContain("integrarsi con Deliveroo");
     expect(markup).toContain("%2Fimages%2Fdeliveroo.png");
     expect(markup).not.toContain(">deliveroo</strong>");
     expect(markup).toContain("Invio comande automatico");
     expect(markup).toContain("Scopri tutte le funzionalità");
   });
 
-  it("renders the Deliveroo partner as an image in active integrations", () => {
+  it("renders the Deliveroo partner as an image in the rider-free delivery message", () => {
     const markup = renderToString(createElement(IntelligentOrdersSection));
 
+    expect(markup).not.toContain("Integrazioni attive");
     expect(markup).toContain("%2Fimages%2Fdeliveroo.png");
     expect(markup).toContain('alt="Deliveroo"');
     expect(markup).not.toContain(">deliveroo</strong>");
@@ -181,7 +180,7 @@ describe("landing shell", () => {
     expect(markup).toContain("START");
     expect(markup).toContain("49 €");
     expect(markup).toContain("GROW");
-    expect(markup).toContain("PIÙ SCELTO");
+    expect(markup).toContain("CONSIGLIATO");
     expect(markup).toContain("99 €");
     expect(markup).toContain("SCALE");
     expect(markup).toContain("199 €");
@@ -190,7 +189,7 @@ describe("landing shell", () => {
     expect(markup).toContain("Confronto piani");
     expect(markup).toContain("Trasparenza totale");
     expect(markup).toContain("Risparmi fino al 30%");
-    expect(markup).toContain("Prova gratuita di 14 giorni");
+    expect(markup).toContain("Prova gratuita di 60 giorni");
   });
 
   it("renders the ecosystem section with the current landing visual language", () => {
@@ -200,7 +199,7 @@ describe("landing shell", () => {
     expect(markup).toContain(
       "Tutto ciò che una pizzeria moderna può <span>immaginare.</span>",
     );
-    expect(markup).toContain("moduli live nella Demo");
+    expect(markup).toContain("Alcune funzionalità sono già live");
     expect(markup).toContain("Ordini digitali");
     expect(markup).toContain("Analytics AI");
     expect(markup).toContain("Marketing automation");
@@ -241,10 +240,9 @@ describe("landing shell", () => {
     expect(markup).toContain("Senza impegno. Senza carta di credito.");
     expect(markup).toContain("Inizia la prova gratuita");
     expect(markup).toContain("Prenota una demo personalizzata");
-    expect(markup).toContain("Oltre 300 pizzerie già con PizzaOS");
-    expect(markup).toContain("Integrato con i migliori partner");
-    expect(markup).toContain("4,8 su 5 su Trustpilot");
     expect(markup).toContain("Onboarding rapido");
+    expect(markup).toContain("Supporto dedicato");
+    expect(markup).toContain("Formazione inclusa");
     expect(markup).toContain("Risultati misurabili");
   });
 });

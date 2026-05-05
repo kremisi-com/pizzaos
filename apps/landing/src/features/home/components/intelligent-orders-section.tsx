@@ -241,29 +241,24 @@ export function IntelligentOrdersSection(): ReactElement {
         </div>
 
         <div className={styles.integrationPanel}>
-          <div className={styles.integrations}>
-            <span className={styles.panelTitle}>Integrazioni attive</span>
-            <div className={styles.integrationLogos}>
-              {INTEGRATIONS.map((integration) => (
-                <strong
-                  className={styles.integrationLogo}
-                  key={integration.name}
-                >
-                  {"logoSrc" in integration ? (
-                    <Image
-                      className={styles.integrationLogoImage}
-                      src={integration.logoSrc}
-                      alt={integration.name}
-                      width={integration.logoWidth}
-                      height={integration.logoHeight}
-                    />
-                  ) : (
-                    integration.name
-                  )}
-                </strong>
-              ))}
-              <span>e molti altri</span>
-            </div>
+          <div className={styles.deliveryPartner}>
+            <span className={styles.panelTitle}>
+              Anche senza gestire rider
+            </span>
+            <p className={styles.deliveryPartnerText}>
+              PizzaOS è indicata anche per chi non vuole gestire una flotta di
+              rider interna: gli ordini possono integrarsi con Deliveroo,
+              mantenendo controllo operativo e semplicità di gestione.
+            </p>
+            <strong className={styles.integrationLogo}>
+              <Image
+                className={styles.integrationLogoImage}
+                src={INTEGRATIONS[0].logoSrc}
+                alt={INTEGRATIONS[0].name}
+                width={INTEGRATIONS[0].logoWidth}
+                height={INTEGRATIONS[0].logoHeight}
+              />
+            </strong>
           </div>
 
           <div className={styles.panelDivider} />
