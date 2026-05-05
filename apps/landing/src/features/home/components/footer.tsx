@@ -50,7 +50,7 @@ export function Footer({ onResetDemo }: FooterProps): ReactElement
             <Link href="/" className={styles.logo} aria-label="PizzaOS home">
               <Image
                 className={styles.logoImage}
-                src="/images/logo.png"
+                src="/images/logo-light.png"
                 alt="PizzaOS"
                 width={1663}
                 height={332}

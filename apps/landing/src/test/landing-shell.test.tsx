@@ -29,6 +29,7 @@ describe("landing shell", () => {
     expect(markup).toContain("Hai domande?");
     expect(markup).toContain("Ecosistema");
     expect(markup).toContain("Reset demo");
+    expect(markup).toContain("%2Fimages%2Flogo-light.png");
     expect(markup).toContain("%2Fimages%2Flogo.png");
     expect(markup).not.toContain("hero-composite");
   });

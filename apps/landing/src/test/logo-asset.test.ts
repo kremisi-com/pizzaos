@@ -10,6 +10,16 @@ interface PngChunk {
 
 const PNG_SIGNATURE = Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]);
 const LOGO_PATH = resolve(process.cwd(), "public/images/logo.png");
+const LOGO_LIGHT_PATH = resolve(process.cwd(), "public/images/logo-light.png");
+
+interface PngPixelAnalysis {
+  readonly width: number;
+  readonly height: number;
+  readonly transparentPixels: number;
+  readonly darkOpaquePixels: number;
+  readonly redOpaquePixels: number;
+  readonly whiteOpaquePixels: number;
+}
 
 function readPngChunks(buffer: Buffer): PngChunk[] {
   const chunks: PngChunk[] = [];
@@ -44,16 +54,19 @@ function paethPredictor(left: number, up: number, upLeft: number): number {
   return upDistance <= upLeftDistance ? up : upLeft;
 }
 
-function countTransparentPixels(
+function analyzePngPixels(
   rawImage: Buffer,
   width: number,
   height: number,
-): number {
+): PngPixelAnalysis {
   const bytesPerPixel = 4;
   const stride = width * bytesPerPixel;
   let inputOffset = 0;
   let previousRow = Buffer.alloc(stride);
   let transparentPixels = 0;
+  let darkOpaquePixels = 0;
+  let redOpaquePixels = 0;
+  let whiteOpaquePixels = 0;
 
   for (let rowIndex = 0; rowIndex < height; rowIndex += 1) {
     const filter = rawImage[inputOffset];
@@ -84,16 +97,40 @@ function countTransparentPixels(
       inputOffset += 1;
     }
 
-    for (let index = 3; index < stride; index += bytesPerPixel) {
-      if (row[index] === 0) {
+    for (let index = 0; index < stride; index += bytesPerPixel) {
+      const red = row[index];
+      const green = row[index + 1];
+      const blue = row[index + 2];
+      const alpha = row[index + 3];
+
+      if (alpha === 0) {
         transparentPixels += 1;
+      }
+
+      if (alpha > 128 && red < 80 && green < 80 && blue < 80) {
+        darkOpaquePixels += 1;
+      }
+
+      if (alpha > 128 && red > 180 && green < 90 && blue < 80) {
+        redOpaquePixels += 1;
+      }
+
+      if (alpha > 128 && red > 240 && green > 240 && blue > 240) {
+        whiteOpaquePixels += 1;
       }
     }
 
     previousRow = row;
   }
 
-  return transparentPixels;
+  return {
+    width,
+    height,
+    transparentPixels,
+    darkOpaquePixels,
+    redOpaquePixels,
+    whiteOpaquePixels,
+  };
 }
 
 describe("landing logo asset", () => {
@@ -114,12 +151,55 @@ describe("landing logo asset", () => {
 
     const width = header?.data.readUInt32BE(0) ?? 0;
     const height = header?.data.readUInt32BE(4) ?? 0;
-    const transparentPixels = countTransparentPixels(
+    const analysis = analyzePngPixels(
       inflateSync(imageData),
       width,
       height,
     );
 
-    expect(transparentPixels).toBeGreaterThan(0);
+    expect(analysis.transparentPixels).toBeGreaterThan(0);
+  });
+
+  it("keeps a light footer logo with white lettering and matching red brand color", () => {
+    const defaultLogo = readFileSync(LOGO_PATH);
+    const lightLogo = readFileSync(LOGO_LIGHT_PATH);
+    const defaultChunks = readPngChunks(defaultLogo);
+    const lightChunks = readPngChunks(lightLogo);
+    const defaultHeader = defaultChunks.find((chunk) => chunk.type === "IHDR");
+    const lightHeader = lightChunks.find((chunk) => chunk.type === "IHDR");
+    const defaultImageData = Buffer.concat(
+      defaultChunks
+        .filter((chunk) => chunk.type === "IDAT")
+        .map((chunk) => chunk.data),
+    );
+    const lightImageData = Buffer.concat(
+      lightChunks
+        .filter((chunk) => chunk.type === "IDAT")
+        .map((chunk) => chunk.data),
+    );
+
+    expect(lightLogo.subarray(0, PNG_SIGNATURE.length)).toEqual(PNG_SIGNATURE);
+    expect(lightHeader?.data[8]).toBe(8);
+    expect(lightHeader?.data[9]).toBe(6);
+
+    const defaultAnalysis = analyzePngPixels(
+      inflateSync(defaultImageData),
+      defaultHeader?.data.readUInt32BE(0) ?? 0,
+      defaultHeader?.data.readUInt32BE(4) ?? 0,
+    );
+    const lightAnalysis = analyzePngPixels(
+      inflateSync(lightImageData),
+      lightHeader?.data.readUInt32BE(0) ?? 0,
+      lightHeader?.data.readUInt32BE(4) ?? 0,
+    );
+
+    expect(lightAnalysis.width).toBe(defaultAnalysis.width);
+    expect(lightAnalysis.height).toBe(defaultAnalysis.height);
+    expect(lightAnalysis.transparentPixels).toBe(
+      defaultAnalysis.transparentPixels,
+    );
+    expect(lightAnalysis.redOpaquePixels).toBe(defaultAnalysis.redOpaquePixels);
+    expect(lightAnalysis.darkOpaquePixels).toBe(0);
+    expect(lightAnalysis.whiteOpaquePixels).toBeGreaterThan(80_000);
   });
 });
