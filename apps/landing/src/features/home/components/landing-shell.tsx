@@ -127,9 +127,7 @@ export function LandingShell({
       </main>
 
       {/* Footer */}
-      <MotionReveal delay={40} stagger variant="fade-up">
-        <Footer />
-      </MotionReveal>
+      <Footer />
 
       {/* Demo request modal */}
       <DemoRequestModal

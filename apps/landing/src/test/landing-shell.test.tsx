@@ -18,8 +18,8 @@ describe("landing shell", () => {
   it("renders entrance motion wrappers for the landing sections", () => {
     const markup = renderToString(createElement(LandingShell));
 
-    expect(markup.match(/data-motion=/g)).toHaveLength(11);
-    expect(markup.match(/data-motion-stagger="true"/g)).toHaveLength(11);
+    expect(markup.match(/data-motion=/g)).toHaveLength(10);
+    expect(markup.match(/data-motion-stagger="true"/g)).toHaveLength(10);
     expect(markup).toContain('data-motion="fade-up"');
     expect(markup).toContain('data-motion="fade-scale"');
     expect(markup).toContain('data-motion-state="hidden"');
