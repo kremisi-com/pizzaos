@@ -15,10 +15,12 @@ describe("landing navbar", () => {
     expect(markup).toContain("#gestione-ordini");
     expect(markup).toContain("Crescita");
     expect(markup).toContain("#dati-crescita");
-    expect(markup).toContain("Operazioni");
-    expect(markup).toContain("#gestione-catene");
+    expect(markup).toContain("Funzionalità");
+    expect(markup).toContain("#ecosistema");
     expect(markup).toContain("Prezzi");
     expect(markup).toContain("#piani");
+    expect(markup).toContain("Contatti");
+    expect(markup).toContain("#contatti");
     expect(markup).toContain("Apri la demo");
   });
 });

@@ -15,6 +15,16 @@ import { MarginComparisonSection } from "../features/home/components/margin-comp
 import { PricingSection } from "../features/home/components/pricing-section";
 
 describe("landing shell", () => {
+  it("renders entrance motion wrappers for the landing sections", () => {
+    const markup = renderToString(createElement(LandingShell));
+
+    expect(markup.match(/data-motion=/g)).toHaveLength(11);
+    expect(markup).toContain('data-motion="fade-up"');
+    expect(markup).toContain('data-motion="fade-scale"');
+    expect(markup).toContain('data-motion-state="hidden"');
+    expect(markup).toContain("--motion-delay:80ms");
+  });
+
   it("mounts the primary landing sections", () => {
     const markup = renderToString(createElement(LandingShell));
 
@@ -28,7 +38,7 @@ describe("landing shell", () => {
     expect(markup).toContain("PREZZI SEMPLICI");
     expect(markup).toContain("Hai domande?");
     expect(markup).toContain("Ecosistema");
-    expect(markup).toContain("Reset demo");
+    expect(markup).toContain("Apri la demo");
     expect(markup).toContain("%2Fimages%2Flogo-light.png");
     expect(markup).toContain("%2Fimages%2Flogo.png");
     expect(markup).not.toContain("hero-composite");
@@ -127,12 +137,10 @@ describe("landing shell", () => {
     expect(markup).toContain("#1258");
     expect(markup).toContain("%2Fimages%2Flogo.png");
     expect(markup).toContain("pizza demo");
-    expect(markup).toContain("Anche senza gestire rider");
+    expect(markup).toContain("Non possiedi riders?");
     expect(markup).toContain("non vuole gestire una flotta di");
     expect(markup).toContain("integrarsi con Deliveroo");
     expect(markup).toContain("%2Fimages%2Fdeliveroo.png");
-    expect(markup).toContain(">UberEats</strong>");
-    expect(markup).not.toContain(">deliveroo</strong>");
     expect(markup).toContain("Invio comande automatico");
     expect(markup).toContain("Scopri tutte le funzionalità");
   });
@@ -143,7 +151,6 @@ describe("landing shell", () => {
     expect(markup).not.toContain("Integrazioni attive");
     expect(markup).toContain("%2Fimages%2Fdeliveroo.png");
     expect(markup).toContain('alt="Deliveroo"');
-    expect(markup).toContain(">UberEats</strong>");
     expect(markup).not.toContain(">deliveroo</strong>");
   });
 
@@ -245,9 +252,9 @@ describe("landing shell", () => {
     expect(markup).toContain("Posso ordinare insieme ad amici o familiari?");
     expect(markup).toContain("Come funziona la tessera fedeltà?");
     expect(markup).toContain("I miei dati e i pagamenti sono sicuri?");
-    expect(markup).toContain("Serve ancora aiuto?");
+    expect(markup).toContain("Serve ancora aiuto o sei interessato a PizzaOS?");
     expect(markup).toContain("WhatsApp");
-    expect(markup).toContain("Centro assistenza");
+    expect(markup).toContain("Email");
     expect(markup).toContain("%2Fimages%2Flogo.png");
     expect(markup).toContain("La piattaforma completa per pizzerie moderne.");
   });

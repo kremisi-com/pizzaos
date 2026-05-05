@@ -78,8 +78,8 @@ export function Footer(): ReactElement {
               rel="noopener noreferrer"
             >
               Kremisi
-            </a>{" "}
-            — Proof of Concept. Tutti i diritti riservati.
+            </a>
+            . Tutti i diritti riservati.
           </span>
         </div>
       </div>

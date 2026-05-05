@@ -304,7 +304,7 @@ export function FeatureDifferenceSection(): ReactElement {
           </span>
         </div>
 
-        <Link className={styles.cta} href="#ordinazione">
+        <Link className={styles.cta} href="#ecosistema">
           Scopri tutte le funzionalità
           <ArrowIcon />
         </Link>

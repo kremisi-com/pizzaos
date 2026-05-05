@@ -153,3 +153,5 @@ clean interaction states.
 **Implementation note**
 
 - Updated the global landing brand treatment to use the curated `public/images/logo.png` asset in the navbar and footer.
+- Added lightweight scroll-triggered entrance motion across the landing page with a local `MotionReveal` wrapper, global
+  `data-motion` styles, reduced-motion handling, and a subtle navbar load animation.

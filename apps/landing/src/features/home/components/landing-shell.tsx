@@ -20,6 +20,7 @@ import { HeroSection } from "./hero-section";
 import { IntelligentOrdersSection } from "./intelligent-orders-section";
 import { ChallengesSection } from "./challenges-section";
 import { MarginComparisonSection } from "./margin-comparison-section";
+import { MotionReveal } from "./motion-reveal";
 import { Navbar } from "./navbar";
 import { PricingSection } from "./pricing-section";
 
@@ -63,22 +64,34 @@ export function LandingShell({
       {/* Main content */}
       <main id="main-content">
         {/* Hero */}
-        <HeroSection onRequestDemo={handleOpenModal} />
+        <MotionReveal delay={80} variant="fade-up">
+          <HeroSection onRequestDemo={handleOpenModal} />
+        </MotionReveal>
 
         {/* Challenges Section */}
-        <ChallengesSection />
+        <MotionReveal delay={40} variant="fade-up">
+          <ChallengesSection />
+        </MotionReveal>
 
         {/* Complete platform visual section */}
-        <CompletePlatformSection />
+        <MotionReveal delay={60} variant="fade-up">
+          <CompletePlatformSection />
+        </MotionReveal>
 
         {/* Margin comparison section */}
-        <MarginComparisonSection />
+        <MotionReveal delay={60} variant="fade-scale">
+          <MarginComparisonSection />
+        </MotionReveal>
 
         {/* Analytics growth visual section */}
-        <AnalyticsGrowthSection />
+        <MotionReveal delay={60} variant="fade-up">
+          <AnalyticsGrowthSection />
+        </MotionReveal>
 
         {/* Intelligent orders visual section */}
-        <IntelligentOrdersSection />
+        <MotionReveal delay={60} variant="fade-up">
+          <IntelligentOrdersSection />
+        </MotionReveal>
 
         {/* Ordering section */}
 
@@ -87,22 +100,32 @@ export function LandingShell({
         {/* Analytics section */}
 
         {/* Chain management section */}
-        <ChainManagementSection />
+        <MotionReveal delay={60} variant="fade-up">
+          <ChainManagementSection />
+        </MotionReveal>
 
         {/* Pricing section */}
-        <PricingSection onRequestDemo={handleOpenModal} />
+        <MotionReveal delay={60} variant="fade-up">
+          <PricingSection onRequestDemo={handleOpenModal} />
+        </MotionReveal>
 
         {/* Operations section */}
 
         {/* Ecosystem */}
-        <EcosystemSection />
+        <MotionReveal delay={60} variant="fade-up">
+          <EcosystemSection />
+        </MotionReveal>
 
         {/* FAQ */}
-        <FaqSection />
+        <MotionReveal delay={60} variant="fade-up">
+          <FaqSection />
+        </MotionReveal>
       </main>
 
       {/* Footer */}
-      <Footer />
+      <MotionReveal delay={40} variant="fade-up">
+        <Footer />
+      </MotionReveal>
 
       {/* Demo request modal */}
       <DemoRequestModal

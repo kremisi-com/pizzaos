@@ -147,7 +147,7 @@ export function FaqSection(): ReactElement {
               <HeadsetIcon />
             </div>
             <div>
-              <h3>Serve ancora aiuto?</h3>
+              <h3>Serve ancora aiuto o sei interessato a PizzaOS?</h3>
               <p>
                 Il nostro team è sempre disponibile. Scegli come contattarci.
               </p>

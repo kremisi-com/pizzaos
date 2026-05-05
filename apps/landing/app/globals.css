@@ -568,27 +568,43 @@ p {
    12. Animation Utilities
    -------------------------------------------------------------------------- */
 
-/* Fade up — used with JS IntersectionObserver */
-.animate-fade-up {
+/* Entrance motion — driven by MotionReveal and IntersectionObserver */
+[data-motion] {
+  --motion-delay: 0ms;
+  --motion-y: 20px;
+  --motion-scale: 1;
+
   opacity: 0;
-  transform: translateY(24px);
+  transform: translate3d(0, var(--motion-y), 0) scale(var(--motion-scale));
   transition:
-    opacity var(--duration-base) var(--ease),
-    transform var(--duration-base) var(--ease);
+    opacity 560ms var(--ease) var(--motion-delay),
+    transform 560ms var(--ease) var(--motion-delay);
+  will-change: opacity, transform;
 }
 
-.animate-fade-up.is-visible {
+[data-motion="fade-down"] {
+  --motion-y: -16px;
+}
+
+[data-motion="fade-scale"] {
+  --motion-y: 18px;
+  --motion-scale: 0.985;
+}
+
+[data-motion-state="visible"] {
   opacity: 1;
-  transform: translateY(0);
+  transform: translate3d(0, 0, 0) scale(1);
+  will-change: auto;
 }
 
-/* Stagger children delay helpers */
-.stagger-1 { transition-delay: 0ms; }
-.stagger-2 { transition-delay: 80ms; }
-.stagger-3 { transition-delay: 160ms; }
-.stagger-4 { transition-delay: 240ms; }
-.stagger-5 { transition-delay: 320ms; }
-.stagger-6 { transition-delay: 400ms; }
+@media (prefers-reduced-motion: reduce) {
+  [data-motion] {
+    opacity: 1;
+    transform: none;
+    transition: none;
+    will-change: auto;
+  }
+}
 
 /* Hover lift */
 .hover-lift {
