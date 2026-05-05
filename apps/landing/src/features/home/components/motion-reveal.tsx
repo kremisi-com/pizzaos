@@ -15,6 +15,7 @@ interface MotionRevealProps {
   readonly children: ReactNode;
   readonly className?: string;
   readonly delay?: number;
+  readonly stagger?: boolean;
   readonly variant?: MotionRevealVariant;
 }
 
@@ -22,6 +23,7 @@ export function MotionReveal({
   children,
   className,
   delay = 0,
+  stagger = false,
   variant = "fade-up",
 }: MotionRevealProps): ReactElement {
   const elementRef = useRef<HTMLDivElement>(null);
@@ -74,6 +76,7 @@ export function MotionReveal({
       className={className}
       data-motion={variant}
       data-motion-state={isVisible ? "visible" : "hidden"}
+      data-motion-stagger={stagger ? "true" : undefined}
       style={style}
     >
       {children}

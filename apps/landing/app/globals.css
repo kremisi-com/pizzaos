@@ -597,8 +597,62 @@ p {
   will-change: auto;
 }
 
+[data-motion-stagger="true"]
+  :where(section > div > *, footer > div > *) {
+  --motion-item-delay: 0ms;
+
+  opacity: 0;
+  transform: translate3d(0, 22px, 0) scale(0.99);
+  transition:
+    opacity 520ms var(--ease)
+      calc(var(--motion-delay) + var(--motion-item-delay) + 120ms),
+    transform 520ms var(--ease)
+      calc(var(--motion-delay) + var(--motion-item-delay) + 120ms);
+  will-change: opacity, transform;
+}
+
+[data-motion-stagger="true"]
+  :where(section > div > *:nth-child(2), footer > div > *:nth-child(2)) {
+  --motion-item-delay: 80ms;
+}
+
+[data-motion-stagger="true"]
+  :where(section > div > *:nth-child(3), footer > div > *:nth-child(3)) {
+  --motion-item-delay: 160ms;
+}
+
+[data-motion-stagger="true"]
+  :where(section > div > *:nth-child(4), footer > div > *:nth-child(4)) {
+  --motion-item-delay: 260ms;
+}
+
+[data-motion-stagger="true"]
+  :where(section > div > *:nth-child(5), footer > div > *:nth-child(5)) {
+  --motion-item-delay: 340ms;
+}
+
+[data-motion-stagger="true"]
+  :where(section > div > *:nth-child(n + 6), footer > div > *:nth-child(n + 6)) {
+  --motion-item-delay: 420ms;
+}
+
+[data-motion-state="visible"][data-motion-stagger="true"]
+  :where(section > div > *, footer > div > *) {
+  opacity: 1;
+  transform: translate3d(0, 0, 0) scale(1);
+  will-change: auto;
+}
+
 @media (prefers-reduced-motion: reduce) {
   [data-motion] {
+    opacity: 1;
+    transform: none;
+    transition: none;
+    will-change: auto;
+  }
+
+  [data-motion-stagger="true"]
+    :where(section > div > *, footer > div > *) {
     opacity: 1;
     transform: none;
     transition: none;

@@ -64,32 +64,32 @@ export function LandingShell({
       {/* Main content */}
       <main id="main-content">
         {/* Hero */}
-        <MotionReveal delay={80} variant="fade-up">
+        <MotionReveal delay={80} stagger variant="fade-up">
           <HeroSection onRequestDemo={handleOpenModal} />
         </MotionReveal>
 
         {/* Challenges Section */}
-        <MotionReveal delay={40} variant="fade-up">
+        <MotionReveal delay={40} stagger variant="fade-up">
           <ChallengesSection />
         </MotionReveal>
 
         {/* Complete platform visual section */}
-        <MotionReveal delay={60} variant="fade-up">
+        <MotionReveal delay={60} stagger variant="fade-up">
           <CompletePlatformSection />
         </MotionReveal>
 
         {/* Margin comparison section */}
-        <MotionReveal delay={60} variant="fade-scale">
+        <MotionReveal delay={60} stagger variant="fade-scale">
           <MarginComparisonSection />
         </MotionReveal>
 
         {/* Analytics growth visual section */}
-        <MotionReveal delay={60} variant="fade-up">
+        <MotionReveal delay={60} stagger variant="fade-up">
           <AnalyticsGrowthSection />
         </MotionReveal>
 
         {/* Intelligent orders visual section */}
-        <MotionReveal delay={60} variant="fade-up">
+        <MotionReveal delay={60} stagger variant="fade-up">
           <IntelligentOrdersSection />
         </MotionReveal>
 
@@ -100,30 +100,30 @@ export function LandingShell({
         {/* Analytics section */}
 
         {/* Chain management section */}
-        <MotionReveal delay={60} variant="fade-up">
+        <MotionReveal delay={60} stagger variant="fade-up">
           <ChainManagementSection />
         </MotionReveal>
 
         {/* Pricing section */}
-        <MotionReveal delay={60} variant="fade-up">
+        <MotionReveal delay={60} stagger variant="fade-up">
           <PricingSection onRequestDemo={handleOpenModal} />
         </MotionReveal>
 
         {/* Operations section */}
 
         {/* Ecosystem */}
-        <MotionReveal delay={60} variant="fade-up">
+        <MotionReveal delay={60} stagger variant="fade-up">
           <EcosystemSection />
         </MotionReveal>
 
         {/* FAQ */}
-        <MotionReveal delay={60} variant="fade-up">
+        <MotionReveal delay={60} stagger variant="fade-up">
           <FaqSection />
         </MotionReveal>
       </main>
 
       {/* Footer */}
-      <MotionReveal delay={40} variant="fade-up">
+      <MotionReveal delay={40} stagger variant="fade-up">
         <Footer />
       </MotionReveal>
 

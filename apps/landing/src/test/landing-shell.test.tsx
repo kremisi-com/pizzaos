@@ -19,6 +19,7 @@ describe("landing shell", () => {
     const markup = renderToString(createElement(LandingShell));
 
     expect(markup.match(/data-motion=/g)).toHaveLength(11);
+    expect(markup.match(/data-motion-stagger="true"/g)).toHaveLength(11);
     expect(markup).toContain('data-motion="fade-up"');
     expect(markup).toContain('data-motion="fade-scale"');
     expect(markup).toContain('data-motion-state="hidden"');
