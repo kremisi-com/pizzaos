@@ -121,6 +121,7 @@ Complete the product story so the landing page covers the full PizzaOS value pro
 - Added the supplied intelligent order-management dashboard screen as a coded seventh landing section, immediately after the analytics-growth section, with automatic routing pillars, Rush Hours controls, live order board, integrations, device mockups, benefit strip, and structural test coverage.
 - Added the supplied chain-management screen as a coded eighth landing section, after the analytics product section, with multi-store admin mockup, consolidated KPIs, store table, map, operational alerts, testimonial, and CTA into the admin dashboard.
 - Added the supplied simple-pricing screen as a coded ninth landing section after chain management, with plan cards, a comparison table, transparency panel, trial CTA, and structural test coverage.
+- Updated the ecosystem section to use the supplied detailed functional area lists, covering digital ordering, pizza builder, group orders, automation, loyalty, AI analytics, delivery, restaurant management, inventory, payments, integrations, and owned brand channels.
 
 ## Step 5: Add motion, responsive polish, form states, and landing smoke coverage
 

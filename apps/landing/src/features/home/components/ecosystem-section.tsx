@@ -1,9 +1,9 @@
 import type { ReactElement } from "react";
 import styles from "./ecosystem-section.module.css";
 
-type EcosystemStatus = "live" | "soon" | "roadmap";
 type EcosystemIcon =
   | "orders"
+  | "pizza"
   | "analytics"
   | "marketing"
   | "delivery"
@@ -11,88 +11,166 @@ type EcosystemIcon =
   | "stores"
   | "loyalty"
   | "inventory"
-  | "integrations";
+  | "payments"
+  | "brand";
 
 interface EcosystemItem {
   readonly icon: EcosystemIcon;
   readonly title: string;
-  readonly description: string;
-  readonly status: EcosystemStatus;
-  readonly statusLabel: string;
+  readonly features: readonly string[];
 }
 
 const ECOSYSTEM_ITEMS: readonly EcosystemItem[] = [
   {
     icon: "orders",
     title: "Ordini digitali",
-    description:
-      "Menù digitale con personalizzazione completa, disponibilità in tempo reale e checkout guidato.",
-    status: "live",
-    statusLabel: "Live nella Demo",
+    features: [
+      "Menu digitale personalizzato",
+      "Ordinazione da app/web",
+      "Prodotti a crudo o cotti",
+      "Checkout guidato",
+      "Pagamento online",
+      "Login con magic link o social",
+      "Archivio ordini",
+      "Riordino rapido",
+      "Ordina come l’ultima volta",
+      "Disponibilità prodotti",
+      "Slot sold-out visivi",
+    ],
   },
   {
-    icon: "analytics",
-    title: "Analytics AI",
-    description:
-      "Dashboard operativa con insight automatici, previsione della domanda e suggerimenti di pricing.",
-    status: "live",
-    statusLabel: "Live nella Demo",
-  },
-  {
-    icon: "marketing",
-    title: "Marketing automation",
-    description:
-      "Campagne personalizzate per riattivare clienti inattivi, festeggiare compleanni e fare upsell.",
-    status: "live",
-    statusLabel: "Live nella Demo",
-  },
-  {
-    icon: "delivery",
-    title: "Delivery & tracciamento",
-    description:
-      "Integrazione con rider, mappa live per il cliente e ottimizzazione dei percorsi di consegna.",
-    status: "live",
-    statusLabel: "Live nella Demo",
+    icon: "pizza",
+    title: "Pizza builder",
+    features: [
+      "Personalizzazione estrema della pizza",
+      "Impasti diversi",
+      "Base rossa, bianca o speciale",
+      "Topping configurabili",
+      "Ingredienti extra",
+      "Allergeni sempre visibili",
+      "Prezzo aggiornato in tempo reale",
+      "Creazione pizza custom",
+      "Riordino delle pizze personalizzate",
+    ],
   },
   {
     icon: "group",
     title: "Ordine di gruppo",
-    description:
-      "Lascia che i tuoi clienti ordinino insieme in tempo reale, ognuno personalizzando la propria pizza.",
-    status: "soon",
-    statusLabel: "Prossimamente",
+    features: [
+      "Menu condiviso tra più dispositivi",
+      "Ognuno personalizza il proprio ordine",
+      "Carrello condiviso",
+      "Totale aggiornato in tempo reale",
+      "Split conto tra amici",
+      "Conferma finale da un solo utente",
+    ],
   },
   {
-    icon: "stores",
-    title: "Multi-sede",
-    description:
-      "Gestisci più locali da un unico pannello, con dati separati, menu differenziati e staff dedicato.",
-    status: "live",
-    statusLabel: "Live nella Demo",
+    icon: "marketing",
+    title: "Marketing automation",
+    features: [
+      "Coupon dall’app",
+      "Cliente inattivo → sconto automatico",
+      "Post ordine → promo entro 48h",
+      "Compleanno → promo automatica",
+      "Invito al feedback post ordine",
+      "Recensione positiva → link Google",
+      "Abbinamenti contestuali",
+      "Notifiche post ordine",
+      "Premi e campagne fedeltà",
+    ],
   },
   {
     icon: "loyalty",
     title: "Loyalty & abbonamenti",
-    description:
-      "Programmi fedeltà a punti, card mensili e benefici esclusivi per i clienti più affezionati.",
-    status: "live",
-    statusLabel: "Live nella Demo",
+    features: [
+      "Tessera fedeltà",
+      "Raccolta punti",
+      "Card mensili",
+      "Abbonamento pizze",
+      "Benefici per clienti affezionati",
+      "Premi automatici",
+      "Coupon dedicati",
+    ],
+  },
+  {
+    icon: "analytics",
+    title: "Analytics AI",
+    features: [
+      "Dashboard operativa",
+      "Pattern di vendita",
+      "Forecasting domanda",
+      "Transactional clustering",
+      "Suggerimenti AI",
+      "Heatmap menu",
+      "A/B test menu",
+      "Suggerimenti su promo e pricing",
+    ],
+  },
+  {
+    icon: "delivery",
+    title: "Delivery & tracciamento",
+    features: [
+      "Stato ordine chiaro",
+      "Notifiche sugli ordini",
+      "Tracciamento live rider",
+      "Ottimizzazione consegne",
+      "Assegnazione rider automatica",
+      "Integrazione Deliveroo",
+      "Tempi stimati per consegna",
+    ],
+  },
+  {
+    icon: "stores",
+    title: "Gestione ristorante",
+    features: [
+      "Pannello amministrativo ordini",
+      "Prioritizzazione ordini",
+      "Smistamento comande per reparto",
+      "Tempi stimati per reparto",
+      "Menu stagionale",
+      "Staff dedicato",
+      "Gestione catene",
+      "Multi-sede",
+      "Network di pizzerie",
+    ],
   },
   {
     icon: "inventory",
-    title: "Gestione magazzino",
-    description:
-      "Inventario in tempo reale collegato al menù: zero figure barbine con il «esaurito» sempre aggiornato.",
-    status: "soon",
-    statusLabel: "Prossimamente",
+    title: "Magazzino",
+    features: [
+      "Inventario in tempo reale",
+      "Collegamento prodotti-menu",
+      "Esaurito automatico",
+      "Disponibilità ingredienti",
+      "Suggerimenti promo su scorte in eccesso",
+      "Controllo impasti disponibili",
+    ],
   },
   {
-    icon: "integrations",
-    title: "POS & integrazioni",
-    description:
-      "Integrazione con casse fisiche, sistemi di prenotazione tavoli e servizi di pagamento europei.",
-    status: "roadmap",
-    statusLabel: "In roadmap",
+    icon: "payments",
+    title: "Pagamenti & integrazioni",
+    features: [
+      "Pagamento da app",
+      "Split conto",
+      "Fattura via WhatsApp o email",
+      "Fatturazione automatica",
+      "Integrazione cassa/POS",
+      "Scontrino elettronico automatico",
+      "Servizi di pagamento europei",
+    ],
+  },
+  {
+    icon: "brand",
+    title: "Brand & canali proprietari",
+    features: [
+      "Dominio personale",
+      "Ecosistema monobrand",
+      "Stile menu su misura",
+      "Zero commissioni sugli ordini",
+      "Link ordine via WhatsApp",
+      "Link automatico quando il cliente chiama",
+    ],
   },
 ] as const;
 
@@ -116,7 +194,8 @@ export function EcosystemSection(): ReactElement {
             Dal primo ordine digitale alla gestione multi-sede: PizzaOS cresce
             con te.
             <br />
-            Alcune funzionalità sono già live, altre in arrivo presto.
+            Ogni area è pensata per controllo operativo, canali proprietari e
+            crescita senza commissioni.
           </p>
         </div>
 
@@ -127,15 +206,14 @@ export function EcosystemSection(): ReactElement {
                 <div className={styles.cardIcon} aria-hidden="true">
                   {renderIcon(item.icon)}
                 </div>
-                <span
-                  className={`${styles.cardBadge} ${styles[`cardBadge--${item.status}`]}`}
-                >
-                  {item.statusLabel}
-                </span>
               </div>
               <div>
                 <h3 className={styles.cardTitle}>{item.title}</h3>
-                <p className={styles.cardDescription}>{item.description}</p>
+                <ul className={styles.featureList}>
+                  {item.features.map((feature) => (
+                    <li key={feature}>{feature}</li>
+                  ))}
+                </ul>
               </div>
             </div>
           ))}
@@ -149,6 +227,8 @@ function renderIcon(icon: EcosystemIcon): ReactElement {
   switch (icon) {
     case "orders":
       return <PhoneIcon />;
+    case "pizza":
+      return <PizzaIcon />;
     case "analytics":
       return <ChartIcon />;
     case "marketing":
@@ -163,7 +243,9 @@ function renderIcon(icon: EcosystemIcon): ReactElement {
       return <GiftIcon />;
     case "inventory":
       return <BoxIcon />;
-    case "integrations":
+    case "payments":
+      return <CreditCardIcon />;
+    case "brand":
       return <GlobeIcon />;
   }
 }
@@ -185,6 +267,18 @@ function PhoneIcon(): ReactElement {
       <path d="M8 3h8a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z" />
       <path d="M10 18h4" />
       <path d="M9 7h6" />
+    </svg>
+  );
+}
+
+function PizzaIcon(): ReactElement {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 24 24">
+      <path d="M4 20 20 4" />
+      <path d="M20 4c-5.8-.5-10.9 1.3-15.2 5.6L4 20l10.4-.8C18.7 14.9 20.5 9.8 20 4Z" />
+      <circle cx="11" cy="11" r="1.3" />
+      <circle cx="15" cy="8" r="1.3" />
+      <circle cx="14" cy="15" r="1.3" />
     </svg>
   );
 }
@@ -268,6 +362,17 @@ function BoxIcon(): ReactElement {
       <path d="M4 7.5 12 12l8-4.5" />
       <path d="M12 12v9" />
       <path d="m8 5.5 8 4.5" />
+    </svg>
+  );
+}
+
+function CreditCardIcon(): ReactElement {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 24 24">
+      <rect x="3" y="5" width="18" height="14" rx="2.5" />
+      <path d="M3 10h18" />
+      <path d="M7 15h4" />
+      <path d="M15 15h2" />
     </svg>
   );
 }

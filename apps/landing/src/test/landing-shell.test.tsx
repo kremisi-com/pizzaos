@@ -204,12 +204,23 @@ describe("landing shell", () => {
     expect(markup).toContain(
       "Tutto ciò che una pizzeria moderna può <span>immaginare.</span>",
     );
-    expect(markup).toContain("Alcune funzionalità sono già live");
+    expect(markup).toContain("canali proprietari e crescita senza commissioni");
     expect(markup).toContain("Ordini digitali");
+    expect(markup).toContain("Menu digitale personalizzato");
+    expect(markup).toContain("Pizza builder");
+    expect(markup).toContain("Prezzo aggiornato in tempo reale");
+    expect(markup).toContain("Ordine di gruppo");
+    expect(markup).toContain("Split conto tra amici");
     expect(markup).toContain("Analytics AI");
+    expect(markup).toContain("Transactional clustering");
     expect(markup).toContain("Marketing automation");
-    expect(markup).toContain("POS &amp; integrazioni");
-    expect(markup).toContain("In roadmap");
+    expect(markup).toContain("Cliente inattivo → sconto automatico");
+    expect(markup).toContain("Loyalty &amp; abbonamenti");
+    expect(markup).toContain("Delivery &amp; tracciamento");
+    expect(markup).toContain("Gestione ristorante");
+    expect(markup).toContain("Magazzino");
+    expect(markup).toContain("Pagamenti &amp; integrazioni");
+    expect(markup).toContain("Brand &amp; canali proprietari");
   });
 
   it("renders the FAQ section from the supplied screen", () => {
