@@ -158,3 +158,5 @@ clean interaction states.
 - Added CTA source tracking for the landing demo form so submissions opened from "Inizia la prova gratuita" include that
   intent in the form message sent to the mail endpoint.
 - Added favicon and app icon assets cropped from the PizzaOS logo mark, plus complete SEO metadata, manifest, robots, and sitemap route coverage for the landing app.
+- Added the supplied Google tag measurement ID to the landing root layout using `next/script`, with a focused regression
+  test and README coverage.

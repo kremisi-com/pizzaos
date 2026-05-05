@@ -17,6 +17,7 @@ This app does not own shared tokens, domain contracts, or reusable cross-app pri
 ## Feature Map
 
 - `app/layout.tsx`: root metadata and layout shell
+- `app/google-tag.tsx`: Google tag bootstrap for the landing marketing surface
 - `app/seo.ts`: canonical SEO metadata, viewport settings, manifest, sitemap, and robots contracts
 - `app/manifest.ts`, `app/robots.ts`, `app/sitemap.ts`: App Router metadata routes for discoverability
 - `app/page.tsx`: landing route entry
@@ -45,6 +46,7 @@ From repository root:
 - `LINK_CLIENT`: optional client demo URL shown after the demo request form succeeds. Defaults to `/client`.
 - `LINK_ADMIN`: optional admin demo URL shown after the demo request form succeeds. Defaults to `/admin`.
 - `NEXT_PUBLIC_SITE_URL`: optional canonical public URL used for SEO metadata, sitemap, and robots. Defaults to `https://pizzaos.it`.
+- Google tag measurement ID is currently configured as `G-6SN8XE5KY1` in `app/google-tag.tsx`.
 
 ## Vercel
 

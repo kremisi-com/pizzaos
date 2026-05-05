@@ -2,6 +2,7 @@ import { getThemeClass, getThemeStyleVariables } from "@pizzaos/brand";
 import type { Metadata, Viewport } from "next";
 import type { CSSProperties, ReactElement, ReactNode } from "react";
 import "./globals.css";
+import { GoogleTag } from "./google-tag";
 import { landingMetadata, landingViewport } from "./seo";
 
 export const metadata: Metadata = landingMetadata;
@@ -27,6 +28,7 @@ export default function RootLayout(props: RootLayoutProps): ReactElement
         style={getThemeStyleVariables(surface) as CSSProperties}
       >
         {props.children}
+        <GoogleTag />
       </body>
     </html>
   );
