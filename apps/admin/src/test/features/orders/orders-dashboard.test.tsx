@@ -24,7 +24,8 @@ const MOCK_ORDERS: Order[] = [
     total: { amountCents: 2000, currencyCode: "EUR" },
     createdAtIso: new Date().toISOString(),
     updatedAtIso: new Date().toISOString(),
-    scheduledSlot: "19:00"
+    scheduledSlot: "19:00",
+    demoOrderRef: "POC-1001"
   },
   {
     id: "order-2",
@@ -45,7 +46,8 @@ const MOCK_ORDERS: Order[] = [
     total: { amountCents: 1300, currencyCode: "EUR" },
     createdAtIso: new Date().toISOString(),
     updatedAtIso: new Date().toISOString(),
-    scheduledSlot: "19:20"
+    scheduledSlot: "19:20",
+    demoOrderRef: "POC-1002"
   }
 ];
 
@@ -67,6 +69,10 @@ describe("OrdersDashboard", () => {
     expect(markup).toContain("2");
     expect(markup).toContain("x");
     expect(markup).toContain("Ricevuto");
+    expect(markup).toContain("Rif. demo cliente:");
+    expect(markup).toContain("POC-1001");
+    expect(markup).toContain("Milestone cliente:");
+    expect(markup).toContain("Ordine ricevuto dal locale");
   });
 
   it("renders empty state when no orders", () => {

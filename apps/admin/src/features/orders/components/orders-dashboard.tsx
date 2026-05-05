@@ -24,6 +24,16 @@ const STATUS_MAP: Record<OrderStatus, { label: string; tone: "neutral" | "succes
   cancelled: { label: "Annullato", tone: "critical" },
 };
 
+const CLIENT_MILESTONE_LABELS: Record<OrderStatus, string> = {
+  received: "Ordine ricevuto dal locale",
+  confirmed: "Ordine confermato",
+  preparing: "Ordine in preparazione",
+  ready: "Ordine pronto per la consegna",
+  out_for_delivery: "Ordine in consegna",
+  delivered: "Consegna completata",
+  cancelled: "Ordine annullato"
+};
+
 export function OrdersDashboard(props: OrdersDashboardProps): ReactElement {
   const { orders, allProducts, onOrderStatusUpdate } = props;
 
@@ -92,6 +102,12 @@ export function OrdersDashboard(props: OrdersDashboardProps): ReactElement {
                   {STATUS_MAP[order.status].label}
                 </Badge>
               </div>
+
+              {order.demoOrderRef && (
+                <div className={styles.demoRef}>Rif. demo cliente: {order.demoOrderRef}</div>
+              )}
+
+              <div className={styles.milestoneLabel}>Milestone cliente: {CLIENT_MILESTONE_LABELS[order.status]}</div>
 
               <div className={styles.customer}>
                 Cliente #{order.customerId.slice(-4)}

@@ -78,6 +78,7 @@ Pseudo-correlazione forte tra Client e Admin, senza sync runtime:
   **Done quando:** pagina profilo navigabile e demoabile.
 ---
 ### Fase 7 — Equilibrio cross-POC (Admin-first focus)
+- Stato: ✅ completata (ordini admin allineati alla narrativa client con `demoOrderRef` visibile, milestone cliente esplicite e storytelling stato coerente)
 - Allineare lessico e milestones admin ai concetti client
 - Uniformare ID demo, tempi percepiti, narrativa ordine
 - Nessun coupling runtime tra app

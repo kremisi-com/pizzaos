@@ -19,7 +19,7 @@ This app does not own shared package internals or other app surfaces.
 - `app/layout.tsx`: root metadata and layout shell
 - `app/page.tsx`: admin route entry
 - `src/features/home`: initial admin shell composition
-- `src/features/orders`: live orders dashboard, order details, and kitchen/bar routing
+- `src/features/orders`: live orders dashboard, order details, kitchen/bar routing, and cross-POC narrative alignment (`demoOrderRef` + milestone cliente)
 - `src/features/profile`: profilo ristoratore con piano attivo e stato fatturazione mock
 
 ## Shared Dependencies
