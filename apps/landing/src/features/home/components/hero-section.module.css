@@ -18,13 +18,11 @@
   max-width: 1440px;
   margin-inline: auto;
   padding-inline: clamp(28px, 4vw, 80px);
-  padding-top: 20px;
-  padding-bottom: 100px;
   display: grid;
   grid-template-columns: 1.1fr 1fr;
-  align-items: center;
+  /* align-items: center; */
   gap: 0;
-  min-height: 860px;
+  /* min-height: 860px; */
 }
 
 /* ================================================================
@@ -39,6 +37,7 @@
   max-width: 548px;
   position: relative;
   z-index: 4;
+  margin-top: 50px;
 }
 
 /* ── Badge pill ── */
@@ -101,6 +100,7 @@
   align-items: center;
   gap: 28px;
   flex-wrap: wrap;
+  margin-top: 25px;
 }
 
 .primaryCta {
@@ -182,6 +182,7 @@
   height: 760px;
   margin-left: 0;
   isolation: isolate;
+  top: 50px;
 }
 
 /* ── Admin dashboard image ── */
@@ -290,7 +291,7 @@
 
 .featureStrip {
   width: 100%;
-  margin-top: 40px;
+  margin-top: 10px;
 }
 
 .featureStripInner {

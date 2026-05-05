@@ -1,3 +1,4 @@
+import Image from "next/image";
 import type { CSSProperties, ReactElement } from "react";
 import styles from "./analytics-growth-section.module.css";
 
@@ -5,35 +6,40 @@ const FEATURE_STRIP = [
   {
     icon: <TrendIcon />,
     title: "Analytics avanzate",
-    text: "Dashboard complete e personalizzabili."
+    text: "Dashboard complete e personalizzabili.",
   },
   {
     icon: <SparkleIcon />,
     title: "AI intelligente",
-    text: "Suggerimenti automatici per massimizzare i profitti."
+    text: "Suggerimenti automatici per massimizzare i profitti.",
   },
   {
     icon: <CalendarIcon />,
     title: "Previsioni di vendita",
-    text: "Anticipa la domanda e riduci sprechi e costi."
+    text: "Anticipa la domanda e riduci sprechi e costi.",
   },
   {
     icon: <PieIcon />,
     title: "Heatmap menu",
-    text: "Scopri cosa piace davvero ai tuoi clienti."
+    text: "Scopri cosa piace davvero ai tuoi clienti.",
   },
   {
     icon: <AbIcon />,
     title: "A/B Test",
-    text: "Testa, confronta e scegli ciò che funziona di più."
-  }
+    text: "Testa, confronta e scegli ciò che funziona di più.",
+  },
 ] as const;
 
 const KPI_CARDS = [
   { label: "Fatturato", value: "12.345 €", delta: "↑ 224%", line: "revenue" },
   { label: "Ordini", value: "1.248", delta: "↑ 18%", line: "orders" },
-  { label: "Scontrino medio", value: "28,60 €", delta: "↑ 12%", line: "ticket" },
-  { label: "Clienti nuovi", value: "312", delta: "↑ 222%", line: "customers" }
+  {
+    label: "Scontrino medio",
+    value: "28,60 €",
+    delta: "↑ 12%",
+    line: "ticket",
+  },
+  { label: "Clienti nuovi", value: "312", delta: "↑ 222%", line: "customers" },
 ] as const;
 
 const CATEGORY_ROWS = [
@@ -41,13 +47,13 @@ const CATEGORY_ROWS = [
   { name: "Bevande", value: "18%" },
   { name: "Fritti", value: "9%" },
   { name: "Dolci", value: "5%" },
-  { name: "Altro", value: "3%" }
+  { name: "Altro", value: "3%" },
 ] as const;
 
 const TOP_PRODUCTS = [
   { rank: "1", name: "Margherita", orders: "512 ordini", width: "94%" },
   { rank: "2", name: "Diavola", orders: "398 ordini", width: "68%" },
-  { rank: "3", name: "Capricciosa", orders: "287 ordini", width: "42%" }
+  { rank: "3", name: "Capricciosa", orders: "287 ordini", width: "42%" },
 ] as const;
 
 const INSIGHTS = [
@@ -55,38 +61,50 @@ const INSIGHTS = [
     icon: <DoughIcon />,
     title: "Hai troppo impasto Kamut",
     meta: "Rimanenza prevista: 18 kg",
-    action: "Crea una promo automatica per ridurre gli sprechi."
+    action: "Crea una promo automatica per ridurre gli sprechi.",
   },
   {
     icon: <UsersIcon />,
     title: "Questo cliente torna ogni venerdì",
     meta: "+126 clienti con questo comportamento",
-    action: "Invia loro una notifica alle 18:00 di venerdì."
+    action: "Invia loro una notifica alle 18:00 di venerdì.",
   },
   {
     icon: <BeerIcon />,
     title: "Stasera vendi di più Margherita + Birra",
     meta: "Probabilità di aumento fatturato: +23%",
-    action: "Suggeriamo di spingerlo con una promo."
-  },
-  {
-    icon: <TagIcon />,
-    title: "-10% entro 48h",
-    meta: "Attiva ora la promo post ordine",
-    action: "Aumento medio riordini: +18%"
+    action: "Suggeriamo di spingerlo con una promo.",
   },
   {
     icon: <GiftIcon />,
     title: "Compleanno in arrivo",
     meta: "23 clienti nei prossimi 7 giorni",
-    action: "Invia una promo personalizzata."
-  }
+    action: "Invia una promo personalizzata.",
+  },
 ] as const;
 
-export function AnalyticsGrowthSection(): ReactElement
-{
+const NAV_ITEMS = [
+  { label: "Overview", icon: <HomeIcon />, active: true },
+  { label: "Ordini", icon: <ReceiptIcon /> },
+  { label: "Clienti", icon: <UsersIcon /> },
+  { label: "Menu", icon: <MenuIcon /> },
+  { label: "Marketing", icon: <MegaphoneIcon /> },
+  { label: "Analytics", icon: <TrendIcon /> },
+  { label: "Report", icon: <ReportIcon /> },
+  { label: "Impostazioni", icon: <SettingsIcon /> },
+] satisfies readonly {
+  readonly label: string;
+  readonly active?: boolean;
+  readonly icon: ReactElement;
+}[];
+
+export function AnalyticsGrowthSection(): ReactElement {
   return (
-    <section className={styles.section} id="dati-crescita" aria-labelledby="analytics-growth-title">
+    <section
+      className={styles.section}
+      id="dati-crescita"
+      aria-labelledby="analytics-growth-title"
+    >
       <div className={styles.inner}>
         <div className={styles.eyebrow}>
           <BarsIcon />
@@ -94,16 +112,22 @@ export function AnalyticsGrowthSection(): ReactElement
         </div>
 
         <h2 className={styles.title} id="analytics-growth-title">
-          Dati che contano.<br />
+          Dati che contano.
+          <br />
           Decisioni che <span>fanno crescere.</span>
         </h2>
 
         <p className={styles.subtitle}>
-          PizzaOS trasforma i dati della tua pizzeria in informazioni chiare e azionabili.<br />
+          PizzaOS trasforma i dati della tua pizzeria in informazioni chiare e
+          azionabili.
+          <br />
           Capisci, prevedi e agisci prima degli altri.
         </p>
 
-        <div className={styles.featureStrip} aria-label="Funzionalità analytics">
+        <div
+          className={styles.featureStrip}
+          aria-label="Funzionalità analytics"
+        >
           {FEATURE_STRIP.map((feature) => (
             <article className={styles.featureItem} key={feature.title}>
               <span>{feature.icon}</span>
@@ -119,55 +143,48 @@ export function AnalyticsGrowthSection(): ReactElement
           <DashboardMockup />
           <InsightsPanel />
         </div>
-
-        <div className={styles.bottomCta}>
-          <span className={styles.rocketBadge}>
-            <RocketIcon />
-          </span>
-          <div>
-            <strong>Trasforma i dati in crescita reale</strong>
-            <p>PizzaOS ti fornisce gli strumenti per prendere decisioni migliori, ogni giorno.</p>
-          </div>
-          <a className={styles.cta} href="/admin">
-            Scopri come i dati fanno la differenza
-            <ArrowIcon />
-          </a>
-        </div>
       </div>
     </section>
   );
 }
 
-function DashboardMockup(): ReactElement
-{
+function DashboardMockup(): ReactElement {
   return (
     <div className={styles.dashboard}>
       <aside className={styles.sidebar}>
         <div className={styles.brand}>
-          <SliceIcon />
-          <strong>PizzaOS</strong>
+          <Image
+            className={styles.logoImage}
+            src="/images/logo.png"
+            alt="PizzaOS"
+            width={1663}
+            height={332}
+            priority={false}
+          />
         </div>
         <nav aria-label="Anteprima navigazione analytics">
-          {["Overview", "Ordini", "Clienti", "Menu", "Marketing", "Analytics", "Report", "Impostazioni"].map(
-            (item, index) => (
-              <span className={index === 0 ? styles.activeNav : ""} key={item}>
-                <NavIcon />
-                {item}
-              </span>
-            )
-          )}
+          {NAV_ITEMS.map((item) => (
+            <span
+              className={item.active ? styles.activeNav : ""}
+              key={item.label}
+            >
+              {item.icon}
+              {item.label}
+            </span>
+          ))}
         </nav>
-        <div className={styles.aiSuggestion}>
-          <strong>Suggerimento AI</strong>
-          <p>Questa sera vendi di più spingendo Margherita + Birra Moretti.</p>
-          <button type="button">Vedi dettagli <ArrowIcon /></button>
+        <div className={styles.restaurantAccount}>
+          <UserIcon />
+          <strong>pizza demo</strong>
         </div>
       </aside>
 
       <div className={styles.mainPanel}>
         <header className={styles.panelHeader}>
           <h3>Panoramica</h3>
-          <span>13 mag - 19 mag 2024 <CalendarTinyIcon /></span>
+          <span>
+            13 mag - 19 mag 2024 <CalendarTinyIcon />
+          </span>
         </header>
 
         <div className={styles.kpiGrid}>
@@ -175,7 +192,9 @@ function DashboardMockup(): ReactElement
             <article className={styles.kpiCard} key={card.label}>
               <span>{card.label}</span>
               <strong>{card.value}</strong>
-              <small><b>{card.delta}</b> vs settimana precedente</small>
+              <small>
+                <b>{card.delta}</b> vs settimana precedente
+              </small>
               <Sparkline variant={card.line} />
             </article>
           ))}
@@ -200,13 +219,26 @@ function DashboardMockup(): ReactElement
           <article className={styles.ordersCard}>
             <h4>Andamento ordini</h4>
             <div className={styles.legend}>
-              <span><b /> Questa settimana</span>
-              <span><i /> Settimana precedente</span>
+              <span>
+                <b /> Questa settimana
+              </span>
+              <span>
+                <i /> Settimana precedente
+              </span>
             </div>
             <svg viewBox="0 0 520 230" aria-hidden="true">
-              <path className={styles.gridLine} d="M20 40h480M20 90h480M20 140h480M20 190h480" />
-              <path className={styles.oldLine} d="M25 178 82 166 139 150 196 160 253 132 310 112 367 126 424 96 492 126" />
-              <path className={styles.newLine} d="M25 132 82 124 139 92 196 70 253 86 310 58 367 58 424 44 492 68" />
+              <path
+                className={styles.gridLine}
+                d="M20 40h480M20 90h480M20 140h480M20 190h480"
+              />
+              <path
+                className={styles.oldLine}
+                d="M25 178 82 166 139 150 196 160 253 132 310 112 367 126 424 96 492 126"
+              />
+              <path
+                className={styles.newLine}
+                d="M25 132 82 124 139 92 196 70 253 86 310 58 367 58 424 44 492 68"
+              />
               <g className={styles.newDots}>
                 <circle cx="25" cy="132" r="5" />
                 <circle cx="82" cy="124" r="5" />
@@ -238,11 +270,18 @@ function DashboardMockup(): ReactElement
           <article className={styles.returningCard}>
             <h4>Clienti che tornano</h4>
             <strong>42%</strong>
-            <small><b>↑ 48%</b> vs settimana precedente</small>
+            <small>
+              <b>↑ 48%</b> vs settimana precedente
+            </small>
             <div className={styles.avatarRow}>
-              {["#9b5a34", "#e8a15b", "#52301f", "#c66b3d", "#231713"].map((color) => (
-                <span key={color} style={{ "--avatar-color": color } as CSSProperties} />
-              ))}
+              {["#9b5a34", "#e8a15b", "#52301f", "#c66b3d", "#231713"].map(
+                (color) => (
+                  <span
+                    key={color}
+                    style={{ "--avatar-color": color } as CSSProperties}
+                  />
+                ),
+              )}
               <b>+96</b>
             </div>
           </article>
@@ -252,8 +291,7 @@ function DashboardMockup(): ReactElement
   );
 }
 
-function InsightsPanel(): ReactElement
-{
+function InsightsPanel(): ReactElement {
   return (
     <aside className={styles.insights}>
       <h3>Insight AI per il tuo business</h3>
@@ -271,7 +309,7 @@ function InsightsPanel(): ReactElement
         ))}
       </div>
       <a href="/admin">
-        Vedi tutti gli insight
+        Prova la dashboard
         <ArrowIcon />
       </a>
     </aside>
@@ -280,13 +318,20 @@ function InsightsPanel(): ReactElement
 
 type SparklineVariant = (typeof KPI_CARDS)[number]["line"];
 
-function Sparkline({ variant }: { readonly variant: SparklineVariant }): ReactElement
-{
+function Sparkline({
+  variant,
+}: {
+  readonly variant: SparklineVariant;
+}): ReactElement {
   const paths = {
-    revenue: "M4 48 C24 54 32 32 52 38 S78 58 96 40 122 44 136 30 154 36 172 18 196 22",
-    orders: "M4 46 C26 34 34 54 54 38 S78 52 94 34 118 52 132 30 152 36 168 16 196 24",
-    ticket: "M4 48 C22 28 36 44 54 40 S78 24 96 34 116 24 132 42 150 30 172 36 196 18",
-    customers: "M4 44 C22 32 36 44 54 38 S76 54 94 34 114 46 134 20 154 36 174 16 196 22"
+    revenue:
+      "M4 48 C24 54 32 32 52 38 S78 58 96 40 122 44 136 30 154 36 172 18 196 22",
+    orders:
+      "M4 46 C26 34 34 54 54 38 S78 52 94 34 118 52 132 30 152 36 168 16 196 24",
+    ticket:
+      "M4 48 C22 28 36 44 54 40 S78 24 96 34 116 24 132 42 150 30 172 36 196 18",
+    customers:
+      "M4 44 C22 32 36 44 54 38 S76 54 94 34 114 46 134 20 154 36 174 16 196 22",
   } as const;
 
   return (
@@ -296,8 +341,7 @@ function Sparkline({ variant }: { readonly variant: SparklineVariant }): ReactEl
   );
 }
 
-function BarsIcon(): ReactElement
-{
+function BarsIcon(): ReactElement {
   return (
     <svg aria-hidden="true" viewBox="0 0 24 24">
       <path d="M5 19V11" />
@@ -310,8 +354,7 @@ function BarsIcon(): ReactElement
   );
 }
 
-function TrendIcon(): ReactElement
-{
+function TrendIcon(): ReactElement {
   return (
     <svg aria-hidden="true" viewBox="0 0 24 24">
       <path d="M4 17 9 11l4 4 6-9" />
@@ -321,8 +364,7 @@ function TrendIcon(): ReactElement
   );
 }
 
-function SparkleIcon(): ReactElement
-{
+function SparkleIcon(): ReactElement {
   return (
     <svg aria-hidden="true" viewBox="0 0 24 24">
       <path d="M12 3 14.3 8.7 20 11l-5.7 2.3L12 19l-2.3-5.7L4 11l5.7-2.3L12 3Z" />
@@ -332,8 +374,7 @@ function SparkleIcon(): ReactElement
   );
 }
 
-function CalendarIcon(): ReactElement
-{
+function CalendarIcon(): ReactElement {
   return (
     <svg aria-hidden="true" viewBox="0 0 24 24">
       <rect x="4" y="5" width="16" height="15" rx="2" />
@@ -343,8 +384,7 @@ function CalendarIcon(): ReactElement
   );
 }
 
-function PieIcon(): ReactElement
-{
+function PieIcon(): ReactElement {
   return (
     <svg aria-hidden="true" viewBox="0 0 24 24">
       <path d="M12 3v9h9" />
@@ -354,8 +394,7 @@ function PieIcon(): ReactElement
   );
 }
 
-function AbIcon(): ReactElement
-{
+function AbIcon(): ReactElement {
   return (
     <svg aria-hidden="true" viewBox="0 0 24 24">
       <path d="m3 17 4-10 4 10M4.5 13h5" />
@@ -365,28 +404,61 @@ function AbIcon(): ReactElement
   );
 }
 
-function SliceIcon(): ReactElement
-{
+function HomeIcon(): ReactElement {
   return (
     <svg aria-hidden="true" viewBox="0 0 24 24">
-      <path d="M4.5 4.2 20.5 9 9 21.2 4.5 4.2Z" />
-      <path d="M7.5 8.2c4.8.1 8.2 1.1 10.9 3.3" />
+      <path d="m4 11 8-7 8 7v9h-5v-6H9v6H4v-9Z" />
     </svg>
   );
 }
 
-function NavIcon(): ReactElement
-{
+function ReceiptIcon(): ReactElement {
   return (
     <svg aria-hidden="true" viewBox="0 0 24 24">
-      <rect x="5" y="5" width="14" height="14" rx="2" />
-      <path d="M9 9h6M9 13h4" />
+      <path d="M7 4h10v16l-2-1.2-2 1.2-2-1.2-2 1.2-2-1.2V4Z" />
+      <path d="M9 8h6M9 12h6" />
     </svg>
   );
 }
 
-function CalendarTinyIcon(): ReactElement
-{
+function MenuIcon(): ReactElement {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 24 24">
+      <path d="M7 5h10M7 12h10M7 19h10" />
+    </svg>
+  );
+}
+
+function MegaphoneIcon(): ReactElement {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 24 24">
+      <path d="M4 13h4l9 5V6l-9 5H4v2Z" />
+      <path d="M8 13l2 6" />
+    </svg>
+  );
+}
+
+function ReportIcon(): ReactElement {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 24 24">
+      <path d="M6 4h12v16H6V4Z" />
+      <path d="M9 8h6M9 12h6M9 16h4" />
+    </svg>
+  );
+}
+
+function SettingsIcon(): ReactElement {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="3.3" />
+      <path d="M12 4v2M12 18v2M4 12h2M18 12h2" />
+      <path d="m6.4 6.4 1.4 1.4M16.2 16.2l1.4 1.4" />
+      <path d="m17.6 6.4-1.4 1.4M7.8 16.2l-1.4 1.4" />
+    </svg>
+  );
+}
+
+function CalendarTinyIcon(): ReactElement {
   return (
     <svg aria-hidden="true" viewBox="0 0 24 24">
       <rect x="5" y="6" width="14" height="13" rx="2" />
@@ -395,8 +467,7 @@ function CalendarTinyIcon(): ReactElement
   );
 }
 
-function DoughIcon(): ReactElement
-{
+function DoughIcon(): ReactElement {
   return (
     <svg aria-hidden="true" viewBox="0 0 24 24">
       <circle cx="12" cy="12" r="8" />
@@ -405,8 +476,7 @@ function DoughIcon(): ReactElement
   );
 }
 
-function UsersIcon(): ReactElement
-{
+function UsersIcon(): ReactElement {
   return (
     <svg aria-hidden="true" viewBox="0 0 24 24">
       <circle cx="9" cy="8" r="3" />
@@ -417,8 +487,16 @@ function UsersIcon(): ReactElement
   );
 }
 
-function BeerIcon(): ReactElement
-{
+function UserIcon(): ReactElement {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 24 24">
+      <circle cx="12" cy="8" r="4" />
+      <path d="M4.5 20c1-4.6 3.5-6.9 7.5-6.9s6.5 2.3 7.5 6.9" />
+    </svg>
+  );
+}
+
+function BeerIcon(): ReactElement {
   return (
     <svg aria-hidden="true" viewBox="0 0 24 24">
       <rect x="6" y="7" width="10" height="13" rx="2" />
@@ -427,18 +505,7 @@ function BeerIcon(): ReactElement
   );
 }
 
-function TagIcon(): ReactElement
-{
-  return (
-    <svg aria-hidden="true" viewBox="0 0 24 24">
-      <path d="M4 12 12 4h7v7l-8 8-7-7Z" />
-      <circle cx="16" cy="8" r="1.3" />
-    </svg>
-  );
-}
-
-function GiftIcon(): ReactElement
-{
+function GiftIcon(): ReactElement {
   return (
     <svg aria-hidden="true" viewBox="0 0 24 24">
       <path d="M4 10h16v10H4zM12 10v10M4 14h16" />
@@ -447,19 +514,7 @@ function GiftIcon(): ReactElement
   );
 }
 
-function RocketIcon(): ReactElement
-{
-  return (
-    <svg aria-hidden="true" viewBox="0 0 24 24">
-      <path d="M14 4c2.4-.7 4.4-.7 5.8.2.8 1.5.8 3.4.1 5.9l-5 5-4.9-4.9 4-6.2Z" />
-      <path d="m8.8 10.6-3.1.5-2 4 4-.8" />
-      <path d="m13.4 15.2-.6 3.1-4 2 .8-4" />
-    </svg>
-  );
-}
-
-function ArrowIcon(): ReactElement
-{
+function ArrowIcon(): ReactElement {
   return (
     <svg aria-hidden="true" viewBox="0 0 24 24">
       <path d="M5 12h14" />
@@ -468,8 +523,7 @@ function ArrowIcon(): ReactElement
   );
 }
 
-function ArrowRightIcon(): ReactElement
-{
+function ArrowRightIcon(): ReactElement {
   return (
     <svg aria-hidden="true" viewBox="0 0 24 24">
       <path d="m9 6 6 6-6 6" />

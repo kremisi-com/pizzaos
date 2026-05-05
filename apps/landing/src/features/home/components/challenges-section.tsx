@@ -7,7 +7,11 @@ import styles from "./challenges-section.module.css";
 const CLIENT_DEMO_URL = "/client" as const;
 
 const missedCalls = ["12:45", "12:47", "12:49"] as const;
-const unavailablePizzas = ["Pizza Crudo", "Pizza Tartufo", "Pizza Burrata"] as const;
+const unavailablePizzas = [
+  "Pizza Crudo",
+  "Pizza Tartufo",
+  "Pizza Burrata",
+] as const;
 const chartBars = [40, 62, 34, 84, 52, 72, 96] as const;
 
 interface ChallengeCardProps {
@@ -17,18 +21,38 @@ interface ChallengeCardProps {
   readonly children: ReactNode;
 }
 
-function ChallengeCard({ icon, title, description, children }: ChallengeCardProps): ReactElement {
+function ChallengeCard({
+  icon,
+  title,
+  description,
+  children,
+}: ChallengeCardProps): ReactElement {
   return (
     <div className={styles.card}>
-      <div className={styles.closeButton}><CloseIcon /></div>
       <div className={styles.cardHeader}>
         <div className={styles.iconBox}>{icon}</div>
-        <h3 className={styles.cardTitle}>{title}</h3>
-        <p className={styles.cardDescription}>{description}</p>
+        <h3 className={styles.cardTitle}>
+          {title.split("<br>").reduce<ReactNode[]>((acc, segment, index) => {
+            if (index > 0) {
+              acc.push(<br key={index} />);
+            }
+            acc.push(segment);
+            return acc;
+          }, [])}
+        </h3>
+        <p className={styles.cardDescription}>
+          {description
+            .split("<br>")
+            .reduce<ReactNode[]>((acc, segment, index) => {
+              if (index > 0) {
+                acc.push(<br key={index} />);
+              }
+              acc.push(segment);
+              return acc;
+            }, [])}
+        </p>
       </div>
-      <div className={styles.cardVisual}>
-        {children}
-      </div>
+      <div className={styles.cardVisual}>{children}</div>
     </div>
   );
 }
@@ -109,12 +133,14 @@ export function ChallengesSection(): ReactElement {
         </div>
 
         <h2 className={styles.title}>
-          Ti riconosci in<br />
+          Ti riconosci in
+          <br />
           uno di questi <span className={styles.titleAccent}>problemi?</span>
         </h2>
 
         <p className={styles.subtitle}>
-          Ogni giorno perdi tempo, ordini e margine.<br />
+          Ogni giorno perdi tempo, ordini e margine.
+          <br />
           PizzaOS è nato per risolvere tutto questo.
         </p>
 
@@ -127,7 +153,8 @@ export function ChallengesSection(): ReactElement {
           >
             <div className={styles.mockupPhone}>
               <div className={styles.phoneHeader}>
-                Chiamata in arrivo<br />
+                Chiamata in arrivo
+                <br />
                 <span>Linea ordini</span>
               </div>
               <div className={styles.phoneAction}>
@@ -135,7 +162,9 @@ export function ChallengesSection(): ReactElement {
               </div>
               {missedCalls.map((time) => (
                 <div className={styles.mockupCall} key={time}>
-                  <span className={styles.mockupCallIcon}><PhoneIcon /></span>
+                  <span className={styles.mockupCallIcon}>
+                    <PhoneIcon />
+                  </span>
                   <span>Chiamata persa</span>
                   <span className={styles.mockupTime}>{time}</span>
                 </div>
@@ -147,14 +176,23 @@ export function ChallengesSection(): ReactElement {
           <ChallengeCard
             icon={<GrowthIcon />}
             title="Commissioni che mangiano i profitti"
-            description="I marketplace prendono fino al 30% per ogni ordine. Il cliente non è tuo."
+            description="I marketplace prendono fino al 30% per ogni ordine.<br>Il cliente non è tuo."
           >
             <div className={styles.mockupCommission}>
               <div className={styles.mockupLabel}>Commissioni</div>
               <div className={styles.mockupCommissionValue}>-30%</div>
               <div className={styles.mockupCaption}>Su ogni ordine</div>
-              <svg className={styles.lineChart} viewBox="0 0 100 40" aria-hidden="true">
-                <path d="M0,35 Q25,32 40,25 T70,28 T100,10" fill="none" stroke="#f43a26" strokeWidth="2" />
+              <svg
+                className={styles.lineChart}
+                viewBox="0 0 100 40"
+                aria-hidden="true"
+              >
+                <path
+                  d="M0,35 Q25,32 40,25 T70,28 T100,10"
+                  fill="none"
+                  stroke="#f43a26"
+                  strokeWidth="2"
+                />
                 <circle cx="100" cy="10" r="2" fill="#f43a26" />
               </svg>
             </div>
@@ -182,22 +220,26 @@ export function ChallengesSection(): ReactElement {
             description="Nessun tracciamento, ritardi, clienti arrabbiati e rider sotto stress."
           >
             <div className={styles.mockupMap}>
-              <div className={styles.mapBubble}>
-                Dov&apos;è il mio ordine?
-              </div>
-              <svg className={styles.mapRoute} viewBox="0 0 100 100" aria-hidden="true">
+              <div className={styles.mapBubble}>Dov&apos;è il mio ordine?</div>
+              <svg
+                className={styles.mapRoute}
+                viewBox="0 0 100 100"
+                aria-hidden="true"
+              >
                 <path d="M14,36 C28,28 32,50 44,46 C58,41 51,70 66,72 C75,73 78,62 88,67" />
                 <circle cx="14" cy="36" r="3" />
                 <circle cx="88" cy="67" r="3" />
               </svg>
-              <span className={styles.riderPin}><DeliveryIcon /></span>
+              <span className={styles.riderPin}>
+                <DeliveryIcon />
+              </span>
             </div>
           </ChallengeCard>
 
           {/* Card 5 */}
           <ChallengeCard
             icon={<MenuIcon />}
-            title="Menu statico, poco flessibile"
+            title="Menu statico,<br>poco flessibile"
             description="Aggiornamenti lenti, prodotti non disponibili e opportunità perse."
           >
             <div className={styles.mockupMenu}>
@@ -214,7 +256,7 @@ export function ChallengesSection(): ReactElement {
           {/* Card 6 */}
           <ChallengeCard
             icon={<ChartIcon />}
-            title="Nessun dato, nessuna crescita"
+            title="Nessun dato,<br>nessuna crescita"
             description="Senza dati non puoi capire cosa funziona, cosa migliorare e come far crescere il tuo business."
           >
             <div className={styles.mockupOrders}>
@@ -233,7 +275,7 @@ export function ChallengesSection(): ReactElement {
           </ChallengeCard>
         </div>
 
-        <div className={styles.footerBanner}>
+        {/* <div className={styles.footerBanner}>
           <span className={styles.footerIcon}>✨</span>
           PizzaOS risolve tutto in un&apos;unica piattaforma.
         </div>
@@ -242,7 +284,7 @@ export function ChallengesSection(): ReactElement {
           <Link href={CLIENT_DEMO_URL} className={styles.ctaButton}>
             Scopri come funziona <span aria-hidden="true">→</span>
           </Link>
-        </div>
+        </div> */}
       </div>
     </section>
   );

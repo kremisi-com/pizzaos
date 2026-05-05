@@ -12,8 +12,6 @@ import { ChainManagementSection } from "./chain-management-section";
 import { CompletePlatformSection } from "./complete-platform-section";
 import { EcosystemSection } from "./ecosystem-section";
 import { FaqSection } from "./faq-section";
-import { FeatureDifferenceSection } from "./feature-difference-section";
-import { FinalCtaSection } from "./final-cta-section";
 import { Footer } from "./footer";
 import { HeroSection } from "./hero-section";
 import { IntelligentOrdersSection } from "./intelligent-orders-section";
@@ -71,9 +69,6 @@ export function LandingShell(): ReactElement {
         {/* Complete platform visual section */}
         <CompletePlatformSection />
 
-        {/* Feature difference visual section */}
-        <FeatureDifferenceSection />
-
         {/* Margin comparison section */}
         <MarginComparisonSection onRequestDemo={handleOpenModal} />
 
@@ -105,9 +100,6 @@ export function LandingShell(): ReactElement {
 
         {/* FAQ */}
         <FaqSection />
-
-        {/* Final CTA */}
-        <FinalCtaSection onRequestDemo={handleOpenModal} />
       </main>
 
       {/* Footer */}

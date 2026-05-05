@@ -1,3 +1,4 @@
+import Image from "next/image";
 import type { ReactElement } from "react";
 import styles from "./margin-comparison-section.module.css";
 
@@ -8,12 +9,12 @@ const COMPARISON_ROWS = [
     detail: "Paghi ad ogni ordine ricevuto",
     marketplace: {
       value: "15% - 30%",
-      detail: "su ogni ordine"
+      detail: "su ogni ordine",
     },
     pizzaos: {
       value: "0%",
-      detail: "Zero commissioni sugli ordini"
-    }
+      detail: "Zero commissioni sugli ordini",
+    },
   },
   {
     icon: <UserIcon />,
@@ -21,12 +22,12 @@ const COMPARISON_ROWS = [
     detail: "Hai accesso ai dati e allo storico",
     marketplace: {
       value: "No",
-      detail: "Il cliente è del marketplace"
+      detail: "Il cliente è del marketplace",
     },
     pizzaos: {
       value: "Sì",
-      detail: "Tutti i clienti e i dati sono tuoi"
-    }
+      detail: "Tutti i clienti e i dati sono tuoi",
+    },
   },
   {
     icon: <TagIcon />,
@@ -34,12 +35,12 @@ const COMPARISON_ROWS = [
     detail: "Esperienza personalizzata",
     marketplace: {
       value: "Limitato",
-      detail: "Il brand del marketplace in primo piano"
+      detail: "Il brand del marketplace in primo piano",
     },
     pizzaos: {
       value: "100% tuo",
-      detail: "Il tuo brand, la tua esperienza"
-    }
+      detail: "Il tuo brand, la tua esperienza",
+    },
   },
   {
     icon: <ChartIcon />,
@@ -47,12 +48,12 @@ const COMPARISON_ROWS = [
     detail: "Report avanzati e insights",
     marketplace: {
       value: "Limitati",
-      detail: "Dati parziali e non esportabili"
+      detail: "Dati parziali e non esportabili",
     },
     pizzaos: {
       value: "Completi",
-      detail: "Dati completi e insights avanzati"
-    }
+      detail: "Dati completi e insights avanzati",
+    },
   },
   {
     icon: <MegaphoneIcon />,
@@ -60,12 +61,12 @@ const COMPARISON_ROWS = [
     detail: "Strumenti integrati per crescere",
     marketplace: {
       value: "Limitati",
-      detail: "Strumenti di marketing assenti"
+      detail: "Strumenti di marketing assenti",
     },
     pizzaos: {
       value: "Avanzati",
-      detail: "Automazioni, coupon, loyalty e altro"
-    }
+      detail: "Automazioni, coupon, loyalty e altro",
+    },
   },
   {
     icon: <HeadsetIcon />,
@@ -73,24 +74,28 @@ const COMPARISON_ROWS = [
     detail: "Sempre al tuo fianco",
     marketplace: {
       value: "Da chat o ticket",
-      detail: "Tempi di risposta variabili"
+      detail: "Tempi di risposta variabili",
     },
     pizzaos: {
       value: "Dedicato",
-      detail: "Supporto rapido e specializzato"
-    }
-  }
+      detail: "Supporto rapido e specializzato",
+    },
+  },
 ] as const;
 
-interface MarginComparisonSectionProps
-{
+interface MarginComparisonSectionProps {
   readonly onRequestDemo: () => void;
 }
 
-export function MarginComparisonSection({ onRequestDemo }: MarginComparisonSectionProps): ReactElement
-{
+export function MarginComparisonSection({
+  onRequestDemo,
+}: MarginComparisonSectionProps): ReactElement {
   return (
-    <section className={styles.section} id="prezzi" aria-labelledby="margin-title">
+    <section
+      className={styles.section}
+      id="prezzi"
+      aria-labelledby="margin-title"
+    >
       <div className={styles.inner}>
         <div className={styles.eyebrow}>
           <RocketIcon />
@@ -98,17 +103,23 @@ export function MarginComparisonSection({ onRequestDemo }: MarginComparisonSecti
         </div>
 
         <h2 className={styles.title} id="margin-title">
-          Più ordini diretti.<br />
+          Più ordini diretti.
+          <br />
           Più <span>margine</span> per te.
         </h2>
 
         <p className={styles.subtitle}>
-          Con PizzaOS dimentichi le commissioni ad ogni ordine.<br />
+          Con PizzaOS dimentichi le commissioni ad ogni ordine.
+          <br />
           Un unico canone mensile, zero sorprese, tutti i clienti sono tuoi.
         </p>
 
         <div className={styles.comparisonArea}>
-          <div className={styles.matrix} role="table" aria-label="Confronto tra marketplace e PizzaOS">
+          <div
+            className={styles.matrix}
+            role="table"
+            aria-label="Confronto tra marketplace e PizzaOS"
+          >
             <div className={styles.columnHeaders} role="row">
               <div className={styles.blankHeader} />
               <div className={styles.marketplaceHeader} role="columnheader">
@@ -153,42 +164,57 @@ export function MarginComparisonSection({ onRequestDemo }: MarginComparisonSecti
             </div>
           </div>
 
-          <aside className={styles.savingsCard} aria-label="Esempio concreto di risparmio">
+          <aside
+            className={styles.savingsCard}
+            aria-label="Esempio concreto di risparmio"
+          >
             <h3>Esempio concreto</h3>
-            <p className={styles.orderCount}>500 ordini al mese <span aria-hidden="true">🍕</span></p>
+            <p className={styles.orderCount}>
+              500 ordini al mese <span aria-hidden="true">🍕</span>
+            </p>
 
             <div className={styles.savingsBlock}>
               <span>Con marketplace</span>
-              <strong className={styles.loss}>-750 € <small>/ mese</small></strong>
+              <strong className={styles.loss}>
+                -750 € <small>/ mese</small>
+              </strong>
               <p>di commissioni</p>
             </div>
 
             <div className={styles.savingsBlock}>
               <span>Con PizzaOS</span>
-              <strong className={styles.gain}>+750 € <small>/ mese</small></strong>
+              <strong className={styles.gain}>
+                +750 € <small>/ mese</small>
+              </strong>
               <p>nel tuo margine</p>
             </div>
 
             <div className={styles.yearlyGain}>
               <strong>9.000 € in più</strong>
-              <span>ogni anno nel tuo business <span aria-hidden="true">🎉</span></span>
+              <span>ogni anno nel tuo business 🎉</span>
             </div>
           </aside>
         </div>
 
-        <div className={styles.bottomCta}>
+        {/* <div className={styles.bottomCta}>
           <span className={styles.bottomIcon}>
             <GrowthIcon />
           </span>
           <div className={styles.bottomCopy}>
-            <strong>Più ordini diretti, più clienti fedeli, più crescita.</strong>
+            <strong>
+              Più ordini diretti, più clienti fedeli, più crescita.
+            </strong>
             <span>
               PizzaOS ti dà tutto ciò che serve per far crescere la tua pizzeria
               senza dipendere da nessuno.
             </span>
           </div>
           <div className={styles.ctaStack}>
-            <button className={styles.cta} type="button" onClick={onRequestDemo}>
+            <button
+              className={styles.cta}
+              type="button"
+              onClick={onRequestDemo}
+            >
               Scopri quanto puoi risparmiare
               <ArrowIcon />
             </button>
@@ -197,26 +223,27 @@ export function MarginComparisonSection({ onRequestDemo }: MarginComparisonSecti
               Calcolo gratuito in 2 minuti
             </span>
           </div>
-        </div>
+        </div> */}
       </div>
     </section>
   );
 }
 
-function PizzaOsLogo(): ReactElement
-{
+function PizzaOsLogo(): ReactElement {
   return (
     <div className={styles.logo} aria-label="PizzaOS">
-      <span className={styles.logoMark}>
-        <SliceIcon />
-      </span>
-      <span>Pizza<span>OS</span></span>
+      <Image
+        className={styles.logoImage}
+        src="/images/logo.png"
+        alt="PizzaOS"
+        width={1663}
+        height={332}
+      />
     </div>
   );
 }
 
-function RocketIcon(): ReactElement
-{
+function RocketIcon(): ReactElement {
   return (
     <svg aria-hidden="true" viewBox="0 0 24 24">
       <path d="M14 4c2.4-.7 4.4-.7 5.8.2.8 1.5.8 3.4.1 5.9l-5 5-4.9-4.9 4-6.2Z" />
@@ -227,20 +254,7 @@ function RocketIcon(): ReactElement
   );
 }
 
-function SliceIcon(): ReactElement
-{
-  return (
-    <svg aria-hidden="true" viewBox="0 0 24 24">
-      <path d="M4.5 4.2 20.5 9 9 21.2 4.5 4.2Z" />
-      <path d="M7.5 8.2c4.8.1 8.2 1.1 10.9 3.3" />
-      <circle cx="10.2" cy="11.8" r="1.2" />
-      <circle cx="13.2" cy="15.6" r="1.2" />
-    </svg>
-  );
-}
-
-function PercentIcon(): ReactElement
-{
+function PercentIcon(): ReactElement {
   return (
     <svg aria-hidden="true" viewBox="0 0 24 24">
       <circle cx="8" cy="8" r="2.2" />
@@ -250,8 +264,7 @@ function PercentIcon(): ReactElement
   );
 }
 
-function UserIcon(): ReactElement
-{
+function UserIcon(): ReactElement {
   return (
     <svg aria-hidden="true" viewBox="0 0 24 24">
       <circle cx="12" cy="8" r="3.2" />
@@ -260,8 +273,7 @@ function UserIcon(): ReactElement
   );
 }
 
-function TagIcon(): ReactElement
-{
+function TagIcon(): ReactElement {
   return (
     <svg aria-hidden="true" viewBox="0 0 24 24">
       <path d="m4 12 8-8 7.5 7.5-8 8L4 12Z" />
@@ -270,8 +282,7 @@ function TagIcon(): ReactElement
   );
 }
 
-function ChartIcon(): ReactElement
-{
+function ChartIcon(): ReactElement {
   return (
     <svg aria-hidden="true" viewBox="0 0 24 24">
       <path d="M5 20V10h3v10H5Z" />
@@ -281,8 +292,7 @@ function ChartIcon(): ReactElement
   );
 }
 
-function MegaphoneIcon(): ReactElement
-{
+function MegaphoneIcon(): ReactElement {
   return (
     <svg aria-hidden="true" viewBox="0 0 24 24">
       <path d="M4 13h4l9-5v12l-9-5H4v-2Z" />
@@ -292,8 +302,7 @@ function MegaphoneIcon(): ReactElement
   );
 }
 
-function HeadsetIcon(): ReactElement
-{
+function HeadsetIcon(): ReactElement {
   return (
     <svg aria-hidden="true" viewBox="0 0 24 24">
       <path d="M4 13a8 8 0 0 1 16 0" />
@@ -304,8 +313,7 @@ function HeadsetIcon(): ReactElement
   );
 }
 
-function CheckIcon(): ReactElement
-{
+function CheckIcon(): ReactElement {
   return (
     <svg aria-hidden="true" viewBox="0 0 20 20">
       <circle cx="10" cy="10" r="7.2" />
@@ -314,8 +322,7 @@ function CheckIcon(): ReactElement
   );
 }
 
-function XIcon(): ReactElement
-{
+function XIcon(): ReactElement {
   return (
     <svg aria-hidden="true" viewBox="0 0 20 20">
       <circle cx="10" cy="10" r="7.2" />
@@ -324,8 +331,7 @@ function XIcon(): ReactElement
   );
 }
 
-function GrowthIcon(): ReactElement
-{
+function GrowthIcon(): ReactElement {
   return (
     <svg aria-hidden="true" viewBox="0 0 24 24">
       <path d="M5 20V10h3v10H5Z" />
@@ -335,8 +341,7 @@ function GrowthIcon(): ReactElement
   );
 }
 
-function ArrowIcon(): ReactElement
-{
+function ArrowIcon(): ReactElement {
   return (
     <svg aria-hidden="true" viewBox="0 0 20 20">
       <path d="M4 10h11" />

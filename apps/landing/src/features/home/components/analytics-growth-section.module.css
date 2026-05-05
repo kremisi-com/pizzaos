@@ -30,9 +30,8 @@
 
 .eyebrow svg,
 .featureItem svg,
-.brand svg,
 .sidebar nav svg,
-.aiSuggestion svg,
+.restaurantAccount svg,
 .panelHeader svg,
 .insight svg,
 .rocketBadge svg,
@@ -159,15 +158,12 @@
 .brand {
   display: flex;
   align-items: center;
-  gap: 8px;
-  color: #050505;
-  font-size: 17px;
-  font-weight: 900;
+  min-height: 24px;
 }
 
-.brand svg {
-  color: var(--color-brand-red);
-  stroke-width: 2.5;
+.logoImage {
+  width: 118px;
+  height: auto;
 }
 
 .sidebar nav {
@@ -202,31 +198,37 @@
   color: var(--color-brand-red);
 }
 
-.aiSuggestion {
+.restaurantAccount {
   margin-top: auto;
-  padding: 18px 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 13px 12px;
   border-radius: 10px;
   background:
-    radial-gradient(circle at 100% 0%, rgba(244, 58, 38, 0.08), transparent 46%),
+    radial-gradient(
+      circle at 100% 0%,
+      rgba(244, 58, 38, 0.08),
+      transparent 46%
+    ),
     linear-gradient(135deg, #fbf5ef 0%, #f5faf5 100%);
 }
 
-.aiSuggestion strong {
-  display: block;
-  margin-bottom: 10px;
+.restaurantAccount svg {
+  flex: 0 0 auto;
+  width: 18px;
+  height: 18px;
+  color: var(--color-brand-red);
+}
+
+.restaurantAccount strong {
   color: #111318;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 900;
+  line-height: 1;
+  text-transform: lowercase;
 }
 
-.aiSuggestion p {
-  margin: 0 0 14px;
-  color: #31363d;
-  font-size: 12px;
-  line-height: 1.55;
-}
-
-.aiSuggestion button,
 .insights > a,
 .cta {
   display: inline-flex;
@@ -236,21 +238,6 @@
   border: 0;
   text-decoration: none;
   cursor: pointer;
-}
-
-.aiSuggestion button {
-  padding: 9px 12px;
-  border: 1px solid rgba(31, 28, 25, 0.1);
-  border-radius: 10px;
-  background: #ffffff;
-  color: #111318;
-  font-size: 12px;
-  font-weight: 800;
-}
-
-.aiSuggestion button svg {
-  width: 14px;
-  height: 14px;
 }
 
 .mainPanel {
@@ -365,7 +352,7 @@
 
 .chartGrid {
   display: grid;
-  grid-template-columns: 0.88fr 1.22fr;
+  grid-template-columns: 1fr 1fr;
   gap: 16px;
   margin-bottom: 18px;
 }
@@ -391,7 +378,7 @@
   display: grid;
   grid-template-columns: 150px minmax(0, 1fr);
   align-items: center;
-  gap: 24px;
+  gap: 0px;
 }
 
 .donut {
@@ -460,7 +447,6 @@
   display: flex;
   justify-content: flex-end;
   gap: 18px;
-  margin-top: -32px;
   color: #757b84;
   font-size: 10px;
   font-weight: 700;
@@ -486,7 +472,7 @@
 
 .ordersCard svg {
   width: 100%;
-  height: 188px;
+  height: 140px;
   margin-top: 6px;
 }
 
@@ -544,8 +530,11 @@
 .productRow i {
   height: 8px;
   border-radius: 999px;
-  background:
-    linear-gradient(90deg, var(--color-brand-red) var(--bar-width), #f0eeec var(--bar-width));
+  background: linear-gradient(
+    90deg,
+    var(--color-brand-red) var(--bar-width),
+    #f0eeec var(--bar-width)
+  );
 }
 
 .returningCard strong {
@@ -577,7 +566,11 @@
   border-radius: 50%;
   background:
     radial-gradient(circle at 50% 34%, #ffd3a3 0 18%, transparent 19%),
-    radial-gradient(circle at 50% 78%, var(--avatar-color) 0 36%, transparent 37%),
+    radial-gradient(
+      circle at 50% 78%,
+      var(--avatar-color) 0 36%,
+      transparent 37%
+    ),
     #f2c08d;
 }
 
@@ -706,7 +699,11 @@
   border-radius: 14px;
   background:
     radial-gradient(circle at 98% 8%, rgba(244, 58, 38, 0.11), transparent 38%),
-    linear-gradient(110deg, rgba(244, 58, 38, 0.06) 0%, rgba(244, 58, 38, 0.03) 100%);
+    linear-gradient(
+      110deg,
+      rgba(244, 58, 38, 0.06) 0%,
+      rgba(244, 58, 38, 0.03) 100%
+    );
 }
 
 .rocketBadge {

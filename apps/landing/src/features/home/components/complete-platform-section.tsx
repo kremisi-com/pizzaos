@@ -2,69 +2,76 @@ import type { CSSProperties, ReactElement, ReactNode } from "react";
 import styles from "./complete-platform-section.module.css";
 
 const ORDER_ITEMS = [
-  { label: "1x Margherita DOP", price: "7,50 €" },
+  { label: "1x Margherita", price: "7,50 €" },
   { label: "1x Diavola", price: "8,50 €" },
-  { label: "1x Coca Cola", price: "2,50 €" }
+  { label: "1x Coca Cola", price: "2,50 €" },
 ] as const;
 
 const TIMELINE = [
   { label: "Ordine ricevuto", time: "17:50", active: true },
   { label: "In preparazione", time: "17:55", active: true },
   { label: "In consegna", time: "18:15", active: true },
-  { label: "Consegnato", time: "--", active: false }
+  { label: "Consegnato", time: "--", active: false },
 ] as const;
 
 const CHECKLISTS = [
   [
     "Personalizzazioni avanzate",
     "Lista allergeni e impasti",
-    "Ordina come l'ultima volta"
+    "Ordina come l'ultima volta",
+    "Pagamenti online sicuri",
   ],
   [
     "Tracking live dell'ordine",
-    "Notifiche automatiche",
-    "Integrazione con Deliveroo"
+    "Percorso ottimizzato",
+    "Integrazione con Deliveroo",
+    "Assegnazione rider automatica",
   ],
   [
     "Coupon e promozioni automatiche",
     "Tessera fedeltà e premi",
-    "Analytics e suggerimenti AI"
-  ]
+    "Analytics e suggerimenti AI",
+    "Campagne clienti ricorrenti",
+  ],
 ] as const;
 
 const BENEFITS = [
   {
     icon: <ShieldIcon />,
     title: "Zero commissioni",
-    text: "Paghi solo un canone mensile."
+    text: "Paghi solo un canone mensile.",
   },
   {
     icon: <LockIcon />,
     title: "I tuoi clienti, sempre tuoi",
-    text: "Dati, relazioni e comunicazioni restano a te."
+    text: "Dati, relazioni e comunicazioni restano a te.",
   },
   {
     icon: <BoltIcon />,
     title: "Set up rapido",
-    text: "Onboarding in pochi giorni, senza stress."
+    text: "Onboarding in pochi giorni, senza stress.",
   },
   {
     icon: <HeadsetIcon />,
     title: "Supporto dedicato",
-    text: "Sempre al tuo fianco, quando ti serve."
+    text: "Sempre al tuo fianco, quando ti serve.",
   },
   {
     icon: <StarIcon />,
     title: "Pensato per i ristoratori",
-    text: "Funzionalità reali per problemi reali."
-  }
+    text: "Funzionalità reali per problemi reali.",
+  },
 ] as const;
 
 const CUSTOMER_AVATARS = ["#c97945", "#dca064", "#8f5135", "#efc08d"] as const;
 
-interface PillarProps
-{
-  readonly number: string;
+const RETENTION_SEGMENTS = [
+  { label: "Secondo ordine", value: "32%", width: "76%" },
+  { label: "Cliente VIP", value: "18%", width: "52%" },
+  { label: "Coupon attivo", value: "12%", width: "38%" },
+] as const;
+
+interface PillarProps {
   readonly icon: ReactElement;
   readonly title: string;
   readonly description: string;
@@ -72,12 +79,16 @@ interface PillarProps
   readonly checklist: readonly string[];
 }
 
-function Pillar({ number, icon, title, description, children, checklist }: PillarProps): ReactElement
-{
+function Pillar({
+  icon,
+  title,
+  description,
+  children,
+  checklist,
+}: PillarProps): ReactElement {
   return (
     <article className={styles.pillar}>
       <div className={styles.pillarHeader}>
-        <span className={styles.number}>{number}</span>
         <span className={styles.pillarIcon}>{icon}</span>
         <div>
           <h3>{title}</h3>
@@ -85,9 +96,7 @@ function Pillar({ number, icon, title, description, children, checklist }: Pilla
         </div>
       </div>
 
-      <div className={styles.visual}>
-        {children}
-      </div>
+      <div className={styles.visual}>{children}</div>
 
       <ul className={styles.checklist}>
         {checklist.map((item) => (
@@ -101,8 +110,7 @@ function Pillar({ number, icon, title, description, children, checklist }: Pilla
   );
 }
 
-function PhoneMockup(): ReactElement
-{
+function PhoneMockup(): ReactElement {
   return (
     <div className={styles.orderVisual}>
       <div className={styles.phone}>
@@ -145,7 +153,9 @@ function PhoneMockup(): ReactElement
             <div className={styles.pizzaThumb} />
             <div>
               <strong>Diavola</strong>
-              <small>Pomodoro San Marzano, mozzarella fior di latte, salame piccante</small>
+              <small>
+                Pomodoro San Marzano, mozzarella fior di latte, salame piccante
+              </small>
               <b>8,50 €</b>
             </div>
             <span>+</span>
@@ -171,8 +181,7 @@ function PhoneMockup(): ReactElement
   );
 }
 
-function DeliveryMockup(): ReactElement
-{
+function DeliveryMockup(): ReactElement {
   return (
     <div className={styles.mapCard}>
       <div className={styles.deliveryPanel}>
@@ -185,10 +194,15 @@ function DeliveryMockup(): ReactElement
             <small>Il tuo rider</small>
           </div>
         </div>
-        <p>Consegna prevista <b>18:45</b></p>
+        <p>
+          Consegna prevista <b>18:45</b>
+        </p>
         <ol>
           {TIMELINE.map((step) => (
-            <li key={step.label} className={step.active ? styles.activeStep : ""}>
+            <li
+              key={step.label}
+              className={step.active ? styles.activeStep : ""}
+            >
               <span />
               <b>{step.label}</b>
               <small>{step.time}</small>
@@ -198,8 +212,14 @@ function DeliveryMockup(): ReactElement
       </div>
 
       <svg className={styles.mapRoute} viewBox="0 0 520 360" aria-hidden="true">
-        <path className={styles.streetWide} d="M40 82h440M20 184h480M90 18v320M205 35v310M330 20v310M450 40v300" />
-        <path className={styles.streetThin} d="M30 126 490 52M56 272 474 112M130 338 498 236M14 226 244 42M284 338 506 122" />
+        <path
+          className={styles.streetWide}
+          d="M40 82h440M20 184h480M90 18v320M205 35v310M330 20v310M450 40v300"
+        />
+        <path
+          className={styles.streetThin}
+          d="M30 126 490 52M56 272 474 112M130 338 498 236M14 226 244 42M284 338 506 122"
+        />
         <path className={styles.routeDark} d="M248 116 220 174 284 228" />
         <path className={styles.routeRed} d="M284 228 354 152 444 222" />
         <circle className={styles.routeEnd} cx="444" cy="222" r="8" />
@@ -217,54 +237,100 @@ function DeliveryMockup(): ReactElement
   );
 }
 
-function GrowthMockup(): ReactElement
-{
+function GrowthMockup(): ReactElement {
   return (
     <div className={styles.growthGrid}>
-      <MetricCard title="Fatturato" value="12.345 €" delta="↑ 24% vs settimana scorsa">
+      <MetricCard
+        title="Fatturato"
+        value="12.345 €"
+        delta="↑ 24% vs settimana scorsa"
+      >
         <svg viewBox="0 0 200 60" aria-hidden="true">
           <path d="M4 48 C20 24 34 42 48 34 S75 16 94 35 S124 28 138 18 S164 24 178 8 S190 14 198 3" />
         </svg>
       </MetricCard>
 
-      <MetricCard title="Clienti fidelizzati" value="1.248" delta="↑ 18% vs settimana scorsa">
+      <MetricCard
+        title="Clienti fidelizzati"
+        value="1.248"
+        delta="↑ 18% vs settimana scorsa"
+      >
         <div className={styles.customers}>
           {CUSTOMER_AVATARS.map((color, index) => (
             <span
               key={color}
-              style={{ "--avatar-color": color, "--avatar-index": index } as CSSProperties}
+              style={
+                {
+                  "--avatar-color": color,
+                  "--avatar-index": index,
+                } as CSSProperties
+              }
             />
           ))}
           <b>+127</b>
         </div>
       </MetricCard>
 
-      <MetricCard title="Clienti che tornano" value="42%" delta="↑ 12% vs settimana scorsa">
-        <div className={styles.donut} />
-      </MetricCard>
+      <RetentionCard />
 
       <div className={styles.aiCard}>
         <div className={styles.aiTitle}>
           <SparkleIcon />
           <strong>Suggerimento AI</strong>
         </div>
-        <p>Questa sera vendi di più se spingi Margherita + Birra Moretti.</p>
-        <button type="button">Crea promo</button>
+        <p>
+          Aumentare il prezzo della Capricciosa di 0,50€ non influenza la
+          domanda.
+        </p>
+        <button type="button">Aumenta Prezzo</button>
       </div>
     </div>
   );
 }
 
-interface MetricCardProps
-{
+function RetentionCard(): ReactElement {
+  return (
+    <article className={`${styles.metricCard} ${styles.retentionCard}`}>
+      <div className={styles.retentionHeader}>
+        <span>Clienti che tornano</span>
+        <b>+12%</b>
+      </div>
+      <strong>42%</strong>
+      <small>riordina entro 30 giorni</small>
+
+      <div className={styles.retentionSegments} aria-hidden="true">
+        {RETENTION_SEGMENTS.map((segment) => (
+          <div className={styles.retentionRow} key={segment.label}>
+            <span>{segment.label}</span>
+            {/* <i
+              className={styles.retentionTrack}
+              style={
+                {
+                  "--retention-width": segment.width,
+                } as CSSProperties
+              }
+            /> */}
+            <b>{segment.value}</b>
+          </div>
+        ))}
+      </div>
+    </article>
+  );
+}
+
+interface MetricCardProps {
   readonly title: string;
   readonly value: string;
   readonly delta: string;
   readonly children: ReactNode;
 }
 
-function MetricCard({ title, value, delta, children }: MetricCardProps): ReactElement
-{
+function MetricCard({
+  title,
+  value,
+  delta,
+  children,
+}: MetricCardProps): ReactElement {
   return (
     <div className={styles.metricCard}>
       <span>{title}</span>
@@ -275,8 +341,7 @@ function MetricCard({ title, value, delta, children }: MetricCardProps): ReactEl
   );
 }
 
-export function CompletePlatformSection(): ReactElement
-{
+export function CompletePlatformSection(): ReactElement {
   return (
     <section
       className={styles.section}
@@ -290,7 +355,8 @@ export function CompletePlatformSection(): ReactElement
         </div>
 
         <h2 className={styles.title} id="complete-platform-title">
-          Tutto ciò che ti serve,<br />
+          Tutto ciò che ti serve,
+          <br />
           <span>in un&apos;unica piattaforma.</span>
         </h2>
 
@@ -301,7 +367,6 @@ export function CompletePlatformSection(): ReactElement
 
         <div className={styles.pillars}>
           <Pillar
-            number="01"
             icon={<SliceIcon />}
             title="Ordini Smart"
             description="Menu digitale, personalizzazioni illimitate, pagamenti online e riordini in 1 click."
@@ -311,7 +376,6 @@ export function CompletePlatformSection(): ReactElement
           </Pillar>
 
           <Pillar
-            number="02"
             icon={<ScooterIcon />}
             title="Delivery Control"
             description="Consegne ottimizzate, rider assegnati automaticamente e tracciamento live per te e i tuoi clienti."
@@ -321,7 +385,6 @@ export function CompletePlatformSection(): ReactElement
           </Pillar>
 
           <Pillar
-            number="03"
             icon={<BarsIcon />}
             title="Growth Engine"
             description="Marketing automatico, fedeltà e analisi AI per far tornare i clienti e aumentarne il valore."
@@ -347,8 +410,7 @@ export function CompletePlatformSection(): ReactElement
   );
 }
 
-function RocketIcon(): ReactElement
-{
+function RocketIcon(): ReactElement {
   return (
     <svg aria-hidden="true" viewBox="0 0 24 24">
       <path d="M5 15 3 21l6-2 8-8c2-2 3-5 3-8-3 0-6 1-8 3l-8 8Z" />
@@ -359,8 +421,7 @@ function RocketIcon(): ReactElement
   );
 }
 
-function SliceIcon(): ReactElement
-{
+function SliceIcon(): ReactElement {
   return (
     <svg aria-hidden="true" viewBox="0 0 24 24">
       <path d="M4 3 20 8 9 22 4 3Z" />
@@ -371,8 +432,7 @@ function SliceIcon(): ReactElement
   );
 }
 
-function ScooterIcon(): ReactElement
-{
+function ScooterIcon(): ReactElement {
   return (
     <svg aria-hidden="true" viewBox="0 0 24 24">
       <path d="M5 17h6l1.5-7H9L8 6H4" />
@@ -384,8 +444,7 @@ function ScooterIcon(): ReactElement
   );
 }
 
-function BarsIcon(): ReactElement
-{
+function BarsIcon(): ReactElement {
   return (
     <svg aria-hidden="true" viewBox="0 0 24 24">
       <path d="M5 20V11h4v9H5Z" />
@@ -395,8 +454,7 @@ function BarsIcon(): ReactElement
   );
 }
 
-function CheckIcon(): ReactElement
-{
+function CheckIcon(): ReactElement {
   return (
     <svg aria-hidden="true" viewBox="0 0 16 16">
       <circle cx="8" cy="8" r="6" />
@@ -405,8 +463,7 @@ function CheckIcon(): ReactElement
   );
 }
 
-function MenuIcon(): ReactElement
-{
+function MenuIcon(): ReactElement {
   return (
     <svg aria-hidden="true" viewBox="0 0 20 20">
       <path d="M4 6h12M4 10h12M4 14h12" />
@@ -414,8 +471,7 @@ function MenuIcon(): ReactElement
   );
 }
 
-function CartIcon(): ReactElement
-{
+function CartIcon(): ReactElement {
   return (
     <svg aria-hidden="true" viewBox="0 0 20 20">
       <path d="M5 6h12l-1.2 6H7L5 3H2" />
@@ -425,8 +481,7 @@ function CartIcon(): ReactElement
   );
 }
 
-function SparkleIcon(): ReactElement
-{
+function SparkleIcon(): ReactElement {
   return (
     <svg aria-hidden="true" viewBox="0 0 20 20">
       <path d="M10 2 8.5 7.5 3 9l5.5 1.5L10 16l1.5-5.5L17 9l-5.5-1.5L10 2Z" />
@@ -434,8 +489,7 @@ function SparkleIcon(): ReactElement
   );
 }
 
-function ShieldIcon(): ReactElement
-{
+function ShieldIcon(): ReactElement {
   return (
     <svg aria-hidden="true" viewBox="0 0 24 24">
       <path d="M12 3 5 6v5c0 4.4 2.7 8 7 10 4.3-2 7-5.6 7-10V6l-7-3Z" />
@@ -444,8 +498,7 @@ function ShieldIcon(): ReactElement
   );
 }
 
-function LockIcon(): ReactElement
-{
+function LockIcon(): ReactElement {
   return (
     <svg aria-hidden="true" viewBox="0 0 24 24">
       <rect x="5" y="10" width="14" height="10" rx="2" />
@@ -454,8 +507,7 @@ function LockIcon(): ReactElement
   );
 }
 
-function BoltIcon(): ReactElement
-{
+function BoltIcon(): ReactElement {
   return (
     <svg aria-hidden="true" viewBox="0 0 24 24">
       <path d="m13 2-8 12h7l-1 8 8-12h-7l1-8Z" />
@@ -463,8 +515,7 @@ function BoltIcon(): ReactElement
   );
 }
 
-function HeadsetIcon(): ReactElement
-{
+function HeadsetIcon(): ReactElement {
   return (
     <svg aria-hidden="true" viewBox="0 0 24 24">
       <path d="M4 13a8 8 0 0 1 16 0" />
@@ -475,8 +526,7 @@ function HeadsetIcon(): ReactElement
   );
 }
 
-function StarIcon(): ReactElement
-{
+function StarIcon(): ReactElement {
   return (
     <svg aria-hidden="true" viewBox="0 0 24 24">
       <path d="m12 3 2.7 5.5 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.8 1-6.1-4.4-4.3 6.1-.9L12 3Z" />

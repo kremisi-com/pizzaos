@@ -115,54 +115,38 @@
   position: relative;
   z-index: 1;
   display: grid;
-  grid-template-columns: 172px 1fr;
+  grid-template-columns: 170px minmax(0, 1fr);
   min-height: 596px;
-  border: 1px solid rgba(32, 25, 20, 0.1);
-  border-radius: 18px;
-  background: #ffffff;
-  box-shadow: 0 30px 76px rgba(32, 25, 20, 0.1);
+  border: 1px solid rgba(31, 28, 25, 0.1);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.82);
+  box-shadow: 0 24px 58px rgba(31, 28, 25, 0.08);
   overflow: hidden;
 }
 
 .sidebar {
   display: flex;
   flex-direction: column;
-  padding: 24px 12px 18px;
-  background:
-    radial-gradient(circle at 20% 16%, rgba(244, 58, 38, 0.18), transparent 26%),
-    linear-gradient(135deg, #151515 0%, #080808 100%);
-  color: #ffffff;
+  gap: 22px;
+  padding: 26px 14px;
+  border-right: 1px solid rgba(31, 28, 25, 0.08);
+  background: rgba(255, 255, 255, 0.62);
 }
 
-.logo {
+.brand {
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin: 0 10px 22px;
+  min-height: 24px;
 }
 
-.logo strong {
-  color: #ffffff;
-  font-family: var(--font-heading);
-  font-size: 25px;
-  font-weight: 900;
-  letter-spacing: 0;
-  line-height: 1;
-}
-
-.logo span {
-  color: var(--color-brand-red);
-}
-
-.logo svg {
-  width: 28px;
-  height: 28px;
-  color: var(--color-brand-red);
+.logoImage {
+  width: 118px;
+  height: auto;
 }
 
 .sideNav {
   display: grid;
-  gap: 7px;
+  gap: 6px;
 }
 
 .sideItem {
@@ -170,16 +154,17 @@
   grid-template-columns: 18px 1fr auto;
   gap: 10px;
   align-items: center;
-  min-height: 34px;
-  padding: 8px 10px;
+  min-height: 36px;
+  padding: 10px 12px;
   border-radius: 8px;
-  color: rgba(255, 255, 255, 0.82);
-  font-size: 13px;
-  font-weight: 600;
+  color: #4e5560;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
 }
 
 .sideItemActive {
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(244, 58, 38, 0.1);
   color: var(--color-brand-red);
 }
 
@@ -194,46 +179,52 @@
   text-align: center;
 }
 
-.storeCard {
+.restaurantAccount {
   display: grid;
-  grid-template-columns: 34px 1fr;
-  gap: 9px;
+  grid-template-columns: 18px 1fr;
+  gap: 10px;
   align-items: center;
-  margin: auto 6px 0;
-  color: #ffffff;
+  margin-top: auto;
+  padding: 13px 12px;
+  border-radius: 10px;
+  background:
+    radial-gradient(
+      circle at 100% 0%,
+      rgba(244, 58, 38, 0.08),
+      transparent 46%
+    ),
+    linear-gradient(135deg, #fbf5ef 0%, #f5faf5 100%);
 }
 
-.avatar {
-  width: 34px;
-  height: 34px;
-  display: grid;
-  place-items: center;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #f4b184, #9d4b2f);
-  color: #16100c;
-  font-size: 11px;
-  font-weight: 900;
+.restaurantAccount svg {
+  width: 18px;
+  height: 18px;
+  color: var(--color-brand-red);
 }
 
-.storeCard strong,
-.storeCard span {
+.restaurantAccount strong,
+.restaurantAccount span {
   display: block;
-  line-height: 1.22;
+  line-height: 1.12;
 }
 
-.storeCard strong {
-  font-size: 11px;
-  font-weight: 800;
+.restaurantAccount strong {
+  color: #111318;
+  font-size: 13px;
+  font-weight: 900;
+  text-transform: lowercase;
 }
 
-.storeCard span {
-  color: rgba(255, 255, 255, 0.68);
+.restaurantAccount span {
+  margin-top: 5px;
+  color: #5a616b;
   font-size: 10px;
+  font-weight: 700;
 }
 
 .board {
   min-width: 0;
-  padding: 28px 28px 34px;
+  padding: 26px 24px 30px;
 }
 
 .boardHeader {
@@ -980,6 +971,16 @@
   stroke-linecap: round;
   stroke-linejoin: round;
   stroke-width: 2.2;
+}
+
+.sideItem svg {
+  width: 14px;
+  height: 14px;
+  color: #5f6670;
+}
+
+.sideItemActive svg {
+  color: var(--color-brand-red);
 }
 
 .logo svg circle {

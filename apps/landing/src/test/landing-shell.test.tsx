@@ -60,6 +60,11 @@ describe("landing shell", () =>
     expect(markup).toContain("Delivery Control");
     expect(markup).toContain("Growth Engine");
     expect(markup).toContain("Lista allergeni e impasti");
+    expect(markup).toContain("Pagamenti online sicuri");
+    expect(markup).toContain("Assegnazione rider automatica");
+    expect(markup).toContain("Campagne clienti ricorrenti");
+    expect(markup).toContain("riordina entro 30 giorni");
+    expect(markup).toContain("Secondo ordine");
     expect(markup).toContain("Zero commissioni");
   });
 
@@ -86,7 +91,7 @@ describe("landing shell", () =>
     expect(markup).toContain("Più ordini diretti.");
     expect(markup).toContain("Più <span>margine</span> per te.");
     expect(markup).toContain("Marketplace");
-    expect(markup).toContain("Pizza<span>OS</span>");
+    expect(markup).toContain("%2Fimages%2Flogo.png");
     expect(markup).toContain("Commissioni sugli ordini");
     expect(markup).toContain("Il cliente è tuo");
     expect(markup).toContain("Dati e analytics");
@@ -106,13 +111,15 @@ describe("landing shell", () =>
     expect(markup).toContain("Analytics avanzate");
     expect(markup).toContain("Previsioni di vendita");
     expect(markup).toContain("Panoramica");
+    expect(markup).toContain("%2Fimages%2Flogo.png");
+    expect(markup).toContain("pizza demo");
+    expect(markup).not.toContain("Suggerimento AI");
     expect(markup).toContain("Fatturato");
     expect(markup).toContain("Vendite per categoria");
     expect(markup).toContain("Insight AI per il tuo business");
     expect(markup).toContain("Hai troppo impasto Kamut");
     expect(markup).toContain("Questo cliente torna ogni venerdì");
-    expect(markup).toContain("Trasforma i dati in crescita reale");
-    expect(markup).toContain("Scopri come i dati fanno la differenza");
+    expect(markup).toContain("Prova la dashboard");
   });
 
   it("renders the seventh intelligent orders section from the supplied dashboard screen", () =>
@@ -126,7 +133,8 @@ describe("landing shell", () =>
     expect(markup).toContain("Rush Hours");
     expect(markup).toContain("Ordini in tempo reale");
     expect(markup).toContain("#1258");
-    expect(markup).toContain("Pizzeria Bella Napoli");
+    expect(markup).toContain("%2Fimages%2Flogo.png");
+    expect(markup).toContain("pizza demo");
     expect(markup).toContain("Integrazioni attive");
     expect(markup).toContain("Invio comande automatico");
     expect(markup).toContain("Scopri tutte le funzionalità");
@@ -137,20 +145,25 @@ describe("landing shell", () =>
     const markup = renderToString(createElement(ChainManagementSection));
 
     expect(markup).toContain("GESTIONE CATENE");
-    expect(markup).toContain("Una piattaforma. Tutte le tue pizzerie.");
-    expect(markup).toContain("Controllo totale, ovunque tu sia.");
+    expect(markup).toContain("Una piattaforma.");
+    expect(markup).toContain("Tutte le tue pizzerie.");
+    expect(markup).toContain("Controllo totale,");
+    expect(markup).toContain("ovunque tu sia.");
+    expect(markup).toContain("Network in tempo reale");
+    expect(markup).toContain("Vista unica su tutta la catena");
+    expect(markup).toContain("300+");
     expect(markup).toContain("Gestione centralizzata");
     expect(markup).toContain("Dati consolidati");
     expect(markup).toContain("Standard e qualità");
     expect(markup).toContain("Pricing e menu coordinati");
     expect(markup).toContain("Ruoli e permessi");
+    expect(markup).toContain("%2Fimages%2Flogo.png");
     expect(markup).toContain("Panoramica network");
     expect(markup).toContain("Performance per pizzeria");
     expect(markup).toContain("Mappa pizzerie");
     expect(markup).toContain("Report automatici");
     expect(markup).toContain("Alert intelligenti");
     expect(markup).toContain("Sincronizzazione totale");
-    expect(markup).toContain("Gestisci tutte le tue pizzerie");
   });
 
   it("renders the ninth pricing section from the supplied screen", () =>

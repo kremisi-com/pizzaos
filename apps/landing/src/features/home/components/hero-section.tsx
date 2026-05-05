@@ -38,35 +38,9 @@ export function HeroSection({ onRequestDemo }: HeroSectionProps): ReactElement {
           <p className={styles.subline}>
             Più ordini. Più clienti. Più controllo.
             <br />
-            Tutto in un&apos;unica piattaforma, zero commissioni
-            <br />
-            sugli ordini.
+            Tutto in un&apos;unica piattaforma, zero commissioni.
           </p>
 
-          {/* CTA row — following the exact design of the reference */}
-          <div className={styles.ctaRow}>
-            <button
-              type="button"
-              onClick={onRequestDemo}
-              className={styles.primaryCta}
-              id="hero-primary-cta"
-            >
-              <span>Prova la Demo!</span>
-              <svg
-                className={styles.ctaArrowIcon}
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M5 12h14M12 5l7 7-7 7" />
-              </svg>
-            </button>
-          </div>
           <div className={styles.featureStrip}>
             <div className={styles.featureStripInner}>
               {/* Feature 1: Online Orders */}
@@ -164,6 +138,31 @@ export function HeroSection({ onRequestDemo }: HeroSectionProps): ReactElement {
                 </div>
               </div>
             </div>
+          </div>
+
+          {/* CTA row — following the exact design of the reference */}
+          <div className={styles.ctaRow}>
+            <button
+              type="button"
+              onClick={onRequestDemo}
+              className={styles.primaryCta}
+              id="hero-primary-cta"
+            >
+              <span>Prova la Demo!</span>
+              <svg
+                className={styles.ctaArrowIcon}
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M5 12h14M12 5l7 7-7 7" />
+              </svg>
+            </button>
           </div>
         </div>
 

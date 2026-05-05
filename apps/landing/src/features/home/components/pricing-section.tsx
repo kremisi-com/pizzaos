@@ -1,8 +1,7 @@
 import type { ReactElement } from "react";
 import styles from "./pricing-section.module.css";
 
-interface Plan
-{
+interface Plan {
   readonly name: "Start" | "Grow" | "Scale" | "Enterprise";
   readonly target: string;
   readonly price: string;
@@ -23,10 +22,10 @@ const PLANS: readonly Plan[] = [
       "App e sito personalizzati",
       "Pagamenti online",
       "Dashboard ordini",
-      "Supporto via email"
+      "Supporto via email",
     ],
     cta: "Scegli Start",
-    highlighted: false
+    highlighted: false,
   },
   {
     name: "Grow",
@@ -38,10 +37,10 @@ const PLANS: readonly Plan[] = [
       "Programmi fedeltà e coupon",
       "Statistiche e analytics avanzate",
       "Integrazione Deliveroo",
-      "Supporto prioritario"
+      "Supporto prioritario",
     ],
     cta: "Scegli Grow",
-    highlighted: true
+    highlighted: true,
   },
   {
     name: "Scale",
@@ -53,10 +52,10 @@ const PLANS: readonly Plan[] = [
       "Inventario e costi avanzati",
       "Pricing dinamico",
       "API e integrazioni avanzate",
-      "Account manager dedicato"
+      "Account manager dedicato",
     ],
     cta: "Scegli Scale",
-    highlighted: false
+    highlighted: false,
   },
   {
     name: "Enterprise",
@@ -68,11 +67,11 @@ const PLANS: readonly Plan[] = [
       "Integrazioni su misura",
       "SLA dedicati",
       "Formazione e onboarding",
-      "Supporto dedicato 24/7"
+      "Supporto dedicato 24/7",
     ],
     cta: "Contattaci",
-    highlighted: false
-  }
+    highlighted: false,
+  },
 ] as const;
 
 const COMPARISON_ROWS = [
@@ -83,41 +82,45 @@ const COMPARISON_ROWS = [
   ["Marketing e loyalty", false, true, true, true],
   ["Analytics avanzate", false, true, true, true],
   ["Gestione multi-sede", false, false, true, true],
-  ["Supporto prioritario", false, true, true, true]
+  ["Supporto prioritario", false, true, true, true],
 ] as const;
 
 const TRUST_ITEMS = [
   {
     icon: <EuroIcon />,
     title: "Nessuna commissione",
-    copy: "Tieni il 100% dei tuoi guadagni."
+    copy: "Tieni il 100% dei tuoi guadagni.",
   },
   {
     icon: <FileIcon />,
     title: "Cancella quando vuoi",
-    copy: "Nessun vincolo, nessuna penale."
+    copy: "Nessun vincolo, nessuna penale.",
   },
   {
     icon: <ShieldIcon />,
     title: "Aggiornamenti inclusi",
-    copy: "Nuove funzionalità sempre comprese."
+    copy: "Nuove funzionalità sempre comprese.",
   },
   {
     icon: <LockIcon />,
     title: "Sicurezza e privacy",
-    copy: "Dati protetti e conformi GDPR."
-  }
+    copy: "Dati protetti e conformi GDPR.",
+  },
 ] as const;
 
-interface PricingSectionProps
-{
+interface PricingSectionProps {
   readonly onRequestDemo: () => void;
 }
 
-export function PricingSection({ onRequestDemo }: PricingSectionProps): ReactElement
-{
+export function PricingSection({
+  onRequestDemo,
+}: PricingSectionProps): ReactElement {
   return (
-    <section className={styles.section} id="piani" aria-labelledby="pricing-title">
+    <section
+      className={styles.section}
+      id="piani"
+      aria-labelledby="pricing-title"
+    >
       <div className={styles.inner}>
         <div className={styles.eyebrow}>
           <RocketIcon />
@@ -125,18 +128,20 @@ export function PricingSection({ onRequestDemo }: PricingSectionProps): ReactEle
         </div>
 
         <h2 className={styles.title} id="pricing-title">
-          Scegli il piano.<br />
+          Scegli il piano.
+          <br />
           Cresci <span>senza commissioni.</span>
         </h2>
 
         <p className={styles.subtitle}>
-          Zero commissioni sugli ordini, solo un canone mensile in base al piano scelto.<br />
+          Zero commissioni sugli ordini, solo un canone mensile in base al piano
+          scelto.
+          <br />
           Tutte le funzionalità incluse, nessuna sorpresa.
         </p>
 
         <div className={styles.planGrid} aria-label="Piani PizzaOS">
-          {PLANS.map((plan) =>
-          {
+          {PLANS.map((plan) => {
             const isHighlighted = "highlighted" in plan && plan.highlighted;
             const suffix = "suffix" in plan ? plan.suffix : undefined;
 
@@ -145,7 +150,9 @@ export function PricingSection({ onRequestDemo }: PricingSectionProps): ReactEle
                 className={`${styles.planCard} ${isHighlighted ? styles.highlighted : ""}`}
                 key={plan.name}
               >
-                {isHighlighted ? <span className={styles.ribbon}>PIÙ SCELTO</span> : null}
+                {isHighlighted ? (
+                  <span className={styles.ribbon}>CONSIGLIATO</span>
+                ) : null}
                 <h3>{plan.name}</h3>
                 <p>{plan.target}</p>
 
@@ -157,7 +164,9 @@ export function PricingSection({ onRequestDemo }: PricingSectionProps): ReactEle
                 <div className={styles.divider} />
 
                 <span className={styles.includes}>
-                  {plan.name === "Start" ? "Incluso:" : `Tutto di ${previousPlanName(plan.name)}, più:`}
+                  {plan.name === "Start"
+                    ? "Incluso:"
+                    : `Tutto di ${previousPlanName(plan.name)}, più:`}
                 </span>
 
                 <ul className={styles.featureList}>
@@ -185,46 +194,57 @@ export function PricingSection({ onRequestDemo }: PricingSectionProps): ReactEle
           <div className={styles.comparisonCard}>
             <h3>Confronto piani</h3>
 
-            <div className={styles.table} role="table" aria-label="Confronto funzionalità per piano">
+            <div
+              className={styles.table}
+              role="table"
+              aria-label="Confronto funzionalità per piano"
+            >
               <div className={styles.headerRow} role="row">
                 <div role="columnheader" />
                 <div role="columnheader">
                   <strong>START</strong>
-                  <span>49 € / mese</span>
                 </div>
                 <div role="columnheader">
                   <strong>GROW</strong>
-                  <span>99 € / mese</span>
                 </div>
                 <div role="columnheader">
                   <strong>SCALE</strong>
-                  <span>199 € / mese</span>
                 </div>
                 <div role="columnheader">
                   <strong>ENTERPRISE</strong>
-                  <span>Su misura</span>
                 </div>
               </div>
 
-              {COMPARISON_ROWS.map(([label, start, grow, scale, enterprise]) => (
-                <div className={styles.featureRow} role="row" key={label}>
-                  <div className={styles.rowLabel} role="cell">
-                    <span className={styles.rowIcon}>
-                      <SmallFeatureIcon />
-                    </span>
-                    {label}
-                  </div>
-                  {[start, grow, scale, enterprise].map((isIncluded, index) => (
-                    <div className={styles.availability} role="cell" key={`${label}-${index}`}>
-                      {isIncluded ? <CheckIcon /> : <MinusIcon />}
+              {COMPARISON_ROWS.map(
+                ([label, start, grow, scale, enterprise]) => (
+                  <div className={styles.featureRow} role="row" key={label}>
+                    <div className={styles.rowLabel} role="cell">
+                      <span className={styles.rowIcon}>
+                        <SmallFeatureIcon />
+                      </span>
+                      {label}
                     </div>
-                  ))}
-                </div>
-              ))}
+                    {[start, grow, scale, enterprise].map(
+                      (isIncluded, index) => (
+                        <div
+                          className={styles.availability}
+                          role="cell"
+                          key={`${label}-${index}`}
+                        >
+                          {isIncluded ? <CheckIcon /> : <MinusIcon />}
+                        </div>
+                      ),
+                    )}
+                  </div>
+                ),
+              )}
             </div>
           </div>
 
-          <aside className={styles.trustCard} aria-label="Trasparenza prezzi PizzaOS">
+          <aside
+            className={styles.trustCard}
+            aria-label="Trasparenza prezzi PizzaOS"
+          >
             <div className={styles.trustHeading}>
               <span>
                 <EuroIcon />
@@ -261,10 +281,16 @@ export function PricingSection({ onRequestDemo }: PricingSectionProps): ReactEle
             <GiftIcon />
           </span>
           <div>
-            <strong>Prova gratuita di 14 giorni, senza impegno.</strong>
-            <p>Attiva il tuo piano e inizia a ricevere ordini in pochi minuti.</p>
+            <strong>Prova gratuita di 60 giorni, senza impegno.</strong>
+            <p>
+              Attiva il tuo piano e inizia a ricevere ordini in pochi minuti.
+            </p>
           </div>
-          <button className={styles.trialCta} type="button" onClick={onRequestDemo}>
+          <button
+            className={styles.trialCta}
+            type="button"
+            onClick={onRequestDemo}
+          >
             Inizia la prova gratuita
             <ArrowIcon />
           </button>
@@ -274,23 +300,19 @@ export function PricingSection({ onRequestDemo }: PricingSectionProps): ReactEle
   );
 }
 
-function previousPlanName(planName: string): string
-{
-  if (planName === "Grow")
-  {
+function previousPlanName(planName: string): string {
+  if (planName === "Grow") {
     return "Start";
   }
 
-  if (planName === "Scale")
-  {
+  if (planName === "Scale") {
     return "Grow";
   }
 
   return "Scale";
 }
 
-function RocketIcon(): ReactElement
-{
+function RocketIcon(): ReactElement {
   return (
     <svg aria-hidden="true" viewBox="0 0 24 24">
       <path d="M14 4c2.4-.7 4.4-.7 5.8.2.8 1.5.8 3.4.1 5.9l-5 5-4.9-4.9 4-6.2Z" />
@@ -301,8 +323,7 @@ function RocketIcon(): ReactElement
   );
 }
 
-function CheckIcon(): ReactElement
-{
+function CheckIcon(): ReactElement {
   return (
     <svg aria-hidden="true" viewBox="0 0 24 24">
       <circle cx="12" cy="12" r="8" />
@@ -311,8 +332,7 @@ function CheckIcon(): ReactElement
   );
 }
 
-function MinusIcon(): ReactElement
-{
+function MinusIcon(): ReactElement {
   return (
     <svg aria-hidden="true" className="not-included" viewBox="0 0 24 24">
       <circle cx="12" cy="12" r="8" />
@@ -321,8 +341,7 @@ function MinusIcon(): ReactElement
   );
 }
 
-function EuroIcon(): ReactElement
-{
+function EuroIcon(): ReactElement {
   return (
     <svg aria-hidden="true" viewBox="0 0 24 24">
       <circle cx="12" cy="12" r="8" />
@@ -333,8 +352,7 @@ function EuroIcon(): ReactElement
   );
 }
 
-function FileIcon(): ReactElement
-{
+function FileIcon(): ReactElement {
   return (
     <svg aria-hidden="true" viewBox="0 0 24 24">
       <path d="M8 3.8h5.8L18 8v12.2H8z" />
@@ -344,8 +362,7 @@ function FileIcon(): ReactElement
   );
 }
 
-function ShieldIcon(): ReactElement
-{
+function ShieldIcon(): ReactElement {
   return (
     <svg aria-hidden="true" viewBox="0 0 24 24">
       <path d="M12 3.6 18.3 6v5.2c0 4.1-2.2 7.2-6.3 9.2-4.1-2-6.3-5.1-6.3-9.2V6z" />
@@ -354,8 +371,7 @@ function ShieldIcon(): ReactElement
   );
 }
 
-function LockIcon(): ReactElement
-{
+function LockIcon(): ReactElement {
   return (
     <svg aria-hidden="true" viewBox="0 0 24 24">
       <path d="M7.5 10.2h9v8.5h-9z" />
@@ -365,8 +381,7 @@ function LockIcon(): ReactElement
   );
 }
 
-function PercentIcon(): ReactElement
-{
+function PercentIcon(): ReactElement {
   return (
     <svg aria-hidden="true" viewBox="0 0 24 24">
       <circle cx="8" cy="8" r="2.2" />
@@ -376,8 +391,7 @@ function PercentIcon(): ReactElement
   );
 }
 
-function GiftIcon(): ReactElement
-{
+function GiftIcon(): ReactElement {
   return (
     <svg aria-hidden="true" viewBox="0 0 24 24">
       <path d="M4.5 9h15v11h-15z" />
@@ -389,8 +403,7 @@ function GiftIcon(): ReactElement
   );
 }
 
-function ArrowIcon(): ReactElement
-{
+function ArrowIcon(): ReactElement {
   return (
     <svg aria-hidden="true" viewBox="0 0 24 24">
       <path d="M5 12h14" />
@@ -399,8 +412,7 @@ function ArrowIcon(): ReactElement
   );
 }
 
-function SmallFeatureIcon(): ReactElement
-{
+function SmallFeatureIcon(): ReactElement {
   return (
     <svg aria-hidden="true" viewBox="0 0 24 24">
       <rect x="6" y="6" width="12" height="12" rx="3" />

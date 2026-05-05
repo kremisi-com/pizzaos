@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import type { ReactElement } from "react";
 import styles from "./intelligent-orders-section.module.css";
 
@@ -6,23 +7,18 @@ const ORDER_PILLARS = [
   {
     icon: <RoutingIcon />,
     title: "Smistamento automatico",
-    text: "Ogni ordine viene inviato al reparto giusto: cucina, bar, forno, delivery e molto altro."
+    text: "Ogni ordine viene inviato al reparto giusto: cucina, bar, forno, delivery e molto altro.",
   },
   {
     icon: <PriorityIcon />,
     title: "Prioritizzazione intelligente",
-    text: "Al tavolo > Asporto > Delivery. Tu decidi le regole, PizzaOS le applica."
+    text: "Al tavolo > Asporto > Delivery. Tu decidi le regole, PizzaOS le applica.",
   },
   {
     icon: <ClockIcon />,
     title: "Tempi stimati per reparto",
-    text: "Ogni reparto conosce i propri tempi e l'ordine viene aggiornato in automatico."
+    text: "Ogni reparto conosce i propri tempi e l'ordine viene aggiornato in automatico.",
   },
-  {
-    icon: <BoltIcon />,
-    title: "Modalità Rush Hours",
-    text: "Durante i picchi semplifichiamo il menu e blocchiamo gli ordini troppo complessi."
-  }
 ] as const;
 
 const NAV_ITEMS = [
@@ -34,7 +30,7 @@ const NAV_ITEMS = [
   { label: "Inventario", icon: <BoxIcon /> },
   { label: "Clienti", icon: <UserIcon /> },
   { label: "Marketing", icon: <MegaphoneIcon /> },
-  { label: "Impostazioni", icon: <SettingsIcon /> }
+  { label: "Impostazioni", icon: <SettingsIcon /> },
 ] satisfies readonly {
   readonly label: string;
   readonly count?: string;
@@ -46,7 +42,7 @@ const ORDER_FILTERS = [
   { label: "Tutti", count: "23", active: true },
   { label: "Al tavolo", count: "8" },
   { label: "Asporto", count: "6" },
-  { label: "Delivery", count: "9" }
+  { label: "Delivery", count: "9" },
 ] satisfies readonly {
   readonly label: string;
   readonly count: string;
@@ -66,7 +62,7 @@ const LANES = [
         items: ["2x Margherita DOP", "1x Diavola", "1x Bufalina"],
         customer: "Luca R.",
         footer: "Prep. stimata",
-        time: "12 min"
+        time: "12 min",
       },
       {
         id: "#1257",
@@ -75,9 +71,9 @@ const LANES = [
         items: ["1x Capricciosa", "1x Crocchè"],
         customer: "Marco B.",
         footer: "Prep. stimata",
-        time: "10 min"
-      }
-    ]
+        time: "10 min",
+      },
+    ],
   },
   {
     title: "Forno",
@@ -91,7 +87,7 @@ const LANES = [
         items: ["1x Margherita DOP", "1x 4 Formaggi"],
         customer: "Giulia P.",
         footer: "In forno",
-        time: "5 min"
+        time: "5 min",
       },
       {
         id: "#1255",
@@ -100,9 +96,9 @@ const LANES = [
         items: ["2x Marinara", "1x Fritti misti"],
         customer: "Andrea M.",
         footer: "In forno",
-        time: "7 min"
-      }
-    ]
+        time: "7 min",
+      },
+    ],
   },
   {
     title: "Bar",
@@ -116,7 +112,7 @@ const LANES = [
         items: ["2x Coca Cola", "2x Birra Moretti", "1x Acqua frizzante"],
         customer: "Elisa T.",
         footer: "Prep. stimata",
-        time: "4 min"
+        time: "4 min",
       },
       {
         id: "#1253",
@@ -125,9 +121,9 @@ const LANES = [
         items: ["1x Spritz", "1x Lemon Soda"],
         customer: "Francesco P.",
         footer: "Prep. stimata",
-        time: "3 min"
-      }
-    ]
+        time: "3 min",
+      },
+    ],
   },
   {
     title: "Delivery",
@@ -141,7 +137,7 @@ const LANES = [
         items: ["1x Margherita", "1x Patatine fritte", "1x Coca Cola"],
         customer: "Sara G.",
         footer: "In consegna",
-        time: "15 min"
+        time: "15 min",
       },
       {
         id: "#1251",
@@ -150,10 +146,10 @@ const LANES = [
         items: ["1x Diavola", "1x Birra Moretti"],
         customer: "Lorenzo V.",
         footer: "Assegnato a Rider Luca",
-        time: ""
-      }
-    ]
-  }
+        time: "",
+      },
+    ],
+  },
 ] as const;
 
 const INTEGRATIONS = ["deliveroo", "Glovo", "JUST EAT"] as const;
@@ -162,46 +158,50 @@ const AUTO_SEND = [
   { label: "Stampante", icon: <PrinterIcon /> },
   { label: "Display cucina", icon: <DisplayIcon /> },
   { label: "Tablet reparto", icon: <TabletIcon /> },
-  { label: "Notifiche push", icon: <BellIcon /> }
+  { label: "Notifiche push", icon: <BellIcon /> },
 ] as const;
 
 const BENEFITS = [
   {
     icon: <ShieldIcon />,
     title: "Meno errori",
-    text: "Ordini sempre chiari e senza fraintendimenti."
+    text: "Ordini sempre chiari e senza fraintendimenti.",
   },
   {
     icon: <SpeedIcon />,
     title: "Più velocità",
-    text: "Processi più rapidi e reparti sempre allineati."
+    text: "Processi più rapidi e reparti sempre allineati.",
   },
   {
     icon: <TargetIcon />,
     title: "Più controllo",
-    text: "Monitora ogni ordine in tempo reale."
+    text: "Monitora ogni ordine in tempo reale.",
   },
   {
     icon: <SmileIcon />,
     title: "Clienti più felici",
-    text: "Ordini puntuali, comunicazioni chiare, esperienze top."
-  }
+    text: "Ordini puntuali, comunicazioni chiare, esperienze top.",
+  },
 ] as const;
 
-export function IntelligentOrdersSection(): ReactElement
-{
+export function IntelligentOrdersSection(): ReactElement {
   return (
-    <section className={styles.section} id="gestione-ordini" aria-labelledby="intelligent-orders-title">
+    <section
+      className={styles.section}
+      id="gestione-ordini"
+      aria-labelledby="intelligent-orders-title"
+    >
       <div className={styles.inner}>
         <div className={styles.topGrid}>
           <div className={styles.copyColumn}>
-            <div className={styles.eyebrow}>
+            {/* <div className={styles.eyebrow}>
               <RocketIcon />
               GESTIONE ORDINI INTELLIGENTE
-            </div>
+            </div> */}
 
             <h2 className={styles.title} id="intelligent-orders-title">
-              Tutto sotto controllo,<br />
+              Tutto sotto controllo,
+              <br />
               <span>ogni ordine al posto giusto.</span>
             </h2>
 
@@ -224,7 +224,6 @@ export function IntelligentOrdersSection(): ReactElement
           </div>
 
           <div className={styles.visualColumn}>
-            <RushHoursCard />
             <DashboardMockup />
           </div>
         </div>
@@ -239,7 +238,9 @@ export function IntelligentOrdersSection(): ReactElement
             <span className={styles.panelTitle}>Integrazioni attive</span>
             <div className={styles.integrationLogos}>
               {INTEGRATIONS.map((integration) => (
-                <strong className={styles.integrationLogo} key={integration}>{integration}</strong>
+                <strong className={styles.integrationLogo} key={integration}>
+                  {integration}
+                </strong>
               ))}
               <span>e molti altri</span>
             </div>
@@ -281,54 +282,30 @@ export function IntelligentOrdersSection(): ReactElement
   );
 }
 
-function RushHoursCard(): ReactElement
-{
-  return (
-    <aside className={styles.rushCard} aria-label="Modalità Rush Hours attiva">
-      <div className={styles.rushEyebrow}>
-        <BoltIcon />
-        RUSH HOURS ATTIVA
-      </div>
-      <div className={styles.rushHeader}>
-        <h3>Rush Hours</h3>
-        <span className={styles.toggle} aria-hidden="true" />
-      </div>
-      <p>Menu semplificato attivo dalle 19:00 alle 22:30</p>
-      <ul className={styles.rushList}>
-        <li>Pizze complesse disabilitate</li>
-        <li>Ingredienti limitati</li>
-        <li>Tempi di preparazione ottimizzati</li>
-        <li>Notifica clienti attiva</li>
-      </ul>
-      <div className={styles.rushStats}>
-        <SpeedIcon />
-        <div>
-          <span>Ordini gestiti</span>
-          <strong>42</strong>
-        </div>
-        <div>
-          <span>Tempo medio</span>
-          <strong>18 min</strong>
-        </div>
-        <small>+28% efficienza</small>
-      </div>
-    </aside>
-  );
-}
-
-function DashboardMockup(): ReactElement
-{
+function DashboardMockup(): ReactElement {
   return (
     <div className={styles.dashboard} aria-label="Dashboard ordini PizzaOS">
       <aside className={styles.sidebar}>
-        <div className={styles.logo}>
-          <SliceIcon />
-          <strong>Pizza<span>OS</span></strong>
+        <div className={styles.brand}>
+          <Image
+            className={styles.logoImage}
+            src="/images/logo.png"
+            alt="PizzaOS"
+            width={1663}
+            height={332}
+            priority={false}
+          />
         </div>
 
-        <nav className={styles.sideNav} aria-label="Navigazione dashboard simulata">
+        <nav
+          className={styles.sideNav}
+          aria-label="Navigazione dashboard simulata"
+        >
           {NAV_ITEMS.map((item) => (
-            <div className={`${styles.sideItem} ${item.active ? styles.sideItemActive : ""}`} key={item.label}>
+            <div
+              className={`${styles.sideItem} ${item.active ? styles.sideItemActive : ""}`}
+              key={item.label}
+            >
               {item.icon}
               <span>{item.label}</span>
               {"count" in item ? <b>{item.count}</b> : null}
@@ -336,11 +313,11 @@ function DashboardMockup(): ReactElement
           ))}
         </nav>
 
-        <div className={styles.storeCard}>
-          <span className={styles.avatar}>AB</span>
+        <div className={styles.restaurantAccount}>
+          <UserIcon />
           <div>
-            <strong>Pizzeria Bella Napoli</strong>
-            <span>Napoli</span>
+            <strong>pizza demo</strong>
+            <span>centro operativo</span>
           </div>
         </div>
       </aside>
@@ -353,13 +330,18 @@ function DashboardMockup(): ReactElement
               <FilterIcon />
               Filtri
             </button>
-            <button type="button" className={styles.newOrderButton}>+ Nuovo ordine</button>
+            <button type="button" className={styles.newOrderButton}>
+              + Nuovo ordine
+            </button>
           </div>
         </header>
 
         <div className={styles.filters}>
           {ORDER_FILTERS.map((filter) => (
-            <span className={filter.active ? styles.filterActive : ""} key={filter.label}>
+            <span
+              className={filter.active ? styles.filterActive : ""}
+              key={filter.label}
+            >
               {filter.label} <b>{filter.count}</b>
             </span>
           ))}
@@ -367,7 +349,10 @@ function DashboardMockup(): ReactElement
 
         <div className={styles.lanes}>
           {LANES.map((lane) => (
-            <div className={`${styles.lane} ${styles[`lane-${lane.tone}`]}`} key={lane.title}>
+            <div
+              className={`${styles.lane} ${styles[`lane-${lane.tone}`]}`}
+              key={lane.title}
+            >
               <div className={styles.laneHeader}>
                 <strong>{lane.title}</strong>
                 <span>{lane.count}</span>
@@ -380,7 +365,9 @@ function DashboardMockup(): ReactElement
                   </div>
                   <b className={styles.destination}>{order.destination}</b>
                   <ul>
-                    {order.items.map((item) => <li key={item}>{item}</li>)}
+                    {order.items.map((item) => (
+                      <li key={item}>{item}</li>
+                    ))}
                   </ul>
                   <div className={styles.customer}>
                     <UserIcon />
@@ -400,8 +387,7 @@ function DashboardMockup(): ReactElement
   );
 }
 
-function KitchenPrinter(): ReactElement
-{
+function KitchenPrinter(): ReactElement {
   return (
     <div className={styles.printer}>
       <div className={styles.receipt}>
@@ -417,14 +403,13 @@ function KitchenPrinter(): ReactElement
   );
 }
 
-function PhoneTracker(): ReactElement
-{
+function PhoneTracker(): ReactElement {
   const steps = [
     ["Ricevuto", "09:41", true],
     ["In preparazione", "09:43", true],
     ["In forno", "09:49", true],
     ["Pronto", "09:58", true],
-    ["Consegnato", "", false]
+    ["Consegnato", "", false],
   ] as const;
 
   return (
@@ -450,8 +435,7 @@ function PhoneTracker(): ReactElement
   );
 }
 
-function RocketIcon(): ReactElement
-{
+function RocketIcon(): ReactElement {
   return (
     <svg aria-hidden="true" viewBox="0 0 24 24">
       <path d="M14 4c2.4-.7 4.4-.7 5.8.2.8 1.5.8 3.4.1 5.9l-5 5-4.9-4.9 4-6.2Z" />
@@ -462,8 +446,7 @@ function RocketIcon(): ReactElement
   );
 }
 
-function RoutingIcon(): ReactElement
-{
+function RoutingIcon(): ReactElement {
   return (
     <svg aria-hidden="true" viewBox="0 0 24 24">
       <circle cx="6" cy="17" r="2.5" />
@@ -474,8 +457,7 @@ function RoutingIcon(): ReactElement
   );
 }
 
-function PriorityIcon(): ReactElement
-{
+function PriorityIcon(): ReactElement {
   return (
     <svg aria-hidden="true" viewBox="0 0 24 24">
       <path d="M7 4v16M7 20l-3-3M7 20l3-3M17 20V4M17 4l-3 3M17 4l3 3" />
@@ -483,8 +465,7 @@ function PriorityIcon(): ReactElement
   );
 }
 
-function ClockIcon(): ReactElement
-{
+function ClockIcon(): ReactElement {
   return (
     <svg aria-hidden="true" viewBox="0 0 24 24">
       <circle cx="12" cy="12" r="8.5" />
@@ -493,8 +474,7 @@ function ClockIcon(): ReactElement
   );
 }
 
-function BoltIcon(): ReactElement
-{
+function BoltIcon(): ReactElement {
   return (
     <svg aria-hidden="true" viewBox="0 0 24 24">
       <path d="m13 2-8 12h7l-1 8 8-13h-7l1-7Z" />
@@ -502,20 +482,7 @@ function BoltIcon(): ReactElement
   );
 }
 
-function SliceIcon(): ReactElement
-{
-  return (
-    <svg aria-hidden="true" viewBox="0 0 24 24">
-      <path d="M4.5 4.2 20.5 9 9 21.2 4.5 4.2Z" />
-      <path d="M7.5 8.2c4.8.1 8.2 1.1 10.9 3.3" />
-      <circle cx="10.2" cy="11.8" r="1.2" />
-      <circle cx="13.2" cy="15.6" r="1.2" />
-    </svg>
-  );
-}
-
-function ReceiptIcon(): ReactElement
-{
+function ReceiptIcon(): ReactElement {
   return (
     <svg aria-hidden="true" viewBox="0 0 24 24">
       <path d="M7 4h10v16l-2-1.2-2 1.2-2-1.2-2 1.2-2-1.2V4Z" />
@@ -524,8 +491,7 @@ function ReceiptIcon(): ReactElement
   );
 }
 
-function HomeIcon(): ReactElement
-{
+function HomeIcon(): ReactElement {
   return (
     <svg aria-hidden="true" viewBox="0 0 24 24">
       <path d="m4 11 8-7 8 7v9h-5v-6H9v6H4v-9Z" />
@@ -533,8 +499,7 @@ function HomeIcon(): ReactElement
   );
 }
 
-function TicketIcon(): ReactElement
-{
+function TicketIcon(): ReactElement {
   return (
     <svg aria-hidden="true" viewBox="0 0 24 24">
       <path d="M5 5h14v14H5V5Z" />
@@ -543,8 +508,7 @@ function TicketIcon(): ReactElement
   );
 }
 
-function GridIcon(): ReactElement
-{
+function GridIcon(): ReactElement {
   return (
     <svg aria-hidden="true" viewBox="0 0 24 24">
       <path d="M5 5h6v6H5V5ZM13 5h6v6h-6V5ZM5 13h6v6H5v-6ZM13 13h6v6h-6v-6Z" />
@@ -552,8 +516,7 @@ function GridIcon(): ReactElement
   );
 }
 
-function MenuIcon(): ReactElement
-{
+function MenuIcon(): ReactElement {
   return (
     <svg aria-hidden="true" viewBox="0 0 24 24">
       <path d="M6 7h12M6 12h12M6 17h12" />
@@ -561,8 +524,7 @@ function MenuIcon(): ReactElement
   );
 }
 
-function BoxIcon(): ReactElement
-{
+function BoxIcon(): ReactElement {
   return (
     <svg aria-hidden="true" viewBox="0 0 24 24">
       <path d="M5 8.5 12 5l7 3.5v7L12 19l-7-3.5v-7Z" />
@@ -571,8 +533,7 @@ function BoxIcon(): ReactElement
   );
 }
 
-function UserIcon(): ReactElement
-{
+function UserIcon(): ReactElement {
   return (
     <svg aria-hidden="true" viewBox="0 0 24 24">
       <circle cx="12" cy="8" r="3.2" />
@@ -581,8 +542,7 @@ function UserIcon(): ReactElement
   );
 }
 
-function MegaphoneIcon(): ReactElement
-{
+function MegaphoneIcon(): ReactElement {
   return (
     <svg aria-hidden="true" viewBox="0 0 24 24">
       <path d="M4 13h3l9 4V7l-9 4H4v2Z" />
@@ -591,8 +551,7 @@ function MegaphoneIcon(): ReactElement
   );
 }
 
-function SettingsIcon(): ReactElement
-{
+function SettingsIcon(): ReactElement {
   return (
     <svg aria-hidden="true" viewBox="0 0 24 24">
       <circle cx="12" cy="12" r="3" />
@@ -601,8 +560,7 @@ function SettingsIcon(): ReactElement
   );
 }
 
-function FilterIcon(): ReactElement
-{
+function FilterIcon(): ReactElement {
   return (
     <svg aria-hidden="true" viewBox="0 0 24 24">
       <path d="M5 6h14l-5.4 6.2V18l-3.2 1v-6.8L5 6Z" />
@@ -610,8 +568,7 @@ function FilterIcon(): ReactElement
   );
 }
 
-function PrinterIcon(): ReactElement
-{
+function PrinterIcon(): ReactElement {
   return (
     <svg aria-hidden="true" viewBox="0 0 24 24">
       <path d="M7 8V4h10v4M7 17H5V9h14v8h-2M7 14h10v6H7v-6Z" />
@@ -620,8 +577,7 @@ function PrinterIcon(): ReactElement
   );
 }
 
-function DisplayIcon(): ReactElement
-{
+function DisplayIcon(): ReactElement {
   return (
     <svg aria-hidden="true" viewBox="0 0 24 24">
       <path d="M4 5h16v11H4V5ZM9 20h6M12 16v4" />
@@ -629,8 +585,7 @@ function DisplayIcon(): ReactElement
   );
 }
 
-function TabletIcon(): ReactElement
-{
+function TabletIcon(): ReactElement {
   return (
     <svg aria-hidden="true" viewBox="0 0 24 24">
       <rect x="7" y="3" width="10" height="18" rx="2" />
@@ -639,8 +594,7 @@ function TabletIcon(): ReactElement
   );
 }
 
-function BellIcon(): ReactElement
-{
+function BellIcon(): ReactElement {
   return (
     <svg aria-hidden="true" viewBox="0 0 24 24">
       <path d="M6 16h12l-1.3-2V10a4.7 4.7 0 0 0-9.4 0v4L6 16ZM10 19h4" />
@@ -648,8 +602,7 @@ function BellIcon(): ReactElement
   );
 }
 
-function ShieldIcon(): ReactElement
-{
+function ShieldIcon(): ReactElement {
   return (
     <svg aria-hidden="true" viewBox="0 0 24 24">
       <path d="M12 3 19 6v5c0 4.2-2.5 7.5-7 10-4.5-2.5-7-5.8-7-10V6l7-3Z" />
@@ -658,8 +611,7 @@ function ShieldIcon(): ReactElement
   );
 }
 
-function SpeedIcon(): ReactElement
-{
+function SpeedIcon(): ReactElement {
   return (
     <svg aria-hidden="true" viewBox="0 0 24 24">
       <path d="M5 17a8 8 0 1 1 14 0" />
@@ -669,8 +621,7 @@ function SpeedIcon(): ReactElement
   );
 }
 
-function TargetIcon(): ReactElement
-{
+function TargetIcon(): ReactElement {
   return (
     <svg aria-hidden="true" viewBox="0 0 24 24">
       <circle cx="12" cy="12" r="8" />
@@ -680,8 +631,7 @@ function TargetIcon(): ReactElement
   );
 }
 
-function SmileIcon(): ReactElement
-{
+function SmileIcon(): ReactElement {
   return (
     <svg aria-hidden="true" viewBox="0 0 24 24">
       <circle cx="12" cy="12" r="8" />
@@ -690,8 +640,7 @@ function SmileIcon(): ReactElement
   );
 }
 
-function ArrowIcon(): ReactElement
-{
+function ArrowIcon(): ReactElement {
   return (
     <svg aria-hidden="true" viewBox="0 0 24 24">
       <path d="M5 12h14M13 6l6 6-6 6" />

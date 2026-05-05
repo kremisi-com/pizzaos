@@ -13,8 +13,7 @@ type EcosystemIcon =
   | "inventory"
   | "integrations";
 
-interface EcosystemItem
-{
+interface EcosystemItem {
   readonly icon: EcosystemIcon;
   readonly title: string;
   readonly description: string;
@@ -26,76 +25,84 @@ const ECOSYSTEM_ITEMS: readonly EcosystemItem[] = [
   {
     icon: "orders",
     title: "Ordini digitali",
-    description: "Menù digitale con personalizzazione completa, disponibilità in tempo reale e checkout guidato.",
+    description:
+      "Menù digitale con personalizzazione completa, disponibilità in tempo reale e checkout guidato.",
     status: "live",
-    statusLabel: "Live nel POC"
+    statusLabel: "Live nel POC",
   },
   {
     icon: "analytics",
     title: "Analytics AI",
-    description: "Dashboard operativa con insight automatici, previsione della domanda e suggerimenti di pricing.",
+    description:
+      "Dashboard operativa con insight automatici, previsione della domanda e suggerimenti di pricing.",
     status: "live",
-    statusLabel: "Live nel POC"
+    statusLabel: "Live nel POC",
   },
   {
     icon: "marketing",
     title: "Marketing automation",
-    description: "Campagne personalizzate per riattivare clienti inattivi, festeggiare compleanni e fare upsell.",
+    description:
+      "Campagne personalizzate per riattivare clienti inattivi, festeggiare compleanni e fare upsell.",
     status: "live",
-    statusLabel: "Live nel POC"
+    statusLabel: "Live nel POC",
   },
   {
     icon: "delivery",
     title: "Delivery & tracciamento",
-    description: "Integrazione con rider, mappa live per il cliente e ottimizzazione dei percorsi di consegna.",
+    description:
+      "Integrazione con rider, mappa live per il cliente e ottimizzazione dei percorsi di consegna.",
     status: "live",
-    statusLabel: "Live nel POC"
+    statusLabel: "Live nel POC",
   },
   {
     icon: "group",
     title: "Ordine di gruppo",
-    description: "Lascia che i tuoi clienti ordinino insieme in tempo reale, ognuno personalizzando la propria pizza.",
+    description:
+      "Lascia che i tuoi clienti ordinino insieme in tempo reale, ognuno personalizzando la propria pizza.",
     status: "soon",
-    statusLabel: "Prossimamente"
+    statusLabel: "Prossimamente",
   },
   {
     icon: "stores",
     title: "Multi-sede",
-    description: "Gestisci più locali da un unico pannello, con dati separati, menu differenziati e staff dedicato.",
+    description:
+      "Gestisci più locali da un unico pannello, con dati separati, menu differenziati e staff dedicato.",
     status: "live",
-    statusLabel: "Live nel POC"
+    statusLabel: "Live nel POC",
   },
   {
     icon: "loyalty",
     title: "Loyalty & abbonamenti",
-    description: "Programmi fedeltà a punti, card mensili e benefici esclusivi per i clienti più affezionati.",
+    description:
+      "Programmi fedeltà a punti, card mensili e benefici esclusivi per i clienti più affezionati.",
     status: "live",
-    statusLabel: "Live nel POC"
+    statusLabel: "Live nel POC",
   },
   {
     icon: "inventory",
     title: "Gestione magazzino",
-    description: "Inventario in tempo reale collegato al menù: zero figure barbine con il «esaurito» sempre aggiornato.",
+    description:
+      "Inventario in tempo reale collegato al menù: zero figure barbine con il «esaurito» sempre aggiornato.",
     status: "soon",
-    statusLabel: "Prossimamente"
+    statusLabel: "Prossimamente",
   },
   {
     icon: "integrations",
     title: "POS & integrazioni",
-    description: "Integrazione con casse fisiche, sistemi di prenotazione tavoli e servizi di pagamento europei.",
+    description:
+      "Integrazione con casse fisiche, sistemi di prenotazione tavoli e servizi di pagamento europei.",
     status: "roadmap",
-    statusLabel: "In roadmap"
-  }
+    statusLabel: "In roadmap",
+  },
 ] as const;
 
 const STATUS_SUMMARY = [
   { value: "6", label: "moduli live nel POC" },
   { value: "2", label: "flussi pronti per evolvere" },
-  { value: "1", label: "area in roadmap" }
+  { value: "1", label: "area in roadmap" },
 ] as const;
 
-export function EcosystemSection(): ReactElement
-{
+export function EcosystemSection(): ReactElement {
   return (
     <section
       id="ecosistema"
@@ -112,18 +119,11 @@ export function EcosystemSection(): ReactElement
             Tutto ciò che una pizzeria moderna può <span>immaginare.</span>
           </h2>
           <p className={styles.description}>
-            Dal primo ordine digitale alla gestione multi-sede: PizzaOS cresce con te.
+            Dal primo ordine digitale alla gestione multi-sede: PizzaOS cresce
+            con te.
+            <br />
             Alcune funzionalità sono già live, altre in arrivo presto.
           </p>
-        </div>
-
-        <div className={styles.summary} aria-label="Stato ecosistema PizzaOS">
-          {STATUS_SUMMARY.map((item) => (
-            <div className={styles.summaryItem} key={item.label}>
-              <strong>{item.value}</strong>
-              <span>{item.label}</span>
-            </div>
-          ))}
         </div>
 
         <div className={styles.grid} role="list">
@@ -133,7 +133,9 @@ export function EcosystemSection(): ReactElement
                 <div className={styles.cardIcon} aria-hidden="true">
                   {renderIcon(item.icon)}
                 </div>
-                <span className={`${styles.cardBadge} ${styles[`cardBadge--${item.status}`]}`}>
+                <span
+                  className={`${styles.cardBadge} ${styles[`cardBadge--${item.status}`]}`}
+                >
                   {item.statusLabel}
                 </span>
               </div>
@@ -149,10 +151,8 @@ export function EcosystemSection(): ReactElement
   );
 }
 
-function renderIcon(icon: EcosystemIcon): ReactElement
-{
-  switch (icon)
-  {
+function renderIcon(icon: EcosystemIcon): ReactElement {
+  switch (icon) {
     case "orders":
       return <PhoneIcon />;
     case "analytics":
@@ -174,8 +174,7 @@ function renderIcon(icon: EcosystemIcon): ReactElement
   }
 }
 
-function EcosystemIcon(): ReactElement
-{
+function EcosystemIcon(): ReactElement {
   return (
     <svg aria-hidden="true" viewBox="0 0 24 24">
       <path d="M12 3 20 7.5v9L12 21l-8-4.5v-9L12 3Z" />
@@ -186,8 +185,7 @@ function EcosystemIcon(): ReactElement
   );
 }
 
-function PhoneIcon(): ReactElement
-{
+function PhoneIcon(): ReactElement {
   return (
     <svg aria-hidden="true" viewBox="0 0 24 24">
       <path d="M8 3h8a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z" />
@@ -197,8 +195,7 @@ function PhoneIcon(): ReactElement
   );
 }
 
-function ChartIcon(): ReactElement
-{
+function ChartIcon(): ReactElement {
   return (
     <svg aria-hidden="true" viewBox="0 0 24 24">
       <path d="M4 19V5" />
@@ -209,8 +206,7 @@ function ChartIcon(): ReactElement
   );
 }
 
-function TargetIcon(): ReactElement
-{
+function TargetIcon(): ReactElement {
   return (
     <svg aria-hidden="true" viewBox="0 0 24 24">
       <circle cx="12" cy="12" r="8" />
@@ -223,8 +219,7 @@ function TargetIcon(): ReactElement
   );
 }
 
-function ScooterIcon(): ReactElement
-{
+function ScooterIcon(): ReactElement {
   return (
     <svg aria-hidden="true" viewBox="0 0 24 24">
       <path d="M5 17h6l1.5-7H9L8 6H4" />
@@ -236,8 +231,7 @@ function ScooterIcon(): ReactElement
   );
 }
 
-function UsersIcon(): ReactElement
-{
+function UsersIcon(): ReactElement {
   return (
     <svg aria-hidden="true" viewBox="0 0 24 24">
       <circle cx="9" cy="8" r="3" />
@@ -248,8 +242,7 @@ function UsersIcon(): ReactElement
   );
 }
 
-function StoreIcon(): ReactElement
-{
+function StoreIcon(): ReactElement {
   return (
     <svg aria-hidden="true" viewBox="0 0 24 24">
       <path d="M4 10h16l-1.4-5H5.4L4 10Z" />
@@ -262,8 +255,7 @@ function StoreIcon(): ReactElement
   );
 }
 
-function GiftIcon(): ReactElement
-{
+function GiftIcon(): ReactElement {
   return (
     <svg aria-hidden="true" viewBox="0 0 24 24">
       <path d="M4 10h16v10H4V10Z" />
@@ -275,8 +267,7 @@ function GiftIcon(): ReactElement
   );
 }
 
-function BoxIcon(): ReactElement
-{
+function BoxIcon(): ReactElement {
   return (
     <svg aria-hidden="true" viewBox="0 0 24 24">
       <path d="M4 7.5 12 3l8 4.5v9L12 21l-8-4.5v-9Z" />
@@ -287,8 +278,7 @@ function BoxIcon(): ReactElement
   );
 }
 
-function GlobeIcon(): ReactElement
-{
+function GlobeIcon(): ReactElement {
   return (
     <svg aria-hidden="true" viewBox="0 0 24 24">
       <circle cx="12" cy="12" r="9" />

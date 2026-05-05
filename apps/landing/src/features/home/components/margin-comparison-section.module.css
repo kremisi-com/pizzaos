@@ -2,7 +2,11 @@
   overflow: hidden;
   padding: 34px 0 78px;
   background:
-    radial-gradient(circle at 50% 2%, rgba(244, 58, 38, 0.055), transparent 36%),
+    radial-gradient(
+      circle at 50% 2%,
+      rgba(244, 58, 38, 0.055),
+      transparent 36%
+    ),
     linear-gradient(180deg, #fffdfb 0%, #ffffff 50%, #fffdfb 100%);
 }
 
@@ -32,7 +36,6 @@
 .featureIcon svg,
 .marketplaceCell > svg,
 .pizzaosCell > svg,
-.logoMark svg,
 .bottomIcon svg,
 .cta svg,
 .ctaNote svg {
@@ -135,35 +138,14 @@
 }
 
 .logo {
-  display: inline-flex;
-  align-items: center;
-  gap: 9px;
-  color: #090909;
-  font-family: var(--font-heading);
-  font-size: clamp(30px, 2.2vw, 40px);
-  font-weight: 900;
-  line-height: 1;
-  letter-spacing: 0;
+  display: block;
+  width: clamp(148px, 12vw, 196px);
 }
 
-.logo > span:last-child span {
-  color: var(--color-brand-red);
-}
-
-.logoMark {
-  width: 34px;
-  height: 34px;
-  display: grid;
-  place-items: center;
-  border-radius: 9px;
-  background: var(--color-brand-red);
-  color: #ffffff;
-  transform: rotate(-12deg);
-}
-
-.logoMark svg {
-  width: 25px;
-  height: 25px;
+.logoImage {
+  display: block;
+  width: 100%;
+  height: auto;
 }
 
 .vsBadge {
@@ -215,6 +197,9 @@
 .rowLabel {
   gap: 18px;
   padding: 16px 22px;
+}
+.rowLabel .featureIcon {
+  padding-top: 12px;
 }
 
 .featureIcon {
@@ -359,7 +344,11 @@
   margin-top: 8px;
   padding: 20px;
   border-radius: 14px;
-  background: linear-gradient(135deg, rgba(17, 168, 101, 0.12), rgba(244, 58, 38, 0.045));
+  background: linear-gradient(
+    135deg,
+    rgba(17, 168, 101, 0.12),
+    rgba(244, 58, 38, 0.045)
+  );
 }
 
 .yearlyGain strong,
