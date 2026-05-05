@@ -12,11 +12,16 @@ import {
   useRef,
   useState,
 } from "react";
+import {
+  DEFAULT_DEMO_SUCCESS_LINKS,
+  type DemoSuccessLinks,
+} from "../demo-links";
 import styles from "./demo-request-modal.module.css";
 
 interface DemoRequestModalProps {
   readonly isOpen: boolean;
   readonly onClose: () => void;
+  readonly demoLinks?: DemoSuccessLinks;
 }
 
 interface FormData {
@@ -46,11 +51,6 @@ const EMPTY_FORM: FormData = {
   city: "",
 };
 
-export const DEMO_SUCCESS_LINKS = [
-  { label: "Demo Web-App Cliente", href: "/client" },
-  { label: "Demo Dashboard Admin", href: "/admin" },
-] as const;
-
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 function validateForm(data: FormData): FormErrors {
@@ -72,6 +72,7 @@ function validateForm(data: FormData): FormErrors {
 }
 
 export function DemoRequestModal({
+  demoLinks = DEFAULT_DEMO_SUCCESS_LINKS,
   isOpen,
   onClose,
 }: DemoRequestModalProps): ReactElement | null {
@@ -210,7 +211,7 @@ export function DemoRequestModal({
               demo di PizzaOS.
             </p>
             <div className={styles.successActions}>
-              {DEMO_SUCCESS_LINKS.map((link, index) => (
+              {demoLinks.map((link, index) => (
                 <Link
                   href={link.href}
                   className={

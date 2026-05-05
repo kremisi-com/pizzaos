@@ -5,6 +5,10 @@ import {
   type LandingSeed,
 } from "@pizzaos/mock-data";
 import { useState, type ReactElement } from "react";
+import {
+  DEFAULT_DEMO_SUCCESS_LINKS,
+  type DemoSuccessLinks,
+} from "../demo-links";
 import { AnalyticsGrowthSection } from "./analytics-growth-section";
 import { DemoRequestModal } from "./demo-request-modal";
 import { ChainManagementSection } from "./chain-management-section";
@@ -21,6 +25,10 @@ import { PricingSection } from "./pricing-section";
 
 const APP_ID = "landing" as const;
 
+interface LandingShellProps {
+  readonly demoLinks?: DemoSuccessLinks;
+}
+
 function resolveStorage(): Storage | undefined {
   if (typeof window === "undefined") {
     return undefined;
@@ -29,7 +37,9 @@ function resolveStorage(): Storage | undefined {
   return window.localStorage;
 }
 
-export function LandingShell(): ReactElement {
+export function LandingShell({
+  demoLinks = DEFAULT_DEMO_SUCCESS_LINKS,
+}: LandingShellProps): ReactElement {
   const [seed] = useState<LandingSeed>(() =>
     loadDemoState(APP_ID, { storage: resolveStorage() }),
   );
@@ -95,7 +105,11 @@ export function LandingShell(): ReactElement {
       <Footer />
 
       {/* Demo request modal */}
-      <DemoRequestModal isOpen={isModalOpen} onClose={handleCloseModal} />
+      <DemoRequestModal
+        demoLinks={demoLinks}
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+      />
     </>
   );
 }

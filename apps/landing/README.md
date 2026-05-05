@@ -39,6 +39,8 @@ From repository root:
 ## Environment
 
 - `KREMISI_MAIL_ENDPOINT`: optional server-only endpoint for demo request submissions. Defaults to `https://api.kremisi.com/pizzaos-mail.php`.
+- `LINK_CLIENT`: optional client demo URL shown after the demo request form succeeds. Defaults to `/client`.
+- `LINK_ADMIN`: optional admin demo URL shown after the demo request form succeeds. Defaults to `/admin`.
 
 ## Vercel
 
