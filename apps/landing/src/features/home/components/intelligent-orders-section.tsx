@@ -158,14 +158,28 @@ const LANES = [
   },
 ] as const;
 
+type IntegrationPartner = {
+  readonly name: string;
+  readonly logo?: {
+    readonly src: string;
+    readonly width: number;
+    readonly height: number;
+  };
+};
+
 const INTEGRATIONS = [
   {
     name: "Deliveroo",
-    logoSrc: "/images/deliveroo.png",
-    logoWidth: 1280,
-    logoHeight: 342,
+    logo: {
+      src: "/images/deliveroo.png",
+      width: 1280,
+      height: 342,
+    },
   },
-] as const;
+  {
+    name: "UberEats",
+  },
+] satisfies readonly IntegrationPartner[];
 
 const AUTO_SEND = [
   { label: "Stampante", icon: <PrinterIcon /> },
@@ -250,15 +264,26 @@ export function IntelligentOrdersSection(): ReactElement {
               rider interna: gli ordini possono integrarsi con Deliveroo,
               mantenendo controllo operativo e semplicità di gestione.
             </p>
-            <strong className={styles.integrationLogo}>
-              <Image
-                className={styles.integrationLogoImage}
-                src={INTEGRATIONS[0].logoSrc}
-                alt={INTEGRATIONS[0].name}
-                width={INTEGRATIONS[0].logoWidth}
-                height={INTEGRATIONS[0].logoHeight}
-              />
-            </strong>
+            <div className={styles.integrationLogos}>
+              {INTEGRATIONS.map((integration) => (
+                <strong
+                  className={styles.integrationLogo}
+                  key={integration.name}
+                >
+                  {integration.logo ? (
+                    <Image
+                      className={styles.integrationLogoImage}
+                      src={integration.logo.src}
+                      alt={integration.name}
+                      width={integration.logo.width}
+                      height={integration.logo.height}
+                    />
+                  ) : (
+                    integration.name
+                  )}
+                </strong>
+              ))}
+            </div>
           </div>
 
           <div className={styles.panelDivider} />

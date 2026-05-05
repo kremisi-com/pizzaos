@@ -130,6 +130,7 @@ describe("landing shell", () => {
     expect(markup).toContain("non vuole gestire una flotta di");
     expect(markup).toContain("integrarsi con Deliveroo");
     expect(markup).toContain("%2Fimages%2Fdeliveroo.png");
+    expect(markup).toContain(">UberEats</strong>");
     expect(markup).not.toContain(">deliveroo</strong>");
     expect(markup).toContain("Invio comande automatico");
     expect(markup).toContain("Scopri tutte le funzionalità");
@@ -141,6 +142,7 @@ describe("landing shell", () => {
     expect(markup).not.toContain("Integrazioni attive");
     expect(markup).toContain("%2Fimages%2Fdeliveroo.png");
     expect(markup).toContain('alt="Deliveroo"');
+    expect(markup).toContain(">UberEats</strong>");
     expect(markup).not.toContain(">deliveroo</strong>");
   });
 
