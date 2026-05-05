@@ -8,7 +8,7 @@ import {
   getDemoStateStorageKey,
   type AdminSeed
 } from "@pizzaos/mock-data";
-import { type OrderStatus, type Product, type Menu } from "@pizzaos/domain";
+import { type OrderStatus, type Product, type Menu, type Ingredient } from "@pizzaos/domain";
 import { Button, Card, StatusIndicator } from "@pizzaos/ui";
 import { useState, type ReactElement, useEffect } from "react";
 import { OrdersDashboard } from "../../orders/components/orders-dashboard";
@@ -53,6 +53,7 @@ export function AdminShell(): ReactElement
   const busyRidersCount = activeDataset.riders?.filter(r => r.status === "busy").length ?? 0;
 
   const topInsight = activeDataset.insights?.[0];
+  const inventoryIngredients: readonly Ingredient[] = activeDataset.products.flatMap((product) => product.ingredients ?? []);
 
   useEffect(() => {
     const storage = resolveStorage();
@@ -469,6 +470,8 @@ export function AdminShell(): ReactElement
           <MarketingManager
             coupons={activeDataset.coupons ?? []}
             loyaltyConfig={activeDataset.loyaltyConfig}
+            isDynamicPricingEnabled={activeDataset.isDynamicPricingEnabled}
+            onToggleDynamicPricing={handleToggleDynamicPricing}
             onCreateCoupon={() => alert("Funzionalità di creazione coupon in arrivo (POC)")}
           />
         ) : activeTab === "analytics" ? (
@@ -487,9 +490,7 @@ export function AdminShell(): ReactElement
         ) : activeTab === "inventory" ? (
           <InventoryManager
             inventory={activeDataset.inventory}
-            products={activeDataset.products}
-            isDynamicPricingEnabled={activeDataset.isDynamicPricingEnabled}
-            onToggleDynamicPricing={handleToggleDynamicPricing}
+            ingredients={inventoryIngredients}
             onUpdateInventoryItem={handleUpdateInventoryItem}
           />
         ) : (

@@ -233,7 +233,7 @@ export interface InventoryItem
   readonly id: EntityIdentifier;
   readonly storeId: EntityIdentifier;
   readonly sku: string;
-  readonly productId: EntityIdentifier;
+  readonly ingredientId: EntityIdentifier;
   readonly availableUnits: number;
   readonly reorderThreshold: number;
   readonly status: InventoryStatus;

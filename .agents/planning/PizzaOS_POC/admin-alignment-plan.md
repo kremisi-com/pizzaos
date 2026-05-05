@@ -52,6 +52,7 @@ Pseudo-correlazione forte tra Client e Admin, senza sync runtime:
   **Done quando:** prodotto salvabile con nome/descrizione/prezzo/ingredienti e allergeni ricalcolati dagli ingredienti.
 ---
 ### Fase 4 — Magazzino ingredienti + move Dynamic Pricing (Admin + Shared)
+- Stato: ✅ completata (magazzino ingredient-first con alert operativi, Dynamic Pricing spostato in Marketing)
 - Migrare Magazzino da stock pizze/prodotti a stock ingredienti
 - Aggiornare tabella, alert, soglie, azioni operative
 - Spostare Dynamic Pricing da Magazzino a Marketing

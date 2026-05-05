@@ -779,10 +779,10 @@ export const ADMIN_DATASET_TEMPLATES: Readonly<Record<EntityIdentifier, AdminDat
       )
     ],
     inventory: [
-      createInventoryItem("inv-roma-01", "store-roma-centro", "PIZ-MARG-01", "product-margherita", 42, 15),
-      createInventoryItem("inv-roma-02", "store-roma-centro", "PIZ-DIAV-02", "product-diavola", 21, 12),
-      createInventoryItem("inv-roma-03", "store-roma-centro", "PIZ-CAPR-03", "product-capricciosa", 9, 10),
-      createInventoryItem("inv-roma-04", "store-roma-centro", "PIZ-VEGE-04", "product-vegetariana", 0, 8)
+      createInventoryItem("inv-roma-01", "store-roma-centro", "ING-FIOR-01", "ingredient-fiordilatte", 42, 15),
+      createInventoryItem("inv-roma-02", "store-roma-centro", "ING-POMS-02", "ingredient-pomodoro-san-marzano", 21, 12),
+      createInventoryItem("inv-roma-03", "store-roma-centro", "ING-FUNG-03", "ingredient-funghi", 9, 10),
+      createInventoryItem("inv-roma-04", "store-roma-centro", "ING-CARC-04", "ingredient-carciofi", 0, 8)
     ],
     analytics: {
       storeId: "store-roma-centro",
@@ -935,10 +935,10 @@ export const ADMIN_DATASET_TEMPLATES: Readonly<Record<EntityIdentifier, AdminDat
       )
     ],
     inventory: [
-      createInventoryItem("inv-milano-01", "store-milano-navigli", "PIZ-4FOR-05", "product-4-formaggi", 6, 12),
-      createInventoryItem("inv-milano-02", "store-milano-navigli", "PIZ-TONN-06", "product-tonno-cipolla", 4, 8),
-      createInventoryItem("inv-milano-03", "store-milano-navigli", "PIZ-CALZ-07", "product-calzone", 0, 5),
-      createInventoryItem("inv-milano-04", "store-milano-navigli", "PIZ-DIAV-02", "product-diavola", 19, 9)
+      createInventoryItem("inv-milano-01", "store-milano-navigli", "ING-GORG-05", "ingredient-gorgonzola", 6, 12),
+      createInventoryItem("inv-milano-02", "store-milano-navigli", "ING-TONN-06", "ingredient-tonno", 4, 8),
+      createInventoryItem("inv-milano-03", "store-milano-navigli", "ING-RICO-07", "ingredient-ricotta", 0, 5),
+      createInventoryItem("inv-milano-04", "store-milano-navigli", "ING-POMO-08", "ingredient-pomodoro", 19, 9)
     ],
     analytics: {
       storeId: "store-milano-navigli",
@@ -1072,32 +1072,32 @@ export const ADMIN_DATASET_TEMPLATES: Readonly<Record<EntityIdentifier, AdminDat
       createInventoryItem(
         "inv-torino-01",
         "store-torino-porta-nuova",
-        "PIZ-VEGE-04",
-        "product-vegetariana",
+        "ING-FIOR-09",
+        "ingredient-fiordilatte",
         12,
         10
       ),
       createInventoryItem(
         "inv-torino-02",
         "store-torino-porta-nuova",
-        "PIZ-CALZ-07",
-        "product-calzone",
+        "ING-PROV-10",
+        "ingredient-provola",
         8,
         6
       ),
       createInventoryItem(
         "inv-torino-03",
         "store-torino-porta-nuova",
-        "PIZ-MARG-01",
-        "product-margherita",
+        "ING-POMS-11",
+        "ingredient-pomodoro-san-marzano",
         3,
         8
       ),
       createInventoryItem(
         "inv-torino-04",
         "store-torino-porta-nuova",
-        "FOC-ROSM-08",
-        "product-focaccia-rosmarino",
+        "ING-FARI-12",
+        "ingredient-farina",
         18,
         10
       )

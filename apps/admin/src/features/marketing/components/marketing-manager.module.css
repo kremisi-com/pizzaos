@@ -210,6 +210,32 @@
   font-weight: 700;
 }
 
+.dynamicPricingCard {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.dynamicPricingHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.dynamicPricingLabel {
+  font-weight: 600;
+}
+
+.dynamicPricingDescription {
+  margin: 0;
+  color: #4b5563;
+  font-size: 0.875rem;
+}
+
+.dynamicPricingButton {
+  width: 100%;
+}
+
 /* Loyalty Panel - Keep for reference or potential removal later */
 .loyaltyPanel {
   background: #111827;

@@ -72,7 +72,7 @@ export function createInventoryItem(
   id: EntityIdentifier,
   storeId: EntityIdentifier,
   sku: string,
-  productId: EntityIdentifier,
+  ingredientId: EntityIdentifier,
   availableUnits: number,
   reorderThreshold: number
 ): InventoryItem
@@ -81,7 +81,7 @@ export function createInventoryItem(
     id,
     storeId,
     sku,
-    productId,
+    ingredientId,
     availableUnits,
     reorderThreshold,
     status: getInventoryStatus(availableUnits, reorderThreshold)

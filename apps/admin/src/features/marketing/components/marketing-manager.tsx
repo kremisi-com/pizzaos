@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import type { Coupon, LoyaltySystemConfig, LoyaltyTierConfig } from "@pizzaos/domain";
+import { Badge, Button, Card } from "@pizzaos/ui";
 import { formatMoney, getCouponStatusLabel, DEFAULT_AUTOMATION_RULES, type AutomationRule } from "../marketing-utils";
 import styles from "./marketing-manager.module.css";
 
@@ -12,6 +13,8 @@ interface MarketingManagerProps {
   onEditLoyaltyTier?: (tier: LoyaltyTierConfig) => void;
   onUpdatePointsPerEuro?: (points: number) => void;
   onToggleAutomation?: (ruleId: string, enabled: boolean) => void;
+  isDynamicPricingEnabled?: boolean;
+  onToggleDynamicPricing?: () => void;
 }
 
 export function MarketingManager({
@@ -21,6 +24,8 @@ export function MarketingManager({
   onEditLoyaltyTier,
   onUpdatePointsPerEuro,
   onToggleAutomation,
+  isDynamicPricingEnabled = false,
+  onToggleDynamicPricing,
 }: MarketingManagerProps) {
   const [automations, setAutomations] = useState<AutomationRule[]>(DEFAULT_AUTOMATION_RULES);
 
@@ -117,6 +122,29 @@ export function MarketingManager({
           ))}
           {coupons.length === 0 && <p>Nessun coupon attivo.</p>}
         </div>
+      </section>
+
+      <section className={styles.section}>
+        <Card title="Ottimizzazione Business">
+          <div className={styles.dynamicPricingCard}>
+            <div className={styles.dynamicPricingHeader}>
+              <span className={styles.dynamicPricingLabel}>Dynamic Pricing</span>
+              <Badge tone={isDynamicPricingEnabled ? "success" : "neutral"}>
+                {isDynamicPricingEnabled ? "ATTIVO" : "DISATTIVO"}
+              </Badge>
+            </div>
+            <p className={styles.dynamicPricingDescription}>
+              Regola automaticamente i prezzi in base alla domanda e alla disponibilita degli ingredienti.
+            </p>
+            <Button
+              variant={isDynamicPricingEnabled ? "secondary" : "primary"}
+              onClick={onToggleDynamicPricing}
+              className={styles.dynamicPricingButton}
+            >
+              {isDynamicPricingEnabled ? "Disabilita Prezzi Dinamici" : "Abilita Prezzi Dinamici"}
+            </Button>
+          </div>
+        </Card>
       </section>
 
       <section className={styles.section}>
