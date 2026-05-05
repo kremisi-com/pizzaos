@@ -127,7 +127,7 @@ export function LandingShell({
       </main>
 
       {/* Footer */}
-      <Footer />
+      <Footer onRequestDemo={handleOpenModal} />
 
       {/* Demo request modal */}
       <DemoRequestModal

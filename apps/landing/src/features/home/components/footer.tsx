@@ -1,37 +1,38 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { ReactElement } from "react";
+import type { DemoRequestIntent } from "../demo-request-mail";
 import styles from "./footer.module.css";
 
 const NAV_COLUMNS = [
   {
     title: "Prodotto",
     links: [
-      { label: "Ordinazione digitale", href: "#ordinazione" },
-      { label: "Marketing automation", href: "#marketing" },
-      { label: "Analytics & AI", href: "#analytics" },
-      { label: "Delivery & ops", href: "#operazioni" },
+      { label: "Soluzione completa", href: "#soluzione-completa" },
+      { label: "Gestione ordini", href: "#gestione-ordini" },
+      { label: "Analytics & AI", href: "#dati-crescita" },
+      { label: "Gestione catene", href: "#gestione-catene" },
       { label: "Ecosistema", href: "#ecosistema" },
-    ],
-  },
-  {
-    title: "Demo",
-    links: [
-      { label: "App cliente", href: "/client" },
-      { label: "Dashboard admin", href: "/admin" },
     ],
   },
   {
     title: "Differenziali",
     links: [
-      { label: "Zero commissioni", href: "#differenziazione" },
-      { label: "Dati tuoi", href: "#differenziazione" },
-      { label: "Setup 24h", href: "#differenziazione" },
+      { label: "Meno costi, più margine", href: "#prezzi" },
+      { label: "Piani semplici", href: "#piani" },
+      { label: "Prova gratuita", href: "#richiedi-demo" },
+      { label: "Domande frequenti", href: "#faq" },
     ],
   },
 ] as const;
 
-export function Footer(): ReactElement {
+const DEMO_LINKS = ["App cliente", "Dashboard admin"] as const;
+
+interface FooterProps {
+  readonly onRequestDemo: (intent?: DemoRequestIntent) => void;
+}
+
+export function Footer({ onRequestDemo }: FooterProps): ReactElement {
   const year = new Date().getFullYear();
 
   return (
@@ -66,6 +67,20 @@ export function Footer(): ReactElement {
               ))}
             </div>
           ))}
+
+          <div className={styles.col}>
+            <span className={styles.colTitle}>Demo</span>
+            {DEMO_LINKS.map((label) => (
+              <button
+                key={label}
+                className={styles.colLink}
+                type="button"
+                onClick={() => onRequestDemo()}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Bottom bar */}

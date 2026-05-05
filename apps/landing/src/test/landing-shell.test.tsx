@@ -9,6 +9,7 @@ import { EcosystemSection } from "../features/home/components/ecosystem-section"
 import { FaqSection } from "../features/home/components/faq-section";
 import { FeatureDifferenceSection } from "../features/home/components/feature-difference-section";
 import { FinalCtaSection } from "../features/home/components/final-cta-section";
+import { Footer } from "../features/home/components/footer";
 import { IntelligentOrdersSection } from "../features/home/components/intelligent-orders-section";
 import { LandingShell } from "../features/home/components/landing-shell";
 import { MarginComparisonSection } from "../features/home/components/margin-comparison-section";
@@ -24,6 +25,26 @@ describe("landing shell", () => {
     expect(markup).toContain('data-motion="fade-scale"');
     expect(markup).toContain('data-motion-state="hidden"');
     expect(markup).toContain("--motion-delay:80ms");
+  });
+
+  it("keeps footer links aligned to the current landing sections", () => {
+    const markup = renderToString(
+      createElement(Footer, { onRequestDemo: () => undefined }),
+    );
+
+    expect(markup).toContain('href="#soluzione-completa"');
+    expect(markup).toContain('href="#gestione-ordini"');
+    expect(markup).toContain('href="#dati-crescita"');
+    expect(markup).toContain('href="#gestione-catene"');
+    expect(markup).toContain('href="#ecosistema"');
+    expect(markup).toContain('href="#prezzi"');
+    expect(markup).toContain('href="#piani"');
+    expect(markup).toContain('href="#richiedi-demo"');
+    expect(markup).toContain('href="#faq"');
+    expect(markup).toContain(">App cliente</button>");
+    expect(markup).toContain(">Dashboard admin</button>");
+    expect(markup).not.toContain('href="/client"');
+    expect(markup).not.toContain('href="/admin"');
   });
 
   it("mounts the primary landing sections", () => {

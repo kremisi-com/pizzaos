@@ -62,9 +62,16 @@
 }
 
 .colLink {
+  width: fit-content;
+  padding: 0;
+  border: 0;
+  background: transparent;
   font-size: 14px;
+  font-family: inherit;
   color: rgba(255, 255, 255, 0.6);
+  text-align: left;
   text-decoration: none;
+  cursor: pointer;
   transition: color var(--duration-fast) var(--ease);
 }
 
