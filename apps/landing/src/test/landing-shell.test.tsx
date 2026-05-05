@@ -167,6 +167,8 @@ describe("landing shell", () => {
     expect(markup).toContain("Panoramica network");
     expect(markup).toContain("Performance per pizzeria");
     expect(markup).toContain("Mappa pizzerie");
+    expect(markup).toContain("%2Fimages%2Fmap.png");
+    expect(markup).toContain('alt="Mappa delle pizzerie PizzaOS"');
     expect(markup).toContain("Report automatici");
     expect(markup).toContain("Alert intelligenti");
     expect(markup).toContain("Sincronizzazione totale");
@@ -227,6 +229,7 @@ describe("landing shell", () => {
     expect(markup).toContain("Serve ancora aiuto?");
     expect(markup).toContain("WhatsApp");
     expect(markup).toContain("Centro assistenza");
+    expect(markup).toContain("%2Fimages%2Flogo.png");
     expect(markup).toContain("La piattaforma completa per pizzerie moderne.");
   });
 

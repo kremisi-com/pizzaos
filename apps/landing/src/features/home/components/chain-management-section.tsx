@@ -339,30 +339,15 @@ function MapCard(): ReactElement {
   return (
     <div className={styles.mapCard}>
       <h3>Mappa pizzerie</h3>
-      <div className={styles.mapCanvas} aria-hidden="true">
-        <svg viewBox="0 0 280 214">
-          <path className={styles.sea} d="M0 0h280v214H0z" />
-          <path
-            className={styles.land}
-            d="M0 8c38 10 51 19 87 14 34-5 55-23 93-12 33 10 52 29 87 28 7 0 11 1 13 3v173H0V8Z"
-          />
-          <path
-            className={styles.italy}
-            d="M111 31c21 11 33 28 35 51 1 14 16 16 23 25 8 10 5 22 18 28 8 4 20 5 21 14 1 8-11 11-19 9-16-3-24-15-31-25-6-10-18-14-23-25-7-15-1-29-9-44-5-10-16-13-19-24-1-5 0-8 4-9Z"
-          />
-          <path
-            className={styles.island}
-            d="M64 118c17 2 25 14 20 28-5 13-20 24-32 20-12-4-15-20-7-32 5-8 11-14 19-16Z"
-          />
-          <path
-            className={styles.island}
-            d="M147 163c13-2 26 4 29 15 3 10-6 20-20 20-13 0-24-9-22-19 1-8 5-14 13-16Z"
-          />
-        </svg>
-        <MapPin className={styles.pinNorth} count="5" tone="green" />
-        <MapPin className={styles.pinCenter} count="12" tone="yellow" />
-        <MapPin className={styles.pinSouth} count="3" tone="green" />
-        <MapPin className={styles.pinIsland} count="4" tone="green" />
+      <div className={styles.mapCanvas}>
+        <Image
+          className={styles.mapImage}
+          src="/images/map.png"
+          alt="Mappa delle pizzerie PizzaOS"
+          width={1254}
+          height={1254}
+          sizes="286px"
+        />
       </div>
       <div className={styles.legend}>
         <span>
@@ -379,20 +364,6 @@ function MapCard(): ReactElement {
         </span>
       </div>
     </div>
-  );
-}
-
-interface MapPinProps {
-  readonly className: string;
-  readonly count: string;
-  readonly tone: "green" | "yellow";
-}
-
-function MapPin({ className, count, tone }: MapPinProps): ReactElement {
-  return (
-    <span className={`${styles.mapPin} ${styles[tone]} ${className}`}>
-      {count}
-    </span>
   );
 }
 
