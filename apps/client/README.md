@@ -56,3 +56,5 @@ From repository root:
 - Create a dedicated Vercel project for this app.
 - Set `Root Directory` to `apps/client`.
 - Keep install and build aligned with the app-level `vercel.json`.
+- Use `GET /api/deploy-probe` on any assigned domain to confirm that a request reaches the client app. A Vercel-level
+  403 before this route responds points to project/domain protection or DNS routing outside the app code.

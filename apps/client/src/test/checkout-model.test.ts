@@ -16,7 +16,8 @@ const CART_ITEMS: readonly CartItem[] = [
     productName: "Margherita Classica",
     unitPriceCents: 1000,
     quantity: 2,
-    notes: "Impasto: Integrale"
+    notes: "Impasto: Integrale",
+    removedIngredients: []
   },
   {
     id: "cart-item-2",
@@ -24,7 +25,8 @@ const CART_ITEMS: readonly CartItem[] = [
     productName: "Quattro Formaggi",
     unitPriceCents: 1450,
     quantity: 1,
-    notes: "Formato: XL"
+    notes: "Formato: XL",
+    removedIngredients: []
   }
 ];
 
