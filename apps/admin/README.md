@@ -20,6 +20,7 @@ This app does not own shared package internals or other app surfaces.
 - `app/page.tsx`: admin route entry
 - `src/features/home`: initial admin shell composition
 - `src/features/orders`: live orders dashboard, order details, and kitchen/bar routing
+- `src/features/profile`: profilo ristoratore con piano attivo e stato fatturazione mock
 
 ## Shared Dependencies
 

@@ -19,6 +19,7 @@ import { MarketingManager } from "../../marketing/components/marketing-manager";
 import { AnalyticsManager } from "../../analytics/components/analytics-manager";
 import { DeliveryManager } from "../../delivery/components/delivery-manager";
 import { IntegrationsManager } from "../../integrations/components/integrations-manager";
+import { ProfileManager } from "../../profile/components/profile-manager";
 import { formatMoney } from "../../marketing/marketing-utils";
 import styles from "./admin-shell.module.css";
 
@@ -48,7 +49,7 @@ export function AdminShell(): ReactElement
 {
   const [seed, setSeed] = useState<AdminSeed>(() => loadDemoState(APP_ID, { storage: resolveStorage() }));
 
-  const [activeTab, setActiveTab] = useState<"dashboard" | "orders" | "catalog" | "inventory" | "marketing" | "analytics" | "delivery" | "integrations">("dashboard");
+  const [activeTab, setActiveTab] = useState<"dashboard" | "orders" | "catalog" | "inventory" | "marketing" | "analytics" | "delivery" | "integrations" | "profile">("dashboard");
 
   const activeDataset = seed.datasetsByStoreId[seed.activeStoreId];
 
@@ -297,6 +298,12 @@ export function AdminShell(): ReactElement
           >
             Integrazioni
           </button>
+          <button
+            onClick={() => setActiveTab("profile")}
+            className={`${styles.navButton} ${activeTab === "profile" ? styles.navItemActive : ""}`}
+          >
+            Profilo
+          </button>
         </nav>
 
         <StoreSwitcher
@@ -323,8 +330,9 @@ export function AdminShell(): ReactElement
                activeTab === "marketing" ? "Marketing & Loyalty" : 
                activeTab === "analytics" ? "Analytics and AI" : 
                activeTab === "delivery" ? "Gestione Consegne" :
-               activeTab === "integrations" ? "Integrazioni Esterne" :
-               "Gestione Operativa"}
+                activeTab === "integrations" ? "Integrazioni Esterne" :
+               activeTab === "profile" ? "Profilo Ristoratore" :
+                "Gestione Operativa"}
             </h2>
             <p>
               {activeTab === "dashboard" ? seed.subtitle : activeDataset.store.displayName}
@@ -502,6 +510,11 @@ export function AdminShell(): ReactElement
             inventory={activeDataset.inventory}
             ingredients={inventoryIngredients}
             onUpdateInventoryItem={handleUpdateInventoryItem}
+          />
+        ) : activeTab === "profile" ? (
+          <ProfileManager
+            storeId={activeDataset.store.id}
+            storeName={activeDataset.store.displayName}
           />
         ) : (
           <div>Tab non ancora implementato</div>

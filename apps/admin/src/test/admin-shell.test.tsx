@@ -22,5 +22,6 @@ describe("admin shell", () =>
     expect(markup).toContain("Insight AI");
     expect(markup).toContain("Integrazioni");
     expect(markup).toContain("Analytics and AI");
+    expect(markup).toContain("Profilo");
   });
 });

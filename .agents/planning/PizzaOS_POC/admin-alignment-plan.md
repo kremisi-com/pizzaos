@@ -69,6 +69,7 @@ Pseudo-correlazione forte tra Client e Admin, senza sync runtime:
   **Done quando:** esperienza analytics/AI più viva e coerente col racconto demo.
 ---
 ### Fase 6 — Profilo Ristoratore (Admin-only)
+- Stato: ✅ completata (area Profilo aggiunta in navigazione admin con piano attivo, cambio piano simulato e riepilogo rinnovo/fatturazione mock persistito localmente)
 - Nuova area profilo con:
     - piano attivo
     - upgrade/downgrade simulato
