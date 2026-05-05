@@ -20,6 +20,7 @@ import {
   createDemoRequestMessage,
   type DemoRequestIntent,
 } from "../demo-request-mail";
+import { POLICY_LINKS } from "../policy-links";
 import styles from "./demo-request-modal.module.css";
 
 interface DemoRequestModalProps {
@@ -34,12 +35,14 @@ interface FormData {
   readonly email: string;
   readonly pizzeriaName: string;
   readonly city: string;
+  readonly policyConsent: boolean;
 }
 
 interface FormErrors {
   readonly name?: string;
   readonly email?: string;
   readonly pizzeriaName?: string;
+  readonly policyConsent?: string;
 }
 
 interface DemoRequestSubmitResponse {
@@ -54,6 +57,7 @@ const EMPTY_FORM: FormData = {
   email: "",
   pizzeriaName: "",
   city: "",
+  policyConsent: false,
 };
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -71,6 +75,11 @@ function validateForm(data: FormData): FormErrors {
 
   if (!data.pizzeriaName.trim()) {
     errors["pizzeriaName"] = "Nome pizzeria richiesto";
+  }
+
+  if (!data.policyConsent) {
+    errors["policyConsent"] =
+      "Devi accettare Privacy Policy e Cookie Policy per inviare il form";
   }
 
   return errors;
@@ -131,7 +140,7 @@ export function DemoRequestModal({
   }
 
   function handleFieldChange(
-    field: keyof FormData,
+    field: Exclude<keyof FormData, "policyConsent">,
   ): (e: ChangeEvent<HTMLInputElement>) => void {
     return (e) => {
       setFormData((prev) => ({ ...prev, [field]: e.target.value }));
@@ -140,6 +149,14 @@ export function DemoRequestModal({
         setErrors((prev) => ({ ...prev, [field]: undefined }));
       }
     };
+  }
+
+  function handlePolicyConsentChange(e: ChangeEvent<HTMLInputElement>): void {
+    setFormData((prev) => ({ ...prev, policyConsent: e.target.checked }));
+    setSubmitError(null);
+    if (errors.policyConsent) {
+      setErrors((prev) => ({ ...prev, policyConsent: undefined }));
+    }
   }
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>): Promise<void> {
@@ -164,6 +181,7 @@ export function DemoRequestModal({
           pizzeriaName: formData.pizzeriaName,
           city: formData.city,
           message: requestMessage,
+          policyConsent: formData.policyConsent ? "accepted" : "",
         }),
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",
@@ -345,6 +363,53 @@ export function DemoRequestModal({
                   onChange={handleFieldChange("city")}
                   autoComplete="address-level2"
                 />
+              </div>
+
+              <div className={styles.consentField}>
+                <label className={styles.consentLabel} htmlFor="demo-policy">
+                  <input
+                    id="demo-policy"
+                    name="policyConsent"
+                    type="checkbox"
+                    value="accepted"
+                    checked={formData.policyConsent}
+                    onChange={handlePolicyConsentChange}
+                    aria-required="true"
+                    aria-describedby={
+                      errors.policyConsent
+                        ? "demo-policy-error"
+                        : "demo-policy-copy"
+                    }
+                  />
+                  <span id="demo-policy-copy">
+                    Accetto la{" "}
+                    <a
+                      href={POLICY_LINKS.privacy.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {POLICY_LINKS.privacy.label}
+                    </a>{" "}
+                    e la{" "}
+                    <a
+                      href={POLICY_LINKS.cookie.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {POLICY_LINKS.cookie.label}
+                    </a>{" "}
+                    di PizzaOS.
+                  </span>
+                </label>
+                {errors.policyConsent && (
+                  <span
+                    id="demo-policy-error"
+                    className={styles.error}
+                    role="alert"
+                  >
+                    {errors.policyConsent}
+                  </span>
+                )}
               </div>
 
               {/* <div className={styles.trialNote} aria-label="Offerta PizzaOS">

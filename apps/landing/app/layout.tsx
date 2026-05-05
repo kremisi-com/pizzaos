@@ -1,5 +1,10 @@
 import { getThemeClass, getThemeStyleVariables } from "@pizzaos/brand";
+import {
+  IUBENDA_SCRIPT_SRC,
+  IUBENDA_WIDGET_SCRIPT_SRC,
+} from "@/features/home/policy-links";
 import type { Metadata, Viewport } from "next";
+import Script from "next/script";
 import type { CSSProperties, ReactElement, ReactNode } from "react";
 import "./globals.css";
 import { GoogleTag } from "./google-tag";
@@ -29,6 +34,16 @@ export default function RootLayout(props: RootLayoutProps): ReactElement
       >
         {props.children}
         <GoogleTag />
+        <Script
+          id="iubenda-widget"
+          src={IUBENDA_WIDGET_SCRIPT_SRC}
+          strategy="afterInteractive"
+        />
+        <Script
+          id="iubenda-embed"
+          src={IUBENDA_SCRIPT_SRC}
+          strategy="afterInteractive"
+        />
       </body>
     </html>
   );

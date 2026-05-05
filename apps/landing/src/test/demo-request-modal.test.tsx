@@ -20,6 +20,16 @@ describe("demo request modal", () => {
     expect(markup).toContain("Apri la Demo");
     expect(markup).toContain("web-app cliente");
     expect(markup).toContain("dashboard admin");
+    expect(markup).toContain('name="policyConsent"');
+    expect(markup).toContain("Accetto la");
+    expect(markup).toContain("Privacy Policy");
+    expect(markup).toContain("Cookie Policy");
+    expect(markup).toContain(
+      "https://www.iubenda.com/privacy-policy/45209498",
+    );
+    expect(markup).toContain(
+      "https://www.iubenda.com/privacy-policy/45209498/cookie-policy",
+    );
     expect(markup).not.toContain("Prenota la tua demo");
     expect(markup).not.toContain("call di 20 minuti");
   });

@@ -41,6 +41,13 @@ describe("landing shell", () => {
     expect(markup).toContain('href="#piani"');
     expect(markup).toContain('href="#richiedi-demo"');
     expect(markup).toContain('href="#faq"');
+    expect(markup).toContain(
+      'href="https://www.iubenda.com/privacy-policy/45209498"',
+    );
+    expect(markup).toContain(
+      'href="https://www.iubenda.com/privacy-policy/45209498/cookie-policy"',
+    );
+    expect(markup).toContain("iubenda-white iubenda-noiframe iubenda-embed");
     expect(markup).toContain(">App cliente</button>");
     expect(markup).toContain(">Dashboard admin</button>");
     expect(markup).not.toContain('href="/client"');
@@ -58,7 +65,7 @@ describe("landing shell", () => {
     expect(markup).toContain("gestione-ordini");
     expect(markup).toContain("GESTIONE CATENE");
     expect(markup).toContain("PREZZI SEMPLICI");
-    expect(markup).toContain("Hai domande?");
+    expect(markup).toContain("Serve ancora aiuto");
     expect(markup).toContain("Ecosistema");
     expect(markup).toContain("Apri la demo");
     expect(markup).toContain("%2Fimages%2Flogo-light.png");
@@ -263,20 +270,14 @@ describe("landing shell", () => {
   it("renders the FAQ section from the supplied screen", () => {
     const markup = renderToString(createElement(FaqSection));
 
-    expect(markup).toContain("FAQ");
-    expect(markup).toContain("Hai domande?");
-    expect(markup).toContain("Abbiamo <span>le risposte.</span>");
-    expect(markup).toContain(
-      "Tutto quello che serve per usare PizzaOS al meglio.",
-    );
-    expect(markup).toContain("Riders e consegne");
-    expect(markup).toContain("Come posso effettuare un ordine con PizzaOS?");
-    expect(markup).toContain("Posso ordinare insieme ad amici o familiari?");
-    expect(markup).toContain("Come funziona la tessera fedeltà?");
-    expect(markup).toContain("I miei dati e i pagamenti sono sicuri?");
+    expect(markup).toContain('id="faq"');
     expect(markup).toContain("Serve ancora aiuto o sei interessato a PizzaOS?");
+    expect(markup).toContain("Il nostro team è sempre disponibile.");
+    expect(markup).toContain("Telefono e WhatsApp");
+    expect(markup).toContain("+39 351 744 4749");
     expect(markup).toContain("WhatsApp");
     expect(markup).toContain("Email");
+    expect(markup).toContain("info@kremisi.com");
     expect(markup).toContain("%2Fimages%2Flogo.png");
     expect(markup).toContain("La piattaforma completa per pizzerie moderne.");
   });

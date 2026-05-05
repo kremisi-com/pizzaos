@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import type { ReactElement } from "react";
 import type { DemoRequestIntent } from "../demo-request-mail";
+import { IUBENDA_EMBED_CLASS, POLICY_LINKS } from "../policy-links";
 import styles from "./footer.module.css";
 
 const NAV_COLUMNS = [
@@ -96,6 +97,18 @@ export function Footer({ onRequestDemo }: FooterProps): ReactElement {
             </a>
             . Tutti i diritti riservati.
           </span>
+          <div className={styles.legalLinks} aria-label="Link legali">
+            {Object.values(POLICY_LINKS).map((link) => (
+              <a
+                key={link.href}
+                href={link.href}
+                className={`${styles.legalLink} ${IUBENDA_EMBED_CLASS}`}
+                title={link.title}
+              >
+                {link.label}
+              </a>
+            ))}
+          </div>
         </div>
       </div>
     </footer>

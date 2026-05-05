@@ -1,9 +1,12 @@
+import { POLICY_CONSENT_MESSAGE } from "./policy-links";
+
 export interface DemoRequestData {
   readonly name: string;
   readonly email: string;
   readonly pizzeriaName: string;
   readonly city: string;
   readonly message?: string;
+  readonly policyConsent: boolean;
 }
 
 export interface DemoRequestMailResult {
@@ -43,6 +46,7 @@ export function readDemoRequestFormData(formData: FormData): DemoRequestData {
     pizzeriaName: getFormValue(formData, "pizzeriaName"),
     city: getFormValue(formData, "city"),
     message: getFormValue(formData, "message"),
+    policyConsent: readPolicyConsent(formData),
   };
 }
 
@@ -63,6 +67,12 @@ export function validateDemoRequestData(
     errors.push("Nome pizzeria richiesto");
   }
 
+  if (!data.policyConsent) {
+    errors.push(
+      "Devi accettare Privacy Policy e Cookie Policy per inviare il form",
+    );
+  }
+
   return errors;
 }
 
@@ -74,7 +84,7 @@ export function buildPizzaOsMailPayload(
     email: data.email.trim(),
     pizzeriaName: data.pizzeriaName.trim(),
     city: data.city.trim(),
-    message: resolveDemoRequestMessage(data.message),
+    message: resolveDemoRequestMessage(data.message, data.policyConsent),
   });
 }
 
@@ -140,12 +150,25 @@ function getFormValue(formData: FormData, key: string): string {
   return (formData.get(key) ?? "").toString().trim();
 }
 
-function resolveDemoRequestMessage(message: string | undefined): string {
-  const trimmedMessage = message?.trim();
+function readPolicyConsent(formData: FormData): boolean {
+  const value = formData.get("policyConsent");
 
-  return trimmedMessage && trimmedMessage.length > 0
-    ? trimmedMessage
-    : createDemoRequestMessage("demo-access");
+  return value === "accepted" || value === "on" || value === "true";
+}
+
+function resolveDemoRequestMessage(
+  message: string | undefined,
+  policyConsent: boolean,
+): string {
+  const trimmedMessage = message?.trim();
+  const requestMessage =
+    trimmedMessage && trimmedMessage.length > 0
+      ? trimmedMessage
+      : createDemoRequestMessage("demo-access");
+
+  return policyConsent
+    ? `${requestMessage} ${POLICY_CONSENT_MESSAGE}`
+    : requestMessage;
 }
 
 async function readMailEndpointResponse(

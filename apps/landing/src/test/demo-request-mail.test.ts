@@ -16,6 +16,7 @@ describe("demo request mail", () => {
     formData.set("pizzeriaName", " Pizzeria Demo ");
     formData.set("city", " Roma ");
     formData.set("message", ' Click su "Inizia la prova gratuita". ');
+    formData.set("policyConsent", "accepted");
 
     expect(readDemoRequestFormData(formData)).toEqual({
       name: "Mario Rossi",
@@ -23,6 +24,7 @@ describe("demo request mail", () => {
       pizzeriaName: "Pizzeria Demo",
       city: "Roma",
       message: 'Click su "Inizia la prova gratuita".',
+      policyConsent: true,
     });
   });
 
@@ -33,11 +35,27 @@ describe("demo request mail", () => {
         email: "not-an-email",
         pizzeriaName: "",
         city: "",
+        policyConsent: false,
       }),
     ).toEqual([
       "Nome richiesto",
       "Email valida richiesta",
       "Nome pizzeria richiesto",
+      "Devi accettare Privacy Policy e Cookie Policy per inviare il form",
+    ]);
+  });
+
+  it("requires policy consent for otherwise valid leads", () => {
+    expect(
+      validateDemoRequestData({
+        name: "Mario Rossi",
+        email: "mario@pizzeria.it",
+        pizzeriaName: "Pizzeria Demo",
+        city: "Roma",
+        policyConsent: false,
+      }),
+    ).toEqual([
+      "Devi accettare Privacy Policy e Cookie Policy per inviare il form",
     ]);
   });
 
@@ -62,6 +80,7 @@ describe("demo request mail", () => {
         pizzeriaName: "Pizzeria Demo",
         city: "Roma",
         message: createDemoRequestMessage("free-trial"),
+        policyConsent: true,
       },
       {
         endpoint: "https://api.kremisi.com/pizzaos-mail.php",
@@ -82,7 +101,7 @@ describe("demo request mail", () => {
       "Content-Type": "application/x-www-form-urlencoded",
     });
     expect(requests[0]?.init?.body?.toString()).toBe(
-      "name=Mario+Rossi&email=mario%40pizzeria.it&pizzeriaName=Pizzeria+Demo&city=Roma&message=Richiesta+inviata+dopo+il+click+sul+pulsante+%22Inizia+la+prova+gratuita%22.",
+      "name=Mario+Rossi&email=mario%40pizzeria.it&pizzeriaName=Pizzeria+Demo&city=Roma&message=Richiesta+inviata+dopo+il+click+sul+pulsante+%22Inizia+la+prova+gratuita%22.+Consenso+Privacy+Policy+e+Cookie+Policy+accettato.",
     );
   });
 
@@ -100,6 +119,7 @@ describe("demo request mail", () => {
         email: "bad-email",
         pizzeriaName: "",
         city: "",
+        policyConsent: false,
       },
       { fetcher },
     );
@@ -110,6 +130,7 @@ describe("demo request mail", () => {
       "Nome richiesto",
       "Email valida richiesta",
       "Nome pizzeria richiesto",
+      "Devi accettare Privacy Policy e Cookie Policy per inviare il form",
     ]);
   });
 
@@ -120,6 +141,7 @@ describe("demo request mail", () => {
       pizzeriaName: "Pizzeria Demo",
       city: "",
       message: createDemoRequestMessage("free-trial"),
+      policyConsent: true,
     });
 
     expect([...payload.entries()]).toEqual([
@@ -129,7 +151,7 @@ describe("demo request mail", () => {
       ["city", ""],
       [
         "message",
-        'Richiesta inviata dopo il click sul pulsante "Inizia la prova gratuita".',
+        'Richiesta inviata dopo il click sul pulsante "Inizia la prova gratuita". Consenso Privacy Policy e Cookie Policy accettato.',
       ],
     ]);
   });
@@ -140,10 +162,11 @@ describe("demo request mail", () => {
       email: "mario@pizzeria.it",
       pizzeriaName: "Pizzeria Demo",
       city: "",
+      policyConsent: true,
     });
 
     expect(payload.get("message")).toBe(
-      "Richiesta inviata dal form di accesso demo PizzaOS.",
+      "Richiesta inviata dal form di accesso demo PizzaOS. Consenso Privacy Policy e Cookie Policy accettato.",
     );
   });
 });

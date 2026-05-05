@@ -160,3 +160,5 @@ clean interaction states.
 - Added favicon and app icon assets cropped from the PizzaOS logo mark, plus complete SEO metadata, manifest, robots, and sitemap route coverage for the landing app.
 - Added the supplied Google tag measurement ID to the landing root layout using `next/script`, with a focused regression
   test and README coverage.
+- Added Iubenda Privacy Policy and Cookie Policy embeds to the landing footer and wired mandatory policy consent into the
+  demo request form while preserving the existing mail endpoint payload shape.

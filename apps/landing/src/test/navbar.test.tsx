@@ -20,7 +20,7 @@ describe("landing navbar", () => {
     expect(markup).toContain("Prezzi");
     expect(markup).toContain("#piani");
     expect(markup).toContain("Contatti");
-    expect(markup).toContain("#contatti");
+    expect(markup).toContain("#faq");
     expect(markup).toContain("Apri la demo");
   });
 });

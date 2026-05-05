@@ -21,7 +21,7 @@ This app does not own shared tokens, domain contracts, or reusable cross-app pri
 - `app/seo.ts`: canonical SEO metadata, viewport settings, manifest, sitemap, and robots contracts
 - `app/manifest.ts`, `app/robots.ts`, `app/sitemap.ts`: App Router metadata routes for discoverability
 - `app/page.tsx`: landing route entry
-- `src/features/home`: landing shell composition, including the hero, challenge grid, complete-platform visual section, feature-difference section, margin comparison section, analytics-growth section, intelligent order-management section, pricing section, product story sections, differentiation, FAQ, and final CTA
+- `src/features/home`: landing shell composition, including the hero, challenge grid, complete-platform visual section, feature-difference section, margin comparison section, analytics-growth section, intelligent order-management section, pricing section, product story sections, differentiation, FAQ, final CTA, Iubenda policy links, and the demo request flow
 - `public/favicon`: favicon and app icon assets cropped from the PizzaOS logo mark
 
 ## Shared Dependencies
@@ -47,6 +47,7 @@ From repository root:
 - `LINK_ADMIN`: optional admin demo URL shown after the demo request form succeeds. Defaults to `/admin`.
 - `NEXT_PUBLIC_SITE_URL`: optional canonical public URL used for SEO metadata, sitemap, and robots. Defaults to `https://pizzaos.it`.
 - Google tag measurement ID is currently configured as `G-6SN8XE5KY1` in `app/google-tag.tsx`.
+- Iubenda policy embeds are loaded from `app/layout.tsx` using the policy URLs and script sources in `src/features/home/policy-links.ts`. The demo request form requires explicit Privacy Policy and Cookie Policy consent before submission.
 
 ## Vercel
 
