@@ -9,6 +9,7 @@ import {
   DEFAULT_DEMO_SUCCESS_LINKS,
   type DemoSuccessLinks,
 } from "../demo-links";
+import type { DemoRequestIntent } from "../demo-request-mail";
 import { AnalyticsGrowthSection } from "./analytics-growth-section";
 import { DemoRequestModal } from "./demo-request-modal";
 import { ChainManagementSection } from "./chain-management-section";
@@ -45,10 +46,13 @@ export function LandingShell({
     loadDemoState(APP_ID, { storage: resolveStorage() }),
   );
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [requestIntent, setRequestIntent] =
+    useState<DemoRequestIntent>("demo-access");
 
   void seed; /* Used to trigger hydration from mock-data — future sections can consume seed data */
 
-  function handleOpenModal(): void {
+  function handleOpenModal(intent: DemoRequestIntent = "demo-access"): void {
+    setRequestIntent(intent);
     setIsModalOpen(true);
   }
 
@@ -132,6 +136,7 @@ export function LandingShell({
         demoLinks={demoLinks}
         isOpen={isModalOpen}
         onClose={handleCloseModal}
+        requestIntent={requestIntent}
       />
     </>
   );

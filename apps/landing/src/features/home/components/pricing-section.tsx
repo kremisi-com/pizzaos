@@ -1,4 +1,5 @@
 import type { ReactElement } from "react";
+import type { DemoRequestIntent } from "../demo-request-mail";
 import styles from "./pricing-section.module.css";
 
 interface Plan {
@@ -109,7 +110,7 @@ const TRUST_ITEMS = [
 ] as const;
 
 interface PricingSectionProps {
-  readonly onRequestDemo: () => void;
+  readonly onRequestDemo: (intent?: DemoRequestIntent) => void;
 }
 
 export function PricingSection({
@@ -181,7 +182,7 @@ export function PricingSection({
                 <button
                   className={`${styles.planCta} ${isHighlighted ? styles.primaryCta : ""}`}
                   type="button"
-                  onClick={onRequestDemo}
+                  onClick={() => onRequestDemo()}
                 >
                   {plan.cta}
                 </button>
@@ -289,7 +290,7 @@ export function PricingSection({
           <button
             className={styles.trialCta}
             type="button"
-            onClick={onRequestDemo}
+            onClick={() => onRequestDemo("free-trial")}
           >
             Inizia la prova gratuita
             <ArrowIcon />

@@ -209,9 +209,12 @@
   justify-content: center;
   gap: 13px;
   width: 100%;
+  border: 0;
   border-radius: 10px;
   background: linear-gradient(135deg, #ff3328 0%, #ed1815 100%);
   color: #ffffff;
+  cursor: pointer;
+  font-family: inherit;
   font-size: clamp(15px, 1.05vw, 18px);
   font-weight: 900;
   line-height: 1;

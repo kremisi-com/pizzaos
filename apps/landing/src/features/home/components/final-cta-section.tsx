@@ -1,8 +1,6 @@
-import Link from "next/link";
 import type { ReactElement } from "react";
+import type { DemoRequestIntent } from "../demo-request-mail";
 import styles from "./final-cta-section.module.css";
-
-const CLIENT_DEMO_URL = "/client" as const;
 
 const BENEFITS = [
   {
@@ -86,7 +84,7 @@ const TRUST_FEATURES = [
 ] as const;
 
 interface FinalCtaSectionProps {
-  readonly onRequestDemo: () => void;
+  readonly onRequestDemo: (intent?: DemoRequestIntent) => void;
 }
 
 export function FinalCtaSection({
@@ -142,17 +140,18 @@ export function FinalCtaSection({
                 ))}
               </ul>
 
-              <Link
-                href={CLIENT_DEMO_URL}
+              <button
+                type="button"
+                onClick={() => onRequestDemo("free-trial")}
                 className={styles.primaryCta}
                 id="footer-cta-client"
               >
                 Inizia la prova gratuita
                 <ArrowIcon />
-              </Link>
+              </button>
               <button
                 type="button"
-                onClick={onRequestDemo}
+                onClick={() => onRequestDemo()}
                 className={styles.demoLink}
                 id="footer-cta-demo"
               >

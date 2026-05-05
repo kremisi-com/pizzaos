@@ -16,12 +16,17 @@ import {
   DEFAULT_DEMO_SUCCESS_LINKS,
   type DemoSuccessLinks,
 } from "../demo-links";
+import {
+  createDemoRequestMessage,
+  type DemoRequestIntent,
+} from "../demo-request-mail";
 import styles from "./demo-request-modal.module.css";
 
 interface DemoRequestModalProps {
   readonly isOpen: boolean;
   readonly onClose: () => void;
   readonly demoLinks?: DemoSuccessLinks;
+  readonly requestIntent?: DemoRequestIntent;
 }
 
 interface FormData {
@@ -75,6 +80,7 @@ export function DemoRequestModal({
   demoLinks = DEFAULT_DEMO_SUCCESS_LINKS,
   isOpen,
   onClose,
+  requestIntent = "demo-access",
 }: DemoRequestModalProps): ReactElement | null {
   const [formData, setFormData] = useState<FormData>(EMPTY_FORM);
   const [errors, setErrors] = useState<FormErrors>({});
@@ -147,6 +153,7 @@ export function DemoRequestModal({
 
     setSubmitting(true);
     setSubmitError(null);
+    const requestMessage = createDemoRequestMessage(requestIntent);
 
     try {
       const response = await fetch("/api/demo-request", {
@@ -156,6 +163,7 @@ export function DemoRequestModal({
           email: formData.email,
           pizzeriaName: formData.pizzeriaName,
           city: formData.city,
+          message: requestMessage,
         }),
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",
@@ -207,8 +215,18 @@ export function DemoRequestModal({
             </div>
             <h2 className={styles.successTitle}>Dati inviati!</h2>
             <p className={styles.successDescription}>
-              Grazie {formData.name}! Ora puoi provare subito le due superfici
-              demo di PizzaOS.
+              {requestIntent === "free-trial" ? (
+                <>
+                  Grazie {formData.name}! Abbiamo registrato la richiesta di
+                  prova gratuita. Ora puoi provare subito le due superfici demo
+                  di PizzaOS.
+                </>
+              ) : (
+                <>
+                  Grazie {formData.name}! Ora puoi provare subito le due
+                  superfici demo di PizzaOS.
+                </>
+              )}
             </p>
             <DemoSuccessActions demoLinks={demoLinks} />
           </div>
@@ -225,6 +243,13 @@ export function DemoRequestModal({
             </p>
 
             <form className={styles.form} onSubmit={handleSubmit} noValidate>
+              <input
+                type="hidden"
+                name="message"
+                value={createDemoRequestMessage(requestIntent)}
+                readOnly
+              />
+
               <div className={styles.field}>
                 <label className={styles.label} htmlFor="demo-name">
                   Nome e cognome

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   buildPizzaOsMailPayload,
+  createDemoRequestMessage,
   readDemoRequestFormData,
   sendDemoRequestMail,
   validateDemoRequestData,
@@ -14,12 +15,14 @@ describe("demo request mail", () => {
     formData.set("email", " mario@pizzeria.it ");
     formData.set("pizzeriaName", " Pizzeria Demo ");
     formData.set("city", " Roma ");
+    formData.set("message", ' Click su "Inizia la prova gratuita". ');
 
     expect(readDemoRequestFormData(formData)).toEqual({
       name: "Mario Rossi",
       email: "mario@pizzeria.it",
       pizzeriaName: "Pizzeria Demo",
       city: "Roma",
+      message: 'Click su "Inizia la prova gratuita".',
     });
   });
 
@@ -58,6 +61,7 @@ describe("demo request mail", () => {
         email: "mario@pizzeria.it",
         pizzeriaName: "Pizzeria Demo",
         city: "Roma",
+        message: createDemoRequestMessage("free-trial"),
       },
       {
         endpoint: "https://api.kremisi.com/pizzaos-mail.php",
@@ -78,7 +82,7 @@ describe("demo request mail", () => {
       "Content-Type": "application/x-www-form-urlencoded",
     });
     expect(requests[0]?.init?.body?.toString()).toBe(
-      "name=Mario+Rossi&email=mario%40pizzeria.it&pizzeriaName=Pizzeria+Demo&city=Roma",
+      "name=Mario+Rossi&email=mario%40pizzeria.it&pizzeriaName=Pizzeria+Demo&city=Roma&message=Richiesta+inviata+dopo+il+click+sul+pulsante+%22Inizia+la+prova+gratuita%22.",
     );
   });
 
@@ -115,6 +119,7 @@ describe("demo request mail", () => {
       email: "mario@pizzeria.it",
       pizzeriaName: "Pizzeria Demo",
       city: "",
+      message: createDemoRequestMessage("free-trial"),
     });
 
     expect([...payload.entries()]).toEqual([
@@ -122,6 +127,23 @@ describe("demo request mail", () => {
       ["email", "mario@pizzeria.it"],
       ["pizzeriaName", "Pizzeria Demo"],
       ["city", ""],
+      [
+        "message",
+        'Richiesta inviata dopo il click sul pulsante "Inizia la prova gratuita".',
+      ],
     ]);
+  });
+
+  it("adds the default demo message when no source message is provided", () => {
+    const payload = buildPizzaOsMailPayload({
+      name: "Mario Rossi",
+      email: "mario@pizzeria.it",
+      pizzeriaName: "Pizzeria Demo",
+      city: "",
+    });
+
+    expect(payload.get("message")).toBe(
+      "Richiesta inviata dal form di accesso demo PizzaOS.",
+    );
   });
 });

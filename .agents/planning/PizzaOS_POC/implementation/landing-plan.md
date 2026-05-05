@@ -155,3 +155,5 @@ clean interaction states.
 - Updated the global landing brand treatment to use the curated `public/images/logo.png` asset in the navbar and footer.
 - Added lightweight scroll-triggered entrance motion across the landing page with a local `MotionReveal` wrapper, global
   `data-motion` styles, reduced-motion handling, and a subtle navbar load animation.
+- Added CTA source tracking for the landing demo form so submissions opened from "Inizia la prova gratuita" include that
+  intent in the form message sent to the mail endpoint.

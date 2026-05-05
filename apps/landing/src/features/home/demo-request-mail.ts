@@ -3,6 +3,7 @@ export interface DemoRequestData {
   readonly email: string;
   readonly pizzeriaName: string;
   readonly city: string;
+  readonly message?: string;
 }
 
 export interface DemoRequestMailResult {
@@ -27,12 +28,21 @@ interface MailEndpointResponse {
 const DEFAULT_MAIL_ENDPOINT = "https://api.kremisi.com/pizzaos-mail.php";
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+export type DemoRequestIntent = "demo-access" | "free-trial";
+
+const DEMO_REQUEST_MESSAGES: Record<DemoRequestIntent, string> = {
+  "demo-access": "Richiesta inviata dal form di accesso demo PizzaOS.",
+  "free-trial":
+    'Richiesta inviata dopo il click sul pulsante "Inizia la prova gratuita".',
+};
+
 export function readDemoRequestFormData(formData: FormData): DemoRequestData {
   return {
     name: getFormValue(formData, "name"),
     email: getFormValue(formData, "email"),
     pizzeriaName: getFormValue(formData, "pizzeriaName"),
     city: getFormValue(formData, "city"),
+    message: getFormValue(formData, "message"),
   };
 }
 
@@ -64,7 +74,12 @@ export function buildPizzaOsMailPayload(
     email: data.email.trim(),
     pizzeriaName: data.pizzeriaName.trim(),
     city: data.city.trim(),
+    message: resolveDemoRequestMessage(data.message),
   });
+}
+
+export function createDemoRequestMessage(intent: DemoRequestIntent): string {
+  return DEMO_REQUEST_MESSAGES[intent];
 }
 
 export async function sendDemoRequestMail(
@@ -123,6 +138,14 @@ export async function sendDemoRequestMail(
 
 function getFormValue(formData: FormData, key: string): string {
   return (formData.get(key) ?? "").toString().trim();
+}
+
+function resolveDemoRequestMessage(message: string | undefined): string {
+  const trimmedMessage = message?.trim();
+
+  return trimmedMessage && trimmedMessage.length > 0
+    ? trimmedMessage
+    : createDemoRequestMessage("demo-access");
 }
 
 async function readMailEndpointResponse(

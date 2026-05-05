@@ -24,6 +24,19 @@ describe("demo request modal", () => {
     expect(markup).not.toContain("call di 20 minuti");
   });
 
+  it("includes free trial context when opened from the trial CTA", () => {
+    const markup = renderToString(
+      createElement(DemoRequestModal, {
+        isOpen: true,
+        onClose: () => undefined,
+        requestIntent: "free-trial",
+      }),
+    );
+
+    expect(markup).toContain("message");
+    expect(markup).toContain("Inizia la prova gratuita");
+  });
+
   it("defines success links from configured demo surfaces", () => {
     expect(
       createDemoSuccessLinks({
