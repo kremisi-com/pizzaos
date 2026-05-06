@@ -1,3 +1,4 @@
+import Image from "next/image";
 import type { ReactElement } from "react";
 import styles from "./margin-comparison-section.module.css";
 
@@ -18,7 +19,6 @@ const COMPARISON_COLUMNS = [
   },
   {
     key: "pizzaos",
-    icon: <PizzaOsMark />,
     title: "PizzaOS",
     subtitle: "Il sistema che massimizza il profitto",
     highlighted: true,
@@ -241,16 +241,20 @@ export function MarginComparisonSection(): ReactElement {
                   key={column.key}
                   role="columnheader"
                 >
-                  <span className={styles.headerIcon}>{column.icon}</span>
-                  <strong>
-                    {column.title === "PizzaOS" ? (
-                      <>
-                        Pizza<span>OS</span>
-                      </>
-                    ) : (
-                      column.title
-                    )}
-                  </strong>
+                  {column.highlighted ? (
+                    <Image
+                      className={styles.headerLogo}
+                      src="/images/logo.png"
+                      alt="PizzaOS"
+                      width={1663}
+                      height={332}
+                    />
+                  ) : (
+                    <>
+                      <span className={styles.headerIcon}>{column.icon}</span>
+                      <strong>{column.title}</strong>
+                    </>
+                  )}
                   <small>{column.subtitle}</small>
                 </div>
               ))}
@@ -361,16 +365,6 @@ function StatusIcon({ tone }: { readonly tone: CellTone }): ReactElement {
     <span className={styles.statusIcon} aria-label="Criticità">
       <XIcon />
     </span>
-  );
-}
-
-function PizzaOsMark(): ReactElement {
-  return (
-    <svg aria-hidden="true" viewBox="0 0 24 24">
-      <path d="M12 3 20 6.4c-.6 6.2-3.2 10.8-8 13.6-4.8-2.8-7.4-7.4-8-13.6L12 3Z" />
-      <path d="M9 9.2c.7-.8 1.7-1.2 3-1.2 1.6 0 2.7.8 2.7 2 0 1.5-1.5 2-2.8 2h-1.2v3.5" />
-      <path d="M10.7 12h2.8" />
-    </svg>
   );
 }
 

@@ -106,6 +106,12 @@
   color: #ed1717;
 }
 
+.headerLogo {
+  display: block;
+  width: clamp(118px, 9.4vw, 154px);
+  height: auto;
+}
+
 .headerIcon svg,
 .featureIcon svg,
 .statusIcon svg,
