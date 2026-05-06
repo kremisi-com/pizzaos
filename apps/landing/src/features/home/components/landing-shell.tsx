@@ -86,7 +86,7 @@ export function LandingShell({
 
         {/* Analytics growth visual section */}
         <MotionReveal delay={60} stagger variant="fade-up">
-          <AnalyticsGrowthSection />
+          <AnalyticsGrowthSection onRequestDemo={handleOpenModal} />
         </MotionReveal>
 
         {/* Intelligent orders visual section */}

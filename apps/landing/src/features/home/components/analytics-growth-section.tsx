@@ -98,7 +98,13 @@ const NAV_ITEMS = [
   readonly icon: ReactElement;
 }[];
 
-export function AnalyticsGrowthSection(): ReactElement {
+interface AnalyticsGrowthSectionProps {
+  readonly onRequestDemo: () => void;
+}
+
+export function AnalyticsGrowthSection({
+  onRequestDemo,
+}: AnalyticsGrowthSectionProps): ReactElement {
   return (
     <section
       className={styles.section}
@@ -141,7 +147,7 @@ export function AnalyticsGrowthSection(): ReactElement {
 
         <div className={styles.dashboardGrid}>
           <DashboardMockup />
-          <InsightsPanel />
+          <InsightsPanel onRequestDemo={onRequestDemo} />
         </div>
       </div>
     </section>
@@ -291,7 +297,9 @@ function DashboardMockup(): ReactElement {
   );
 }
 
-function InsightsPanel(): ReactElement {
+function InsightsPanel({
+  onRequestDemo,
+}: AnalyticsGrowthSectionProps): ReactElement {
   return (
     <aside className={styles.insights}>
       <h3>Insight AI per il tuo business</h3>
@@ -308,10 +316,10 @@ function InsightsPanel(): ReactElement {
           </article>
         ))}
       </div>
-      <a href="/admin">
+      <button type="button" onClick={onRequestDemo}>
         Prova la dashboard
         <ArrowIcon />
-      </a>
+      </button>
     </aside>
   );
 }

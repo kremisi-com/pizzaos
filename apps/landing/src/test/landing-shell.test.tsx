@@ -134,7 +134,11 @@ describe("landing shell", () => {
   });
 
   it("renders the sixth analytics growth section from the supplied screen", () => {
-    const markup = renderToString(createElement(AnalyticsGrowthSection));
+    const markup = renderToString(
+      createElement(AnalyticsGrowthSection, {
+        onRequestDemo: () => undefined,
+      }),
+    );
 
     expect(markup).toContain("DATI, ANALISI, CRESCITA");
     expect(markup).toContain("Dati che contano.");

@@ -653,7 +653,7 @@
   stroke-width: 2.4;
 }
 
-.insights > a {
+.insights > button {
   width: 100%;
   margin-top: 14px;
   padding: 16px 18px;
@@ -662,6 +662,7 @@
   background:
     linear-gradient(135deg, var(--color-brand-red) 0%, #de2118 100%);
   color: #ffffff;
+  cursor: pointer;
   font-size: 14px;
   font-weight: 900;
   box-shadow:
@@ -673,8 +674,8 @@
     transform 180ms ease;
 }
 
-.insights > a:hover,
-.insights > a:focus-visible {
+.insights > button:hover,
+.insights > button:focus-visible {
   background:
     linear-gradient(135deg, #ff4a2d 0%, var(--color-brand-red-dark) 100%);
   box-shadow:
@@ -683,7 +684,7 @@
   transform: translateY(-1px);
 }
 
-.insights > a:focus-visible {
+.insights > button:focus-visible {
   outline: 3px solid rgba(244, 58, 38, 0.26);
   outline-offset: 3px;
 }
