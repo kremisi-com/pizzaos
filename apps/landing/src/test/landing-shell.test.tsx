@@ -60,7 +60,7 @@ describe("landing shell", () => {
     expect(markup).toContain("Trasforma la tua");
     expect(markup).toContain("LE SFIDE DI OGNI PIZZERIA");
     expect(markup).toContain("soluzione-completa");
-    expect(markup).toContain("MENO COSTI, PIÙ MARGINE");
+    expect(markup).toContain("Tre modi di gestire una pizzeria.");
     expect(markup).toContain("dati-crescita");
     expect(markup).toContain("gestione-ordini");
     expect(markup).toContain("GESTIONE CATENE");
@@ -120,17 +120,24 @@ describe("landing shell", () => {
   it("renders the fifth margin comparison section from the supplied screen", () => {
     const markup = renderToString(createElement(MarginComparisonSection));
 
-    expect(markup).toContain("MENO COSTI, PIÙ MARGINE");
-    expect(markup).toContain("Più ordini diretti.");
-    expect(markup).toContain("Più <span>margine</span> per te.");
+    expect(markup).toContain("Tre modi di gestire una pizzeria.");
+    expect(markup).toContain("massimizza davvero il margine.");
     expect(markup).toContain("Marketplace");
-    expect(markup).toContain("%2Fimages%2Flogo.png");
-    expect(markup).toContain("Commissioni sugli ordini");
-    expect(markup).toContain("Il cliente è tuo");
-    expect(markup).toContain("Dati e analytics");
-    expect(markup).toContain("0%");
-    expect(markup).toContain("500 ordini al mese");
-    expect(markup).toContain("9.000 € in più");
+    expect(markup).toContain("Sito semplice");
+    expect(markup).toContain("Il sistema che massimizza il profitto");
+    expect(markup).toContain("Margine su ogni ordine");
+    expect(markup).toContain("Commissioni 15-30%");
+    expect(markup).toContain("Gestione consegne");
+    expect(markup).toContain("Cliente e dati");
+    expect(markup).toContain("Marketing e fidelizzazione");
+    expect(markup).toContain("Riordino e frequenza");
+    expect(markup).toContain("Capacità di crescita");
+    expect(markup).toContain("Effetto cumulativo");
+    expect(markup).toContain("Più consegne");
+    expect(markup).toContain("Meno benzina");
+    expect(markup).toContain("Più clienti che tornano");
+    expect(markup).toContain("Dati e insight");
+    expect(markup).toContain("Più profitto finale");
   });
 
   it("renders the sixth analytics growth section from the supplied screen", () => {
