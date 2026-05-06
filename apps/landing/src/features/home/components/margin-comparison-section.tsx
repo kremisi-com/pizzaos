@@ -156,7 +156,7 @@ const COMPARISON_ROWS = [
     pizzaos: {
       tone: "good",
       title: "Completa",
-      detail: "Ordini, delivery, insight e marketing lavorano insieme",
+      detail: "Ordini, delivery, insight e marketing insieme",
     },
   },
 ] satisfies readonly ComparisonRow[];
@@ -211,8 +211,7 @@ export function MarginComparisonSection(): ReactElement {
         <h2 className={styles.title} id="margin-title">
           Tre modi di gestire una pizzeria.
           <br />
-          Uno solo{" "}
-          <span>massimizza davvero il margine.</span>
+          Uno solo <span>massimizza i guadagni.</span>
         </h2>
 
         <p className={styles.subtitle}>
@@ -315,7 +314,7 @@ export function MarginComparisonSection(): ReactElement {
               <SparkleIcon />
               <p>
                 <strong>I costi visibili li vedono tutti.</strong>
-                Quelli invisibili sono quelli che riducono davvero il margine.
+                Quelli invisibili sono quelli che riducono il margine.
               </p>
             </div>
           </aside>

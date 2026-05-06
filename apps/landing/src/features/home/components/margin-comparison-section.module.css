@@ -2,11 +2,7 @@
   overflow: hidden;
   padding: 30px 0 76px;
   background:
-    radial-gradient(
-      circle at 50% 0%,
-      rgba(244, 58, 38, 0.05),
-      transparent 34%
-    ),
+    radial-gradient(circle at 50% 0%, rgba(244, 58, 38, 0.05), transparent 34%),
     linear-gradient(180deg, #fffdfb 0%, #ffffff 46%, #fffdfb 100%);
 }
 
@@ -86,12 +82,11 @@
   border-color: rgba(244, 58, 38, 0.22);
   border-right: 1px solid rgba(244, 58, 38, 0.22);
   border-radius: 0 16px 0 0;
-  background:
-    linear-gradient(
-      180deg,
-      rgba(244, 58, 38, 0.075),
-      rgba(255, 255, 255, 0.9)
-    );
+  background: linear-gradient(
+    180deg,
+    rgba(244, 58, 38, 0.075),
+    rgba(255, 255, 255, 0.9)
+  );
 }
 
 .headerIcon {
@@ -208,7 +203,7 @@
 
 .valueCell {
   gap: 18px;
-  padding: 18px 22px;
+  padding: 16px 16px;
 }
 
 .valueCell:nth-child(4) {
@@ -246,7 +241,10 @@
 
 .valueCell strong,
 .valueCell span:not(.mobileColumn) {
-  display: block;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
 }
 
 .valueCell strong {
@@ -341,14 +339,14 @@
 
 .cumulativeItem strong {
   color: #070915;
-  font-size: 19px;
+  font-size: 16px;
   font-weight: 900;
 }
 
 .cumulativeItem p {
   margin-top: 4px;
   color: #25304a;
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 500;
 }
 
@@ -383,12 +381,11 @@
   gap: 16px;
   padding: 22px 20px;
   border-radius: 13px;
-  background:
-    linear-gradient(
-      135deg,
-      rgba(19, 155, 99, 0.16),
-      rgba(19, 155, 99, 0.08)
-    );
+  background: linear-gradient(
+    135deg,
+    rgba(19, 155, 99, 0.16),
+    rgba(19, 155, 99, 0.08)
+  );
   color: #087642;
 }
 
@@ -401,7 +398,7 @@
 .note p {
   margin: 0;
   color: #087642;
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 800;
   line-height: 1.32;
 }
