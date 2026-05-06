@@ -31,9 +31,13 @@ const DEMO_LINKS = ["App cliente", "Dashboard admin"] as const;
 
 interface FooterProps {
   readonly onRequestDemo: (intent?: DemoRequestIntent) => void;
+  readonly showChainManagementLink?: boolean;
 }
 
-export function Footer({ onRequestDemo }: FooterProps): ReactElement {
+export function Footer({
+  onRequestDemo,
+  showChainManagementLink = true,
+}: FooterProps): ReactElement {
   const year = new Date().getFullYear();
 
   return (
@@ -61,11 +65,21 @@ export function Footer({ onRequestDemo }: FooterProps): ReactElement {
           {NAV_COLUMNS.map((col) => (
             <div key={col.title} className={styles.col}>
               <span className={styles.colTitle}>{col.title}</span>
-              {col.links.map((link) => (
-                <a key={link.label} href={link.href} className={styles.colLink}>
-                  {link.label}
-                </a>
-              ))}
+              {col.links
+                .filter(
+                  (link) =>
+                    showChainManagementLink ||
+                    link.href !== "#gestione-catene",
+                )
+                .map((link) => (
+                  <a
+                    key={link.label}
+                    href={link.href}
+                    className={styles.colLink}
+                  >
+                    {link.label}
+                  </a>
+                ))}
             </div>
           ))}
 

@@ -162,3 +162,5 @@ clean interaction states.
   test and README coverage.
 - Added Iubenda Privacy Policy and Cookie Policy embeds to the landing footer and wired mandatory policy consent into the
   demo request form while preserving the existing mail endpoint payload shape.
+- Gated the chain-management section behind the `?c=t` URL parameter so the default landing page stays focused on the
+  single-store narrative while still allowing the chain story to be demoed directly.

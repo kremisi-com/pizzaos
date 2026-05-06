@@ -26,6 +26,7 @@ const APP_ID = "landing" as const;
 
 interface LandingShellProps {
   readonly demoLinks?: DemoSuccessLinks;
+  readonly showChainManagementSection?: boolean;
 }
 
 function resolveStorage(): Storage | undefined {
@@ -38,6 +39,7 @@ function resolveStorage(): Storage | undefined {
 
 export function LandingShell({
   demoLinks = DEFAULT_DEMO_SUCCESS_LINKS,
+  showChainManagementSection = false,
 }: LandingShellProps): ReactElement {
   const [seed] = useState<LandingSeed>(() =>
     loadDemoState(APP_ID, { storage: resolveStorage() }),
@@ -100,10 +102,11 @@ export function LandingShell({
 
         {/* Analytics section */}
 
-        {/* Chain management section */}
-        <MotionReveal delay={60} stagger variant="fade-up">
-          <ChainManagementSection />
-        </MotionReveal>
+        {showChainManagementSection ? (
+          <MotionReveal delay={60} stagger variant="fade-up">
+            <ChainManagementSection />
+          </MotionReveal>
+        ) : null}
 
         {/* Pricing section */}
         <MotionReveal delay={60} stagger variant="fade-up">
@@ -124,7 +127,10 @@ export function LandingShell({
       </main>
 
       {/* Footer */}
-      <Footer onRequestDemo={handleOpenModal} />
+      <Footer
+        onRequestDemo={handleOpenModal}
+        showChainManagementLink={showChainManagementSection}
+      />
 
       {/* Demo request modal */}
       <DemoRequestModal

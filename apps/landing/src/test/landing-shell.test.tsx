@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { createElement } from "react";
 import { renderToString } from "react-dom/server";
+import { shouldShowChainManagementSection } from "../features/home/chain-section-visibility";
 import { AnalyticsGrowthSection } from "../features/home/components/analytics-growth-section";
 import { ChainManagementSection } from "../features/home/components/chain-management-section";
 import { ChallengesSection } from "../features/home/components/challenges-section";
@@ -19,12 +20,31 @@ describe("landing shell", () => {
   it("renders entrance motion wrappers for the landing sections", () => {
     const markup = renderToString(createElement(LandingShell));
 
-    expect(markup.match(/data-motion=/g)).toHaveLength(10);
-    expect(markup.match(/data-motion-stagger="true"/g)).toHaveLength(10);
+    expect(markup.match(/data-motion=/g)).toHaveLength(9);
+    expect(markup.match(/data-motion-stagger="true"/g)).toHaveLength(9);
     expect(markup).toContain('data-motion="fade-up"');
     expect(markup).toContain('data-motion="fade-scale"');
     expect(markup).toContain('data-motion-state="hidden"');
     expect(markup).toContain("--motion-delay:80ms");
+  });
+
+  it("renders the chain management motion wrapper when enabled", () => {
+    const markup = renderToString(
+      createElement(LandingShell, { showChainManagementSection: true }),
+    );
+
+    expect(markup.match(/data-motion=/g)).toHaveLength(10);
+    expect(markup).toContain("GESTIONE CATENE");
+    expect(markup).toContain('href="#gestione-catene"');
+  });
+
+  it("shows the chain management section only with the c=t URL parameter", () => {
+    expect(shouldShowChainManagementSection(undefined)).toBe(false);
+    expect(shouldShowChainManagementSection({ c: "single" })).toBe(false);
+    expect(shouldShowChainManagementSection({ c: "t" })).toBe(true);
+    expect(shouldShowChainManagementSection({ c: ["single", "t"] })).toBe(
+      true,
+    );
   });
 
   it("keeps footer links aligned to the current landing sections", () => {
@@ -63,13 +83,14 @@ describe("landing shell", () => {
     expect(markup).toContain("Tre modi di gestire una pizzeria.");
     expect(markup).toContain("dati-crescita");
     expect(markup).toContain("gestione-ordini");
-    expect(markup).toContain("GESTIONE CATENE");
+    expect(markup).not.toContain("GESTIONE CATENE");
     expect(markup).toContain("PREZZI SEMPLICI");
     expect(markup).toContain("Serve ancora aiuto");
     expect(markup).toContain("Ecosistema");
     expect(markup).toContain("Apri la demo");
     expect(markup).toContain("%2Fimages%2Flogo-light.png");
     expect(markup).toContain("%2Fimages%2Flogo.png");
+    expect(markup).not.toContain('href="#gestione-catene"');
     expect(markup).not.toContain("hero-composite");
   });
 
@@ -121,7 +142,7 @@ describe("landing shell", () => {
     const markup = renderToString(createElement(MarginComparisonSection));
 
     expect(markup).toContain("Tre modi di gestire una pizzeria.");
-    expect(markup).toContain("massimizza davvero il margine.");
+    expect(markup).toContain("massimizza i guadagni.");
     expect(markup).toContain("Marketplace");
     expect(markup).toContain("Sito semplice");
     expect(markup).toContain("Il sistema che massimizza il profitto");
