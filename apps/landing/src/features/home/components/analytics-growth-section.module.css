@@ -36,7 +36,7 @@
 .insight svg,
 .rocketBadge svg,
 .cta svg,
-.insights > a svg {
+.insights > button svg {
   width: 22px;
   height: 22px;
   fill: none;
@@ -656,6 +656,10 @@
 .insights > button {
   width: 100%;
   margin-top: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
   padding: 16px 18px;
   border: 1px solid rgba(244, 58, 38, 0.72);
   border-radius: 11px;
