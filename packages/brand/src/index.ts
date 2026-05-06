@@ -94,7 +94,7 @@ export const SURFACE_THEME_TOKENS: Record<AppSurface, SurfaceThemeTokens> = {
       primaryForeground: "#FFFFFF"
     },
     type: {
-      family: "\"Inter Tight\", \"Inter\", \"Segoe UI\", sans-serif",
+      family: "\"Google Sans\", \"Segoe UI\", sans-serif",
       headingWeight: "800",
       bodyWeight: "400"
     }

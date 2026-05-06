@@ -5,7 +5,7 @@
 /* --------------------------------------------------------------------------
    1. Google Fonts Import
    -------------------------------------------------------------------------- */
-@import url("https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;600;700&display=swap");
 
 /* --------------------------------------------------------------------------
    2. Design Tokens (CSS Custom Properties)
@@ -30,8 +30,8 @@
   --color-success-subtle: rgba(25, 179, 107, 0.1);
 
   /* ── Typography ── */
-  --font-heading: "Inter Tight", "Inter", "Segoe UI", sans-serif;
-  --font-body: "Inter", "Segoe UI", sans-serif;
+  --font-heading: "Google Sans", "Segoe UI", sans-serif;
+  --font-body: "Google Sans", "Segoe UI", sans-serif;
 
   --font-size-h1: clamp(48px, 7vw, 92px);
   --font-size-h2: clamp(34px, 5vw, 58px);
