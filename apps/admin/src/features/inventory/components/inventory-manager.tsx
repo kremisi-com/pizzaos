@@ -1,25 +1,21 @@
-import type { InventoryItem, Product, EntityIdentifier } from "@pizzaos/domain";
+import type { InventoryItem, Ingredient, EntityIdentifier } from "@pizzaos/domain";
 import { Button, Card, Badge } from "@pizzaos/ui";
 import { type ReactElement } from "react";
 import styles from "./inventory-manager.module.css";
 
 interface InventoryManagerProps {
   readonly inventory: readonly InventoryItem[];
-  readonly products: readonly Product[];
-  readonly isDynamicPricingEnabled: boolean;
-  readonly onToggleDynamicPricing: () => void;
+  readonly ingredients: readonly Ingredient[];
   readonly onUpdateInventoryItem: (itemId: EntityIdentifier, status: "in_stock" | "low_stock" | "out_of_stock", availableUnits: number) => void;
 }
 
 export function InventoryManager({
   inventory,
-  products,
-  isDynamicPricingEnabled,
-  onToggleDynamicPricing,
+  ingredients,
   onUpdateInventoryItem
 }: InventoryManagerProps): ReactElement {
-  function getProductName(productId: EntityIdentifier): string {
-    return products.find((product) => product.id === productId)?.name ?? "Prodotto Sconosciuto";
+  function getIngredientName(ingredientId: EntityIdentifier): string {
+    return ingredients.find((ingredient) => ingredient.id === ingredientId)?.name ?? "Ingrediente Sconosciuto";
   }
 
   function getStatusTone(status: InventoryItem["status"]): "success" | "warning" | "critical" {
@@ -49,17 +45,17 @@ export function InventoryManager({
       <header className={styles.header}>
         <div className={styles.titleGroup}>
           <h2 className={styles.title}>Gestione Magazzino</h2>
-          <p className={styles.subtitle}>Monitora le scorte e configura i controlli di prezzo</p>
+          <p className={styles.subtitle}>Monitora le scorte ingredienti e previeni rotture di stock</p>
         </div>
       </header>
 
       <div className={styles.grid}>
         <div className={styles.main}>
-          <Card title="Disponibilità Prodotti">
+          <Card title="Disponibilita Ingredienti">
             <table className={styles.table}>
               <thead>
                 <tr>
-                  <th>Prodotto</th>
+                  <th>Ingrediente</th>
                   <th>SKU</th>
                   <th>Unità</th>
                   <th>Stato</th>
@@ -69,7 +65,7 @@ export function InventoryManager({
               <tbody>
                 {inventory.map((item) => (
                   <tr key={item.id}>
-                    <td className={styles.productCell}>{getProductName(item.productId)}</td>
+                    <td className={styles.productCell}>{getIngredientName(item.ingredientId)}</td>
                     <td className={styles.skuCell}>{item.sku}</td>
                     <td>{item.availableUnits}</td>
                     <td>
@@ -102,27 +98,6 @@ export function InventoryManager({
         </div>
 
         <aside className={styles.sidebar}>
-          <Card title="Ottimizzazione Business">
-            <div className={styles.configCard}>
-              <div className={styles.configHeader}>
-                <span className={styles.configLabel}>Dynamic Pricing</span>
-                <Badge tone={isDynamicPricingEnabled ? "success" : "neutral"}>
-                  {isDynamicPricingEnabled ? "ATTIVO" : "DISATTIVO"}
-                </Badge>
-              </div>
-              <p className={styles.configDesc}>
-                Regola automaticamente i prezzi in base alla domanda e alla disponibilità delle scorte.
-              </p>
-              <Button 
-                variant={isDynamicPricingEnabled ? "secondary" : "primary"} 
-                onClick={onToggleDynamicPricing}
-                className={styles.configButton}
-              >
-                {isDynamicPricingEnabled ? "Disabilita Prezzi Dinamici" : "Abilita Prezzi Dinamici"}
-              </Button>
-            </div>
-          </Card>
-
           <Card title="Alert Scorte">
              <div className={styles.alertList}>
                {inventory.filter(i => i.status !== "in_stock").length === 0 ? (
@@ -132,9 +107,9 @@ export function InventoryManager({
                    <div key={item.id} className={styles.alertItem}>
                       <div className={styles.alertIcon} style={{ backgroundColor: getStatusTone(item.status) === "critical" ? "var(--pizzaos-color-critical)" : "var(--pizzaos-color-warning)" }} />
                       <div className={styles.alertContent}>
-                        <div className={styles.alertTitle}>{getProductName(item.productId)}</div>
+                        <div className={styles.alertTitle}>{getIngredientName(item.ingredientId)}</div>
                         <div className={styles.alertSubtitle}>
-                          {item.status === "out_of_stock" ? "Prodotto esaurito" : `Solo ${item.availableUnits} unità rimaste`}
+                          {item.status === "out_of_stock" ? "Ingrediente esaurito" : `Solo ${item.availableUnits} unità rimaste`}
                         </div>
                       </div>
                    </div>

@@ -22,6 +22,7 @@ export {
 export { advanceOrderSimulation, SUPPORTED_ORDER_STATUSES } from "./simulation";
 
 export { PRODUCTS_MENU } from "./data";
+export { INGREDIENT_CATALOG, createIngredientFromName, createIngredientsFromNames } from "./ingredients";
 
 export type {
   AdminSeed,

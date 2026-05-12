@@ -12,7 +12,7 @@ and multi-store scalability while remaining entirely simulated.
 - Real dataset switching across stores
 - Simulated live order board
 - Kitchen and bar separation
-- Menu, product, pricing, inventory, marketing, analytics, AI, and delivery coverage
+- Menu, product, pricing, inventory, marketing, analytics, AI, delivery, and profile coverage
 - Placeholder UI for future external delivery integration
 - Explicit reset or reseed path
 
@@ -27,8 +27,9 @@ app/
   menu/
   inventory/
   marketing/
-  analytics/
+  analytics-ai/
   delivery/
+  profile/
 
 src/features/
   store-switch/
@@ -36,12 +37,12 @@ src/features/
   order-detail/
   production-routing/
   menu-management/
-  pricing/
   inventory/
   marketing/
   analytics/
   ai-insights/
   delivery/
+  profile/
 ```
 
 ### State Model
@@ -50,6 +51,7 @@ src/features/
 - local simulation drives incoming orders, status changes, and dashboard deltas
 - operator actions mutate only local app state
 - analytics and AI cards update off simulated order events inside admin
+- `demoOrderRef` and order-milestone copy are aligned with client narrative without runtime coupling
 
 ### Mermaid: Admin Operational Flow
 
@@ -78,13 +80,14 @@ flowchart TD
 - `KitchenBarSplitView`
 - `MenuEditor`
 - `InventoryTable`
-- `DynamicPricingToggleCard`
+- `DynamicPricingMarketingCard`
 - `CouponComposer`
 - `AnalyticsOverview`
 - `HeatmapCard`
 - `AiInsightList`
 - `DeliveryDispatchPanel`
 - `IntegrationPlaceholderCard`
+- `RestaurantProfilePanel`
 
 ### Interfaces
 
@@ -131,6 +134,7 @@ flowchart TD
 - missing store dataset falls back to default store seed
 - integration placeholders must never look broken
 - edit forms use inline validation and safe cancel flows
+- ingredient edits recalculate product allergen labels from ingredient entities
 
 ## Testing Strategy
 

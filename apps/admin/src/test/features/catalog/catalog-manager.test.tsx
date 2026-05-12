@@ -22,7 +22,21 @@ const MOCK_PRODUCTS: Product[] = [
     basePrice: { amountCents: 1000, currencyCode: "EUR" },
     status: "available",
     tags: ["classic"],
-    allergens: []
+    allergens: [],
+    ingredients: [
+      {
+        id: "ingredient-pomodoro",
+        name: "Pomodoro",
+        allergens: []
+      },
+      {
+        id: "ingredient-mozzarella",
+        name: "Mozzarella",
+        allergens: [
+          { code: "LAT", label: "Lattosio" }
+        ]
+      }
+    ]
   }
 ];
 
@@ -102,5 +116,30 @@ describe("CatalogManager", () => {
       id: "menu-1",
       name: "Updated Menu Name"
     }));
+  });
+
+  it("shows product edit controls for price and ingredients", () => {
+    const view = render(
+      createElement(CatalogManager, {
+        menus: MOCK_MENUS,
+        products: MOCK_PRODUCTS,
+        onUpdateMenu: vi.fn(),
+        onUpdateProduct: vi.fn(),
+      })
+    );
+
+    fireEvent.click(view.getAllByText("Modifica")[0]);
+    expect(view.getByText("Modifica Prodotto")).toBeDefined();
+
+    fireEvent.change(view.getByLabelText("Nome"), { target: { value: "Pizza Margherita DOP" } });
+    fireEvent.change(view.getByLabelText("Descrizione"), { target: { value: "Pomodoro, bufala e basilico" } });
+    fireEvent.change(view.getByLabelText("Prezzo base (EUR)"), { target: { value: "12.50" } });
+    fireEvent.change(view.getByLabelText("Ingrediente 1"), { target: { value: "Pomodoro San Marzano" } });
+    fireEvent.click(view.getByText("+ Aggiungi ingrediente"));
+    fireEvent.change(view.getByLabelText("Ingrediente 3"), { target: { value: "Basilico fresco" } });
+
+    expect(view.getByLabelText("Prezzo base (EUR)")).toBeDefined();
+    expect(view.getByLabelText("Ingrediente 1")).toBeDefined();
+    expect(view.getByLabelText("Ingrediente 3")).toBeDefined();
   });
 });

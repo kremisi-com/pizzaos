@@ -24,7 +24,30 @@ const MOCK_ORDERS: Order[] = [
     total: { amountCents: 2000, currencyCode: "EUR" },
     createdAtIso: new Date().toISOString(),
     updatedAtIso: new Date().toISOString(),
-    scheduledSlot: "19:00"
+    scheduledSlot: "19:00",
+    demoOrderRef: "POC-1001"
+  },
+  {
+    id: "order-2",
+    customerId: "cust-2",
+    storeId: "store-1",
+    status: "out_for_delivery",
+    lines: [
+      {
+        productId: "product-5678",
+        quantity: 1,
+        unitPrice: { amountCents: 1200, currencyCode: "EUR" },
+        notes: ""
+      }
+    ],
+    subtotal: { amountCents: 1200, currencyCode: "EUR" },
+    discountTotal: { amountCents: 0, currencyCode: "EUR" },
+    deliveryFee: { amountCents: 100, currencyCode: "EUR" },
+    total: { amountCents: 1300, currencyCode: "EUR" },
+    createdAtIso: new Date().toISOString(),
+    updatedAtIso: new Date().toISOString(),
+    scheduledSlot: "19:20",
+    demoOrderRef: "POC-1002"
   }
 ];
 
@@ -39,12 +62,17 @@ describe("OrdersDashboard", () => {
     );
 
     expect(markup).toContain("Ordini Attivi");
+    expect(markup).toContain("In consegna");
     expect(markup).toContain("Totale oggi");
     expect(markup).toContain("Prodotto");
     expect(markup).toContain("1234");
     expect(markup).toContain("2");
     expect(markup).toContain("x");
     expect(markup).toContain("Ricevuto");
+    expect(markup).toContain("Rif. demo cliente:");
+    expect(markup).toContain("POC-1001");
+    expect(markup).toContain("Milestone cliente:");
+    expect(markup).toContain("Ordine ricevuto dal locale");
   });
 
   it("renders empty state when no orders", () => {

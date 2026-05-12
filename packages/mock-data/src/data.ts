@@ -1,6 +1,7 @@
 import type {
   Coupon,
   EntityIdentifier,
+  Ingredient,
   LoyaltyState,
   LoyaltySystemConfig,
   Menu,
@@ -8,6 +9,8 @@ import type {
   Product,
   StoreProfile
 } from "@pizzaos/domain";
+import { deriveAllergensFromIngredients, formatDemoOrderRef } from "@pizzaos/domain";
+import { createIngredientsFromNames } from "./ingredients";
 import { DEFAULT_CLIENT_STORE_ID } from "./constants";
 import { createInventoryItem, createLine, createOrder, toMoney } from "./factories";
 import type { AdminDatasetTemplate } from "./types";
@@ -39,6 +42,11 @@ export const STORES: readonly StoreProfile[] = [
   }
 ] as const;
 
+function createIngredients(names: readonly string[]): readonly Ingredient[]
+{
+  return createIngredientsFromNames(names);
+}
+
 export const PRODUCTS: readonly Product[] = [
   {
     id: "product-marinara",
@@ -48,8 +56,9 @@ export const PRODUCTS: readonly Product[] = [
     basePrice: toMoney(750),
     status: "available",
     tags: ["classica", "vegana"],
+    ingredients: createIngredients(["Pomodoro San Marzano", "Aglio", "Origano", "Olio EVO"]),
     preparationMode: "cotto",
-    allergens: [{ code: "GLU", label: "Glutine" }]
+    allergens: deriveAllergensFromIngredients(createIngredients(["Pomodoro San Marzano", "Aglio", "Origano", "Olio EVO"]))
   },
   {
     id: "product-margherita",
@@ -59,11 +68,9 @@ export const PRODUCTS: readonly Product[] = [
     basePrice: toMoney(900),
     status: "available",
     tags: ["classica", "vegetariana"],
+    ingredients: createIngredients(["Pomodoro San Marzano", "Fiordilatte", "Basilico fresco"]),
     preparationMode: "cotto",
-    allergens: [
-      { code: "GLU", label: "Glutine" },
-      { code: "LAT", label: "Lattosio" }
-    ]
+    allergens: deriveAllergensFromIngredients(createIngredients(["Pomodoro San Marzano", "Fiordilatte", "Basilico fresco"]))
   },
   {
     id: "product-diavola",
@@ -73,10 +80,8 @@ export const PRODUCTS: readonly Product[] = [
     basePrice: toMoney(1150),
     status: "available",
     tags: ["piccante"],
-    allergens: [
-      { code: "GLU", label: "Glutine" },
-      { code: "LAT", label: "Lattosio" }
-    ]
+    ingredients: createIngredients(["Pomodoro", "Fiordilatte", "Spianata piccante", "Peperoncino"]),
+    allergens: deriveAllergensFromIngredients(createIngredients(["Pomodoro", "Fiordilatte", "Spianata piccante", "Peperoncino"]))
   },
   {
     id: "product-capricciosa",
@@ -86,10 +91,8 @@ export const PRODUCTS: readonly Product[] = [
     basePrice: toMoney(1250),
     status: "available",
     tags: ["tradizionale"],
-    allergens: [
-      { code: "GLU", label: "Glutine" },
-      { code: "LAT", label: "Lattosio" }
-    ]
+    ingredients: createIngredients(["Prosciutto cotto", "Funghi", "Carciofi", "Olive", "Fiordilatte"]),
+    allergens: deriveAllergensFromIngredients(createIngredients(["Prosciutto cotto", "Funghi", "Carciofi", "Olive", "Fiordilatte"]))
   },
   {
     id: "product-vegetariana",
@@ -99,10 +102,8 @@ export const PRODUCTS: readonly Product[] = [
     basePrice: toMoney(1200),
     status: "available",
     tags: ["vegetariana", "leggera"],
-    allergens: [
-      { code: "GLU", label: "Glutine" },
-      { code: "LAT", label: "Lattosio" }
-    ]
+    ingredients: createIngredients(["Verdure grigliate", "Fiordilatte", "Olio al basilico"]),
+    allergens: deriveAllergensFromIngredients(createIngredients(["Verdure grigliate", "Fiordilatte", "Olio al basilico"]))
   },
   {
     id: "product-4-formaggi",
@@ -112,10 +113,8 @@ export const PRODUCTS: readonly Product[] = [
     basePrice: toMoney(1300),
     status: "available",
     tags: ["cremosa"],
-    allergens: [
-      { code: "GLU", label: "Glutine" },
-      { code: "LAT", label: "Lattosio" }
-    ]
+    ingredients: createIngredients(["Fiordilatte", "Gorgonzola", "Fontina", "Parmigiano"]),
+    allergens: deriveAllergensFromIngredients(createIngredients(["Fiordilatte", "Gorgonzola", "Fontina", "Parmigiano"]))
   },
   {
     id: "product-tonno-cipolla",
@@ -125,11 +124,9 @@ export const PRODUCTS: readonly Product[] = [
     basePrice: toMoney(1220),
     status: "available",
     tags: ["mare"],
+    ingredients: createIngredients(["Tonno", "Cipolla rossa", "Pomodoro"]),
     preparationMode: "crudo",
-    allergens: [
-      { code: "GLU", label: "Glutine" },
-      { code: "PES", label: "Pesce" }
-    ]
+    allergens: deriveAllergensFromIngredients(createIngredients(["Tonno", "Cipolla rossa", "Pomodoro"]))
   },
   {
     id: "product-calzone",
@@ -139,10 +136,8 @@ export const PRODUCTS: readonly Product[] = [
     basePrice: toMoney(1280),
     status: "sold_out",
     tags: ["ripieno"],
-    allergens: [
-      { code: "GLU", label: "Glutine" },
-      { code: "LAT", label: "Lattosio" }
-    ]
+    ingredients: createIngredients(["Ricotta", "Salame dolce", "Provola"]),
+    allergens: deriveAllergensFromIngredients(createIngredients(["Ricotta", "Salame dolce", "Provola"]))
   },
   {
     id: "product-focaccia-rosmarino",
@@ -152,7 +147,8 @@ export const PRODUCTS: readonly Product[] = [
     basePrice: toMoney(550),
     status: "sold_out",
     tags: ["forno", "contorno"],
-    allergens: [{ code: "GLU", label: "Glutine" }]
+    ingredients: createIngredients(["Farina", "Olio EVO", "Rosmarino", "Sale"]),
+    allergens: deriveAllergensFromIngredients(createIngredients(["Farina", "Olio EVO", "Rosmarino", "Sale"]))
   },
   {
     id: "product-birra-bionda",
@@ -729,7 +725,9 @@ export const ADMIN_DATASET_TEMPLATES: Readonly<Record<EntityIdentifier, AdminDat
           createLine("product-margherita", 1, 900, "Senza basilico"),
           createLine("product-focaccia-rosmarino", 1, 550, "")
         ],
-        120
+        120,
+        undefined,
+        formatDemoOrderRef(1001)
       ),
       createOrder(
         "order-roma-002",
@@ -739,7 +737,9 @@ export const ADMIN_DATASET_TEMPLATES: Readonly<Record<EntityIdentifier, AdminDat
         "2026-03-25T11:20:00.000Z",
         "2026-03-25T11:46:00.000Z",
         [createLine("product-capricciosa", 2, 1250, "Una ben cotta")],
-        180
+        180,
+        undefined,
+        formatDemoOrderRef(1002)
       ),
       createOrder(
         "order-roma-003",
@@ -749,7 +749,9 @@ export const ADMIN_DATASET_TEMPLATES: Readonly<Record<EntityIdentifier, AdminDat
         "2026-03-25T10:55:00.000Z",
         "2026-03-25T11:22:00.000Z",
         [createLine("product-diavola", 1, 1150, "Extra piccante")],
-        200
+        200,
+        undefined,
+        formatDemoOrderRef(1003)
       ),
       createOrder(
         "order-roma-004",
@@ -759,7 +761,9 @@ export const ADMIN_DATASET_TEMPLATES: Readonly<Record<EntityIdentifier, AdminDat
         "2026-03-25T12:05:00.000Z",
         "2026-03-25T12:25:00.000Z",
         [createLine("product-margherita", 2, 900, "")],
-        150
+        150,
+        undefined,
+        formatDemoOrderRef(1004)
       ),
       createOrder(
         "order-roma-005",
@@ -770,14 +774,15 @@ export const ADMIN_DATASET_TEMPLATES: Readonly<Record<EntityIdentifier, AdminDat
         "2026-03-25T12:15:00.000Z",
         [createLine("product-4-formaggi", 1, 1300, "")],
         180,
-        "rider-roma-2"
+        "rider-roma-2",
+        formatDemoOrderRef(1005)
       )
     ],
     inventory: [
-      createInventoryItem("inv-roma-01", "store-roma-centro", "PIZ-MARG-01", "product-margherita", 42, 15),
-      createInventoryItem("inv-roma-02", "store-roma-centro", "PIZ-DIAV-02", "product-diavola", 21, 12),
-      createInventoryItem("inv-roma-03", "store-roma-centro", "PIZ-CAPR-03", "product-capricciosa", 9, 10),
-      createInventoryItem("inv-roma-04", "store-roma-centro", "PIZ-VEGE-04", "product-vegetariana", 0, 8)
+      createInventoryItem("inv-roma-01", "store-roma-centro", "ING-FIOR-01", "ingredient-fiordilatte", 42, 15),
+      createInventoryItem("inv-roma-02", "store-roma-centro", "ING-POMS-02", "ingredient-pomodoro-san-marzano", 21, 12),
+      createInventoryItem("inv-roma-03", "store-roma-centro", "ING-FUNG-03", "ingredient-funghi", 9, 10),
+      createInventoryItem("inv-roma-04", "store-roma-centro", "ING-CARC-04", "ingredient-carciofi", 0, 8)
     ],
     analytics: {
       storeId: "store-roma-centro",
@@ -897,7 +902,9 @@ export const ADMIN_DATASET_TEMPLATES: Readonly<Record<EntityIdentifier, AdminDat
         "2026-03-25T17:50:00.000Z",
         "2026-03-25T18:01:00.000Z",
         [createLine("product-4-formaggi", 1, 1300, "Aggiungere pepe")],
-        250
+        250,
+        undefined,
+        formatDemoOrderRef(2001)
       ),
       createOrder(
         "order-milano-102",
@@ -910,7 +917,9 @@ export const ADMIN_DATASET_TEMPLATES: Readonly<Record<EntityIdentifier, AdminDat
           createLine("product-tonno-cipolla", 1, 1220, ""),
           createLine("product-focaccia-rosmarino", 2, 550, "")
         ],
-        250
+        250,
+        undefined,
+        formatDemoOrderRef(2002)
       ),
       createOrder(
         "order-milano-103",
@@ -920,14 +929,16 @@ export const ADMIN_DATASET_TEMPLATES: Readonly<Record<EntityIdentifier, AdminDat
         "2026-03-25T16:44:00.000Z",
         "2026-03-25T16:49:00.000Z",
         [createLine("product-calzone", 1, 1280, "")],
-        250
+        250,
+        undefined,
+        formatDemoOrderRef(2003)
       )
     ],
     inventory: [
-      createInventoryItem("inv-milano-01", "store-milano-navigli", "PIZ-4FOR-05", "product-4-formaggi", 6, 12),
-      createInventoryItem("inv-milano-02", "store-milano-navigli", "PIZ-TONN-06", "product-tonno-cipolla", 4, 8),
-      createInventoryItem("inv-milano-03", "store-milano-navigli", "PIZ-CALZ-07", "product-calzone", 0, 5),
-      createInventoryItem("inv-milano-04", "store-milano-navigli", "PIZ-DIAV-02", "product-diavola", 19, 9)
+      createInventoryItem("inv-milano-01", "store-milano-navigli", "ING-GORG-05", "ingredient-gorgonzola", 6, 12),
+      createInventoryItem("inv-milano-02", "store-milano-navigli", "ING-TONN-06", "ingredient-tonno", 4, 8),
+      createInventoryItem("inv-milano-03", "store-milano-navigli", "ING-RICO-07", "ingredient-ricotta", 0, 5),
+      createInventoryItem("inv-milano-04", "store-milano-navigli", "ING-POMO-08", "ingredient-pomodoro", 19, 9)
     ],
     analytics: {
       storeId: "store-milano-navigli",
@@ -1040,7 +1051,9 @@ export const ADMIN_DATASET_TEMPLATES: Readonly<Record<EntityIdentifier, AdminDat
         "2026-03-25T09:02:00.000Z",
         "2026-03-25T09:02:00.000Z",
         [createLine("product-vegetariana", 1, 1200, "")],
-        150
+        150,
+        undefined,
+        formatDemoOrderRef(3001)
       ),
       createOrder(
         "order-torino-202",
@@ -1050,39 +1063,41 @@ export const ADMIN_DATASET_TEMPLATES: Readonly<Record<EntityIdentifier, AdminDat
         "2026-03-25T08:30:00.000Z",
         "2026-03-25T09:20:00.000Z",
         [createLine("product-margherita", 2, 900, "")],
-        150
+        150,
+        undefined,
+        formatDemoOrderRef(3002)
       )
     ],
     inventory: [
       createInventoryItem(
         "inv-torino-01",
         "store-torino-porta-nuova",
-        "PIZ-VEGE-04",
-        "product-vegetariana",
+        "ING-FIOR-09",
+        "ingredient-fiordilatte",
         12,
         10
       ),
       createInventoryItem(
         "inv-torino-02",
         "store-torino-porta-nuova",
-        "PIZ-CALZ-07",
-        "product-calzone",
+        "ING-PROV-10",
+        "ingredient-provola",
         8,
         6
       ),
       createInventoryItem(
         "inv-torino-03",
         "store-torino-porta-nuova",
-        "PIZ-MARG-01",
-        "product-margherita",
+        "ING-POMS-11",
+        "ingredient-pomodoro-san-marzano",
         3,
         8
       ),
       createInventoryItem(
         "inv-torino-04",
         "store-torino-porta-nuova",
-        "FOC-ROSM-08",
-        "product-focaccia-rosmarino",
+        "ING-FARI-12",
+        "ingredient-farina",
         18,
         10
       )
@@ -1131,7 +1146,9 @@ export const DEFAULT_CLIENT_ORDER_HISTORY: readonly Order[] = [
       createLine("product-diavola", 1, 1150, ""),
       createLine("product-birra-bionda", 2, 450, "")
     ],
-    200
+    200,
+    undefined,
+    formatDemoOrderRef(1003)
   ),
   createOrder(
     "order-client-history-002",
@@ -1144,7 +1161,9 @@ export const DEFAULT_CLIENT_ORDER_HISTORY: readonly Order[] = [
       createLine("product-margherita", 1, 950, "Impasto integrale"),
       createLine("product-suppli-cacio-e-pepe", 1, 550, "")
     ],
-    200
+    200,
+    undefined,
+    formatDemoOrderRef(922)
   ),
   createOrder(
     "order-client-history-003",
@@ -1157,7 +1176,9 @@ export const DEFAULT_CLIENT_ORDER_HISTORY: readonly Order[] = [
       createLine("product-diavola", 2, 1300, "Una senza cipolla rossa"),
       createLine("product-acqua-frizzante", 1, 250, "")
     ],
-    300
+    300,
+    undefined,
+    formatDemoOrderRef(875)
   )
 ];
 

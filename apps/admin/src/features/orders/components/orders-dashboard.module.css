@@ -69,6 +69,21 @@
   font-size: 1.1rem;
 }
 
+.demoRef {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--pizzaos-color-primary);
+  margin-bottom: 6px;
+}
+
+.milestoneLabel {
+  font-size: 0.8rem;
+  color: var(--pizzaos-color-foreground-muted);
+  margin-bottom: 8px;
+}
+
 .customer {
   font-weight: 600;
   margin-bottom: 8px;

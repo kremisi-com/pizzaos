@@ -1,13 +1,16 @@
 import { describe, expect, it } from "vitest";
 import {
   APP_SURFACES,
+  DEMO_ORDER_REF_PATTERN,
   ORDER_STATUS,
   SLOT_AVAILABILITY_STATUSES,
   getNextOrderStatuses
 } from "@pizzaos/domain";
 import {
   ADMIN_STORE_IDS,
+  INGREDIENT_CATALOG,
   advanceOrderSimulation,
+  createIngredientFromName,
   createAdminSeed,
   createClientSeed,
   createLandingSeed,
@@ -40,6 +43,17 @@ class InMemoryStorage
 
 describe("seed factories", () =>
 {
+  it("exports ingredient catalog and maps names deterministically", () =>
+  {
+    expect(INGREDIENT_CATALOG.some((ingredient) => ingredient.name === "Fiordilatte")).toBe(true);
+
+    expect(createIngredientFromName("Fiordilatte")).toEqual({
+      id: "ingredient-fiordilatte",
+      name: "Fiordilatte",
+      allergens: [{ code: "LAT", label: "Lattosio" }]
+    });
+  });
+
   it("creates deterministic landing, client, and admin seeds", () =>
   {
     const landingSeedA = createLandingSeed();
@@ -69,6 +83,10 @@ describe("seed factories", () =>
     for (const order of clientSeed.activeOrders)
     {
       expect(ORDER_STATUS).toContain(order.status);
+      if (order.demoOrderRef)
+      {
+        expect(DEMO_ORDER_REF_PATTERN.test(order.demoOrderRef)).toBe(true);
+      }
     }
 
     for (const slot of clientSeed.slots)
@@ -123,6 +141,18 @@ describe("seed factories", () =>
       "order-client-history-002",
       "order-client-history-003"
     ]);
+    expect(clientSeed.orderHistory.every((order) => DEMO_ORDER_REF_PATTERN.test(order.demoOrderRef ?? ""))).toBe(true);
+  });
+
+  it("keeps demo order references coherent between client and admin seeds", () =>
+  {
+    const clientSeed = createClientSeed();
+    const adminSeed = createAdminSeed("store-roma-centro");
+    const adminOrderRefs = new Set(
+      adminSeed.datasetsByStoreId["store-roma-centro"].orders.map((order) => order.demoOrderRef)
+    );
+
+    expect(clientSeed.orderHistory.some((order) => adminOrderRefs.has(order.demoOrderRef))).toBe(true);
   });
 });
 

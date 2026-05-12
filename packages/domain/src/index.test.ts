@@ -3,7 +3,11 @@ import { describe, expect, test } from "vitest";
 import {
   AI_INSIGHT_STATUS,
   APP_SURFACES,
+  CANONICAL_ORDER_NARRATIVE_STATUSES,
   COUPON_STATUS,
+  DEMO_COMMERCIAL_NAMING_CONTRACT,
+  DEMO_ORDER_REF_PATTERN,
+  DEMO_ORDER_REF_PREFIX,
   INVENTORY_STATUS,
   MENU_STATUS,
   ORDER_STATUS,
@@ -12,6 +16,8 @@ import {
   PRODUCT_STATUS,
   SLOT_AVAILABILITY_STATUSES,
   deriveRoutingStation,
+  deriveAllergensFromIngredients,
+  formatDemoOrderRef,
   getNextOrderStatuses,
   isOrderStatusTransitionAllowed,
   progressOrderStatus,
@@ -65,6 +71,13 @@ describe("domain contracts", () =>
       "delivered",
       "cancelled"
     ]);
+    expect(CANONICAL_ORDER_NARRATIVE_STATUSES).toEqual([
+      "received",
+      "confirmed",
+      "preparing",
+      "out_for_delivery",
+      "delivered"
+    ]);
     expect(INVENTORY_STATUS).toEqual([
       "in_stock",
       "low_stock",
@@ -80,6 +93,20 @@ describe("domain contracts", () =>
       "acknowledged",
       "dismissed"
     ]);
+    expect(DEMO_COMMERCIAL_NAMING_CONTRACT).toEqual({
+      loyaltyProgramLabel: "PizzaOS Rewards",
+      couponPrefix: "PIZZAOS",
+      defaultMenuLabel: "Menu PizzaOS"
+    });
+  });
+
+  test("formats deterministic demo order references", () =>
+  {
+    const reference = formatDemoOrderRef(42);
+
+    expect(reference).toBe("POC-0042");
+    expect(reference.startsWith(`${DEMO_ORDER_REF_PREFIX}-`)).toBe(true);
+    expect(DEMO_ORDER_REF_PATTERN.test(reference)).toBe(true);
   });
 
   test("accepts practical shared product contract", () =>
@@ -109,6 +136,106 @@ describe("domain contracts", () =>
     expect(product.basePrice.amountCents).toBe(1100);
     expect(product.status).toBe("available");
     expect(product.preparationMode).toBe("cotto");
+    expect(product.ingredients).toBeUndefined();
+  });
+
+  test("accepts product ingredients when present", () =>
+  {
+    const product: Product = {
+      id: "product-2",
+      sku: "DIAVOLA-001",
+      name: "Pizza Diavola",
+      description: "Pomodoro, fiordilatte e spianata piccante",
+      basePrice: {
+        amountCents: 1300,
+        currencyCode: "EUR"
+      },
+      status: "available",
+      tags: [
+        "piccante"
+      ],
+      allergens: [
+        {
+          code: "gluten",
+          label: "Glutine"
+        }
+      ],
+      ingredients: [
+        {
+          id: "ingredient-pomodoro-san-marzano",
+          name: "Pomodoro San Marzano",
+          allergens: []
+        },
+        {
+          id: "ingredient-fiordilatte",
+          name: "Fiordilatte",
+          allergens: [
+            {
+              code: "LAT",
+              label: "Lattosio"
+            }
+          ]
+        },
+        {
+          id: "ingredient-spianata-piccante",
+          name: "Spianata piccante",
+          allergens: []
+        }
+      ]
+    };
+
+    expect(product.ingredients?.map((ingredient) => ingredient.name)).toEqual([
+      "Pomodoro San Marzano",
+      "Fiordilatte",
+      "Spianata piccante"
+    ]);
+  });
+
+  test("derives product allergens from ingredient list", () =>
+  {
+    const allergens = deriveAllergensFromIngredients([
+      {
+        id: "ingredient-base",
+        name: "Base pizza",
+        allergens: [
+          {
+            code: "GLU",
+            label: "Glutine"
+          }
+        ]
+      },
+      {
+        id: "ingredient-mozzarella",
+        name: "Mozzarella",
+        allergens: [
+          {
+            code: "LAT",
+            label: "Lattosio"
+          }
+        ]
+      },
+      {
+        id: "ingredient-altro-formaggio",
+        name: "Altro formaggio",
+        allergens: [
+          {
+            code: "LAT",
+            label: "Lattosio"
+          }
+        ]
+      }
+    ]);
+
+    expect(allergens).toEqual([
+      {
+        code: "GLU",
+        label: "Glutine"
+      },
+      {
+        code: "LAT",
+        label: "Lattosio"
+      }
+    ]);
   });
 
   test("accepts slot availability contracts", () =>

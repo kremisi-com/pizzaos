@@ -41,7 +41,8 @@ export function createOrder(
   scheduledSlot: string,
   lines: readonly OrderLineInput[],
   deliveryFeeCents: number,
-  riderId?: EntityIdentifier
+  riderId?: EntityIdentifier,
+  demoOrderRef?: string
 ): Order
 {
   const subtotalAmountCents = lines.reduce(
@@ -62,6 +63,7 @@ export function createOrder(
     scheduledSlot,
     createdAtIso,
     updatedAtIso: createdAtIso,
+    demoOrderRef,
     riderId
   };
 }
@@ -70,7 +72,7 @@ export function createInventoryItem(
   id: EntityIdentifier,
   storeId: EntityIdentifier,
   sku: string,
-  productId: EntityIdentifier,
+  ingredientId: EntityIdentifier,
   availableUnits: number,
   reorderThreshold: number
 ): InventoryItem
@@ -79,7 +81,7 @@ export function createInventoryItem(
     id,
     storeId,
     sku,
-    productId,
+    ingredientId,
     availableUnits,
     reorderThreshold,
     status: getInventoryStatus(availableUnits, reorderThreshold)

@@ -8,7 +8,7 @@ import {
   getDemoStateStorageKey,
   type AdminSeed
 } from "@pizzaos/mock-data";
-import { type OrderStatus, type Product, type Menu } from "@pizzaos/domain";
+import { type OrderStatus, type Product, type Menu, type Ingredient } from "@pizzaos/domain";
 import { Button, Card, StatusIndicator } from "@pizzaos/ui";
 import { useState, type ReactElement, useEffect } from "react";
 import { OrdersDashboard } from "../../orders/components/orders-dashboard";
@@ -19,6 +19,7 @@ import { MarketingManager } from "../../marketing/components/marketing-manager";
 import { AnalyticsManager } from "../../analytics/components/analytics-manager";
 import { DeliveryManager } from "../../delivery/components/delivery-manager";
 import { IntegrationsManager } from "../../integrations/components/integrations-manager";
+import { ProfileManager } from "../../profile/components/profile-manager";
 import { formatMoney } from "../../marketing/marketing-utils";
 import styles from "./admin-shell.module.css";
 
@@ -31,14 +32,24 @@ function resolveStorage(): Storage | undefined
     return undefined;
   }
 
-  return window.localStorage;
+  const { localStorage } = window;
+
+  if (
+    typeof localStorage.getItem !== "function" ||
+    typeof localStorage.setItem !== "function" ||
+    typeof localStorage.removeItem !== "function"
+  ) {
+    return undefined;
+  }
+
+  return localStorage;
 }
 
 export function AdminShell(): ReactElement
 {
   const [seed, setSeed] = useState<AdminSeed>(() => loadDemoState(APP_ID, { storage: resolveStorage() }));
 
-  const [activeTab, setActiveTab] = useState<"dashboard" | "orders" | "catalog" | "inventory" | "marketing" | "analytics" | "delivery" | "integrations">("dashboard");
+  const [activeTab, setActiveTab] = useState<"dashboard" | "orders" | "catalog" | "inventory" | "marketing" | "analytics" | "delivery" | "integrations" | "profile">("dashboard");
 
   const activeDataset = seed.datasetsByStoreId[seed.activeStoreId];
 
@@ -53,6 +64,7 @@ export function AdminShell(): ReactElement
   const busyRidersCount = activeDataset.riders?.filter(r => r.status === "busy").length ?? 0;
 
   const topInsight = activeDataset.insights?.[0];
+  const inventoryIngredients: readonly Ingredient[] = activeDataset.products.flatMap((product) => product.ingredients ?? []);
 
   useEffect(() => {
     const storage = resolveStorage();
@@ -272,7 +284,7 @@ export function AdminShell(): ReactElement
             onClick={() => setActiveTab("analytics")}
             className={`${styles.navButton} ${activeTab === "analytics" ? styles.navItemActive : ""}`}
           >
-            Analytics
+            Analytics and AI
           </button>
           <button
             onClick={() => setActiveTab("delivery")}
@@ -285,6 +297,12 @@ export function AdminShell(): ReactElement
             className={`${styles.navButton} ${activeTab === "integrations" ? styles.navItemActive : ""}`}
           >
             Integrazioni
+          </button>
+          <button
+            onClick={() => setActiveTab("profile")}
+            className={`${styles.navButton} ${activeTab === "profile" ? styles.navItemActive : ""}`}
+          >
+            Profilo
           </button>
         </nav>
 
@@ -310,10 +328,11 @@ export function AdminShell(): ReactElement
             <h2>
               {activeTab === "dashboard" ? seed.title : 
                activeTab === "marketing" ? "Marketing & Loyalty" : 
-               activeTab === "analytics" ? "Analytics & Insights" : 
+               activeTab === "analytics" ? "Analytics and AI" : 
                activeTab === "delivery" ? "Gestione Consegne" :
-               activeTab === "integrations" ? "Integrazioni Esterne" :
-               "Gestione Operativa"}
+                activeTab === "integrations" ? "Integrazioni Esterne" :
+               activeTab === "profile" ? "Profilo Ristoratore" :
+                "Gestione Operativa"}
             </h2>
             <p>
               {activeTab === "dashboard" ? seed.subtitle : activeDataset.store.displayName}
@@ -469,6 +488,8 @@ export function AdminShell(): ReactElement
           <MarketingManager
             coupons={activeDataset.coupons ?? []}
             loyaltyConfig={activeDataset.loyaltyConfig}
+            isDynamicPricingEnabled={activeDataset.isDynamicPricingEnabled}
+            onToggleDynamicPricing={handleToggleDynamicPricing}
             onCreateCoupon={() => alert("Funzionalità di creazione coupon in arrivo (POC)")}
           />
         ) : activeTab === "analytics" ? (
@@ -487,10 +508,13 @@ export function AdminShell(): ReactElement
         ) : activeTab === "inventory" ? (
           <InventoryManager
             inventory={activeDataset.inventory}
-            products={activeDataset.products}
-            isDynamicPricingEnabled={activeDataset.isDynamicPricingEnabled}
-            onToggleDynamicPricing={handleToggleDynamicPricing}
+            ingredients={inventoryIngredients}
             onUpdateInventoryItem={handleUpdateInventoryItem}
+          />
+        ) : activeTab === "profile" ? (
+          <ProfileManager
+            storeId={activeDataset.store.id}
+            storeName={activeDataset.store.displayName}
           />
         ) : (
           <div>Tab non ancora implementato</div>

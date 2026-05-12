@@ -39,6 +39,16 @@ const ACTION_LABELS: Partial<Record<OrderStatus, string>> = {
   out_for_delivery: "Consegnato",
 };
 
+const CLIENT_STORY_BY_STATUS: Record<OrderStatus, string> = {
+  received: "Il locale ha ricevuto l'ordine e lo sta verificando.",
+  confirmed: "L'ordine e confermato: il cliente vede la presa in carico.",
+  preparing: "La cucina sta preparando l'ordine.",
+  ready: "L'ordine e pronto per essere affidato al rider.",
+  out_for_delivery: "Il rider e partito: tracking cliente in corso.",
+  delivered: "Consegna completata e ordine chiuso lato cliente.",
+  cancelled: "Ordine annullato: il cliente riceve aggiornamento immediato."
+};
+
 export function OrderDetails(props: OrderDetailsProps): ReactElement {
   const { order, allProducts, riders = [], onStatusUpdate, onClose } = props;
 
@@ -67,11 +77,16 @@ export function OrderDetails(props: OrderDetailsProps): ReactElement {
   return (
     <div className={styles.details}>
       <header className={styles.header}>
-        <div className={styles.orderId}>Ordine #{order.id.slice(-6).toUpperCase()}</div>
+        <div>
+          <div className={styles.orderId}>Ordine #{order.id.slice(-6).toUpperCase()}</div>
+          {order.demoOrderRef && <div className={styles.demoRef}>Rif. demo cliente: {order.demoOrderRef}</div>}
+        </div>
         <Badge tone={order.status === "cancelled" ? "critical" : order.status === "delivered" ? "success" : "warning"}>
           {STATUS_LABELS[order.status]}
         </Badge>
       </header>
+
+      <p className={styles.clientStory}>Narrativa cliente: {CLIENT_STORY_BY_STATUS[order.status]}</p>
 
       <div className={styles.customerInfo}>
         <div className={styles.infoBlock}>

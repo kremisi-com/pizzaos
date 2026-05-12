@@ -18,8 +18,9 @@ describe("MarketingManager", () => {
   });
 
   it("renders content when loyaltyConfig is provided", () => {
-    render(<MarketingManager coupons={[]} loyaltyConfig={mockLoyaltyConfig} />);
+    render(<MarketingManager coupons={[]} loyaltyConfig={mockLoyaltyConfig} isDynamicPricingEnabled={false} onToggleDynamicPricing={() => undefined} />);
     expect(screen.getByText("Configurazione Fedeltà")).toBeDefined();
     expect(screen.getByText("Tier 1")).toBeDefined();
+    expect(screen.getByText("Dynamic Pricing")).toBeDefined();
   });
 });

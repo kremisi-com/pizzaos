@@ -29,8 +29,10 @@ analytics and AI guidance.
 
 - Show a real-time-feeling list of orders using local simulation.
 - Surface order status clearly.
+- Include a dedicated "In consegna" KPI in the top operational summary.
 - Highlight priority where needed.
 - Keep kitchen and bar routing visible.
+- Keep `demoOrderRef` visible to support the client-to-admin demo narrative.
 
 ### Order Detail
 
@@ -47,6 +49,8 @@ analytics and AI guidance.
 ### Menu And Product Management
 
 - Support product creation and editing in mock form.
+- Allow editing of base price and ingredient list in product forms.
+- Model ingredients as first-class entities with derived allergen labels.
 - Support multiple menu definitions:
   - lunch
   - dinner
@@ -56,7 +60,7 @@ analytics and AI guidance.
 
 ### Pricing
 
-- Show dynamic pricing capability as an operator-controlled flag.
+- Show dynamic pricing capability as an operator-controlled flag in Marketing.
 - Make it clear that automatic optimization is simulated.
 
 ### Inventory
@@ -77,10 +81,11 @@ analytics and AI guidance.
 
 ### Analytics And AI
 
+- Name this section "Analytics and AI" in product navigation and headings.
 - Show sales analytics.
 - Show top-clicked products.
 - Show fake menu heatmap.
-- Show static AI suggestions.
+- Show AI suggestions with simulated live typing.
 - Simulate analytics and AI updates after order activity within the admin app's own local state.
 
 ### Delivery
@@ -88,6 +93,12 @@ analytics and AI guidance.
 - Show rider assignment simulation.
 - Show basic tracking simulation.
 - Show Deliveroo integration as placeholder UI only.
+
+### Profile
+
+- Provide a dedicated "Profilo" area for the restaurant operator.
+- Show active subscription plan and simulated upgrade or downgrade actions.
+- Show mock renewal and billing status persisted locally.
 
 ## Non-Functional Requirements
 

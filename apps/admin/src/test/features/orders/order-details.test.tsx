@@ -29,7 +29,8 @@ const MOCK_ORDER: Order = {
   total: { amountCents: 2300, currencyCode: "EUR" },
   createdAtIso: new Date().toISOString(),
   updatedAtIso: new Date().toISOString(),
-  scheduledSlot: "19:00"
+  scheduledSlot: "19:00",
+  demoOrderRef: "POC-1001"
 };
 
 const MOCK_PRODUCTS: Product[] = [
@@ -68,7 +69,11 @@ describe("OrderDetails", () => {
 
     expect(markup).toContain("Ordine #");
     expect(markup).toContain("RDER-1");
+    expect(markup).toContain("Rif. demo cliente:");
+    expect(markup).toContain("POC-1001");
     expect(markup).toContain("Ricevuto");
+    expect(markup).toContain("Narrativa cliente:");
+    expect(markup).toContain("Il locale ha ricevuto l&#x27;ordine e lo sta verificando.");
     expect(markup).toContain("Cucina");
     expect(markup).toContain("Margherita");
     expect(markup).toContain("Extra cheese");

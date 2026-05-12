@@ -18,6 +18,21 @@
   color: var(--pizzaos-color-foreground);
 }
 
+.demoRef {
+  margin-top: 4px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--pizzaos-color-primary);
+}
+
+.clientStory {
+  margin: -8px 0 0;
+  font-size: 0.85rem;
+  color: var(--pizzaos-color-foreground-muted);
+}
+
 .customerInfo {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
