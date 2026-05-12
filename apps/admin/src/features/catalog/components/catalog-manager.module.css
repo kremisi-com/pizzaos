@@ -2,13 +2,14 @@
   display: flex;
   flex-direction: column;
   height: 100%;
-  color: #333;
+  color: var(--pizzaos-color-foreground);
 }
 
 .header {
   padding: 1.5rem 2rem;
-  background: white;
-  border-bottom: 1px solid #eee;
+  background: #ffffff;
+  border: 1px solid var(--pizzaos-color-border);
+  border-radius: var(--pizzaos-radius-card) var(--pizzaos-radius-card) 0 0;
 }
 
 .title {
@@ -19,7 +20,7 @@
 
 .subtitle {
   margin: 0.25rem 0 0;
-  color: #666;
+  color: var(--pizzaos-color-foreground-muted);
   font-size: 0.875rem;
 }
 
@@ -31,8 +32,9 @@
 
 .sidebar {
   width: 260px;
-  background: #f9f9f9;
-  border-right: 1px solid #eee;
+  background: #fffaf8;
+  border: 1px solid var(--pizzaos-color-border);
+  border-top: 0;
   padding: 1.5rem;
   display: flex;
   flex-direction: column;
@@ -41,7 +43,7 @@
 .sectionTitle {
   font-size: 0.75rem;
   text-transform: uppercase;
-  color: #999;
+  color: var(--pizzaos-color-foreground-muted);
   letter-spacing: 0.05em;
   margin-bottom: 1rem;
 }
@@ -54,8 +56,8 @@
 }
 
 .menuItem {
-  background: white;
-  border: 1px solid #ddd;
+  background: #ffffff;
+  border: 1px solid var(--pizzaos-color-border);
   padding: 0.75rem 1rem;
   border-radius: 8px;
   text-align: left;
@@ -64,9 +66,10 @@
 }
 
 .menuItemActive {
-  border-color: #ff4500;
-  background: #fff5f0;
-  box-shadow: 0 2px 4px rgba(255, 69, 0, 0.1);
+  border-color: rgba(var(--pizzaos-color-primary-rgb), 0.28);
+  background: rgba(var(--pizzaos-color-primary-rgb), 0.08);
+  color: var(--pizzaos-color-primary);
+  box-shadow: 0 10px 20px rgba(var(--pizzaos-color-primary-rgb), 0.08);
 }
 
 .menuItemContent {
@@ -88,7 +91,10 @@
   flex: 1;
   padding: 2rem;
   overflow-y: auto;
-  background: #fff;
+  background: #ffffff;
+  border: 1px solid var(--pizzaos-color-border);
+  border-top: 0;
+  border-left: 0;
 }
 
 .menuHeader {
@@ -111,7 +117,7 @@
   font-size: 1.125rem;
   margin-bottom: 1.5rem;
   padding-bottom: 0.5rem;
-  border-bottom: 2px solid #f0f0f0;
+  border-bottom: 1px solid var(--pizzaos-color-border);
 }
 
 .productList {
@@ -142,12 +148,12 @@
 
 .productPrice {
   font-weight: 700;
-  color: #ff4500;
+  color: var(--pizzaos-color-primary);
 }
 
 .productDesc {
   font-size: 0.875rem;
-  color: #666;
+  color: var(--pizzaos-color-foreground-muted);
   margin-bottom: 1rem;
   line-height: 1.4;
 }
@@ -161,10 +167,11 @@
 
 .tag {
   font-size: 0.6875rem;
-  background: #f0f0f0;
+  background: #fff2ef;
   padding: 0.25rem 0.5rem;
-  border-radius: 4px;
-  color: #666;
+  border-radius: 999px;
+  color: var(--pizzaos-color-primary);
+  font-weight: 700;
 }
 
 .productActions {
@@ -187,7 +194,7 @@
 }
 
 .modal {
-  background: white;
+  background: #ffffff;
   width: 500px;
   max-width: 90vw;
   border-radius: 12px;
@@ -197,7 +204,7 @@
 
 .modalHeader {
   padding: 1.25rem 1.5rem;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid var(--pizzaos-color-border);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -212,7 +219,7 @@
   border: none;
   font-size: 1.5rem;
   cursor: pointer;
-  color: #999;
+  color: var(--pizzaos-color-foreground-muted);
 }
 
 .form {
@@ -233,7 +240,7 @@
 .input, .textarea {
   width: 100%;
   padding: 0.75rem;
-  border: 1px solid #ddd;
+  border: 1px solid var(--pizzaos-color-border);
   border-radius: 6px;
   font-family: inherit;
   font-size: 0.9375rem;
@@ -245,13 +252,13 @@
 }
 
 .imageUploadPlaceholder {
-  border: 2px dashed #ddd;
+  border: 2px dashed var(--pizzaos-color-border);
   border-radius: 8px;
   padding: 2rem;
   text-align: center;
-  color: #999;
+  color: var(--pizzaos-color-foreground-muted);
   font-size: 0.875rem;
-  background: #fafafa;
+  background: #fffaf8;
   cursor: pointer;
 }
 

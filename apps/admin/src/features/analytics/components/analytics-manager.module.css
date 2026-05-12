@@ -12,10 +12,11 @@
 }
 
 .kpiCard {
-  background: white;
+  background: #ffffff;
   padding: 1.5rem;
-  border-radius: 8px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  border: 1px solid var(--pizzaos-color-border);
+  border-radius: var(--pizzaos-radius-card);
+  box-shadow: var(--pizzaos-elevation-card);
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
@@ -24,7 +25,7 @@
 .kpiLabel {
   font-size: 0.75rem;
   font-weight: 600;
-  color: #666;
+  color: var(--pizzaos-color-foreground-muted);
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
@@ -32,7 +33,7 @@
 .kpiValue {
   font-size: 1.5rem;
   font-weight: 700;
-  color: #1a1a1a;
+  color: var(--pizzaos-color-foreground);
 }
 
 .mainGrid {
@@ -55,9 +56,9 @@
 
 .heatmapContainer {
   height: 300px;
-  background: #f9f9f9;
-  border: 1px solid #eee;
-  border-radius: 8px;
+  background: #fffaf8;
+  border: 1px solid var(--pizzaos-color-border);
+  border-radius: var(--pizzaos-radius-card);
   position: relative;
   overflow: hidden;
   display: flex;
@@ -117,7 +118,7 @@
   width: 100%;
   max-width: 28px;
   border-radius: 6px 6px 3px 3px;
-  background: linear-gradient(180deg, #0ea5e9 0%, #0369a1 100%);
+  background: linear-gradient(180deg, #ff6a55 0%, var(--pizzaos-color-primary) 100%);
   animation: riseIn 420ms ease-out;
 }
 
@@ -167,8 +168,8 @@
 }
 
 .insightCard {
-  border-left: 4px solid #0070f3;
-  background: #f0f7ff;
+  border-left: 4px solid var(--pizzaos-color-primary);
+  background: #fff2ef;
   padding: 1rem;
   border-radius: 0 4px 4px 0;
 }
@@ -181,7 +182,7 @@
 
 .insightSummary {
   font-size: 0.85rem;
-  color: #444;
+  color: var(--pizzaos-color-foreground-muted);
 }
 
 .topProducts {
@@ -195,7 +196,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 0.5rem 0;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid var(--pizzaos-color-border);
 }
 
 .productInfo {
@@ -215,5 +216,5 @@
 
 .productRank {
   font-weight: 700;
-  color: #ff4d4d;
+  color: var(--pizzaos-color-primary);
 }

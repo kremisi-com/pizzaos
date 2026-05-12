@@ -1,7 +1,7 @@
 .dashboard {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 22px;
 }
 
 .header {
@@ -17,29 +17,31 @@
 }
 
 .statCard {
-  background-color: var(--pizzaos-color-background-accent);
-  padding: 16px;
+  background-color: #ffffff;
+  padding: 18px;
   border-radius: var(--pizzaos-radius-card);
   border: 1px solid var(--pizzaos-color-border);
+  box-shadow: var(--pizzaos-elevation-card);
 }
 
 .statLabel {
   font-size: 0.75rem;
-  font-weight: 700;
+  font-weight: 800;
   color: var(--pizzaos-color-foreground-muted);
   text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 
 .statValue {
   font-size: 1.5rem;
-  font-weight: 700;
+  font-weight: 900;
   margin-top: 4px;
 }
 
 .grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-  gap: 20px;
+  gap: 18px;
 }
 
 .orderCardWrapper {
@@ -94,11 +96,11 @@
 
 .riderBadge {
   font-size: 0.75rem;
-  font-weight: 500;
+  font-weight: 700;
   color: var(--pizzaos-color-primary);
   background-color: rgba(var(--pizzaos-color-primary-rgb), 0.1);
-  padding: 2px 6px;
-  border-radius: 4px;
+  padding: 3px 8px;
+  border-radius: 999px;
 }
 
 .itemsList {
@@ -143,4 +145,7 @@
   text-align: center;
   padding: 48px;
   color: var(--pizzaos-color-foreground-muted);
+  border: 1px dashed var(--pizzaos-color-border);
+  border-radius: var(--pizzaos-radius-card);
+  background: rgba(255, 255, 255, 0.75);
 }

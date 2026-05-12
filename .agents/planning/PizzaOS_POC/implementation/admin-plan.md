@@ -18,6 +18,8 @@
 - Orders expose `demoOrderRef` and customer-facing milestone language aligned with the client POC narrative.
 - Analytics section is presented as "Analytics and AI" with simulated live-typing AI output tied to local order telemetry.
 - Profile area includes active subscription state, simulated plan switching, and locally persisted billing status.
+- Post-plan visual alignment applied the landing hero admin-dashboard preview style across the real admin surface:
+  light canvas, white panels, PizzaOS red primary actions, soft borders, and premium operational cards.
 
 ## Step 1: Build the admin shell, seeded operator state, store switching, and reset flow
 

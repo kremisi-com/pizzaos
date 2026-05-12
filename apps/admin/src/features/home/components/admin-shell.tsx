@@ -247,7 +247,9 @@ export function AdminShell(): ReactElement
   return (
     <div className={styles.shell}>
       <aside className={styles.sidebar}>
-        <h1 className={styles.logo}>PizzaOS</h1>
+        <h1 className={styles.logo}>
+          Pizza<span>OS</span>
+        </h1>
 
         <nav className={styles.nav}>
           <button

@@ -72,4 +72,12 @@ describe("@pizzaos/brand", () =>
       expect(styleVariables["--pizzaos-elevation-card"]).toBe(SURFACE_THEME_TOKENS[surface].elevation.card);
     }
   });
+
+  it("keeps the admin theme aligned to the landing dashboard preview", () =>
+  {
+    expect(SURFACE_THEME_TOKENS.admin.color.primary).toBe("#f43a26");
+    expect(SURFACE_THEME_TOKENS.admin.color.background).toBe("#faf8f7");
+    expect(SURFACE_THEME_TOKENS.admin.color.backgroundAccent).toBe("#ffffff");
+    expect(getThemeStyleVariables("admin")["--pizzaos-color-primary-rgb"]).toBe("244, 58, 38");
+  });
 });

@@ -10,9 +10,10 @@ import type {
 const CARD_STYLE = {
   border: "1px solid var(--pizzaos-color-border)",
   borderRadius: "var(--pizzaos-radius-card)",
-  padding: "16px",
+  padding: "18px",
   backgroundColor: "var(--pizzaos-color-background-accent)",
-  boxShadow: "var(--pizzaos-elevation-card)"
+  boxShadow: "var(--pizzaos-elevation-card)",
+  minWidth: 0
 } as const;
 
 const SECTION_TITLE_STYLE = {
@@ -24,10 +25,11 @@ const BUTTON_VARIANT_STYLE: Record<ButtonVariant, Readonly<Record<string, string
   primary: {
     backgroundColor: "var(--pizzaos-color-primary)",
     color: "var(--pizzaos-color-primary-foreground)",
-    border: "1px solid var(--pizzaos-color-primary)"
+    border: "1px solid var(--pizzaos-color-primary)",
+    boxShadow: "0 10px 20px rgba(var(--pizzaos-color-primary-rgb), 0.18)"
   },
   secondary: {
-    backgroundColor: "transparent",
+    backgroundColor: "#ffffff",
     color: "var(--pizzaos-color-foreground)",
     border: "1px solid var(--pizzaos-color-border)"
   },
@@ -102,7 +104,8 @@ export function Button(props: ButtonProps): ReactElement
         padding: "10px 14px",
         borderRadius: "var(--pizzaos-radius-control)",
         cursor: "pointer",
-        fontWeight: 600,
+        fontWeight: 700,
+        transition: "background-color 180ms ease, border-color 180ms ease, transform 180ms ease",
         ...BUTTON_VARIANT_STYLE[variant],
         ...style
       }}
@@ -163,7 +166,7 @@ export function Card(props: CardProps): ReactElement
   return (
     <article style={CARD_STYLE}>
       {props.title ? <h2 style={SECTION_TITLE_STYLE}>{props.title}</h2> : null}
-      {props.subtitle ? <p style={{ marginTop: 0 }}>{props.subtitle}</p> : null}
+      {props.subtitle ? <p style={{ marginTop: 0, marginBottom: "14px" }}>{props.subtitle}</p> : null}
       <div>{props.children}</div>
     </article>
   );

@@ -37,7 +37,7 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 16px;
-  background-color: var(--pizzaos-color-background-accent);
+  background-color: #fffaf8;
   padding: 12px;
   border-radius: var(--pizzaos-radius-control);
 }
@@ -66,7 +66,7 @@
 }
 
 .riderAssignment {
-  background-color: var(--pizzaos-color-background-accent);
+  background-color: #fffaf8;
   padding: 16px;
   border-radius: var(--pizzaos-radius-control);
   border: 1px solid var(--pizzaos-color-border);
@@ -86,7 +86,7 @@
   padding: 12px;
   border: 1px solid var(--pizzaos-color-border);
   border-radius: var(--pizzaos-radius-control);
-  background: white;
+  background: #ffffff;
   cursor: pointer;
   text-align: left;
   transition: all 0.2s;
@@ -101,7 +101,7 @@
 .riderOptionDisabled {
   opacity: 0.6;
   cursor: not-allowed;
-  background-color: #f9fafb;
+  background-color: #f6f1ee;
 }
 
 .riderName {
@@ -119,6 +119,7 @@
   border: 1px solid var(--pizzaos-color-border);
   border-radius: var(--pizzaos-radius-control);
   padding: 12px;
+  background: #ffffff;
 }
 
 .stationHeader {

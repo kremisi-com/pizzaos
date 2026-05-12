@@ -7,8 +7,9 @@ body
   color: var(--pizzaos-color-foreground);
   background: linear-gradient(
     165deg,
-    var(--pizzaos-color-background) 0%,
-    var(--pizzaos-color-background-accent) 100%
+    #ffffff 0%,
+    var(--pizzaos-color-background) 54%,
+    #ffffff 100%
   );
 }
 

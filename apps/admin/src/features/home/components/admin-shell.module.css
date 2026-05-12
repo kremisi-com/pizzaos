@@ -1,33 +1,43 @@
 .shell
 {
   display: grid;
-  grid-template-columns: 260px 1fr;
+  grid-template-columns: 286px 1fr;
   min-height: 100vh;
+  background:
+    radial-gradient(circle at 86% 8%, rgba(var(--pizzaos-color-primary-rgb), 0.06), transparent 30%),
+    linear-gradient(180deg, #ffffff 0%, var(--pizzaos-color-background) 100%);
 }
 
 .sidebar
 {
-  background-color: var(--pizzaos-color-background-accent);
+  background-color: rgba(255, 255, 255, 0.92);
   border-right: 1px solid var(--pizzaos-color-border);
-  padding: 24px;
+  padding: 34px 24px 24px;
   display: flex;
   flex-direction: column;
-  gap: 32px;
+  gap: 30px;
+  box-shadow: 16px 0 42px rgba(32, 25, 20, 0.035);
 }
 
 .content
 {
-  padding: var(--pizzaos-spacing-page-y) var(--pizzaos-spacing-page-x);
-  background-color: var(--pizzaos-color-background);
+  padding: 38px clamp(24px, 3vw, 46px) 48px;
+  background-color: transparent;
 }
 
 .logo
 {
-  font-size: 1.5rem;
-  font-weight: 800;
-  color: var(--pizzaos-color-primary);
+  font-size: 1.65rem;
+  font-weight: 900;
+  color: #050505;
   margin: 0;
   letter-spacing: -0.02em;
+  line-height: 1;
+}
+
+.logo span
+{
+  color: var(--pizzaos-color-primary);
 }
 
 .nav
@@ -40,11 +50,11 @@
 
 .navItem
 {
-  padding: 10px 12px;
-  border-radius: var(--pizzaos-radius-control);
+  padding: 11px 14px;
+  border-radius: 12px;
   text-decoration: none;
   color: var(--pizzaos-color-foreground-muted);
-  font-weight: 500;
+  font-weight: 700;
   transition: all var(--pizzaos-motion-duration-fast) var(--pizzaos-motion-ease-standard);
 }
 
@@ -56,21 +66,23 @@
 
 .navItemActive
 {
-  background-color: rgba(0, 0, 0, 0.1);
-  color: var(--pizzaos-color-primary-foreground);
+  background-color: rgba(var(--pizzaos-color-primary-rgb), 0.1);
+  color: var(--pizzaos-color-primary);
+  box-shadow: inset 0 0 0 1px rgba(var(--pizzaos-color-primary-rgb), 0.06);
 }
 
 .navButton {
-  padding: 10px 12px;
-  border-radius: var(--pizzaos-radius-control);
+  padding: 11px 14px;
+  border-radius: 12px;
   text-decoration: none;
   color: var(--pizzaos-color-foreground-muted);
-  font-weight: 500;
+  font-weight: 700;
   transition: all var(--pizzaos-motion-duration-fast) var(--pizzaos-motion-ease-standard);
   border: none;
   text-align: left;
   cursor: pointer;
-  font-size: 1rem;
+  font-size: 0.96rem;
+  background: transparent;
 }
 
 .navButton:hover {
@@ -81,8 +93,12 @@
 .sidebarFooter
 {
   margin-top: auto;
-  padding-top: 16px;
+  padding: 18px;
   border-top: 1px solid var(--pizzaos-color-border);
+  border-radius: 16px;
+  background:
+    radial-gradient(circle at 100% 0%, rgba(var(--pizzaos-color-primary-rgb), 0.08), transparent 42%),
+    #fffaf8;
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -100,46 +116,57 @@
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 32px;
+  margin-bottom: 28px;
+  gap: 24px;
 }
 
 .headerInfo h2 {
   margin: 0;
-  font-size: 1.75rem;
+  font-size: clamp(2rem, 3vw, 2.55rem);
+  font-weight: 900;
   letter-spacing: -0.02em;
+  line-height: 1;
 }
 
 .headerInfo p {
-  margin: 0;
+  margin: 9px 0 0;
   color: var(--pizzaos-color-foreground-muted);
+  font-size: 1rem;
 }
 
 .dashboardGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 24px;
+  grid-template-columns: repeat(auto-fill, minmax(285px, 1fr));
+  gap: 18px;
+  align-items: stretch;
 }
 
 .statGrid {
-  margin-top: 16px;
+  margin-top: 18px;
   display: flex;
-  gap: 12px;
+  gap: 16px;
+  flex-wrap: wrap;
 }
 
 .statItemLabel {
   font-size: 0.75rem;
-  font-weight: 700;
+  font-weight: 800;
   color: var(--pizzaos-color-foreground-muted);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
 }
 
 .statItemValue {
-  font-size: 1.5rem;
-  font-weight: 700;
+  font-size: 1.85rem;
+  font-weight: 900;
+  line-height: 1.05;
+  margin-top: 5px;
 }
 
 .statItemValueSmall {
-  font-size: 1.1rem;
-  font-weight: 700;
+  font-size: 1.15rem;
+  font-weight: 900;
+  margin-top: 5px;
 }
 
 .statWarning {
@@ -151,7 +178,7 @@
 }
 
 .insightTitle {
-  font-weight: 700;
+  font-weight: 900;
   margin-bottom: 4px;
 }
 
@@ -171,4 +198,7 @@
   text-align: center;
   padding: 48px;
   color: var(--pizzaos-color-foreground-muted);
+  border: 1px dashed var(--pizzaos-color-border);
+  border-radius: var(--pizzaos-radius-card);
+  background: rgba(255, 255, 255, 0.72);
 }

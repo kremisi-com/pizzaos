@@ -10,7 +10,7 @@
   font-size: 1.5rem;
   font-weight: 700;
   margin-bottom: 1.25rem;
-  color: #1a1a1a;
+  color: var(--pizzaos-color-foreground);
 }
 
 .grid {
@@ -21,11 +21,11 @@
 
 /* Coupon Card */
 .couponCard {
-  background: white;
-  border: 1px solid #e5e5e5;
-  border-radius: 12px;
+  background: #ffffff;
+  border: 1px solid var(--pizzaos-color-border);
+  border-radius: var(--pizzaos-radius-card);
   padding: 1.25rem;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  box-shadow: var(--pizzaos-elevation-card);
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
@@ -41,7 +41,8 @@
   font-family: monospace;
   font-weight: 700;
   font-size: 1.125rem;
-  background: #f3f4f6;
+  background: #fff2ef;
+  color: var(--pizzaos-color-primary);
   padding: 0.25rem 0.5rem;
   border-radius: 4px;
 }
@@ -55,7 +56,7 @@
 }
 
 .statusActive { background: #dcfce7; color: #166534; }
-.statusInactive { background: #f3f4f6; color: #4b5563; }
+.statusInactive { background: #fffaf8; color: var(--pizzaos-color-foreground-muted); }
 .statusExpired { background: #fee2e2; color: #991b1b; }
 
 .couponDetails {
@@ -63,20 +64,20 @@
   flex-direction: column;
   gap: 0.25rem;
   font-size: 0.875rem;
-  color: #4b5563;
+  color: var(--pizzaos-color-foreground-muted);
 }
 
 .discount {
   font-size: 1.25rem;
   font-weight: 700;
-  color: #111827;
+  color: var(--pizzaos-color-foreground);
 }
 
 /* Automation Card */
 .automationCard {
-  background: white;
-  border: 1px solid #e5e5e5;
-  border-radius: 12px;
+  background: #ffffff;
+  border: 1px solid var(--pizzaos-color-border);
+  border-radius: var(--pizzaos-radius-card);
   padding: 1.25rem;
   display: flex;
   flex-direction: column;
@@ -96,7 +97,7 @@
 
 .automationDesc {
   font-size: 0.875rem;
-  color: #6b7280;
+  color: var(--pizzaos-color-foreground-muted);
 }
 
 .toggleLabel {
@@ -116,36 +117,36 @@
 }
 
 .tierCard {
-  background: white;
-  border: 1px solid #e5e5e5;
-  border-radius: 12px;
+  background: #ffffff;
+  border: 1px solid var(--pizzaos-color-border);
+  border-radius: var(--pizzaos-radius-card);
   padding: 1.5rem;
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  box-shadow: var(--pizzaos-elevation-card);
 }
 
 .tierHeader {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-bottom: 1px solid #f3f4f6;
+  border-bottom: 1px solid var(--pizzaos-color-border);
   padding-bottom: 0.75rem;
 }
 
 .tierName {
   font-size: 1.25rem;
   font-weight: 700;
-  color: #111827;
+  color: var(--pizzaos-color-foreground);
   margin: 0;
 }
 
 .tierPoints {
   font-size: 0.875rem;
   font-weight: 600;
-  color: #6b7280;
-  background: #f3f4f6;
+  color: var(--pizzaos-color-primary);
+  background: #fff2ef;
   padding: 0.25rem 0.5rem;
   border-radius: 4px;
 }
@@ -158,7 +159,7 @@
   font-size: 0.75rem;
   font-weight: 700;
   text-transform: uppercase;
-  color: #9ca3af;
+  color: var(--pizzaos-color-foreground-muted);
   letter-spacing: 0.05em;
 }
 
@@ -166,16 +167,16 @@
   margin: 0.5rem 0 0;
   padding-left: 1.25rem;
   font-size: 0.875rem;
-  color: #4b5563;
+  color: var(--pizzaos-color-foreground-muted);
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
 }
 
 .editButton {
-  background: white;
-  border: 1px solid #d1d5db;
-  color: #374151;
+  background: #ffffff;
+  border: 1px solid var(--pizzaos-color-border);
+  color: var(--pizzaos-color-foreground);
   padding: 0.5rem;
   border-radius: 6px;
   font-size: 0.875rem;
@@ -185,8 +186,8 @@
 }
 
 .editButton:hover {
-  background: #f9fafb;
-  border-color: #9ca3af;
+  background: #fffaf8;
+  border-color: rgba(var(--pizzaos-color-primary-rgb), 0.22);
 }
 
 .pointsConfig {
@@ -195,8 +196,8 @@
   gap: 0.5rem;
   font-size: 0.875rem;
   font-weight: 600;
-  color: #4b5563;
-  background: #f3f4f6;
+  color: var(--pizzaos-color-foreground-muted);
+  background: #fffaf8;
   padding: 0.5rem 0.75rem;
   border-radius: 8px;
 }
@@ -204,7 +205,7 @@
 .pointsInput {
   width: 50px;
   padding: 0.25rem;
-  border: 1px solid #d1d5db;
+  border: 1px solid var(--pizzaos-color-border);
   border-radius: 4px;
   text-align: center;
   font-weight: 700;
@@ -228,7 +229,7 @@
 
 .dynamicPricingDescription {
   margin: 0;
-  color: #4b5563;
+  color: var(--pizzaos-color-foreground-muted);
   font-size: 0.875rem;
 }
 
@@ -238,7 +239,7 @@
 
 /* Loyalty Panel - Keep for reference or potential removal later */
 .loyaltyPanel {
-  background: #111827;
+  background: linear-gradient(135deg, #18110f 0%, #3a1712 100%);
   color: white;
   border-radius: 16px;
   padding: 2rem;
@@ -298,7 +299,7 @@
 }
 
 .createButton {
-  background: #111827;
+  background: var(--pizzaos-color-primary);
   color: white;
   padding: 0.5rem 1rem;
   border-radius: 8px;
@@ -309,5 +310,5 @@
 }
 
 .createButton:hover {
-  background: #374151;
+  background: #d92918;
 }

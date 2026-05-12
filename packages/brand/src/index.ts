@@ -118,18 +118,26 @@ export const SURFACE_THEME_TOKENS: Record<AppSurface, SurfaceThemeTokens> = {
   },
   admin: {
     ...BASE_THEME_TOKENS,
+    radius: {
+      card: "14px",
+      control: "10px"
+    },
+    elevation: {
+      card: "0 18px 46px rgba(32, 25, 20, 0.08)",
+      overlay: "0 25px 60px rgba(32, 25, 20, 0.12)"
+    },
     color: {
-      background: "#f5f8ff",
-      backgroundAccent: "#eef1f4",
-      foreground: "#0f1724",
-      foregroundMuted: "#415062",
-      border: "rgba(15, 23, 36, 0.2)",
-      primary: "#1a5fff",
-      primaryForeground: "#eef4ff"
+      background: "#faf8f7",
+      backgroundAccent: "#ffffff",
+      foreground: "#111318",
+      foregroundMuted: "#5f6672",
+      border: "rgba(31, 28, 25, 0.1)",
+      primary: "#f43a26",
+      primaryForeground: "#ffffff"
     },
     type: {
-      family: "\"IBM Plex Sans\", \"Segoe UI\", sans-serif",
-      headingWeight: "650",
+      family: "\"Google Sans\", \"Segoe UI\", sans-serif",
+      headingWeight: "800",
       bodyWeight: "450"
     }
   }
@@ -147,6 +155,16 @@ export function getThemeClass(surface: AppSurface): string
   return SURFACE_THEME_CLASS[surface];
 }
 
+function getHexColorRgb(hexColor: string): string
+{
+  const normalizedHexColor = hexColor.replace("#", "");
+  const red = Number.parseInt(normalizedHexColor.slice(0, 2), 16);
+  const green = Number.parseInt(normalizedHexColor.slice(2, 4), 16);
+  const blue = Number.parseInt(normalizedHexColor.slice(4, 6), 16);
+
+  return `${red}, ${green}, ${blue}`;
+}
+
 export function getThemeStyleVariables(surface: AppSurface): SurfaceThemeStyleVariables
 {
   const surfaceThemeTokens = getSurfaceThemeTokens(surface);
@@ -158,7 +176,10 @@ export function getThemeStyleVariables(surface: AppSurface): SurfaceThemeStyleVa
     "--pizzaos-color-foreground-muted": surfaceThemeTokens.color.foregroundMuted,
     "--pizzaos-color-border": surfaceThemeTokens.color.border,
     "--pizzaos-color-primary": surfaceThemeTokens.color.primary,
+    "--pizzaos-color-primary-rgb": getHexColorRgb(surfaceThemeTokens.color.primary),
     "--pizzaos-color-primary-foreground": surfaceThemeTokens.color.primaryForeground,
+    "--pizzaos-color-warning": "#f59e0b",
+    "--pizzaos-color-critical": "#dc2626",
     "--pizzaos-font-family": surfaceThemeTokens.type.family,
     "--pizzaos-font-weight-heading": surfaceThemeTokens.type.headingWeight,
     "--pizzaos-font-weight-body": surfaceThemeTokens.type.bodyWeight,
