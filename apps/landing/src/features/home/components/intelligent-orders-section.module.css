@@ -1036,4 +1036,8 @@
     white-space: normal;
     text-align: center;
   }
+
+  .deliveryPartnerText b {
+    font-size: 30px;
+  }
 }

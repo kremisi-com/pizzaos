@@ -72,7 +72,7 @@
 /* ── Headline ── */
 .headline {
   font-family: var(--font-heading);
-  font-size: clamp(48px, 5.5vw, 72px);
+  font-size: clamp(65px, 5.5vw, 72px);
   font-weight: 850;
   line-height: 1.05;
   letter-spacing: -0.02em;
@@ -569,7 +569,7 @@
 
   .primaryCta,
   .secondaryCta {
-    font-size: 14px;
+    font-size: 22px;
   }
 
   .featureStripInner {

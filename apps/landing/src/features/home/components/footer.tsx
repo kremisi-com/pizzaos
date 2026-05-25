@@ -22,7 +22,7 @@ const NAV_COLUMNS = [
       { label: "Meno costi, più margine", href: "#prezzi" },
       { label: "Piani semplici", href: "#piani" },
       { label: "Prova gratuita", href: "#richiedi-demo" },
-      { label: "Domande frequenti", href: "#faq" },
+      { label: "Contattaci", href: "#faq" },
     ],
   },
 ] as const;
@@ -68,8 +68,7 @@ export function Footer({
               {col.links
                 .filter(
                   (link) =>
-                    showChainManagementLink ||
-                    link.href !== "#gestione-catene",
+                    showChainManagementLink || link.href !== "#gestione-catene",
                 )
                 .map((link) => (
                   <a
