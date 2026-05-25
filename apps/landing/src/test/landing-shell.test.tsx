@@ -77,7 +77,14 @@ describe("landing shell", () => {
   it("mounts the primary landing sections", () => {
     const markup = renderToString(createElement(LandingShell));
 
-    expect(markup).toContain("Trasforma la tua");
+    expect(markup).toContain("Smetti di rincorrere");
+    expect(markup).toContain("Inizia a controllarli");
+    expect(markup).toContain(
+      "PizzaOS organizza ordini, consegne e clienti in modo semplice",
+    );
+    expect(markup).toContain(
+      "Pensato per il ritmo reale di una pizzeria",
+    );
     expect(markup).toContain("LE SFIDE DI OGNI PIZZERIA");
     expect(markup).toContain("soluzione-completa");
     expect(markup).toContain("Tre modi di gestire una pizzeria.");

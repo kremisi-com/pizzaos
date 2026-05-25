@@ -16,22 +16,22 @@ export function HeroSection({ onRequestDemo }: HeroSectionProps): ReactElement {
         <div className={styles.copy}>
           {/* Headline */}
           <h1 className={styles.headline}>
-            Trasforma la tua
+            Smetti di rincorrere
             <br />
-            pizzeria in una
+            gli ordini.
             <br />
             <span className={styles.headlineAccent}>
-              macchina di
-              <br />
-              ordini diretti.
+              Inizia a controllarli.
             </span>
           </h1>
 
           {/* Subline */}
           <p className={styles.subline}>
-            Più ordini. Più clienti. Più controllo.
+            PizzaOS organizza ordini, consegne e clienti in modo semplice e
+            tutto in un unico sistema.
             <br />
-            Tutto in un&apos;unica piattaforma, zero commissioni.
+            Pensato per il ritmo reale di una pizzeria. Così puoi concentrarti
+            su quello che conta davvero.
           </p>
 
           <div className={styles.featureStrip}>
