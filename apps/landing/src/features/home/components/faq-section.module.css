@@ -1,6 +1,7 @@
 .section {
   overflow: hidden;
   padding: 0px 0 72px;
+  scroll-margin-top: 104px;
 }
 
 .inner {
@@ -293,7 +294,7 @@
 
 .contactGrid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
 }
 
@@ -318,10 +319,6 @@
     box-shadow var(--duration-fast) var(--ease);
   cursor: pointer;
 }
-.contactItem:nth-child(1) {
-  grid-column: 2;
-}
-
 .contactIcon,
 .contactIconGreen {
   width: 46px;
@@ -368,6 +365,7 @@
   font-size: 13px;
   font-weight: 500;
   line-height: 1.35;
+  overflow-wrap: anywhere;
 }
 
 .signature {
@@ -468,6 +466,10 @@
 
   .supportPanel {
     padding: 22px 18px;
+  }
+
+  .contactItem {
+    grid-template-columns: 46px minmax(0, 1fr);
   }
 
   .signature {

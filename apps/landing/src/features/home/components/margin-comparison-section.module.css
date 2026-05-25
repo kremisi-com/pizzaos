@@ -4,6 +4,7 @@
   background:
     radial-gradient(circle at 50% 0%, rgba(244, 58, 38, 0.05), transparent 34%),
     linear-gradient(180deg, #fffdfb 0%, #ffffff 46%, #fffdfb 100%);
+  scroll-margin-top: 104px;
 }
 
 .inner {
@@ -501,12 +502,21 @@
   }
 
   .valueCell {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(84px, 0.34fr) 30px minmax(0, 1fr);
+    align-items: center;
+    gap: 12px;
+    padding: 15px 18px;
   }
 
   .statusIcon {
     width: 30px;
     height: 30px;
+  }
+
+  .valueCell strong,
+  .valueCell span:not(.mobileColumn) {
+    justify-content: flex-start;
+    text-align: left;
   }
 
   .cumulativeCard {
