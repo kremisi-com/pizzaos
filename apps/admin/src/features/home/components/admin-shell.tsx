@@ -6,11 +6,18 @@ import {
   reseedDemoState,
   advanceOrderSimulation,
   getDemoStateStorageKey,
-  type AdminSeed
+  ADMIN_SIMULATION_INTERVAL_MS,
+  ORDER_SIMULATION_STEP_MS,
+  type AdminSeed,
 } from "@pizzaos/mock-data";
-import { type OrderStatus, type Product, type Menu, type Ingredient } from "@pizzaos/domain";
-import { Button, Card, StatusIndicator } from "@pizzaos/ui";
-import { useState, type ReactElement, useEffect } from "react";
+import {
+  type OrderStatus,
+  type Product,
+  type Menu,
+  type Ingredient,
+} from "@pizzaos/domain";
+import { Button, Card } from "@pizzaos/ui";
+import { useCallback, useState, type ReactElement, useEffect } from "react";
 import { OrdersDashboard } from "../../orders/components/orders-dashboard";
 import { StoreSwitcher } from "../../store-switch/components/store-switcher";
 import { CatalogManager } from "../../catalog/components/catalog-manager";
@@ -25,10 +32,18 @@ import styles from "./admin-shell.module.css";
 
 const APP_ID = "admin" as const;
 
-function resolveStorage(): Storage | undefined
-{
-  if (typeof window === "undefined")
-  {
+function deriveNextSimulationDate(simulationCursorIso: string): Date {
+  const cursorTimestamp = Date.parse(simulationCursorIso);
+
+  if (!Number.isFinite(cursorTimestamp)) {
+    return new Date();
+  }
+
+  return new Date(cursorTimestamp + ORDER_SIMULATION_STEP_MS);
+}
+
+function resolveStorage(): Storage | undefined {
+  if (typeof window === "undefined") {
     return undefined;
   }
 
@@ -45,26 +60,51 @@ function resolveStorage(): Storage | undefined
   return localStorage;
 }
 
-export function AdminShell(): ReactElement
-{
-  const [seed, setSeed] = useState<AdminSeed>(() => loadDemoState(APP_ID, { storage: resolveStorage() }));
+export function AdminShell(): ReactElement {
+  const [seed, setSeed] = useState<AdminSeed>(() =>
+    loadDemoState(APP_ID, { storage: resolveStorage() }),
+  );
 
-  const [activeTab, setActiveTab] = useState<"dashboard" | "orders" | "catalog" | "inventory" | "marketing" | "analytics" | "delivery" | "integrations" | "profile">("dashboard");
+  const [activeTab, setActiveTab] = useState<
+    | "dashboard"
+    | "orders"
+    | "catalog"
+    | "inventory"
+    | "marketing"
+    | "analytics"
+    | "delivery"
+    | "integrations"
+    | "profile"
+  >("dashboard");
+  const [isSimulationRunning, setIsSimulationRunning] = useState(true);
 
   const activeDataset = seed.datasetsByStoreId[seed.activeStoreId];
 
-  const pendingOrdersCount = activeDataset.orders.filter(o => o.status === "received" || o.status === "confirmed").length;
-  const preparingOrdersCount = activeDataset.orders.filter(o => o.status === "preparing").length;
-  const outForDeliveryOrdersCount = activeDataset.orders.filter(o => o.status === "out_for_delivery").length;
+  const pendingOrdersCount = activeDataset.orders.filter(
+    (o) => o.status === "received" || o.status === "confirmed",
+  ).length;
+  const preparingOrdersCount = activeDataset.orders.filter(
+    (o) => o.status === "preparing",
+  ).length;
+  const outForDeliveryOrdersCount = activeDataset.orders.filter(
+    (o) => o.status === "out_for_delivery",
+  ).length;
 
-  const lowStockCount = activeDataset.inventory.filter(i => i.status === "low_stock").length;
-  const outOfStockCount = activeDataset.inventory.filter(i => i.status === "out_of_stock").length;
+  const lowStockCount = activeDataset.inventory.filter(
+    (i) => i.status === "low_stock",
+  ).length;
+  const outOfStockCount = activeDataset.inventory.filter(
+    (i) => i.status === "out_of_stock",
+  ).length;
 
-  const availableRidersCount = activeDataset.riders?.filter(r => r.status === "available").length ?? 0;
-  const busyRidersCount = activeDataset.riders?.filter(r => r.status === "busy").length ?? 0;
+  const availableRidersCount =
+    activeDataset.riders?.filter((r) => r.status === "available").length ?? 0;
+  const busyRidersCount =
+    activeDataset.riders?.filter((r) => r.status === "busy").length ?? 0;
 
   const topInsight = activeDataset.insights?.[0];
-  const inventoryIngredients: readonly Ingredient[] = activeDataset.products.flatMap((product) => product.ingredients ?? []);
+  const inventoryIngredients: readonly Ingredient[] =
+    activeDataset.products.flatMap((product) => product.ingredients ?? []);
 
   useEffect(() => {
     const storage = resolveStorage();
@@ -74,19 +114,18 @@ export function AdminShell(): ReactElement
     }
   }, [seed]);
 
-  function handleResetClick(): void
-  {
-    const resetSeed = resetDemoState(APP_ID, { storage: resolveStorage() });
-    setSeed(resetSeed);
-  }
-
-  function handleAdvanceSimulation(): void {
+  const handleAdvanceSimulation = useCallback((): void => {
     setSeed((currentSeed) => {
       const activeStoreId = currentSeed.activeStoreId;
       const currentDataset = currentSeed.datasetsByStoreId[activeStoreId];
-      const now = new Date();
+      const nextSimulationDate = deriveNextSimulationDate(
+        currentDataset.simulationCursorIso,
+      );
 
-      const updatedDataset = advanceOrderSimulation(currentDataset, now);
+      const updatedDataset = advanceOrderSimulation(
+        currentDataset,
+        nextSimulationDate,
+      );
 
       if (updatedDataset === currentDataset) {
         return currentSeed;
@@ -100,19 +139,40 @@ export function AdminShell(): ReactElement
         },
       };
     });
+  }, []);
+
+  useEffect(() => {
+    if (!isSimulationRunning) {
+      return undefined;
+    }
+
+    const intervalId = window.setInterval(
+      handleAdvanceSimulation,
+      ADMIN_SIMULATION_INTERVAL_MS,
+    );
+
+    return () => window.clearInterval(intervalId);
+  }, [handleAdvanceSimulation, isSimulationRunning]);
+
+  function handleResetClick(): void {
+    const resetSeed = resetDemoState(APP_ID, { storage: resolveStorage() });
+    setSeed(resetSeed);
   }
 
-  function handleStoreChange(storeId: string): void
-  {
+  function handleStoreChange(storeId: string): void {
     const updatedSeed = reseedDemoState(APP_ID, {
       storage: resolveStorage(),
-      storeId
+      storeId,
     }) as AdminSeed;
 
     setSeed(updatedSeed);
   }
 
-  function handleOrderStatusUpdate(orderId: string, nextStatus: OrderStatus, riderId?: string): void {
+  function handleOrderStatusUpdate(
+    orderId: string,
+    nextStatus: OrderStatus,
+    riderId?: string,
+  ): void {
     setSeed((currentSeed) => {
       const activeStoreId = currentSeed.activeStoreId;
       const currentDataset = currentSeed.datasetsByStoreId[activeStoreId];
@@ -129,21 +189,28 @@ export function AdminShell(): ReactElement
         return order;
       });
 
-      const updatedRiders = currentDataset.riders?.map((rider) => {
-        if (rider.id === riderId) {
-          return {
-            ...rider,
-            status: nextStatus === "out_for_delivery" ? ("busy" as const) : rider.status,
-          };
-        }
-        if (nextStatus === "delivered" && rider.id === updatedOrders.find(o => o.id === orderId)?.riderId) {
-          return {
-            ...rider,
-            status: "available" as const,
-          };
-        }
-        return rider;
-      }) ?? [];
+      const updatedRiders =
+        currentDataset.riders?.map((rider) => {
+          if (rider.id === riderId) {
+            return {
+              ...rider,
+              status:
+                nextStatus === "out_for_delivery"
+                  ? ("busy" as const)
+                  : rider.status,
+            };
+          }
+          if (
+            nextStatus === "delivered" &&
+            rider.id === updatedOrders.find((o) => o.id === orderId)?.riderId
+          ) {
+            return {
+              ...rider,
+              status: "available" as const,
+            };
+          }
+          return rider;
+        }) ?? [];
 
       return {
         ...currentSeed,
@@ -165,7 +232,7 @@ export function AdminShell(): ReactElement
       const currentDataset = currentSeed.datasetsByStoreId[activeStoreId];
 
       const updatedMenus = currentDataset.menus.map((m) =>
-        m.id === updatedMenu.id ? updatedMenu : m
+        m.id === updatedMenu.id ? updatedMenu : m,
       );
 
       return {
@@ -175,7 +242,10 @@ export function AdminShell(): ReactElement
           [activeStoreId]: {
             ...currentDataset,
             menus: updatedMenus,
-            menu: updatedMenu.id === currentDataset.menu.id ? updatedMenu : currentDataset.menu,
+            menu:
+              updatedMenu.id === currentDataset.menu.id
+                ? updatedMenu
+                : currentDataset.menu,
           },
         },
       };
@@ -188,7 +258,7 @@ export function AdminShell(): ReactElement
       const currentDataset = currentSeed.datasetsByStoreId[activeStoreId];
 
       const updatedProducts = currentDataset.products.map((p) =>
-        p.id === updatedProduct.id ? updatedProduct : p
+        p.id === updatedProduct.id ? updatedProduct : p,
       );
 
       return {
@@ -222,13 +292,17 @@ export function AdminShell(): ReactElement
     });
   }
 
-  function handleUpdateInventoryItem(itemId: string, status: "in_stock" | "low_stock" | "out_of_stock", availableUnits: number): void {
+  function handleUpdateInventoryItem(
+    itemId: string,
+    status: "in_stock" | "low_stock" | "out_of_stock",
+    availableUnits: number,
+  ): void {
     setSeed((currentSeed) => {
       const activeStoreId = currentSeed.activeStoreId;
       const currentDataset = currentSeed.datasetsByStoreId[activeStoreId];
 
       const updatedInventory = currentDataset.inventory.map((item) =>
-        item.id === itemId ? { ...item, status, availableUnits } : item
+        item.id === itemId ? { ...item, status, availableUnits } : item,
       );
 
       return {
@@ -315,10 +389,18 @@ export function AdminShell(): ReactElement
         />
 
         <div className={styles.sidebarFooter}>
-          <Button onClick={handleAdvanceSimulation} variant="primary" className={styles.advanceButton}>
-            Avanza Simulazione
+          <Button
+            onClick={() => setIsSimulationRunning((current) => !current)}
+            variant={isSimulationRunning ? "secondary" : "primary"}
+            className={styles.advanceButton}
+          >
+            {isSimulationRunning ? "Pausa simulazione" : "Riprendi simulazione"}
           </Button>
-          <Button onClick={handleResetClick} variant="secondary" className={styles.resetButton}>
+          <Button
+            onClick={handleResetClick}
+            variant="secondary"
+            className={styles.resetButton}
+          >
             Reset Demo
           </Button>
         </div>
@@ -328,33 +410,47 @@ export function AdminShell(): ReactElement
         <header className={styles.header}>
           <div className={styles.headerInfo}>
             <h2>
-              {activeTab === "dashboard" ? seed.title : 
-               activeTab === "marketing" ? "Marketing & Loyalty" : 
-               activeTab === "analytics" ? "Analytics and AI" : 
-               activeTab === "delivery" ? "Gestione Consegne" :
-                activeTab === "integrations" ? "Integrazioni Esterne" :
-               activeTab === "profile" ? "Profilo Ristoratore" :
-                "Gestione Operativa"}
+              {activeTab === "dashboard"
+                ? seed.title
+                : activeTab === "marketing"
+                  ? "Marketing & Loyalty"
+                  : activeTab === "analytics"
+                    ? "Analytics and AI"
+                    : activeTab === "delivery"
+                      ? "Gestione Consegne"
+                      : activeTab === "integrations"
+                        ? "Integrazioni Esterne"
+                        : activeTab === "profile"
+                          ? "Profilo Ristoratore"
+                          : "Gestione Operativa"}
             </h2>
             <p>
-              {activeTab === "dashboard" ? seed.subtitle : activeDataset.store.displayName}
+              {activeTab === "dashboard"
+                ? seed.subtitle
+                : activeDataset.store.displayName}
             </p>
           </div>
-          <StatusIndicator tone="active" label="Sistema Operativo" />
         </header>
 
         {activeTab === "dashboard" ? (
           <div className={styles.dashboardGrid}>
-            <Card title="Stato Negozio" subtitle={activeDataset.store.displayName}>
+            <Card
+              title="Stato Negozio"
+              subtitle={activeDataset.store.displayName}
+            >
               <p>{activeDataset.store.city}</p>
               <div className={styles.statGrid}>
                 <div>
                   <div className={styles.statItemLabel}>ORDINI OGGI</div>
-                  <div className={styles.statItemValue}>{activeDataset.orders.length}</div>
+                  <div className={styles.statItemValue}>
+                    {activeDataset.orders.length}
+                  </div>
                 </div>
                 <div>
                   <div className={styles.statItemLabel}>REVENUE</div>
-                  <div className={styles.statItemValue}>{formatMoney(activeDataset.analytics.revenueToday)}</div>
+                  <div className={styles.statItemValue}>
+                    {formatMoney(activeDataset.analytics.revenueToday)}
+                  </div>
                 </div>
               </div>
             </Card>
@@ -363,15 +459,21 @@ export function AdminShell(): ReactElement
               <div className={styles.statGrid}>
                 <div>
                   <div className={styles.statItemLabel}>IN ATTESA</div>
-                  <div className={styles.statItemValue}>{pendingOrdersCount}</div>
+                  <div className={styles.statItemValue}>
+                    {pendingOrdersCount}
+                  </div>
                 </div>
                 <div>
                   <div className={styles.statItemLabel}>IN CUCINA</div>
-                  <div className={styles.statItemValue}>{preparingOrdersCount}</div>
+                  <div className={styles.statItemValue}>
+                    {preparingOrdersCount}
+                  </div>
                 </div>
                 <div>
                   <div className={styles.statItemLabel}>IN CONSEGNA</div>
-                  <div className={styles.statItemValue}>{outForDeliveryOrdersCount}</div>
+                  <div className={styles.statItemValue}>
+                    {outForDeliveryOrdersCount}
+                  </div>
                 </div>
               </div>
             </Card>
@@ -380,13 +482,17 @@ export function AdminShell(): ReactElement
               <div className={styles.statGrid}>
                 <div>
                   <div className={styles.statItemLabel}>SCORTE BASSE</div>
-                  <div className={`${styles.statItemValue} ${lowStockCount > 0 ? styles.statWarning : ""}`}>
+                  <div
+                    className={`${styles.statItemValue} ${lowStockCount > 0 ? styles.statWarning : ""}`}
+                  >
                     {lowStockCount}
                   </div>
                 </div>
                 <div>
                   <div className={styles.statItemLabel}>ESAURITI</div>
-                  <div className={`${styles.statItemValue} ${outOfStockCount > 0 ? styles.statDanger : ""}`}>
+                  <div
+                    className={`${styles.statItemValue} ${outOfStockCount > 0 ? styles.statDanger : ""}`}
+                  >
                     {outOfStockCount}
                   </div>
                 </div>
@@ -397,7 +503,9 @@ export function AdminShell(): ReactElement
               <div className={styles.statGrid}>
                 <div>
                   <div className={styles.statItemLabel}>DISPONIBILI</div>
-                  <div className={styles.statItemValue}>{availableRidersCount}</div>
+                  <div className={styles.statItemValue}>
+                    {availableRidersCount}
+                  </div>
                 </div>
                 <div>
                   <div className={styles.statItemLabel}>OCCUPATI</div>
@@ -410,11 +518,15 @@ export function AdminShell(): ReactElement
               <div className={styles.statGrid}>
                 <div>
                   <div className={styles.statItemLabel}>MENU ATTIVO</div>
-                  <div className={styles.statItemValueSmall}>{activeDataset.menu.name}</div>
+                  <div className={styles.statItemValueSmall}>
+                    {activeDataset.menu.name}
+                  </div>
                 </div>
                 <div>
                   <div className={styles.statItemLabel}>PRODOTTI</div>
-                  <div className={styles.statItemValue}>{activeDataset.products.length}</div>
+                  <div className={styles.statItemValue}>
+                    {activeDataset.products.length}
+                  </div>
                 </div>
               </div>
             </Card>
@@ -424,7 +536,8 @@ export function AdminShell(): ReactElement
                 <div>
                   <div className={styles.statItemLabel}>COUPON ATTIVI</div>
                   <div className={styles.statItemValue}>
-                    {activeDataset.coupons?.filter(c => c.status === "active").length ?? 0}
+                    {activeDataset.coupons?.filter((c) => c.status === "active")
+                      .length ?? 0}
                   </div>
                 </div>
                 <div>
@@ -441,10 +554,12 @@ export function AdminShell(): ReactElement
                 <p className={styles.insightTitle}>{topInsight.title}</p>
                 <p className={styles.insightSummary}>{topInsight.summary}</p>
                 <div className={styles.statGrid}>
-                   <div>
-                     <div className={styles.statItemLabel}>CONFIDENZA</div>
-                     <div className={styles.statItemValue}>{Math.round(topInsight.confidenceScore * 100)}%</div>
-                   </div>
+                  <div>
+                    <div className={styles.statItemLabel}>CONFIDENZA</div>
+                    <div className={styles.statItemValue}>
+                      {Math.round(topInsight.confidenceScore * 100)}%
+                    </div>
+                  </div>
                 </div>
               </Card>
             )}
@@ -452,22 +567,26 @@ export function AdminShell(): ReactElement
             <Card title="Integrazioni">
               <div className={styles.statGrid}>
                 <div>
-                   <div className={styles.statItemLabel}>GLOVO</div>
-                   <div className={styles.statItemValueSmall}>Connesso</div>
+                  <div className={styles.statItemLabel}>GLOVO</div>
+                  <div className={styles.statItemValueSmall}>Connesso</div>
                 </div>
                 <div>
-                   <div className={styles.statItemLabel}>STRIPE</div>
-                   <div className={styles.statItemValueSmall}>Connesso</div>
+                  <div className={styles.statItemLabel}>STRIPE</div>
+                  <div className={styles.statItemValueSmall}>Connesso</div>
                 </div>
               </div>
             </Card>
 
             <Card title="Info Demo">
-              <p>Questa è una superficie demo frontend-only. Tutti i dati sono simulati localmente.</p>
+              <p>
+                Questa è una superficie demo frontend-only. Tutti i dati sono
+                simulati localmente.
+              </p>
               <ul className={styles.infoList}>
                 <li>Persistenza: localStorage</li>
                 <li>Multi-store: Abilitato</li>
-                <li>Simulation loop: Manuale</li>
+                <li>Simulation loop: Automatico ogni 5s</li>
+                <li>Stato: {isSimulationRunning ? "Live" : "In pausa"}</li>
               </ul>
             </Card>
           </div>
@@ -481,10 +600,10 @@ export function AdminShell(): ReactElement
           />
         ) : activeTab === "catalog" ? (
           <CatalogManager
-             menus={activeDataset.menus}
-             products={activeDataset.products}
-             onUpdateMenu={handleUpdateMenu}
-             onUpdateProduct={handleUpdateProduct}
+            menus={activeDataset.menus}
+            products={activeDataset.products}
+            onUpdateMenu={handleUpdateMenu}
+            onUpdateProduct={handleUpdateProduct}
           />
         ) : activeTab === "marketing" ? (
           <MarketingManager
@@ -492,7 +611,9 @@ export function AdminShell(): ReactElement
             loyaltyConfig={activeDataset.loyaltyConfig}
             isDynamicPricingEnabled={activeDataset.isDynamicPricingEnabled}
             onToggleDynamicPricing={handleToggleDynamicPricing}
-            onCreateCoupon={() => alert("Funzionalità di creazione coupon in arrivo (POC)")}
+            onCreateCoupon={() =>
+              alert("Funzionalità di creazione coupon in arrivo (POC)")
+            }
           />
         ) : activeTab === "analytics" ? (
           <AnalyticsManager
