@@ -19,6 +19,10 @@ export default function RootLayout(props: RootLayoutProps): ReactElement
 
   return (
     <html lang="it">
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+      </head>
       <body
         className={getThemeClass(surface)}
         style={getThemeStyleVariables(surface) as CSSProperties}

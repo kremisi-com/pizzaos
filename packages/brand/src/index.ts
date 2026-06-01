@@ -138,7 +138,7 @@ export const SURFACE_THEME_TOKENS: Record<AppSurface, SurfaceThemeTokens> = {
     type: {
       family: "\"Google Sans\", \"Segoe UI\", sans-serif",
       headingWeight: "800",
-      bodyWeight: "450"
+      bodyWeight: "400"
     }
   }
 };

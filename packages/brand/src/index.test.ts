@@ -78,6 +78,7 @@ describe("@pizzaos/brand", () =>
     expect(SURFACE_THEME_TOKENS.admin.color.primary).toBe("#f43a26");
     expect(SURFACE_THEME_TOKENS.admin.color.background).toBe("#faf8f7");
     expect(SURFACE_THEME_TOKENS.admin.color.backgroundAccent).toBe("#ffffff");
+    expect(SURFACE_THEME_TOKENS.admin.type).toEqual(SURFACE_THEME_TOKENS.landing.type);
     expect(getThemeStyleVariables("admin")["--pizzaos-color-primary-rgb"]).toBe("244, 58, 38");
   });
 });
