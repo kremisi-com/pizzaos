@@ -707,7 +707,12 @@ export function AdminShell(): ReactElement {
                     className={`${styles.attentionAlertIcon} ${styles.attentionAlertIconWarning}`}
                     aria-hidden="true"
                   >
-                    !
+                    <Image
+                      alt=""
+                      height={18}
+                      src="/images/attention/exclamation.png"
+                      width={18}
+                    />
                   </span>
                   <div>
                     <p className={styles.attentionAlertTitle}>
@@ -726,7 +731,12 @@ export function AdminShell(): ReactElement {
                     className={`${styles.attentionAlertIcon} ${styles.attentionAlertIconDanger}`}
                     aria-hidden="true"
                   >
-                    !
+                    <Image
+                      alt=""
+                      height={18}
+                      src="/images/attention/danger.png"
+                      width={18}
+                    />
                   </span>
                   <div>
                     <p className={styles.attentionAlertTitle}>

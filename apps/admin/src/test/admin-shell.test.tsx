@@ -81,6 +81,8 @@ describe("admin shell", () =>
     expect(markup).toContain("Apri coda ordini");
     expect(markup).toContain("Nuovo ordine manuale");
     expect(markup).toContain("Attenzione");
+    expect(markup).toContain("%2Fimages%2Fattention%2Fexclamation.png");
+    expect(markup).toContain("%2Fimages%2Fattention%2Fdanger.png");
     expect(markup).toContain("2 ingredienti sotto scorta");
     expect(markup).toContain("Mozzarella, Rucola");
     expect(markup).toContain("1 prodotto esaurito");

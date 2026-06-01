@@ -572,21 +572,31 @@
   align-items: center;
   justify-content: center;
   border-radius: 999px;
-  font-size: 1rem;
-  font-weight: 900;
-  line-height: 1;
 }
 
 .attentionAlertIconWarning {
   border: 1px solid rgba(245, 158, 11, 0.7);
   background: rgba(245, 158, 11, 0.12);
-  color: #f59e0b;
 }
 
 .attentionAlertIconDanger {
   border: 1px solid rgba(255, 61, 48, 0.72);
   background: rgba(255, 61, 48, 0.1);
-  color: #ff3d30;
+}
+
+.attentionAlertIcon img {
+  display: block;
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+}
+
+.attentionAlertIconWarning img {
+  filter: invert(66%) sepia(91%) saturate(1492%) hue-rotate(353deg) brightness(100%) contrast(93%);
+}
+
+.attentionAlertIconDanger img {
+  filter: invert(38%) sepia(96%) saturate(3024%) hue-rotate(339deg) brightness(103%) contrast(105%);
 }
 
 .attentionAlertTitle {
