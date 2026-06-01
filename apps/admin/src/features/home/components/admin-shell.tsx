@@ -446,9 +446,56 @@ export function AdminShell(): ReactElement {
               <Card title="Ordini Live" />
             </div>
 
-            <div className={styles.attentionCard}>
-              <Card title="Attenzione" />
-            </div>
+            <article className={styles.attentionCard}>
+              <header className={styles.attentionHeader}>
+                <span className={styles.attentionHeaderIcon} aria-hidden="true">
+                  !
+                </span>
+                <h3>Attenzione</h3>
+              </header>
+
+              <div className={styles.attentionAlertBox}>
+                <div className={styles.attentionAlertRow}>
+                  <span
+                    className={`${styles.attentionAlertIcon} ${styles.attentionAlertIconWarning}`}
+                    aria-hidden="true"
+                  >
+                    !
+                  </span>
+                  <div>
+                    <p className={styles.attentionAlertTitle}>
+                      2 ingredienti sotto scorta
+                    </p>
+                    <p className={styles.attentionAlertDetail}>
+                      Mozzarella, Rucola
+                    </p>
+                  </div>
+                </div>
+
+                <div className={styles.attentionDivider} />
+
+                <div className={styles.attentionAlertRow}>
+                  <span
+                    className={`${styles.attentionAlertIcon} ${styles.attentionAlertIconDanger}`}
+                    aria-hidden="true"
+                  >
+                    !
+                  </span>
+                  <div>
+                    <p className={styles.attentionAlertTitle}>
+                      1 prodotto esaurito
+                    </p>
+                    <p className={styles.attentionAlertDetail}>
+                      Birra IPA 33cl
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className={styles.attentionStaticAction}>
+                Gestisci magazzino
+              </div>
+            </article>
 
             <div className={styles.quickActionsCard}>
               <Card title="Azioni rapide" />

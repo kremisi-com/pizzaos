@@ -14,7 +14,7 @@ export default defineConfig({
       "@pizzaos/ui": fileURLToPath(new URL("./packages/ui/src/index.tsx", import.meta.url)),
       "@pizzaos/testing": fileURLToPath(new URL("./packages/testing/src/index.ts", import.meta.url)),
       "@testing-library/react": fileURLToPath(new URL("./packages/testing/node_modules/@testing-library/react/dist/index.js", import.meta.url)),
-      "@/": fileURLToPath(new URL("./apps/admin/src/", import.meta.url))
+      "@": fileURLToPath(new URL("./apps/admin/src", import.meta.url))
     }
   },
   test: {

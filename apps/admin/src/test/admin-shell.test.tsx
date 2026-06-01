@@ -12,6 +12,23 @@ import { AdminShell } from "@/features/home/components/admin-shell";
 
 const ADMIN_STORAGE_KEY = getDemoStateStorageKey("admin");
 
+function createMemoryStorage(): Storage {
+  const values = new Map<string, string>();
+
+  return {
+    get length() {
+      return values.size;
+    },
+    clear: () => values.clear(),
+    getItem: (key: string) => values.get(key) ?? null,
+    key: (index: number) => Array.from(values.keys())[index] ?? null,
+    removeItem: (key: string) => values.delete(key),
+    setItem: (key: string, value: string) => values.set(key, value),
+  };
+}
+
+const testStorage = createMemoryStorage();
+
 function readPersistedAdminSeed(): AdminSeed {
   const persistedValue = window.localStorage.getItem(ADMIN_STORAGE_KEY);
 
@@ -25,6 +42,11 @@ function getExpectedNextCursorIso(cursorIso: string): string {
 }
 
 beforeEach(() => {
+  Object.defineProperty(window, "localStorage", {
+    configurable: true,
+    value: testStorage,
+  });
+
   window.localStorage.clear();
 });
 
@@ -49,6 +71,11 @@ describe("admin shell", () =>
     expect(markup).toContain("Pausa simulazione");
     expect(markup).toContain("Ordini Live");
     expect(markup).toContain("Attenzione");
+    expect(markup).toContain("2 ingredienti sotto scorta");
+    expect(markup).toContain("Mozzarella, Rucola");
+    expect(markup).toContain("1 prodotto esaurito");
+    expect(markup).toContain("Birra IPA 33cl");
+    expect(markup).toContain("Gestisci magazzino");
     expect(markup).toContain("Azioni rapide");
     expect(markup).toContain("Stato Negozio");
     expect(markup).toContain("Operatività Ordini");
@@ -63,6 +90,19 @@ describe("admin shell", () =>
     expect(markup).toContain("Stato:");
     expect(markup).toContain("Live");
     expect(markup).not.toContain("Avanza Simulazione");
+  });
+
+  it("renders the attention card as static inventory guidance", () => {
+    render(<AdminShell />);
+
+    expect(screen.getByText("2 ingredienti sotto scorta")).toBeDefined();
+    expect(screen.getByText("Mozzarella, Rucola")).toBeDefined();
+    expect(screen.getByText("1 prodotto esaurito")).toBeDefined();
+    expect(screen.getByText("Birra IPA 33cl")).toBeDefined();
+    expect(screen.getByText("Gestisci magazzino")).toBeDefined();
+    expect(
+      screen.queryByRole("button", { name: "Gestisci magazzino" }),
+    ).toBeNull();
   });
 
   it("automatically advances the active store simulation on the timer", () => {

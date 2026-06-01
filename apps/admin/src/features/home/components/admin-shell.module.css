@@ -143,9 +143,131 @@
   grid-column: span 2;
 }
 
-.attentionCard,
 .quickActionsCard {
   grid-column: span 1;
+}
+
+.attentionCard {
+  grid-column: span 1;
+  min-width: 0;
+  border: 1px solid rgba(255, 61, 48, 0.45);
+  border-radius: 8px;
+  padding: 28px 22px 20px;
+  background:
+    radial-gradient(circle at 84% 18%, rgba(255, 61, 48, 0.08), transparent 35%),
+    linear-gradient(180deg, #fff9f8 0%, #fffefe 100%);
+  box-shadow: 0 16px 34px rgba(255, 61, 48, 0.08);
+}
+
+.attentionHeader {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.attentionHeader h3 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 900;
+  color: #18181b;
+}
+
+.attentionHeaderIcon {
+  position: relative;
+  display: inline-flex;
+  width: 18px;
+  height: 16px;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  font-size: 0.66rem;
+  font-weight: 900;
+  line-height: 1;
+  transform: translateY(-1px);
+}
+
+.attentionHeaderIcon::before {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: #ff3d30;
+  clip-path: polygon(50% 0, 100% 100%, 0 100%);
+  content: "";
+}
+
+.attentionAlertBox {
+  border: 1px solid rgba(24, 24, 27, 0.12);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.82);
+  box-shadow: 0 10px 22px rgba(24, 24, 27, 0.04);
+}
+
+.attentionAlertRow {
+  display: grid;
+  grid-template-columns: 38px 1fr;
+  gap: 10px;
+  align-items: center;
+  padding: 16px 14px;
+}
+
+.attentionAlertIcon {
+  display: inline-flex;
+  width: 34px;
+  height: 34px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  font-size: 1rem;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.attentionAlertIconWarning {
+  border: 1px solid rgba(245, 158, 11, 0.7);
+  background: rgba(245, 158, 11, 0.12);
+  color: #f59e0b;
+}
+
+.attentionAlertIconDanger {
+  border: 1px solid rgba(255, 61, 48, 0.72);
+  background: rgba(255, 61, 48, 0.1);
+  color: #ff3d30;
+}
+
+.attentionAlertTitle {
+  margin: 0;
+  color: #18181b;
+  font-size: 0.83rem;
+  font-weight: 900;
+  line-height: 1.25;
+}
+
+.attentionAlertDetail {
+  margin: 3px 0 0;
+  color: #52525b;
+  font-size: 0.72rem;
+  line-height: 1.25;
+}
+
+.attentionDivider {
+  height: 1px;
+  margin: 0 16px 0 62px;
+  background: rgba(24, 24, 27, 0.12);
+}
+
+.attentionStaticAction {
+  display: flex;
+  min-height: 42px;
+  align-items: center;
+  justify-content: center;
+  margin-top: 14px;
+  border: 1px solid #ff3d30;
+  border-radius: 7px;
+  color: #ff1f1f;
+  background: rgba(255, 255, 255, 0.5);
+  font-size: 0.84rem;
+  font-weight: 900;
 }
 
 .statGrid {
