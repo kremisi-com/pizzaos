@@ -78,28 +78,28 @@ function LiveOrdersSummaryCard(
       value: props.pendingOrdersCount,
       label: "da confermare",
       tone: "red",
-      icon: "□",
+      iconSrc: "/images/live-orders/writing.png",
     },
     {
       id: "preparing",
       value: props.preparingOrdersCount,
       label: "in cucina",
       tone: "orange",
-      icon: "□",
+      iconSrc: "/images/live-orders/chef.png",
     },
     {
       id: "delivery",
       value: props.outForDeliveryOrdersCount,
       label: "in consegna",
       tone: "amber",
-      icon: "□",
+      iconSrc: "/images/live-orders/scooter.png",
     },
     {
       id: "ready",
       value: props.readyOrdersCount,
       label: "pronto",
       tone: "green",
-      icon: "□",
+      iconSrc: "/images/live-orders/check.png",
     },
   ] as const;
 
@@ -122,7 +122,12 @@ function LiveOrdersSummaryCard(
             key={stat.id}
           >
             <span className={styles.liveOrdersKpiIcon} aria-hidden="true">
-              {stat.icon}
+              <Image
+                alt=""
+                height={22}
+                src={stat.iconSrc}
+                width={22}
+              />
             </span>
             <div>
               <strong>{stat.value}</strong>

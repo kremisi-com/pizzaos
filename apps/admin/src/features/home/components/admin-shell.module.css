@@ -220,6 +220,13 @@
   line-height: 1;
 }
 
+.liveOrdersKpiIcon img {
+  display: block;
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+}
+
 .liveOrdersKpi strong {
   display: block;
   color: #09090b;
@@ -242,6 +249,10 @@
   background: rgba(255, 45, 32, 0.1);
 }
 
+.liveOrdersKpired .liveOrdersKpiIcon img {
+  filter: invert(24%) sepia(96%) saturate(3697%) hue-rotate(351deg) brightness(104%) contrast(102%);
+}
+
 .liveOrdersKpired span:last-child {
   color: #ff2d20;
 }
@@ -249,6 +260,10 @@
 .liveOrdersKpiorange .liveOrdersKpiIcon {
   color: #ff4f1f;
   background: rgba(255, 79, 31, 0.12);
+}
+
+.liveOrdersKpiorange .liveOrdersKpiIcon img {
+  filter: invert(39%) sepia(97%) saturate(2502%) hue-rotate(352deg) brightness(104%) contrast(104%);
 }
 
 .liveOrdersKpiorange span:last-child {
@@ -260,6 +275,10 @@
   background: rgba(245, 158, 11, 0.14);
 }
 
+.liveOrdersKpiamber .liveOrdersKpiIcon img {
+  filter: invert(68%) sepia(77%) saturate(2093%) hue-rotate(359deg) brightness(101%) contrast(93%);
+}
+
 .liveOrdersKpiamber span:last-child {
   color: #d88a00;
 }
@@ -267,6 +286,10 @@
 .liveOrdersKpigreen .liveOrdersKpiIcon {
   color: #16a34a;
   background: rgba(22, 163, 74, 0.14);
+}
+
+.liveOrdersKpigreen .liveOrdersKpiIcon img {
+  filter: invert(44%) sepia(59%) saturate(845%) hue-rotate(97deg) brightness(91%) contrast(91%);
 }
 
 .liveOrdersKpigreen span:last-child {
