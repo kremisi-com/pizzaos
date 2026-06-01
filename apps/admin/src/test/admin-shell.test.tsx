@@ -70,6 +70,16 @@ describe("admin shell", () =>
     expect(markup).toContain("Reset Demo");
     expect(markup).toContain("Pausa simulazione");
     expect(markup).toContain("Ordini Live");
+    expect(markup).toContain("Aggiornato in tempo reale");
+    expect(markup).toContain("da confermare");
+    expect(markup).toContain("in cucina");
+    expect(markup).toContain("in consegna");
+    expect(markup).toContain("pronto");
+    expect(markup).toContain("Tempo medio");
+    expect(markup).toContain("24 min");
+    expect(markup).toContain("8% vs ieri");
+    expect(markup).toContain("Apri coda ordini");
+    expect(markup).toContain("Nuovo ordine manuale");
     expect(markup).toContain("Attenzione");
     expect(markup).toContain("2 ingredienti sotto scorta");
     expect(markup).toContain("Mozzarella, Rucola");
@@ -103,6 +113,15 @@ describe("admin shell", () =>
     expect(
       screen.queryByRole("button", { name: "Gestisci magazzino" }),
     ).toBeNull();
+  });
+
+  it("opens the orders queue from the live orders card", () => {
+    render(<AdminShell />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Apri coda ordini" }));
+
+    expect(screen.getByText("Ordini Attivi")).toBeDefined();
+    expect(screen.getByText("Totale oggi")).toBeDefined();
   });
 
   it("automatically advances the active store simulation on the timer", () => {

@@ -61,6 +61,146 @@ function resolveStorage(): Storage | undefined {
   return localStorage;
 }
 
+interface LiveOrdersSummaryCardProps {
+  readonly pendingOrdersCount: number;
+  readonly preparingOrdersCount: number;
+  readonly outForDeliveryOrdersCount: number;
+  readonly readyOrdersCount: number;
+  readonly onOpenOrders: () => void;
+}
+
+function LiveOrdersSummaryCard(
+  props: LiveOrdersSummaryCardProps,
+): ReactElement {
+  const liveOrderStats = [
+    {
+      id: "pending",
+      value: props.pendingOrdersCount,
+      label: "da confermare",
+      tone: "red",
+      icon: "□",
+    },
+    {
+      id: "preparing",
+      value: props.preparingOrdersCount,
+      label: "in cucina",
+      tone: "orange",
+      icon: "□",
+    },
+    {
+      id: "delivery",
+      value: props.outForDeliveryOrdersCount,
+      label: "in consegna",
+      tone: "amber",
+      icon: "□",
+    },
+    {
+      id: "ready",
+      value: props.readyOrdersCount,
+      label: "pronto",
+      tone: "green",
+      icon: "□",
+    },
+  ] as const;
+
+  return (
+    <article className={styles.liveOrdersPanel}>
+      <header className={styles.liveOrdersHeader}>
+        <h3>Ordini Live</h3>
+        <div className={styles.liveOrdersStatus}>
+          <span aria-hidden="true" />
+          Aggiornato in tempo reale
+        </div>
+      </header>
+
+      <div className={styles.liveOrdersKpis}>
+        {liveOrderStats.map((stat) => (
+          <div
+            className={`${styles.liveOrdersKpi} ${
+              styles[`liveOrdersKpi${stat.tone}`]
+            }`}
+            key={stat.id}
+          >
+            <span className={styles.liveOrdersKpiIcon} aria-hidden="true">
+              {stat.icon}
+            </span>
+            <div>
+              <strong>{stat.value}</strong>
+              <span>{stat.label}</span>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className={styles.liveOrdersBottom}>
+        <div className={styles.liveOrdersAverage}>
+          <span>Tempo medio</span>
+          <strong>24 min</strong>
+          <small>
+            <span aria-hidden="true">↓</span> 8% vs ieri
+          </small>
+        </div>
+
+        <div className={styles.liveOrdersChart} aria-label="Trend ordini live">
+          <div className={styles.liveOrdersChartScale} aria-hidden="true">
+            <span>40</span>
+            <span>30</span>
+            <span>20</span>
+            <span>10</span>
+          </div>
+          <svg viewBox="0 0 220 82" role="img" aria-label="Trend ordini">
+            <defs>
+              <linearGradient id="live-orders-fill" x1="0" x2="0" y1="0" y2="1">
+                <stop offset="0%" stopColor="#ff2d20" stopOpacity="0.18" />
+                <stop offset="100%" stopColor="#ff2d20" stopOpacity="0" />
+              </linearGradient>
+            </defs>
+            <path
+              d="M0 66 C14 58 22 70 34 58 C45 42 56 43 69 54 C83 66 93 42 106 46 C120 50 123 18 140 24 C154 29 157 44 170 36 C183 27 189 45 200 32 C209 23 215 30 220 25 L220 82 L0 82 Z"
+              fill="url(#live-orders-fill)"
+            />
+            <path
+              d="M0 66 C14 58 22 70 34 58 C45 42 56 43 69 54 C83 66 93 42 106 46 C120 50 123 18 140 24 C154 29 157 44 170 36 C183 27 189 45 200 32 C209 23 215 30 220 25"
+              fill="none"
+              stroke="#ff2d20"
+              strokeLinecap="round"
+              strokeWidth="3"
+            />
+            <circle cx="220" cy="25" fill="#ff2d20" r="5" />
+          </svg>
+          <div className={styles.liveOrdersChartLabels} aria-hidden="true">
+            <span>08:00</span>
+            <span>10:00</span>
+            <span>12:00</span>
+            <span>14:00</span>
+          </div>
+        </div>
+
+        <div className={styles.liveOrdersActions}>
+          <button
+            className={styles.liveOrdersPrimaryAction}
+            onClick={props.onOpenOrders}
+            type="button"
+          >
+            <span aria-hidden="true">□</span>
+            Apri coda ordini
+          </button>
+          <button
+            className={styles.liveOrdersSecondaryAction}
+            onClick={() =>
+              alert("Nuovo ordine manuale disponibile nella demo finale")
+            }
+            type="button"
+          >
+            <span aria-hidden="true">+</span>
+            Nuovo ordine manuale
+          </button>
+        </div>
+      </div>
+    </article>
+  );
+}
+
 export function AdminShell(): ReactElement {
   const [seed, setSeed] = useState<AdminSeed>(() =>
     loadDemoState(APP_ID, { storage: resolveStorage() }),
@@ -89,6 +229,9 @@ export function AdminShell(): ReactElement {
   ).length;
   const outForDeliveryOrdersCount = activeDataset.orders.filter(
     (o) => o.status === "out_for_delivery",
+  ).length;
+  const readyOrdersCount = activeDataset.orders.filter(
+    (o) => o.status === "ready",
   ).length;
 
   const lowStockCount = activeDataset.inventory.filter(
@@ -443,7 +586,13 @@ export function AdminShell(): ReactElement {
         {activeTab === "dashboard" ? (
           <div className={styles.dashboardGrid}>
             <div className={styles.liveOrdersCard}>
-              <Card title="Ordini Live" />
+              <LiveOrdersSummaryCard
+                pendingOrdersCount={pendingOrdersCount}
+                preparingOrdersCount={preparingOrdersCount}
+                outForDeliveryOrdersCount={outForDeliveryOrdersCount}
+                readyOrdersCount={readyOrdersCount}
+                onOpenOrders={() => setActiveTab("orders")}
+              />
             </div>
 
             <article className={styles.attentionCard}>
