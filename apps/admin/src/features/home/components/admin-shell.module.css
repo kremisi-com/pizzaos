@@ -393,6 +393,13 @@
   transform: translateY(-1px);
 }
 
+.liveOrdersActions img {
+  display: block;
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
+}
+
 .liveOrdersPrimaryAction {
   border: 1px solid #ff2d20;
   color: #ffffff;
@@ -400,11 +407,19 @@
   box-shadow: 0 10px 20px rgba(255, 45, 32, 0.24);
 }
 
+.liveOrdersPrimaryAction img {
+  filter: invert(100%);
+}
+
 .liveOrdersSecondaryAction {
   border: 1px solid rgba(24, 24, 27, 0.12);
   color: #18181b;
   background: #ffffff;
   box-shadow: 0 8px 18px rgba(24, 24, 27, 0.04);
+}
+
+.liveOrdersSecondaryAction img {
+  filter: invert(8%) sepia(7%) saturate(1227%) hue-rotate(202deg) brightness(98%) contrast(91%);
 }
 
 .quickActionsCard {

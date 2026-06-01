@@ -187,7 +187,13 @@ function LiveOrdersSummaryCard(
             onClick={props.onOpenOrders}
             type="button"
           >
-            <span aria-hidden="true">□</span>
+            <Image
+              alt=""
+              aria-hidden="true"
+              height={16}
+              src="/images/live-orders/queue.png"
+              width={16}
+            />
             Apri coda ordini
           </button>
           <button
@@ -197,7 +203,13 @@ function LiveOrdersSummaryCard(
             }
             type="button"
           >
-            <span aria-hidden="true">+</span>
+            <Image
+              alt=""
+              aria-hidden="true"
+              height={16}
+              src="/images/live-orders/manual-order.png"
+              width={16}
+            />
             Nuovo ordine manuale
           </button>
         </div>
