@@ -231,35 +231,35 @@ function QuickActionsCard(props: QuickActionsCardProps): ReactElement {
     {
       id: "pause",
       label: "Metti in pausa",
-      icon: "Ⅱ",
+      iconSrc: "/images/quick-actions/pause.png",
       isWide: false,
       onClick: props.onPauseSimulation,
     },
     {
       id: "times",
       label: "Aggiorna tempi",
-      icon: "◷",
+      iconSrc: "/images/quick-actions/history.png",
       isWide: false,
       onClick: props.onRefreshTimes,
     },
     {
       id: "coupon",
       label: "Crea coupon",
-      icon: "◇",
+      iconSrc: "/images/quick-actions/promo-code.png",
       isWide: false,
       onClick: props.onCreateCoupon,
     },
     {
       id: "menu",
       label: "Modifica menu",
-      icon: "◺",
+      iconSrc: "/images/quick-actions/pizza.png",
       isWide: false,
       onClick: props.onUpdateMenu,
     },
     {
       id: "rider",
       label: "Assegna rider",
-      icon: "⌁",
+      iconSrc: "/images/quick-actions/scooter.png",
       onClick: props.onAssignRider,
       isWide: true,
     },
@@ -278,7 +278,14 @@ function QuickActionsCard(props: QuickActionsCardProps): ReactElement {
             onClick={action.onClick}
             type="button"
           >
-            <span aria-hidden="true">{action.icon}</span>
+            <span aria-hidden="true">
+              <Image
+                alt=""
+                height={22}
+                src={action.iconSrc}
+                width={22}
+              />
+            </span>
             {action.label}
           </button>
         ))}
