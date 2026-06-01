@@ -218,6 +218,75 @@ function LiveOrdersSummaryCard(
   );
 }
 
+interface QuickActionsCardProps {
+  readonly onAssignRider: () => void;
+  readonly onCreateCoupon: () => void;
+  readonly onPauseSimulation: () => void;
+  readonly onRefreshTimes: () => void;
+  readonly onUpdateMenu: () => void;
+}
+
+function QuickActionsCard(props: QuickActionsCardProps): ReactElement {
+  const quickActions = [
+    {
+      id: "pause",
+      label: "Metti in pausa",
+      icon: "Ⅱ",
+      isWide: false,
+      onClick: props.onPauseSimulation,
+    },
+    {
+      id: "times",
+      label: "Aggiorna tempi",
+      icon: "◷",
+      isWide: false,
+      onClick: props.onRefreshTimes,
+    },
+    {
+      id: "coupon",
+      label: "Crea coupon",
+      icon: "◇",
+      isWide: false,
+      onClick: props.onCreateCoupon,
+    },
+    {
+      id: "menu",
+      label: "Modifica menu",
+      icon: "◺",
+      isWide: false,
+      onClick: props.onUpdateMenu,
+    },
+    {
+      id: "rider",
+      label: "Assegna rider",
+      icon: "⌁",
+      onClick: props.onAssignRider,
+      isWide: true,
+    },
+  ] as const;
+
+  return (
+    <article className={styles.quickActionsPanel}>
+      <h3>Azioni rapide</h3>
+      <div className={styles.quickActionsGrid}>
+        {quickActions.map((action) => (
+          <button
+            className={`${styles.quickActionButton} ${
+              action.isWide ? styles.quickActionButtonWide : ""
+            }`}
+            key={action.id}
+            onClick={action.onClick}
+            type="button"
+          >
+            <span aria-hidden="true">{action.icon}</span>
+            {action.label}
+          </button>
+        ))}
+      </div>
+    </article>
+  );
+}
+
 export function AdminShell(): ReactElement {
   const [seed, setSeed] = useState<AdminSeed>(() =>
     loadDemoState(APP_ID, { storage: resolveStorage() }),
@@ -664,7 +733,13 @@ export function AdminShell(): ReactElement {
             </article>
 
             <div className={styles.quickActionsCard}>
-              <Card title="Azioni rapide" />
+              <QuickActionsCard
+                onAssignRider={() => setActiveTab("delivery")}
+                onCreateCoupon={() => setActiveTab("marketing")}
+                onPauseSimulation={() => setIsSimulationRunning(false)}
+                onRefreshTimes={handleAdvanceSimulation}
+                onUpdateMenu={() => setActiveTab("catalog")}
+              />
             </div>
 
             <Card

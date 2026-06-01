@@ -87,6 +87,11 @@ describe("admin shell", () =>
     expect(markup).toContain("Birra IPA 33cl");
     expect(markup).toContain("Gestisci magazzino");
     expect(markup).toContain("Azioni rapide");
+    expect(markup).toContain("Metti in pausa");
+    expect(markup).toContain("Aggiorna tempi");
+    expect(markup).toContain("Crea coupon");
+    expect(markup).toContain("Modifica menu");
+    expect(markup).toContain("Assegna rider");
     expect(markup).toContain("Stato Negozio");
     expect(markup).toContain("Operatività Ordini");
     expect(markup).toContain("Stato Magazzino");
@@ -122,6 +127,17 @@ describe("admin shell", () =>
 
     expect(screen.getByText("Ordini Attivi")).toBeDefined();
     expect(screen.getByText("Totale oggi")).toBeDefined();
+  });
+
+  it("navigates from quick actions to operational sections", () => {
+    render(<AdminShell />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Modifica menu" }));
+    expect(screen.getByText("Gestione Catalogo")).toBeDefined();
+
+    fireEvent.click(screen.getByRole("button", { name: "Dashboard" }));
+    fireEvent.click(screen.getByRole("button", { name: "Assegna rider" }));
+    expect(screen.getByText("Gestione Consegne")).toBeDefined();
   });
 
   it("automatically advances the active store simulation on the timer", () => {

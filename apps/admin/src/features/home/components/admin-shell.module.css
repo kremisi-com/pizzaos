@@ -426,6 +426,79 @@
   grid-column: span 1;
 }
 
+.quickActionsPanel {
+  min-width: 0;
+  height: 100%;
+  border: 1px solid rgba(24, 24, 27, 0.1);
+  border-radius: 8px;
+  padding: 22px 18px 18px;
+  background: #ffffff;
+  box-shadow: 0 14px 32px rgba(24, 24, 27, 0.07);
+}
+
+.quickActionsPanel h3 {
+  margin: 0 0 18px;
+  color: #18181b;
+  font-size: 1.08rem;
+  font-weight: 900;
+  line-height: 1.1;
+}
+
+.quickActionsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.quickActionButton {
+  display: flex;
+  min-height: 70px;
+  min-width: 0;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 1px solid rgba(24, 24, 27, 0.12);
+  border-radius: 8px;
+  color: #18181b;
+  background: #ffffff;
+  box-shadow: 0 8px 18px rgba(24, 24, 27, 0.04);
+  font-size: 0.75rem;
+  font-weight: 900;
+  line-height: 1.1;
+  text-align: center;
+  cursor: pointer;
+  transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
+}
+
+.quickActionButton:hover {
+  border-color: rgba(255, 45, 32, 0.38);
+  box-shadow: 0 12px 22px rgba(255, 45, 32, 0.08);
+  transform: translateY(-1px);
+}
+
+.quickActionButton span {
+  display: inline-flex;
+  height: 22px;
+  align-items: center;
+  justify-content: center;
+  color: #ff2d20;
+  font-size: 1.45rem;
+  font-weight: 950;
+  line-height: 1;
+}
+
+.quickActionButtonWide {
+  grid-column: 1 / -1;
+  min-height: 52px;
+  flex-direction: row;
+  gap: 12px;
+}
+
+.quickActionButtonWide span {
+  font-size: 1.25rem;
+}
+
 .attentionCard {
   grid-column: span 1;
   min-width: 0;
