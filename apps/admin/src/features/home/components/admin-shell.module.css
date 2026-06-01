@@ -136,7 +136,7 @@
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 18px;
-  align-items: stretch;
+  align-items: start;
 }
 
 .liveOrdersCard {
@@ -145,7 +145,6 @@
 
 .liveOrdersPanel {
   min-width: 0;
-  height: 100%;
   border: 1px solid rgba(24, 24, 27, 0.11);
   border-radius: 8px;
   padding: 22px 22px 18px;
@@ -428,7 +427,6 @@
 
 .quickActionsPanel {
   min-width: 0;
-  height: 100%;
   border: 1px solid rgba(24, 24, 27, 0.1);
   border-radius: 8px;
   padding: 22px 18px 18px;
