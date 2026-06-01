@@ -47,6 +47,9 @@ describe("admin shell", () =>
     expect(markup).toContain("Ordini");
     expect(markup).toContain("Reset Demo");
     expect(markup).toContain("Pausa simulazione");
+    expect(markup).toContain("Ordini Live");
+    expect(markup).toContain("Attenzione");
+    expect(markup).toContain("Azioni rapide");
     expect(markup).toContain("Stato Negozio");
     expect(markup).toContain("Operatività Ordini");
     expect(markup).toContain("Stato Magazzino");

@@ -442,6 +442,18 @@ export function AdminShell(): ReactElement {
 
         {activeTab === "dashboard" ? (
           <div className={styles.dashboardGrid}>
+            <div className={styles.liveOrdersCard}>
+              <Card title="Ordini Live" />
+            </div>
+
+            <div className={styles.attentionCard}>
+              <Card title="Attenzione" />
+            </div>
+
+            <div className={styles.quickActionsCard}>
+              <Card title="Azioni rapide" />
+            </div>
+
             <Card
               title="Stato Negozio"
               subtitle={activeDataset.store.displayName}
