@@ -16,7 +16,7 @@ import {
   type Menu,
   type Ingredient,
 } from "@pizzaos/domain";
-import { Button, Card } from "@pizzaos/ui";
+import { Button } from "@pizzaos/ui";
 import Image from "next/image";
 import { useCallback, useState, type ReactElement, useEffect } from "react";
 import { OrdersDashboard } from "../../orders/components/orders-dashboard";
@@ -28,7 +28,6 @@ import { AnalyticsManager } from "../../analytics/components/analytics-manager";
 import { DeliveryManager } from "../../delivery/components/delivery-manager";
 import { IntegrationsManager } from "../../integrations/components/integrations-manager";
 import { ProfileManager } from "../../profile/components/profile-manager";
-import { formatMoney } from "../../marketing/marketing-utils";
 import styles from "./admin-shell.module.css";
 
 const APP_ID = "admin" as const;
@@ -327,19 +326,6 @@ export function AdminShell(): ReactElement {
     (o) => o.status === "ready",
   ).length;
 
-  const lowStockCount = activeDataset.inventory.filter(
-    (i) => i.status === "low_stock",
-  ).length;
-  const outOfStockCount = activeDataset.inventory.filter(
-    (i) => i.status === "out_of_stock",
-  ).length;
-
-  const availableRidersCount =
-    activeDataset.riders?.filter((r) => r.status === "available").length ?? 0;
-  const busyRidersCount =
-    activeDataset.riders?.filter((r) => r.status === "busy").length ?? 0;
-
-  const topInsight = activeDataset.insights?.[0];
   const inventoryIngredients: readonly Ingredient[] =
     activeDataset.products.flatMap((product) => product.ingredients ?? []);
 
@@ -763,162 +749,6 @@ export function AdminShell(): ReactElement {
                 onUpdateMenu={() => setActiveTab("catalog")}
               />
             </div>
-
-            <Card
-              title="Stato Negozio"
-              subtitle={activeDataset.store.displayName}
-            >
-              <p>{activeDataset.store.city}</p>
-              <div className={styles.statGrid}>
-                <div>
-                  <div className={styles.statItemLabel}>ORDINI OGGI</div>
-                  <div className={styles.statItemValue}>
-                    {activeDataset.orders.length}
-                  </div>
-                </div>
-                <div>
-                  <div className={styles.statItemLabel}>REVENUE</div>
-                  <div className={styles.statItemValue}>
-                    {formatMoney(activeDataset.analytics.revenueToday)}
-                  </div>
-                </div>
-              </div>
-            </Card>
-
-            <Card title="Operatività Ordini">
-              <div className={styles.statGrid}>
-                <div>
-                  <div className={styles.statItemLabel}>IN ATTESA</div>
-                  <div className={styles.statItemValue}>
-                    {pendingOrdersCount}
-                  </div>
-                </div>
-                <div>
-                  <div className={styles.statItemLabel}>IN CUCINA</div>
-                  <div className={styles.statItemValue}>
-                    {preparingOrdersCount}
-                  </div>
-                </div>
-                <div>
-                  <div className={styles.statItemLabel}>IN CONSEGNA</div>
-                  <div className={styles.statItemValue}>
-                    {outForDeliveryOrdersCount}
-                  </div>
-                </div>
-              </div>
-            </Card>
-
-            <Card title="Stato Magazzino">
-              <div className={styles.statGrid}>
-                <div>
-                  <div className={styles.statItemLabel}>SCORTE BASSE</div>
-                  <div
-                    className={`${styles.statItemValue} ${lowStockCount > 0 ? styles.statWarning : ""}`}
-                  >
-                    {lowStockCount}
-                  </div>
-                </div>
-                <div>
-                  <div className={styles.statItemLabel}>ESAURITI</div>
-                  <div
-                    className={`${styles.statItemValue} ${outOfStockCount > 0 ? styles.statDanger : ""}`}
-                  >
-                    {outOfStockCount}
-                  </div>
-                </div>
-              </div>
-            </Card>
-
-            <Card title="Flotta Consegne">
-              <div className={styles.statGrid}>
-                <div>
-                  <div className={styles.statItemLabel}>DISPONIBILI</div>
-                  <div className={styles.statItemValue}>
-                    {availableRidersCount}
-                  </div>
-                </div>
-                <div>
-                  <div className={styles.statItemLabel}>OCCUPATI</div>
-                  <div className={styles.statItemValue}>{busyRidersCount}</div>
-                </div>
-              </div>
-            </Card>
-
-            <Card title="Configurazione Menu">
-              <div className={styles.statGrid}>
-                <div>
-                  <div className={styles.statItemLabel}>MENU ATTIVO</div>
-                  <div className={styles.statItemValueSmall}>
-                    {activeDataset.menu.name}
-                  </div>
-                </div>
-                <div>
-                  <div className={styles.statItemLabel}>PRODOTTI</div>
-                  <div className={styles.statItemValue}>
-                    {activeDataset.products.length}
-                  </div>
-                </div>
-              </div>
-            </Card>
-
-            <Card title="Marketing Attivo">
-              <div className={styles.statGrid}>
-                <div>
-                  <div className={styles.statItemLabel}>COUPON ATTIVI</div>
-                  <div className={styles.statItemValue}>
-                    {activeDataset.coupons?.filter((c) => c.status === "active")
-                      .length ?? 0}
-                  </div>
-                </div>
-                <div>
-                  <div className={styles.statItemLabel}>LIVELLI FEDELTÀ</div>
-                  <div className={styles.statItemValue}>
-                    {activeDataset.loyaltyConfig?.tiers?.length ?? 0}
-                  </div>
-                </div>
-              </div>
-            </Card>
-
-            {topInsight && (
-              <Card title="Insight AI">
-                <p className={styles.insightTitle}>{topInsight.title}</p>
-                <p className={styles.insightSummary}>{topInsight.summary}</p>
-                <div className={styles.statGrid}>
-                  <div>
-                    <div className={styles.statItemLabel}>CONFIDENZA</div>
-                    <div className={styles.statItemValue}>
-                      {Math.round(topInsight.confidenceScore * 100)}%
-                    </div>
-                  </div>
-                </div>
-              </Card>
-            )}
-
-            <Card title="Integrazioni">
-              <div className={styles.statGrid}>
-                <div>
-                  <div className={styles.statItemLabel}>GLOVO</div>
-                  <div className={styles.statItemValueSmall}>Connesso</div>
-                </div>
-                <div>
-                  <div className={styles.statItemLabel}>STRIPE</div>
-                  <div className={styles.statItemValueSmall}>Connesso</div>
-                </div>
-              </div>
-            </Card>
-
-            <Card title="Info Demo">
-              <p>
-                Questa è una superficie demo frontend-only. Tutti i dati sono
-                simulati localmente.
-              </p>
-              <ul className={styles.infoList}>
-                <li>Persistenza: localStorage</li>
-                <li>Multi-store: Abilitato</li>
-                <li>Simulation loop: Automatico ogni 5s</li>
-                <li>Stato: {isSimulationRunning ? "Live" : "In pausa"}</li>
-              </ul>
-            </Card>
           </div>
         ) : activeTab === "orders" ? (
           <OrdersDashboard

@@ -94,18 +94,17 @@ describe("admin shell", () =>
     expect(markup).toContain("Crea coupon");
     expect(markup).toContain("Modifica menu");
     expect(markup).toContain("Assegna rider");
-    expect(markup).toContain("Stato Negozio");
-    expect(markup).toContain("Operatività Ordini");
-    expect(markup).toContain("Stato Magazzino");
-    expect(markup).toContain("Flotta Consegne");
-    expect(markup).toContain("Configurazione Menu");
-    expect(markup).toContain("Insight AI");
-    expect(markup).toContain("Integrazioni");
     expect(markup).toContain("Analytics and AI");
     expect(markup).toContain("Profilo");
-    expect(markup).toContain("Simulation loop: Automatico ogni 5s");
-    expect(markup).toContain("Stato:");
-    expect(markup).toContain("Live");
+    expect(markup).not.toContain("Stato Negozio");
+    expect(markup).not.toContain("Operatività Ordini");
+    expect(markup).not.toContain("Stato Magazzino");
+    expect(markup).not.toContain("Flotta Consegne");
+    expect(markup).not.toContain("Configurazione Menu");
+    expect(markup).not.toContain("Marketing Attivo");
+    expect(markup).not.toContain("Insight AI");
+    expect(markup).not.toContain("Info Demo");
+    expect(markup).not.toContain("Simulation loop: Automatico ogni 5s");
     expect(markup).not.toContain("Avanza Simulazione");
   });
 
