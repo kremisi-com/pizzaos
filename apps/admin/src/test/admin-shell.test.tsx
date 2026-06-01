@@ -96,13 +96,61 @@ describe("admin shell", () =>
     expect(markup).toContain("Assegna rider");
     expect(markup).toContain("Analytics and AI");
     expect(markup).toContain("Profilo");
+    expect(markup).toContain("Insight AI");
+    expect(markup).toContain("Applica suggerimento");
+    expect(markup).toContain("Timeline operativa");
+    expect(markup).toContain("%2Fimages%2Fdashboard%2Fclock.png");
+    expect(markup).toContain("12:14");
+    expect(markup).toContain("Ordine #104 ricevuto");
+    expect(markup).toContain("2 margherite, 1 diavola");
+    expect(markup).toContain("Rider assegnato a #103");
+    expect(markup).toContain("Marco Bianchi");
+    expect(markup).toContain("Menu pranzo attivato");
+    expect(markup).toContain("Menu Pranzo Centro");
+    expect(markup).toContain("Birra IPA sotto scorta");
+    expect(markup).toContain("Disponibilita: 0");
+    expect(markup).toContain("Vedi tutta");
+    expect(markup).toContain("Revenue Oggi");
+    expect(markup).toContain("1.414,30 €");
+    expect(markup).toContain("16% vs ieri");
+    expect(markup).toContain('viewBox="0 0 220 82"');
+    expect(markup).toContain("revenue-today-fill");
+    expect(markup).toContain("L220 82 L0 82 Z");
+    expect(markup).toContain("00:00");
+    expect(markup).toContain("24:00");
+    expect(markup).toContain("Ordini oggi");
+    expect(markup).toContain("Scontrino medio");
+    expect(markup).toContain("27,20 €");
+    expect(markup).toContain("Flotta Consegne");
+    expect(markup).toContain("%2Fimages%2Fsidebar%2Fscooter.png");
+    expect(markup).toContain("6 rider disponibili e 2 occupati");
+    expect(markup).toContain("rider attivi");
+    expect(markup).toContain("6 disponibili");
+    expect(markup).toContain("2 occupati");
+    expect(markup).toContain("Gestisci flotta");
+    expect(markup).toContain("Marketing Attivo");
+    expect(markup).toContain("%2Fimages%2Fsidebar%2Fmegaphone.png");
+    expect(markup).toContain("%2Fimages%2Fdashboard%2Fstar.png");
+    expect(markup).toContain("%2Fimages%2Fdashboard%2Fgift.png");
+    expect(markup).toContain("Coupon attivi");
+    expect(markup).toContain("Vedi dettagli");
+    expect(markup).toContain("Clienti fedelta");
+    expect(markup).toContain("234");
+    expect(markup).toContain("12%");
+    expect(markup).toContain("Opportunita automatiche");
+    expect(markup).toContain("Vedi tutte");
+    expect(markup).toContain("Cliente inattivo da 21 giorni");
+    expect(markup).toContain("Invia coupon -10% per riattivarlo");
+    expect(markup).toContain("Compleanno cliente domani");
+    expect(markup).toContain("Programma promo auguri");
+    expect(markup).toContain("Picco uffici alle 12:30");
+    expect(markup).toContain("Attiva menu pranzo rapido");
+    expect(markup).not.toContain("Incasso store");
+    expect(markup).not.toContain("Dispatch");
     expect(markup).not.toContain("Stato Negozio");
     expect(markup).not.toContain("Operatività Ordini");
     expect(markup).not.toContain("Stato Magazzino");
-    expect(markup).not.toContain("Flotta Consegne");
     expect(markup).not.toContain("Configurazione Menu");
-    expect(markup).not.toContain("Marketing Attivo");
-    expect(markup).not.toContain("Insight AI");
     expect(markup).not.toContain("Info Demo");
     expect(markup).not.toContain("Simulation loop: Automatico ogni 5s");
     expect(markup).not.toContain("Avanza Simulazione");
@@ -128,6 +176,48 @@ describe("admin shell", () =>
 
     expect(screen.getByText("Ordini Attivi")).toBeDefined();
     expect(screen.getByText("Totale oggi")).toBeDefined();
+  });
+
+  it("opens the orders queue from the operational timeline card", () => {
+    render(<AdminShell />);
+
+    fireEvent.click(
+      screen.getByRole("button", { name: /Vedi tutta l'attivit/i }),
+    );
+
+    expect(screen.getByText("Ordini Attivi")).toBeDefined();
+    expect(screen.getByText("Totale oggi")).toBeDefined();
+  });
+
+  it("opens delivery management from the fleet card", () => {
+    render(<AdminShell />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Gestisci flotta" }));
+
+    expect(screen.getByText("Gestione Consegne")).toBeDefined();
+    expect(screen.getByText("Rider Attivi")).toBeDefined();
+  });
+
+  it("opens marketing from the dashboard marketing cards", () => {
+    render(<AdminShell />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Vedi dettagli" }));
+
+    expect(screen.getByText("Marketing & Loyalty")).toBeDefined();
+    expect(screen.getByText("Automazioni Marketing")).toBeDefined();
+  });
+
+  it("opens analytics from the lunch spike opportunity", () => {
+    render(<AdminShell />);
+
+    fireEvent.click(
+      screen.getByRole("button", {
+        name: /Picco uffici alle 12:30\s*Attiva menu pranzo rapido/i,
+      }),
+    );
+
+    expect(screen.getAllByText("Analytics and AI").length).toBeGreaterThan(0);
+    expect(screen.getByText(/Prodotti pi/)).toBeDefined();
   });
 
   it("navigates from quick actions to operational sections", () => {

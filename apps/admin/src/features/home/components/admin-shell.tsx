@@ -32,6 +32,65 @@ import styles from "./admin-shell.module.css";
 
 const APP_ID = "admin" as const;
 
+const NAV_ITEMS = [
+  {
+    id: "dashboard",
+    label: "Dashboard",
+    iconSrc: "/images/sidebar/dashboard.png",
+  },
+  { id: "orders", label: "Ordini", iconSrc: "/images/sidebar/bag.png" },
+  { id: "catalog", label: "Menu", iconSrc: "/images/sidebar/pizza.png" },
+  { id: "inventory", label: "Magazzino", iconSrc: "/images/sidebar/box.png" },
+  {
+    id: "marketing",
+    label: "Marketing",
+    iconSrc: "/images/sidebar/megaphone.png",
+  },
+  {
+    id: "analytics",
+    label: "Analytics & AI",
+    iconSrc: "/images/sidebar/bar-chart.png",
+  },
+  { id: "delivery", label: "Consegne", iconSrc: "/images/sidebar/scooter.png" },
+  {
+    id: "integrations",
+    label: "Integrazioni",
+    iconSrc: "/images/sidebar/plugin.png",
+  },
+  { id: "profile", label: "Profilo", iconSrc: "/images/sidebar/user.png" },
+] as const;
+
+const OPERATIONAL_TIMELINE_ITEMS = [
+  {
+    id: "order-received",
+    time: "12:14",
+    title: "Ordine #104 ricevuto",
+    detail: "2 margherite, 1 diavola",
+    tone: "red",
+  },
+  {
+    id: "rider-assigned",
+    time: "12:12",
+    title: "Rider assegnato a #103",
+    detail: "Marco Bianchi",
+    tone: "orange",
+  },
+  {
+    id: "lunch-menu",
+    time: "12:09",
+    title: "Menu pranzo attivato",
+    detail: "Menu Pranzo Centro",
+    tone: "green",
+  },
+  {
+    id: "stock-alert",
+    time: "12:05",
+    title: "Birra IPA sotto scorta",
+    detail: "Disponibilita: 0",
+    tone: "amber",
+  },
+] as const;
+
 function deriveNextSimulationDate(simulationCursorIso: string): Date {
   const cursorTimestamp = Date.parse(simulationCursorIso);
 
@@ -58,6 +117,314 @@ function resolveStorage(): Storage | undefined {
   }
 
   return localStorage;
+}
+
+const REVENUE_TODAY_LINE_PATH =
+  "M0 69 C15 64 23 72 36 62 C48 50 57 55 69 48 C84 39 95 47 108 36 C121 25 132 32 145 28 C158 23 166 34 178 22 C191 11 204 18 220 8";
+
+const REVENUE_TODAY_AREA_PATH = `${REVENUE_TODAY_LINE_PATH} L220 82 L0 82 Z`;
+
+function RevenueTodayCard(): ReactElement {
+  return (
+    <article className={styles.revenueTodayCard}>
+      <header className={styles.revenueTodayHeader}>
+        <span className={styles.revenueTodayIcon} aria-hidden="true">
+          <svg viewBox="0 0 18 18" focusable="false">
+            <circle cx="9" cy="9" r="7" />
+            <path d="M9 5.6v6.8" />
+            <path d="M11.2 7.1c-.35-.55-1.07-.86-1.9-.86-1.15 0-2.04.56-2.04 1.42 0 .92.86 1.2 1.93 1.43 1.18.25 2.1.54 2.1 1.48 0 .87-.86 1.48-2.12 1.48-.92 0-1.73-.35-2.14-.95" />
+          </svg>
+        </span>
+        <h3>Revenue Oggi</h3>
+      </header>
+
+      <strong className={styles.revenueTodayValue}>1.414,30 €</strong>
+
+      <p className={styles.revenueTodayTrend}>
+        <span aria-hidden="true">↑</span>
+        16% vs ieri
+      </p>
+
+      <div
+        className={styles.revenueTodayChart}
+        role="img"
+        aria-label="Revenue oggi in crescita tra mezzanotte e le 16:00"
+      >
+        <svg viewBox="0 0 220 82" focusable="false" aria-hidden="true">
+          <defs>
+            <linearGradient id="revenue-today-fill" x1="0" x2="0" y1="0" y2="1">
+              <stop offset="0%" stopColor="#ff2d20" stopOpacity="0.18" />
+              <stop offset="100%" stopColor="#ff2d20" stopOpacity="0" />
+            </linearGradient>
+          </defs>
+          <path className={styles.revenueTodayArea} d={REVENUE_TODAY_AREA_PATH} />
+          <path className={styles.revenueTodayLine} d={REVENUE_TODAY_LINE_PATH} />
+          <circle
+            className={styles.revenueTodayDot}
+            cx="220"
+            cy="8"
+            r="5"
+          />
+        </svg>
+
+        <div className={styles.revenueTodayAxis} aria-hidden="true">
+          <span>00:00</span>
+          <span>06:00</span>
+          <span>12:00</span>
+          <span>18:00</span>
+          <span>24:00</span>
+        </div>
+      </div>
+
+      <div className={styles.revenueTodayMetrics}>
+        <div>
+          <span>Ordini oggi</span>
+          <strong>52</strong>
+          <small>
+            <span aria-hidden="true">↑</span>
+            8%
+          </small>
+        </div>
+        <div>
+          <span>Scontrino medio</span>
+          <strong>27,20 €</strong>
+          <small>
+            <span aria-hidden="true">↑</span>
+            5%
+          </small>
+        </div>
+      </div>
+    </article>
+  );
+}
+
+interface DeliveryFleetCardProps {
+  readonly onManageFleet: () => void;
+}
+
+function DeliveryFleetCard({
+  onManageFleet,
+}: DeliveryFleetCardProps): ReactElement {
+  return (
+    <article className={styles.deliveryFleetCard}>
+      <header className={styles.deliveryFleetHeader}>
+        <span className={styles.deliveryFleetIcon} aria-hidden="true">
+          <Image
+            alt=""
+            height={16}
+            src="/images/sidebar/scooter.png"
+            width={16}
+          />
+        </span>
+        <h3>Flotta Consegne</h3>
+      </header>
+
+      <div
+        className={styles.deliveryFleetGauge}
+        role="img"
+        aria-label="Flotta consegne: 6 rider disponibili e 2 occupati"
+      >
+        <svg viewBox="0 0 200 118" focusable="false" aria-hidden="true">
+          <path
+            className={styles.deliveryFleetGaugeTrack}
+            d="M 28 100 A 72 72 0 0 1 172 100"
+          />
+          <path
+            className={styles.deliveryFleetGaugeAvailable}
+            d="M 28 100 A 72 72 0 0 1 151 49"
+          />
+          <path
+            className={styles.deliveryFleetGaugeBusy}
+            d="M 160 58 A 72 72 0 0 1 172 100"
+          />
+        </svg>
+        <div className={styles.deliveryFleetGaugeCenter} aria-hidden="true">
+          <strong>8</strong>
+          <span>rider attivi</span>
+        </div>
+      </div>
+
+      <div className={styles.deliveryFleetLegend}>
+        <span>
+          <i className={styles.deliveryFleetLegendAvailable} aria-hidden="true" />
+          6 disponibili
+        </span>
+        <span>
+          <i className={styles.deliveryFleetLegendBusy} aria-hidden="true" />
+          2 occupati
+        </span>
+      </div>
+
+      <button
+        className={styles.deliveryFleetAction}
+        onClick={onManageFleet}
+        type="button"
+      >
+        Gestisci flotta
+      </button>
+    </article>
+  );
+}
+
+interface DashboardMarketingRowProps {
+  readonly onOpenMarketing: () => void;
+  readonly onOpenAnalytics: () => void;
+}
+
+function DashboardMarketingRow({
+  onOpenAnalytics,
+  onOpenMarketing,
+}: DashboardMarketingRowProps): ReactElement {
+  const opportunityItems = [
+    {
+      id: "inactive-customer",
+      title: "Cliente inattivo da 21 giorni",
+      detail: "Invia coupon -10% per riattivarlo",
+      tone: "red",
+      icon: (
+        <span className={styles.opportunityCustomerIcon} aria-hidden="true" />
+      ),
+      onOpen: onOpenMarketing,
+    },
+    {
+      id: "birthday",
+      title: "Compleanno cliente domani",
+      detail: "Programma promo auguri",
+      tone: "purple",
+      icon: (
+        <Image
+          alt=""
+          height={21}
+          src="/images/dashboard/gift.png"
+          width={21}
+        />
+      ),
+      onOpen: onOpenMarketing,
+    },
+    {
+      id: "lunch-spike",
+      title: "Picco uffici alle 12:30",
+      detail: "Attiva menu pranzo rapido",
+      tone: "green",
+      icon: (
+        <Image
+          alt=""
+          height={21}
+          src="/images/dashboard/clock.png"
+          width={21}
+        />
+      ),
+      onOpen: onOpenAnalytics,
+    },
+  ] as const;
+
+  return (
+    <section
+      className={styles.dashboardMarketingRow}
+      aria-label="Marketing e opportunita automatiche"
+    >
+      <article className={styles.marketingActiveCard}>
+        <header className={styles.dashboardMarketingHeader}>
+          <span className={styles.dashboardMarketingTitleIcon} aria-hidden="true">
+            <Image
+              alt=""
+              height={18}
+              src="/images/sidebar/megaphone.png"
+              width={18}
+            />
+          </span>
+          <h3>Marketing Attivo</h3>
+        </header>
+
+        <div className={styles.marketingActiveBody}>
+          <div className={styles.marketingActiveMetric}>
+            <span>Coupon attivi</span>
+            <strong>1</strong>
+          </div>
+
+          <div className={styles.marketingActiveDivider} aria-hidden="true" />
+
+          <button
+            className={styles.marketingActiveAction}
+            onClick={onOpenMarketing}
+            type="button"
+          >
+            Vedi dettagli
+          </button>
+
+          <div className={styles.marketingActiveMetric}>
+            <span>Clienti fedelta</span>
+            <strong>234</strong>
+            <small>
+              <span aria-hidden="true">↑</span>
+              12%
+            </small>
+          </div>
+        </div>
+
+        <span className={styles.marketingActiveBadge} aria-hidden="true">
+          <Image
+            alt=""
+            height={28}
+            src="/images/dashboard/star.png"
+            width={28}
+          />
+        </span>
+      </article>
+
+      <article className={styles.automatedOpportunitiesCard}>
+        <header className={styles.dashboardMarketingHeader}>
+          <span
+            className={styles.dashboardMarketingTitleIcon}
+            aria-hidden="true"
+          >
+            <Image
+              alt=""
+              height={18}
+              src="/images/dashboard/star.png"
+              width={18}
+            />
+          </span>
+          <h3>Opportunita automatiche</h3>
+          <button
+            className={styles.opportunitiesViewAll}
+            onClick={onOpenMarketing}
+            type="button"
+          >
+            Vedi tutte
+            <span aria-hidden="true">›</span>
+          </button>
+        </header>
+
+        <div className={styles.opportunityList}>
+          {opportunityItems.map((item) => (
+            <button
+              className={styles.opportunityItem}
+              key={item.id}
+              onClick={item.onOpen}
+              type="button"
+            >
+              <span
+                className={`${styles.opportunityIcon} ${
+                  styles[`opportunityIcon${item.tone}`]
+                }`}
+                aria-hidden="true"
+              >
+                {item.icon}
+              </span>
+              <span className={styles.opportunityCopy}>
+                <strong>{item.title}</strong>
+                <small>{item.detail}</small>
+              </span>
+              <span className={styles.opportunityChevron} aria-hidden="true">
+                ›
+              </span>
+            </button>
+          ))}
+        </div>
+      </article>
+    </section>
+  );
 }
 
 interface LiveOrdersSummaryCardProps {
@@ -299,15 +666,7 @@ export function AdminShell(): ReactElement {
   );
 
   const [activeTab, setActiveTab] = useState<
-    | "dashboard"
-    | "orders"
-    | "catalog"
-    | "inventory"
-    | "marketing"
-    | "analytics"
-    | "delivery"
-    | "integrations"
-    | "profile"
+    (typeof NAV_ITEMS)[number]["id"]
   >("dashboard");
   const [isSimulationRunning, setIsSimulationRunning] = useState(true);
 
@@ -325,6 +684,7 @@ export function AdminShell(): ReactElement {
   const readyOrdersCount = activeDataset.orders.filter(
     (o) => o.status === "ready",
   ).length;
+  const topInsight = activeDataset.insights?.[0];
 
   const inventoryIngredients: readonly Ingredient[] =
     activeDataset.products.flatMap((product) => product.ingredients ?? []);
@@ -556,60 +916,23 @@ export function AdminShell(): ReactElement {
         </h1>
 
         <nav className={styles.nav}>
-          <button
-            onClick={() => setActiveTab("dashboard")}
-            className={`${styles.navButton} ${activeTab === "dashboard" ? styles.navItemActive : ""}`}
-          >
-            Dashboard
-          </button>
-          <button
-            onClick={() => setActiveTab("orders")}
-            className={`${styles.navButton} ${activeTab === "orders" ? styles.navItemActive : ""}`}
-          >
-            Ordini
-          </button>
-          <button
-            onClick={() => setActiveTab("catalog")}
-            className={`${styles.navButton} ${activeTab === "catalog" ? styles.navItemActive : ""}`}
-          >
-            Menu
-          </button>
-          <button
-            onClick={() => setActiveTab("inventory")}
-            className={`${styles.navButton} ${activeTab === "inventory" ? styles.navItemActive : ""}`}
-          >
-            Magazzino
-          </button>
-          <button
-            onClick={() => setActiveTab("marketing")}
-            className={`${styles.navButton} ${activeTab === "marketing" ? styles.navItemActive : ""}`}
-          >
-            Marketing
-          </button>
-          <button
-            onClick={() => setActiveTab("analytics")}
-            className={`${styles.navButton} ${activeTab === "analytics" ? styles.navItemActive : ""}`}
-          >
-            Analytics and AI
-          </button>
-          <button
-            onClick={() => setActiveTab("delivery")}
-            className={`${styles.navButton} ${activeTab === "delivery" ? styles.navItemActive : ""}`}
-          >
-            Consegne
-          </button>
-          <button
-            onClick={() => setActiveTab("integrations")}
-            className={`${styles.navButton} ${activeTab === "integrations" ? styles.navItemActive : ""}`}
-          >
-            Integrazioni
-          </button>
-          <button
-            onClick={() => setActiveTab("profile")}
-            className={`${styles.navButton} ${activeTab === "profile" ? styles.navItemActive : ""}`}
-          >
-            Profilo
-          </button>
+          {NAV_ITEMS.map((item) => (
+            <button
+              key={item.id}
+              aria-label={
+                item.id === "analytics" ? "Analytics and AI" : undefined
+              }
+              onClick={() => setActiveTab(item.id)}
+              className={`${styles.navButton} ${
+                activeTab === item.id ? styles.navItemActive : ""
+              }`}
+            >
+              <span aria-hidden="true" className={styles.navIcon}>
+                <Image alt="" height={18} src={item.iconSrc} width={18} />
+              </span>
+              <span>{item.label}</span>
+            </button>
+          ))}
         </nav>
 
         <StoreSwitcher
@@ -749,6 +1072,112 @@ export function AdminShell(): ReactElement {
                 onUpdateMenu={() => setActiveTab("catalog")}
               />
             </div>
+
+            <section
+              className={styles.dashboardInsightRow}
+              aria-label="Sintesi dashboard"
+            >
+              <article
+                className={`${styles.dashboardInsightCard} ${styles.aiInsightCard}`}
+              >
+                <header className={styles.aiInsightHeader}>
+                  <span className={styles.aiInsightIcon} aria-hidden="true">
+                    ✦
+                  </span>
+                  <h3>Insight AI</h3>
+                </header>
+                <p className={styles.aiInsightTitle}>
+                  {topInsight?.title ?? "Nessun insight prioritario"}.
+                </p>
+                <p className={styles.aiInsightSummary}>
+                  {topInsight?.summary ??
+                    "Attiva il menu rapido per ridurre i tempi medi del 12%."}
+                </p>
+                <div className={styles.aiInsightConfidence}>
+                  <span>Confidenza</span>
+                  <strong>
+                    {topInsight
+                      ? `${Math.round(topInsight.confidenceScore * 100)}%`
+                      : "0%"}
+                  </strong>
+                  <div
+                    className={styles.aiInsightProgress}
+                    aria-hidden="true"
+                  >
+                    <span
+                      style={{
+                        width: topInsight
+                          ? `${Math.round(topInsight.confidenceScore * 100)}%`
+                          : "0%",
+                      }}
+                    />
+                  </div>
+                </div>
+                <button className={styles.aiInsightAction} type="button">
+                  Applica suggerimento
+                </button>
+              </article>
+
+              <article className={styles.dashboardInsightCard}>
+                <header className={styles.operationalTimelineHeader}>
+                  <span
+                    className={styles.operationalTimelineIcon}
+                    aria-hidden="true"
+                  >
+                    <Image
+                      alt=""
+                      height={18}
+                      src="/images/dashboard/clock.png"
+                      width={18}
+                    />
+                  </span>
+                  <h3>Timeline operativa</h3>
+                </header>
+
+                <ol className={styles.operationalTimelineList}>
+                  {OPERATIONAL_TIMELINE_ITEMS.map((item) => (
+                    <li
+                      className={styles.operationalTimelineItem}
+                      key={item.id}
+                    >
+                      <span className={styles.operationalTimelineTime}>
+                        {item.time}
+                      </span>
+                      <span
+                        className={`${styles.operationalTimelineDot} ${
+                          styles[`operationalTimelineDot${item.tone}`]
+                        }`}
+                        aria-hidden="true"
+                      />
+                      <span className={styles.operationalTimelineContent}>
+                        <strong>{item.title}</strong>
+                        <small>{item.detail}</small>
+                      </span>
+                    </li>
+                  ))}
+                </ol>
+
+                <button
+                  className={styles.operationalTimelineAction}
+                  onClick={() => setActiveTab("orders")}
+                  type="button"
+                >
+                  Vedi tutta l&apos;attivit&agrave;
+                  <span aria-hidden="true">&rsaquo;</span>
+                </button>
+              </article>
+
+              <RevenueTodayCard />
+
+              <DeliveryFleetCard
+                onManageFleet={() => setActiveTab("delivery")}
+              />
+            </section>
+
+            <DashboardMarketingRow
+              onOpenAnalytics={() => setActiveTab("analytics")}
+              onOpenMarketing={() => setActiveTab("marketing")}
+            />
           </div>
         ) : activeTab === "orders" ? (
           <OrdersDashboard

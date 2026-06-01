@@ -18,7 +18,7 @@ This app does not own shared package internals or other app surfaces.
 
 - `app/layout.tsx`: root metadata and layout shell
 - `app/page.tsx`: admin route entry and section orchestration
-- `src/features/home`: shell composition, top-level KPIs, and store reset actions
+- `src/features/home`: shell composition, top-level KPIs, marketing opportunity cards, and store reset actions
 - `src/features/store-switch`: multi-store selector with deterministic local dataset switching
 - `src/features/orders`: live orders dashboard, order details, kitchen/bar routing, and cross-POC narrative alignment (`demoOrderRef` + milestone cliente)
 - `src/features/catalog`: menu and product management with editable prezzo/ingredienti and allergeni derivati

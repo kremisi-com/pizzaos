@@ -20,6 +20,8 @@
 - Profile area includes active subscription state, simulated plan switching, and locally persisted billing status.
 - Post-plan visual alignment applied the landing hero admin-dashboard preview style across the real admin surface:
   light canvas, white panels, PizzaOS red primary actions, soft borders, and premium operational cards.
+- Dashboard polish adds a third-row marketing snapshot with active coupon/fidelity metrics and automatic opportunity
+  cards, reusing admin public icon assets plus supplied gift/star dashboard icons.
 
 ## Step 1: Build the admin shell, seeded operator state, store switching, and reset flow
 
