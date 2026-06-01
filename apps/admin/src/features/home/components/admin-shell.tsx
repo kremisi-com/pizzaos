@@ -691,7 +691,12 @@ export function AdminShell(): ReactElement {
             <article className={styles.attentionCard}>
               <header className={styles.attentionHeader}>
                 <span className={styles.attentionHeaderIcon} aria-hidden="true">
-                  !
+                  <Image
+                    alt=""
+                    height={18}
+                    src="/images/attention/warning.png"
+                    width={18}
+                  />
                 </span>
                 <h3>Attenzione</h3>
               </header>

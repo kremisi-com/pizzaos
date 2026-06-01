@@ -534,26 +534,20 @@
 }
 
 .attentionHeaderIcon {
-  position: relative;
   display: inline-flex;
   width: 18px;
-  height: 16px;
+  height: 18px;
   align-items: center;
   justify-content: center;
-  color: #ffffff;
-  font-size: 0.66rem;
-  font-weight: 900;
-  line-height: 1;
   transform: translateY(-1px);
 }
 
-.attentionHeaderIcon::before {
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  background: #ff3d30;
-  clip-path: polygon(50% 0, 100% 100%, 0 100%);
-  content: "";
+.attentionHeaderIcon img {
+  display: block;
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+  filter: invert(24%) sepia(96%) saturate(3697%) hue-rotate(351deg) brightness(104%) contrast(102%);
 }
 
 .attentionAlertBox {
