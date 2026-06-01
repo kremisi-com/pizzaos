@@ -27,17 +27,15 @@
 
 .logo
 {
-  font-size: 1.65rem;
-  font-weight: 900;
-  color: #050505;
   margin: 0;
-  letter-spacing: -0.02em;
   line-height: 1;
 }
 
-.logo span
+.logoImage
 {
-  color: var(--pizzaos-color-primary);
+  display: block;
+  width: 174px;
+  height: auto;
 }
 
 .nav

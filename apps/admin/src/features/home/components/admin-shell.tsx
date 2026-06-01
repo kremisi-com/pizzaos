@@ -17,6 +17,7 @@ import {
   type Ingredient,
 } from "@pizzaos/domain";
 import { Button, Card } from "@pizzaos/ui";
+import Image from "next/image";
 import { useCallback, useState, type ReactElement, useEffect } from "react";
 import { OrdersDashboard } from "../../orders/components/orders-dashboard";
 import { StoreSwitcher } from "../../store-switch/components/store-switcher";
@@ -322,7 +323,14 @@ export function AdminShell(): ReactElement {
     <div className={styles.shell}>
       <aside className={styles.sidebar}>
         <h1 className={styles.logo}>
-          Pizza<span>OS</span>
+          <Image
+            className={styles.logoImage}
+            src="/images/logo.png"
+            alt="PizzaOS Admin"
+            width={180}
+            height={52}
+            priority
+          />
         </h1>
 
         <nav className={styles.nav}>

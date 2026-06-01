@@ -41,6 +41,8 @@ describe("admin shell", () =>
     const markup = renderToString(createElement(AdminShell));
 
     expect(markup).toContain("PizzaOS");
+    expect(markup).toContain("%2Fimages%2Flogo.png");
+    expect(markup).toContain('alt="PizzaOS Admin"');
     expect(markup).toContain("Dashboard");
     expect(markup).toContain("Ordini");
     expect(markup).toContain("Reset Demo");
