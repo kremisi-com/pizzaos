@@ -960,31 +960,6 @@ export function AdminShell(): ReactElement {
       </aside>
 
       <main className={styles.content}>
-        <header className={styles.header}>
-          <div className={styles.headerInfo}>
-            <h2>
-              {activeTab === "dashboard"
-                ? seed.title
-                : activeTab === "marketing"
-                  ? "Marketing & Loyalty"
-                  : activeTab === "analytics"
-                    ? "Analytics and AI"
-                    : activeTab === "delivery"
-                      ? "Gestione Consegne"
-                      : activeTab === "integrations"
-                        ? "Integrazioni Esterne"
-                        : activeTab === "profile"
-                          ? "Profilo Ristoratore"
-                          : "Gestione Operativa"}
-            </h2>
-            <p>
-              {activeTab === "dashboard"
-                ? seed.subtitle
-                : activeDataset.store.displayName}
-            </p>
-          </div>
-        </header>
-
         {activeTab === "dashboard" ? (
           <div className={styles.dashboardGrid}>
             <div className={styles.liveOrdersCard}>

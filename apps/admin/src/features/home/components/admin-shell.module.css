@@ -137,28 +137,6 @@
   width: 100%;
 }
 
-.header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 28px;
-  gap: 24px;
-}
-
-.headerInfo h2 {
-  margin: 0;
-  font-size: clamp(2rem, 3vw, 2.55rem);
-  font-weight: 900;
-  letter-spacing: -0.02em;
-  line-height: 1;
-}
-
-.headerInfo p {
-  margin: 9px 0 0;
-  color: var(--pizzaos-color-foreground-muted);
-  font-size: 1rem;
-}
-
 .dashboardGrid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));

@@ -65,6 +65,7 @@ describe("admin shell", () =>
     expect(markup).toContain("PizzaOS");
     expect(markup).toContain("%2Fimages%2Flogo.png");
     expect(markup).toContain('alt="PizzaOS Admin"');
+    expect(markup).not.toContain("Dashboard operativa desktop-first.");
     expect(markup).toContain("Dashboard");
     expect(markup).toContain("Ordini");
     expect(markup).toContain("Reset Demo");
@@ -194,7 +195,7 @@ describe("admin shell", () =>
 
     fireEvent.click(screen.getByRole("button", { name: "Gestisci flotta" }));
 
-    expect(screen.getByText("Gestione Consegne")).toBeDefined();
+    expect(screen.getByLabelText("Mappa consegne")).toBeDefined();
     expect(screen.getByText("Rider Attivi")).toBeDefined();
   });
 
@@ -203,7 +204,7 @@ describe("admin shell", () =>
 
     fireEvent.click(screen.getByRole("button", { name: "Vedi dettagli" }));
 
-    expect(screen.getByText("Marketing & Loyalty")).toBeDefined();
+    expect(screen.getByText("Configurazione Fedeltà")).toBeDefined();
     expect(screen.getByText("Automazioni Marketing")).toBeDefined();
   });
 
@@ -228,7 +229,7 @@ describe("admin shell", () =>
 
     fireEvent.click(screen.getByRole("button", { name: "Dashboard" }));
     fireEvent.click(screen.getByRole("button", { name: "Assegna rider" }));
-    expect(screen.getByText("Gestione Consegne")).toBeDefined();
+    expect(screen.getByLabelText("Mappa consegne")).toBeDefined();
   });
 
   it("automatically advances the active store simulation on the timer", () => {
