@@ -9,7 +9,7 @@ import {
   deriveRoutingStation,
   getNextOrderStatuses,
 } from "@pizzaos/domain";
-import { Badge, Button } from "@pizzaos/ui";
+import { Badge } from "@pizzaos/ui";
 import { type ReactElement, useMemo, useState } from "react";
 import styles from "./order-details.module.css";
 
@@ -30,6 +30,7 @@ export interface OrderDisplayContext {
   readonly paymentMethod: string;
   readonly priority: string;
   readonly statusLabel: string;
+  readonly scheduledTime?: string;
   readonly slaLabel: string;
   readonly totalLabel: string;
   readonly allergenLabels: readonly string[];
@@ -46,10 +47,10 @@ const STATUS_LABELS: Record<OrderStatus, string> = {
 };
 
 const ACTION_LABELS: Partial<Record<OrderStatus, string>> = {
-  received: "Conferma Ordine",
-  confirmed: "Inizia Preparazione",
-  preparing: "Segna come Pronto",
-  ready: "Affida al Rider",
+  received: "Conferma",
+  confirmed: "Inizia preparazione",
+  preparing: "Segna pronto",
+  ready: "Assegna rider",
   out_for_delivery: "Consegnato",
 };
 
@@ -79,75 +80,61 @@ export function OrderDetails(props: OrderDetailsProps): ReactElement {
     });
   }, [order.lines, allProducts]);
 
-  const stations = useMemo(() => {
-    const kitchen = linesWithProducts.filter((l) => l.station === "kitchen");
-    const bar = linesWithProducts.filter((l) => l.station === "bar");
-    return { kitchen, bar };
-  }, [linesWithProducts]);
-
   const nextStatuses = getNextOrderStatuses(order.status);
   const primaryNextStatus = nextStatuses[0];
+  const formattedTotal = displayContext?.totalLabel ?? formatMoney(order.total.amountCents, order.total.currencyCode);
 
   return (
     <div className={styles.details}>
-      <header className={styles.header}>
-        <div>
-          <div className={styles.orderId}>Ordine {displayContext?.displayId ?? `#${order.id.slice(-6).toUpperCase()}`}</div>
-          {order.demoOrderRef && <div className={styles.demoRef}>Rif. demo cliente: {order.demoOrderRef}</div>}
-        </div>
+      <header className={styles.cardHeader}>
+        <strong>Dettaglio ordine selezionato</strong>
         <button className={styles.closeButton} type="button" onClick={onClose} aria-label="Chiudi dettaglio">
           x
         </button>
-        <Badge tone={order.status === "cancelled" ? "critical" : order.status === "delivered" ? "success" : "warning"}>
-          {displayContext?.statusLabel ?? STATUS_LABELS[order.status]}
-        </Badge>
       </header>
 
-      <p className={styles.clientStory}>Narrativa cliente: {CLIENT_STORY_BY_STATUS[order.status]}</p>
-
-      <div className={styles.customerInfo}>
-        <div className={styles.infoBlock}>
-          <span className={styles.label}>Cliente</span>
-          <span className={styles.value}>{displayContext?.customerName ?? `ID: ${order.customerId.slice(-8).toUpperCase()}`}</span>
-          {displayContext ? <span className={styles.metaValue}>{displayContext.customerPhone}</span> : null}
+      <section className={styles.orderHero}>
+        <div className={styles.orderTitleRow}>
+          <h2>{displayContext?.displayId ?? `#${order.id.slice(-6).toUpperCase()}`}</h2>
+          <span className={styles.statusPill}>{displayContext?.statusLabel ?? STATUS_LABELS[order.status]}</span>
         </div>
-        {displayContext ? (
-          <div className={styles.infoBlock}>
-            <span className={styles.label}>Indirizzo di consegna</span>
-            <span className={styles.value}>{displayContext.address}</span>
-            <span className={styles.metaValue}>00165 Roma - 3 piano</span>
-          </div>
-        ) : null}
-        <div className={styles.infoBlock}>
-          <span className={styles.label}>Pagamento</span>
-          <span className={styles.value}>{displayContext?.paymentMethod ?? "Carta online"}</span>
+        <div className={styles.orderMeta}>
+          <span>Delivery</span>
+          <span>{displayContext?.scheduledTime ?? order.scheduledSlot}</span>
+          <span>{displayContext?.slaLabel ?? "SLA 30 min"}</span>
         </div>
-        <div className={styles.infoBlock}>
-          <span className={styles.label}>Slot Consegna</span>
-          <span className={styles.value}>{order.scheduledSlot}</span>
-        </div>
-        <div className={styles.infoBlock}>
-          <span className={styles.label}>Creato il</span>
-          <span className={styles.value}>{new Date(order.createdAtIso).toLocaleString("it-IT")}</span>
-        </div>
-      </div>
-
-      <section className={styles.orderSummary} aria-label="Riepilogo operativo">
-        <span>
-          <strong>Priorita</strong>
-          {displayContext?.priority ?? "Normale"}
-        </span>
-        <span>
-          <strong>SLA stimato</strong>
-          {displayContext?.slaLabel ?? "In orario"}
-        </span>
-        <span>
-          <strong>Totale</strong>
-          {displayContext?.totalLabel ?? `${order.total.amountCents / 100} ${order.total.currencyCode}`}
-        </span>
+        {order.demoOrderRef && <p className={styles.demoRef}>Rif. demo cliente: {order.demoOrderRef}</p>}
       </section>
 
-      <div className={styles.stations}>
+      <div className={styles.customerInfo}>
+        <section className={styles.infoSection}>
+          <span className={styles.label}>Cliente</span>
+          <div className={styles.contactRow}>
+            <span className={styles.lineIcon} aria-hidden="true">u</span>
+            <div>
+              <strong>{displayContext?.customerName ?? `ID: ${order.customerId.slice(-8).toUpperCase()}`}</strong>
+              {displayContext ? <small>{displayContext.customerPhone}</small> : null}
+            </div>
+            <button type="button" aria-label="Chiama cliente">tel</button>
+            <button type="button" aria-label="Messaggio cliente">msg</button>
+          </div>
+        </section>
+        {displayContext ? (
+          <section className={styles.infoSection}>
+            <span className={styles.label}>Indirizzo di consegna</span>
+            <div className={styles.contactRow}>
+              <span className={styles.lineIcon} aria-hidden="true">p</span>
+              <div>
+                <strong>{displayContext.address}</strong>
+                <small>00165 Roma (RM) - 3 piano, int. 7</small>
+              </div>
+            </div>
+          </section>
+        ) : null}
+      </div>
+
+      <section className={styles.orderLines} aria-label="Prodotti ordinati">
+        <span className={styles.label}>Ordine</span>
         {order.status === "ready" && riders.length > 0 && (
           <div className={styles.riderAssignment}>
             <div className={styles.stationTitle}>Assegnazione Rider</div>
@@ -170,69 +157,85 @@ export function OrderDetails(props: OrderDetailsProps): ReactElement {
           </div>
         )}
 
-        {stations.kitchen.length > 0 && (
-          <div className={styles.station}>
-            <div className={styles.stationHeader}>
-              <span className={styles.stationTitle}>Cucina</span>
-              <Badge tone="neutral">{stations.kitchen.length} item</Badge>
-            </div>
-            {stations.kitchen.map((line, idx) => (
-              <div key={`kitchen-${idx}`} className={styles.lineItem}>
-                <div className={styles.lineMain}>
-                  <span>{line.quantity}x {line.product?.name ?? `Prodotto ${line.productId}`}</span>
-                </div>
-                {line.notes && <div className={styles.lineNotes}>Note: {line.notes}</div>}
-              </div>
-            ))}
+        {linesWithProducts.map((line, idx) => (
+          <div key={`${line.productId}-${idx}`} className={styles.lineItem}>
+            <span>{line.quantity}x</span>
+            <strong>{line.product?.name ?? `Prodotto ${line.productId}`}</strong>
+            <span>{formatMoney(line.unitPrice.amountCents * line.quantity, line.unitPrice.currencyCode)}</span>
           </div>
-        )}
+        ))}
+      </section>
 
-        {stations.bar.length > 0 && (
-          <div className={styles.station}>
-            <div className={styles.stationHeader}>
-              <span className={styles.stationTitle}>Bar</span>
-              <Badge tone="neutral">{stations.bar.length} item</Badge>
-            </div>
-            {stations.bar.map((line, idx) => (
-              <div key={`bar-${idx}`} className={styles.lineItem}>
-                <div className={styles.lineMain}>
-                  <span>{line.quantity}x {line.product?.name ?? `Prodotto ${line.productId}`}</span>
-                </div>
-                {line.notes && <div className={styles.lineNotes}>Note: {line.notes}</div>}
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
+      <section className={styles.notes}>
+        <span className={styles.label}>Note cliente</span>
+        <p>{getCustomerNotes(linesWithProducts) ?? CLIENT_STORY_BY_STATUS[order.status]}</p>
+      </section>
 
-      {displayContext?.allergenLabels.length ? (
-        <section className={styles.allergens}>
-          <span className={styles.label}>Allergeni segnalati</span>
-          <strong>{displayContext.allergenLabels.join(", ")}</strong>
-        </section>
-      ) : null}
+      <section className={styles.paymentSummary}>
+        <div>
+          <span className={styles.label}>Pagamento</span>
+          <strong>{displayContext?.paymentMethod ?? "Carta online"}</strong>
+        </div>
+        <div>
+          <span>Totale</span>
+          <strong>{formattedTotal}</strong>
+        </div>
+      </section>
+
+      <section className={styles.allergens}>
+        <span className={styles.label}>Allergeni segnalati</span>
+        <strong>{displayContext?.allergenLabels.length ? displayContext.allergenLabels.join(", ") : "Nessun allergene critico"}</strong>
+      </section>
+
+      <section className={styles.slaStrip} aria-label="SLA operativo">
+        <span>Stimato pronto</span>
+        <strong>{displayContext?.scheduledTime ?? order.scheduledSlot}</strong>
+        <span>{displayContext?.slaLabel ?? "Tra 30 min"}</span>
+      </section>
 
       <footer className={styles.footer}>
-        <div className={styles.totalBlock}>
-          <span className={styles.totalLabel}>Totale:</span>{" "}
-          <span className={styles.totalValue}>
-            {order.total.amountCents / 100} {order.total.currencyCode}
-          </span>
-        </div>
         <div className={styles.actions}>
-          <Button variant="secondary" onClick={onClose}>
-            Chiudi
-          </Button>
           {primaryNextStatus && (
-            <Button
+            <button
+              className={styles.primaryAction}
+              type="button"
               onClick={() => onStatusUpdate(order.id, primaryNextStatus, selectedRiderId)}
               disabled={order.status === "ready" && !selectedRiderId}
             >
               {ACTION_LABELS[order.status] ?? `Vai a ${STATUS_LABELS[primaryNextStatus]}`}
-            </Button>
+            </button>
           )}
+          <button
+            className={styles.secondaryAction}
+            type="button"
+            onClick={() => onStatusUpdate(order.id, "ready", selectedRiderId)}
+            disabled={order.status === "ready" || order.status === "delivered" || order.status === "cancelled"}
+          >
+            Segna pronto
+          </button>
+          <button
+            className={styles.tertiaryAction}
+            type="button"
+            onClick={() => onStatusUpdate(order.id, "out_for_delivery", selectedRiderId)}
+            disabled={order.status === "delivered" || order.status === "cancelled"}
+          >
+            Assegna rider
+          </button>
+          <button className={styles.moreAction} type="button" aria-label="Altre azioni ordine">...</button>
         </div>
       </footer>
     </div>
   );
+}
+
+function getCustomerNotes(lines: readonly { readonly notes?: string }[]): string | null {
+  const notes = lines.map((line) => line.notes?.trim()).filter((note): note is string => Boolean(note));
+  return notes.length > 0 ? notes.join("; ") : null;
+}
+
+function formatMoney(amountCents: number, currencyCode: string): string {
+  return new Intl.NumberFormat("it-IT", {
+    currency: currencyCode,
+    style: "currency"
+  }).format(amountCents / 100);
 }

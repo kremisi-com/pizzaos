@@ -57,7 +57,7 @@ const MOCK_PRODUCTS: Product[] = [
 ];
 
 describe("OrderDetails", () => {
-  it("renders order details and stations", () => {
+  it("renders compact order details", () => {
     const markup = renderToString(
       createElement(OrderDetails, {
         order: MOCK_ORDER,
@@ -72,16 +72,17 @@ describe("OrderDetails", () => {
     expect(markup).toContain("Rif. demo cliente:");
     expect(markup).toContain("POC-1001");
     expect(markup).toContain("Ricevuto");
-    expect(markup).toContain("Narrativa cliente:");
-    expect(markup).toContain("Il locale ha ricevuto l&#x27;ordine e lo sta verificando.");
+    expect(markup).toContain("Dettaglio ordine selezionato");
+    expect(markup).toContain("Delivery");
+    expect(markup).toContain("Note cliente");
     expect(markup).toContain("Pagamento");
-    expect(markup).toContain("Priorita");
-    expect(markup).toContain("SLA stimato");
-    expect(markup).toContain("Cucina");
+    expect(markup).toContain("Totale");
+    expect(markup).toContain("SLA operativo");
     expect(markup).toContain("Margherita");
     expect(markup).toContain("Extra cheese");
-    expect(markup).toContain("Bar");
     expect(markup).toContain("Coca Cola");
-    expect(markup).toContain("Conferma Ordine");
+    expect(markup).toContain("Conferma");
+    expect(markup).toContain("Segna pronto");
+    expect(markup).toContain("Assegna rider");
   });
 });

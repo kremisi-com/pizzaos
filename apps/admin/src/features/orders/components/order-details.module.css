@@ -1,130 +1,340 @@
 .details {
   display: flex;
   flex-direction: column;
-  gap: 14px;
-  padding: 16px;
+  gap: 10px;
+  padding: 14px;
   border: 1px solid #eef0f4;
   border-radius: 8px;
   background: #ffffff;
-  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.05);
+  box-shadow: 0 14px 32px rgba(15, 23, 42, 0.06);
   color: #111827;
+  font-size: 0.78rem;
 }
 
-.header {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto auto;
-  align-items: start;
-  gap: 8px;
-  padding-bottom: 12px;
-  border-bottom: 1px solid #f1f5f9;
+.details button {
+  font-family: var(--pizzaos-font-family);
 }
 
-.orderId {
-  color: #111827;
-  font-size: 1.25rem;
+.cardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.cardHeader strong {
+  font-size: 0.84rem;
   font-weight: 900;
-}
-
-.demoRef {
-  margin-top: 6px;
-  color: #ef1d1d;
-  font-size: 0.72rem;
-  font-weight: 900;
-  letter-spacing: 0;
 }
 
 .closeButton {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
+  width: 22px;
+  height: 22px;
   border: 0;
   border-radius: 999px;
   background: transparent;
   color: #64748b;
+  font-size: 0.84rem;
   font-weight: 900;
   cursor: pointer;
 }
 
-.clientStory {
+.orderHero {
+  display: grid;
+  gap: 6px;
+}
+
+.orderTitleRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.orderTitleRow h2 {
+  margin: 0;
+  color: #111827;
+  font-size: 1.55rem;
+  line-height: 1;
+  font-weight: 950;
+  letter-spacing: 0;
+}
+
+.statusPill {
+  display: inline-flex;
+  align-items: center;
+  min-height: 22px;
+  padding: 0 8px;
+  border-radius: 6px;
+  background: #fee2e2;
+  color: #ef1d1d;
+  font-size: 0.66rem;
+  font-weight: 950;
+  white-space: nowrap;
+}
+
+.orderMeta,
+.demoRef {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
   margin: 0;
   color: #64748b;
-  font-size: 0.82rem;
-  font-weight: 700;
+  font-size: 0.72rem;
+  font-weight: 850;
+}
+
+.orderMeta span + span::before {
+  content: "-";
+  margin-right: 6px;
+  color: #cbd5e1;
+}
+
+.orderMeta span:last-child {
+  color: #ef1d1d;
+}
+
+.demoRef {
+  color: #ef1d1d;
 }
 
 .customerInfo {
   display: grid;
   gap: 10px;
-  padding-bottom: 12px;
+  padding: 10px 0;
+  border-top: 1px solid #f1f5f9;
   border-bottom: 1px solid #f1f5f9;
 }
 
-.infoBlock {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
+.infoSection {
+  display: grid;
+  gap: 6px;
 }
 
 .label {
   color: #64748b;
-  font-size: 0.7rem;
-  font-weight: 900;
+  font-size: 0.66rem;
+  font-weight: 950;
 }
 
-.value {
-  color: #111827;
-  font-weight: 900;
-}
-
-.metaValue {
-  color: #64748b;
-  font-size: 0.78rem;
-  font-weight: 700;
-}
-
-.orderSummary {
+.contactRow {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: 18px minmax(0, 1fr) auto auto;
+  align-items: center;
   gap: 8px;
 }
 
-.orderSummary span {
-  display: grid;
-  gap: 4px;
-  padding: 10px;
-  border-radius: 8px;
-  background: #f8fafc;
+.contactRow strong,
+.paymentSummary strong {
+  display: block;
   color: #111827;
   font-size: 0.78rem;
+  line-height: 1.25;
+  font-weight: 950;
+}
+
+.contactRow small {
+  display: block;
+  margin-top: 2px;
+  color: #64748b;
+  font-size: 0.7rem;
+  font-weight: 750;
+}
+
+.lineIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  border: 1px solid #e5e7eb;
+  color: #64748b;
+  font-size: 0.62rem;
   font-weight: 900;
 }
 
-.orderSummary strong {
+.contactRow button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  height: 28px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #111827;
+  font-size: 0.62rem;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.orderLines {
+  display: grid;
+  gap: 6px;
+}
+
+.lineItem {
+  display: grid;
+  grid-template-columns: 22px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+  color: #111827;
+  font-size: 0.76rem;
+  font-weight: 850;
+}
+
+.lineItem strong {
+  font-size: 0.76rem;
+  font-weight: 950;
+}
+
+.lineItem span:first-child {
   color: #64748b;
-  font-size: 0.68rem;
 }
 
-.stations {
+.lineItem span:last-child {
+  font-weight: 950;
+}
+
+.notes {
+  display: grid;
+  gap: 5px;
+  padding: 9px 10px;
+  border-radius: 8px;
+  background: #f8fafc;
+}
+
+.notes p {
+  margin: 0;
+  color: #64748b;
+  font-size: 0.72rem;
+  line-height: 1.35;
+  font-weight: 750;
+}
+
+.paymentSummary {
   display: flex;
-  flex-direction: column;
-  gap: 10px;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
 }
 
-.riderAssignment,
-.station,
+.paymentSummary div:last-child {
+  text-align: right;
+}
+
+.paymentSummary div:last-child span {
+  display: block;
+  color: #64748b;
+  font-size: 0.66rem;
+  font-weight: 950;
+}
+
+.paymentSummary div:last-child strong {
+  margin-top: 2px;
+  font-size: 1.32rem;
+  line-height: 1;
+}
+
 .allergens {
+  display: grid;
+  gap: 4px;
+  padding: 9px 0;
+  border-top: 1px solid #f1f5f9;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.allergens strong {
+  color: #f97316;
+  font-size: 0.74rem;
+  font-weight: 950;
+}
+
+.slaStrip {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 8px;
+  color: #64748b;
+  font-size: 0.72rem;
+  font-weight: 850;
+}
+
+.slaStrip strong {
+  color: #111827;
+  font-weight: 950;
+}
+
+.footer {
+  display: grid;
+  gap: 8px;
+}
+
+.actions {
+  display: grid;
+  gap: 6px;
+}
+
+.actions button {
+  width: 100%;
+  min-height: 28px;
+  border-radius: 7px;
+  font-size: 0.72rem;
+  font-weight: 950;
+  cursor: pointer;
+}
+
+.actions button:disabled {
+  opacity: 0.58;
+  cursor: not-allowed;
+}
+
+.primaryAction {
+  border: 1px solid #ef1d1d;
+  background: #ef1d1d;
+  color: #ffffff;
+}
+
+.secondaryAction {
+  border: 1px solid #f97316;
+  background: #fff7ed;
+  color: #f97316;
+}
+
+.tertiaryAction {
+  border: 1px solid #e5e7eb;
+  background: #ffffff;
+  color: #111827;
+}
+
+.moreAction {
+  border: 1px solid #e5e7eb;
+  background: #ffffff;
+  color: #64748b;
+  letter-spacing: 2px;
+}
+
+.riderAssignment {
+  display: grid;
+  gap: 8px;
+  padding: 10px;
   border: 1px solid #eef0f4;
   border-radius: 8px;
   background: #ffffff;
-  padding: 12px;
+}
+
+.stationTitle {
+  font-weight: 950;
 }
 
 .riderSelect {
   display: grid;
-  gap: 8px;
-  margin-top: 10px;
+  gap: 6px;
 }
 
 .riderOption {
@@ -132,10 +342,11 @@
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  padding: 10px;
+  padding: 8px;
   border: 1px solid #e5e7eb;
   border-radius: 8px;
   background: #ffffff;
+  color: #111827;
   text-align: left;
   cursor: pointer;
 }
@@ -150,85 +361,13 @@
   cursor: not-allowed;
 }
 
-.riderName,
-.stationTitle {
-  font-weight: 900;
+.riderName {
+  font-weight: 950;
 }
 
 .assignmentHint {
-  margin: 8px 0 0;
+  margin: 0;
   color: #64748b;
-  font-size: 0.76rem;
-  font-weight: 700;
-}
-
-.stationHeader {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  margin-bottom: 8px;
-}
-
-.lineItem {
-  display: grid;
-  gap: 4px;
-  padding: 8px 0;
-  border-top: 1px dashed #e5e7eb;
-}
-
-.lineMain {
-  display: flex;
-  justify-content: space-between;
-  gap: 8px;
-  color: #111827;
-  font-weight: 900;
-}
-
-.lineNotes {
-  color: #64748b;
-  font-size: 0.78rem;
-  font-weight: 700;
-}
-
-.allergens {
-  display: grid;
-  gap: 4px;
-  color: #ea580c;
-  background: #fff7ed;
-}
-
-.footer {
-  display: grid;
-  gap: 10px;
-  padding-top: 12px;
-  border-top: 1px solid #f1f5f9;
-}
-
-.totalBlock {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 10px;
-}
-
-.totalLabel {
-  color: #64748b;
-  font-weight: 900;
-}
-
-.totalValue {
-  color: #111827;
-  font-size: 1.45rem;
-  font-weight: 900;
-}
-
-.actions {
-  display: grid;
-  gap: 8px;
-}
-
-.actions button {
-  width: 100%;
-  border-radius: 8px !important;
+  font-size: 0.72rem;
+  font-weight: 750;
 }
