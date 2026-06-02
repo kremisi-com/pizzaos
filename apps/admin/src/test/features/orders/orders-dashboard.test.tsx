@@ -53,6 +53,21 @@ const MOCK_ORDERS: Order[] = [
   }
 ];
 
+const MOCK_PAGINATED_ORDERS: Order[] = Array.from({ length: 20 }, (_, index) => {
+  const orderNumber = index + 1;
+  const paddedOrderNumber = String(orderNumber).padStart(2, "0");
+
+  return {
+    ...MOCK_ORDERS[index % MOCK_ORDERS.length],
+    id: `order-page-${paddedOrderNumber}`,
+    customerId: `cust-page-${paddedOrderNumber}`,
+    status: index % 3 === 0 ? "received" : "preparing",
+    createdAtIso: `2026-06-02T12:${paddedOrderNumber}:00.000Z`,
+    updatedAtIso: `2026-06-02T12:${paddedOrderNumber}:00.000Z`,
+    demoOrderRef: `POC-${String(1000 + orderNumber)}`
+  };
+});
+
 afterEach(() => {
   cleanup();
 });
@@ -135,5 +150,32 @@ describe("OrdersDashboard", () => {
     fireEvent.click(screen.getByRole("button", { name: "Filtro data ordini" }));
 
     expect(screen.getByRole("dialog", { name: "Calendario ordini" })).toBeDefined();
+  });
+
+  it("paginates orders ten rows at a time", () => {
+    render(
+      <OrdersDashboard
+        orders={MOCK_PAGINATED_ORDERS}
+        lastUpdateIso="2026-06-02T08:00:00.000Z"
+        allProducts={[]}
+      />
+    );
+
+    expect(screen.getByText("Mostra 1-10 di 20 ordini")).toBeDefined();
+    expect(screen.getByRole("button", { name: "Pagina precedente" })).toHaveProperty("disabled", true);
+    expect(screen.getByText("POC-1020")).toBeDefined();
+    expect(screen.queryByText("POC-1010")).toBeNull();
+
+    fireEvent.click(screen.getByRole("button", { name: "Pagina successiva" }));
+
+    expect(screen.getByText("Mostra 11-20 di 20 ordini")).toBeDefined();
+    expect(screen.getByRole("button", { current: "page", name: "2" })).toBeDefined();
+    expect(screen.getByRole("button", { name: "Pagina successiva" })).toHaveProperty("disabled", true);
+    expect(screen.getByText("POC-1010")).toBeDefined();
+    expect(screen.queryByText("POC-1020")).toBeNull();
+
+    fireEvent.click(screen.getByRole("button", { name: "Pagina precedente" }));
+
+    expect(screen.getByText("Mostra 1-10 di 20 ordini")).toBeDefined();
   });
 });

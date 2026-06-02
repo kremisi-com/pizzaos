@@ -1,7 +1,7 @@
 "use client";
 
 import type { Order, OrderStatus, Product, Rider } from "@pizzaos/domain";
-import { type ReactElement, useMemo, useState } from "react";
+import { type ReactElement, useEffect, useMemo, useState } from "react";
 import { OrderDetails, type OrderDisplayContext } from "./order-details";
 import styles from "./orders-dashboard.module.css";
 
@@ -76,6 +76,7 @@ const STATUS_VIEW: Record<OrderStatus, Pick<OrderRowViewModel, "statusLabel" | "
 
 const CHANNELS: readonly OrderChannel[] = ["Delivery", "Asporto", "Tavolo", "App"];
 const PAYMENTS: readonly PaymentMethod[] = ["Carta online", "Contanti", "POS"];
+const ORDERS_PER_PAGE = 10;
 
 export function OrdersDashboard(props: OrdersDashboardProps): ReactElement {
   const { allProducts, lastUpdateIso, onOrderStatusUpdate, orders, riders = [] } = props;
@@ -86,6 +87,7 @@ export function OrdersDashboard(props: OrdersDashboardProps): ReactElement {
   const [statusFilter, setStatusFilter] = useState("all");
   const [channelFilter, setChannelFilter] = useState("all");
   const [selectedDate, setSelectedDate] = useState(() => formatDateInputValue(lastUpdateIso));
+  const [currentPage, setCurrentPage] = useState(1);
 
   const productById = useMemo(() => {
     return new Map(allProducts.map((product) => [product.id, product]));
@@ -112,9 +114,26 @@ export function OrdersDashboard(props: OrdersDashboardProps): ReactElement {
     });
   }, [channelFilter, query, rows, statusFilter]);
 
+  const totalPages = Math.max(1, Math.ceil(filteredRows.length / ORDERS_PER_PAGE));
+  const pageStartIndex = (currentPage - 1) * ORDERS_PER_PAGE;
+  const pageEndIndex = Math.min(pageStartIndex + ORDERS_PER_PAGE, filteredRows.length);
+  const pageRangeStart = filteredRows.length === 0 ? 0 : pageStartIndex + 1;
+  const pageNumbers = Array.from({ length: totalPages }, (_, index) => index + 1);
+  const paginatedRows = useMemo(() => {
+    return filteredRows.slice(pageStartIndex, pageEndIndex);
+  }, [filteredRows, pageEndIndex, pageStartIndex]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [channelFilter, query, statusFilter]);
+
+  useEffect(() => {
+    setCurrentPage((page) => Math.min(page, totalPages));
+  }, [totalPages]);
+
   const selectedRow = useMemo(() => {
-    return filteredRows.find((row) => row.order.id === selectedOrderId) ?? filteredRows[0] ?? null;
-  }, [filteredRows, selectedOrderId]);
+    return paginatedRows.find((row) => row.order.id === selectedOrderId) ?? paginatedRows[0] ?? null;
+  }, [paginatedRows, selectedOrderId]);
 
   const kpis = useMemo(() => buildKpis(rows), [rows]);
   const kitchenQueue = useMemo(() => buildStationQueue(rows, "Cucina"), [rows]);
@@ -173,167 +192,191 @@ export function OrdersDashboard(props: OrdersDashboardProps): ReactElement {
         </div>
       </header>
 
-      <div className={styles.kpiGrid}>
-        {kpis.map((kpi) => (
-          <article key={kpi.label} className={styles.kpiCard} data-tone={kpi.tone}>
-            <span className={styles.kpiIcon} aria-hidden="true">
-              <img src={kpi.iconSrc} alt={kpi.iconAlt} />
-            </span>
-            <div>
-              <span className={styles.kpiLabel}>{kpi.label}</span>
-              <strong>{kpi.value}</strong>
-              <small>{kpi.delta}</small>
-            </div>
-          </article>
-        ))}
-      </div>
-
       <div className={styles.contentGrid}>
-        <main className={styles.ordersPanel}>
-          <div className={styles.toolbar}>
-            <label className={styles.searchField}>
-              <span className={styles.srOnly}>Cerca ordine, cliente o telefono</span>
-              <input
-                value={query}
-                onChange={(event) => setQuery(event.target.value)}
-                placeholder="Cerca ordine, cliente o telefono"
-              />
-            </label>
-            <select
-              aria-label="Filtra stato"
-              value={statusFilter}
-              onChange={(event) => setStatusFilter(event.target.value)}
-            >
-              <option value="all">Tutti gli stati</option>
-              <option value="received">Da confermare</option>
-              <option value="preparing">In cucina</option>
-              <option value="out_for_delivery">In consegna</option>
-              <option value="delivered">Completati</option>
-              <option value="cancelled">Annullati</option>
-            </select>
-            <select
-              aria-label="Filtra canale"
-              value={channelFilter}
-              onChange={(event) => setChannelFilter(event.target.value)}
-            >
-              <option value="all">Tutti i canali</option>
-              {CHANNELS.map((channel) => (
-                <option key={channel} value={channel}>{channel}</option>
-              ))}
-            </select>
-            <button
-              className={styles.toolbarDateFilter}
-              type="button"
-              aria-label="Filtro data ordini"
-              onClick={() => setIsCalendarOpen((current) => !current)}
-            >
-              Oggi (00:00 - 23:59)
-            </button>
-            <button className={styles.secondaryAction} type="button">
-              <span aria-hidden="true" className={styles.refreshIcon} />
-              Aggiorna
-            </button>
-            <button className={styles.secondaryAction} type="button">
-              <span aria-hidden="true" className={styles.exportIcon} />
-              Esporta
-            </button>
-            <button
-              className={styles.primaryAction}
-              onClick={() => alert("Nuovo ordine manuale disponibile nella demo finale")}
-              type="button"
-            >
-              + Nuovo ordine
-            </button>
+        <div className={styles.leftColumn}>
+          <div className={styles.kpiGrid}>
+            {kpis.map((kpi) => (
+              <article key={kpi.label} className={styles.kpiCard} data-tone={kpi.tone}>
+                <span className={styles.kpiIcon} aria-hidden="true">
+                  <img src={kpi.iconSrc} alt={kpi.iconAlt} />
+                </span>
+                <div>
+                  <span className={styles.kpiLabel}>{kpi.label}</span>
+                  <strong>{kpi.value}</strong>
+                  <small>{kpi.delta}</small>
+                </div>
+              </article>
+            ))}
           </div>
 
-          <div className={styles.tableShell}>
-            <table className={styles.ordersTable}>
-              <thead>
-                <tr>
-                  <th aria-label="Seleziona ordine"><span className={styles.checkbox} /></th>
-                  <th>ID ordine</th>
-                  <th>Cliente</th>
-                  <th>Tipo</th>
-                  <th>Stato</th>
-                  <th>Orario</th>
-                  <th>Totale</th>
-                  <th>Pagamento</th>
-                  <th>Priorita</th>
-                  <th>Azioni</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredRows.map((row) => (
-                  <tr
-                    key={row.order.id}
-                    className={selectedRow?.order.id === row.order.id ? styles.selectedRow : undefined}
-                    onClick={() => setSelectedOrderId(row.order.id)}
-                  >
-                    <td><span className={styles.checkbox} /></td>
-                    <td>
-                      <strong>{row.displayId}</strong>
-                      <small>{row.order.demoOrderRef}</small>
-                    </td>
-                    <td>
-                      <strong>{row.customerName}</strong>
-                      <small>{row.customerPhone}</small>
-                    </td>
-                    <td><span className={styles.channel}>{row.channel}</span></td>
-                    <td><span className={styles.statusBadge} data-tone={row.statusTone}>{row.statusLabel}</span></td>
-                    <td>
-                      <strong>{row.scheduledTime}</strong>
-                      <small className={styles.lateText}>{row.elapsedLabel}</small>
-                    </td>
-                    <td><strong>{row.totalLabel}</strong></td>
-                    <td>
-                      <span className={styles.payment}>{row.paymentMethod}</span>
-                    </td>
-                    <td>
-                      <span className={styles.priority} data-priority={row.priority}>{row.priority}</span>
-                    </td>
-                    <td>
-                      <div className={styles.rowActions} aria-label={`Azioni ${row.displayId}`}>
-                        <button type="button" aria-label={`Vedi ${row.displayId}`}>
-                          <img src="/images/order-actions/view.png" alt="" />
-                        </button>
-                        <button type="button" aria-label={`Stampa ${row.displayId}`}>
-                          <img src="/images/order-actions/printer.png" alt="" />
-                        </button>
-                        <button type="button" aria-label={`Altro ${row.displayId}`}>
-                          <img src="/images/order-actions/more.png" alt="" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-
-            {filteredRows.length === 0 && (
-              <div className={styles.emptyState}>
-                <strong>Nessun ordine trovato.</strong>
-                <span>Modifica filtri o ricerca per tornare alla coda completa.</span>
-              </div>
-            )}
-          </div>
-
-          <footer className={styles.tableFooter}>
-            <span>Mostra 1-{filteredRows.length} di {rows.length} ordini</span>
-            <div className={styles.pagination} aria-label="Paginazione demo">
-              <button type="button">&lt;</button>
-              <button type="button" className={styles.activePage}>1</button>
-              <button type="button">2</button>
-              <button type="button">&gt;</button>
-            </div>
-            <label>
-              Righe per pagina
-              <select aria-label="Righe per pagina" defaultValue="10">
-                <option value="10">10</option>
-                <option value="25">25</option>
+          <main className={styles.ordersPanel}>
+            <div className={styles.toolbar}>
+              <label className={styles.searchField}>
+                <span className={styles.srOnly}>Cerca ordine, cliente o telefono</span>
+                <input
+                  value={query}
+                  onChange={(event) => setQuery(event.target.value)}
+                  placeholder="Cerca ordine, cliente o telefono"
+                />
+              </label>
+              <select
+                aria-label="Filtra stato"
+                value={statusFilter}
+                onChange={(event) => setStatusFilter(event.target.value)}
+              >
+                <option value="all">Tutti gli stati</option>
+                <option value="received">Da confermare</option>
+                <option value="preparing">In cucina</option>
+                <option value="out_for_delivery">In consegna</option>
+                <option value="delivered">Completati</option>
+                <option value="cancelled">Annullati</option>
               </select>
-            </label>
-          </footer>
-        </main>
+              <select
+                aria-label="Filtra canale"
+                value={channelFilter}
+                onChange={(event) => setChannelFilter(event.target.value)}
+              >
+                <option value="all">Tutti i canali</option>
+                {CHANNELS.map((channel) => (
+                  <option key={channel} value={channel}>{channel}</option>
+                ))}
+              </select>
+              <button
+                className={styles.toolbarDateFilter}
+                type="button"
+                aria-label="Filtro data ordini"
+                onClick={() => setIsCalendarOpen((current) => !current)}
+              >
+                Oggi (00:00 - 23:59)
+              </button>
+              <button className={styles.secondaryAction} type="button">
+                <span aria-hidden="true" className={styles.refreshIcon} />
+                Aggiorna
+              </button>
+              <button className={styles.secondaryAction} type="button">
+                <span aria-hidden="true" className={styles.exportIcon} />
+                Esporta
+              </button>
+              <button
+                className={styles.primaryAction}
+                onClick={() => alert("Nuovo ordine manuale disponibile nella demo finale")}
+                type="button"
+              >
+                + Nuovo ordine
+              </button>
+            </div>
+
+            <div className={styles.tableShell}>
+              <table className={styles.ordersTable}>
+                <thead>
+                  <tr>
+                    <th aria-label="Seleziona ordine"><span className={styles.checkbox} /></th>
+                    <th>ID ordine</th>
+                    <th>Cliente</th>
+                    <th>Tipo</th>
+                    <th>Stato</th>
+                    <th>Orario</th>
+                    <th>Totale</th>
+                    <th>Pagamento</th>
+                    <th>Priorita</th>
+                    <th>Azioni</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {paginatedRows.map((row) => (
+                    <tr
+                      key={row.order.id}
+                      className={selectedRow?.order.id === row.order.id ? styles.selectedRow : undefined}
+                      onClick={() => setSelectedOrderId(row.order.id)}
+                    >
+                      <td><span className={styles.checkbox} /></td>
+                      <td>
+                        <strong>{row.displayId}</strong>
+                        <small>{row.order.demoOrderRef}</small>
+                      </td>
+                      <td>
+                        <strong>{row.customerName}</strong>
+                        <small>{row.customerPhone}</small>
+                      </td>
+                      <td><span className={styles.channel}>{row.channel}</span></td>
+                      <td><span className={styles.statusBadge} data-tone={row.statusTone}>{row.statusLabel}</span></td>
+                      <td>
+                        <strong>{row.scheduledTime}</strong>
+                        <small className={styles.lateText}>{row.elapsedLabel}</small>
+                      </td>
+                      <td><strong>{row.totalLabel}</strong></td>
+                      <td>
+                        <span className={styles.payment}>{row.paymentMethod}</span>
+                      </td>
+                      <td>
+                        <span className={styles.priority} data-priority={row.priority}>{row.priority}</span>
+                      </td>
+                      <td>
+                        <div className={styles.rowActions} aria-label={`Azioni ${row.displayId}`}>
+                          <button type="button" aria-label={`Vedi ${row.displayId}`}>
+                            <img src="/images/order-actions/view.png" alt="" />
+                          </button>
+                          <button type="button" aria-label={`Stampa ${row.displayId}`}>
+                            <img src="/images/order-actions/printer.png" alt="" />
+                          </button>
+                          <button type="button" aria-label={`Altro ${row.displayId}`}>
+                            <img src="/images/order-actions/more.png" alt="" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+
+              {filteredRows.length === 0 && (
+                <div className={styles.emptyState}>
+                  <strong>Nessun ordine trovato.</strong>
+                  <span>Modifica filtri o ricerca per tornare alla coda completa.</span>
+                </div>
+              )}
+            </div>
+
+            <footer className={styles.tableFooter}>
+              <span>Mostra {pageRangeStart}-{pageEndIndex} di {filteredRows.length} ordini</span>
+              <div className={styles.pagination} aria-label="Paginazione ordini">
+                <button
+                  type="button"
+                  aria-label="Pagina precedente"
+                  disabled={currentPage === 1}
+                  onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
+                >
+                  <img src="/images/pagination/left.png" alt="" />
+                </button>
+                {pageNumbers.map((pageNumber) => (
+                  <button
+                    key={pageNumber}
+                    type="button"
+                    className={pageNumber === currentPage ? styles.activePage : undefined}
+                    aria-current={pageNumber === currentPage ? "page" : undefined}
+                    onClick={() => setCurrentPage(pageNumber)}
+                  >
+                    {pageNumber}
+                  </button>
+                ))}
+                <button
+                  type="button"
+                  aria-label="Pagina successiva"
+                  disabled={currentPage === totalPages}
+                  onClick={() => setCurrentPage((page) => Math.min(totalPages, page + 1))}
+                >
+                  <img className={styles.nextPageIcon} src="/images/pagination/left.png" alt="" />
+                </button>
+              </div>
+              <label>
+                Righe per pagina
+                <select aria-label="Righe per pagina" defaultValue="10" disabled>
+                  <option value="10">10</option>
+                </select>
+              </label>
+            </footer>
+          </main>
+        </div>
 
         <aside className={styles.detailColumn} aria-label="Dettaglio ordine selezionato">
           {selectedRow ? (

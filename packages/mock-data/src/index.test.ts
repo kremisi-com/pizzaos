@@ -179,6 +179,15 @@ describe("admin multi-store dataset", () =>
     );
   });
 
+  it("seeds the Roma orders page with twenty demo orders", () =>
+  {
+    const romaSeed = createAdminSeed("store-roma-centro");
+    const romaOrders = romaSeed.datasetsByStoreId["store-roma-centro"].orders;
+
+    expect(romaOrders).toHaveLength(20);
+    expect(romaOrders.map((order) => order.demoOrderRef)).toContain("POC-1020");
+  });
+
   it("falls back to default store for unknown store id", () =>
   {
     const seed = createAdminSeed("store-unknown");

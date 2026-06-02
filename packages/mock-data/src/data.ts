@@ -776,6 +776,192 @@ export const ADMIN_DATASET_TEMPLATES: Readonly<Record<EntityIdentifier, AdminDat
         180,
         "rider-roma-2",
         formatDemoOrderRef(1005)
+      ),
+      createOrder(
+        "order-roma-006",
+        "store-roma-centro",
+        "customer-roma-052",
+        "preparing",
+        "2026-03-25T12:08:00.000Z",
+        "2026-03-25T12:32:00.000Z",
+        [createLine("product-tonno-cipolla", 1, 1220, "Cipolla a parte")],
+        180,
+        undefined,
+        formatDemoOrderRef(1006)
+      ),
+      createOrder(
+        "order-roma-007",
+        "store-roma-centro",
+        "customer-roma-053",
+        "received",
+        "2026-03-25T12:12:00.000Z",
+        "2026-03-25T12:36:00.000Z",
+        [createLine("product-vegetariana", 1, 1200, "")],
+        150,
+        undefined,
+        formatDemoOrderRef(1007)
+      ),
+      createOrder(
+        "order-roma-008",
+        "store-roma-centro",
+        "customer-roma-054",
+        "ready",
+        "2026-03-25T11:48:00.000Z",
+        "2026-03-25T12:18:00.000Z",
+        [createLine("product-calzone", 2, 1280, "Tagliare a meta")],
+        180,
+        undefined,
+        formatDemoOrderRef(1008)
+      ),
+      createOrder(
+        "order-roma-009",
+        "store-roma-centro",
+        "customer-roma-055",
+        "delivered",
+        "2026-03-25T10:35:00.000Z",
+        "2026-03-25T11:05:00.000Z",
+        [
+          createLine("product-margherita", 1, 900, ""),
+          createLine("product-diavola", 1, 1150, "")
+        ],
+        200,
+        "rider-roma-1",
+        formatDemoOrderRef(1009)
+      ),
+      createOrder(
+        "order-roma-010",
+        "store-roma-centro",
+        "customer-roma-056",
+        "confirmed",
+        "2026-03-25T12:01:00.000Z",
+        "2026-03-25T12:28:00.000Z",
+        [createLine("product-focaccia-rosmarino", 3, 550, "")],
+        120,
+        undefined,
+        formatDemoOrderRef(1010)
+      ),
+      createOrder(
+        "order-roma-011",
+        "store-roma-centro",
+        "customer-roma-057",
+        "out_for_delivery",
+        "2026-03-25T11:35:00.000Z",
+        "2026-03-25T12:04:00.000Z",
+        [createLine("product-capricciosa", 1, 1250, "No funghi")],
+        200,
+        "rider-roma-3",
+        formatDemoOrderRef(1011)
+      ),
+      createOrder(
+        "order-roma-012",
+        "store-roma-centro",
+        "customer-roma-058",
+        "preparing",
+        "2026-03-25T11:58:00.000Z",
+        "2026-03-25T12:22:00.000Z",
+        [createLine("product-4-formaggi", 2, 1300, "")],
+        180,
+        undefined,
+        formatDemoOrderRef(1012)
+      ),
+      createOrder(
+        "order-roma-013",
+        "store-roma-centro",
+        "customer-roma-059",
+        "received",
+        "2026-03-25T12:15:00.000Z",
+        "2026-03-25T12:40:00.000Z",
+        [createLine("product-margherita", 1, 900, "Impasto ben cotto")],
+        150,
+        undefined,
+        formatDemoOrderRef(1013)
+      ),
+      createOrder(
+        "order-roma-014",
+        "store-roma-centro",
+        "customer-roma-060",
+        "cancelled",
+        "2026-03-25T10:20:00.000Z",
+        "2026-03-25T10:24:00.000Z",
+        [createLine("product-tonno-cipolla", 1, 1220, "")],
+        0,
+        undefined,
+        formatDemoOrderRef(1014)
+      ),
+      createOrder(
+        "order-roma-015",
+        "store-roma-centro",
+        "customer-roma-061",
+        "ready",
+        "2026-03-25T11:44:00.000Z",
+        "2026-03-25T12:12:00.000Z",
+        [
+          createLine("product-vegetariana", 1, 1200, ""),
+          createLine("product-focaccia-rosmarino", 1, 550, "")
+        ],
+        180,
+        undefined,
+        formatDemoOrderRef(1015)
+      ),
+      createOrder(
+        "order-roma-016",
+        "store-roma-centro",
+        "customer-roma-062",
+        "delivered",
+        "2026-03-25T09:55:00.000Z",
+        "2026-03-25T10:38:00.000Z",
+        [createLine("product-diavola", 2, 1150, "")],
+        200,
+        "rider-roma-2",
+        formatDemoOrderRef(1016)
+      ),
+      createOrder(
+        "order-roma-017",
+        "store-roma-centro",
+        "customer-roma-063",
+        "confirmed",
+        "2026-03-25T12:10:00.000Z",
+        "2026-03-25T12:34:00.000Z",
+        [createLine("product-calzone", 1, 1280, "Extra pomodoro")],
+        180,
+        undefined,
+        formatDemoOrderRef(1017)
+      ),
+      createOrder(
+        "order-roma-018",
+        "store-roma-centro",
+        "customer-roma-064",
+        "preparing",
+        "2026-03-25T11:52:00.000Z",
+        "2026-03-25T12:16:00.000Z",
+        [createLine("product-capricciosa", 1, 1250, "")],
+        150,
+        undefined,
+        formatDemoOrderRef(1018)
+      ),
+      createOrder(
+        "order-roma-019",
+        "store-roma-centro",
+        "customer-roma-065",
+        "out_for_delivery",
+        "2026-03-25T11:12:00.000Z",
+        "2026-03-25T11:44:00.000Z",
+        [createLine("product-margherita", 3, 900, "")],
+        200,
+        "rider-roma-1",
+        formatDemoOrderRef(1019)
+      ),
+      createOrder(
+        "order-roma-020",
+        "store-roma-centro",
+        "customer-roma-066",
+        "received",
+        "2026-03-25T12:18:00.000Z",
+        "2026-03-25T12:42:00.000Z",
+        [createLine("product-4-formaggi", 1, 1300, "Senza gorgonzola")],
+        180,
+        undefined,
+        formatDemoOrderRef(1020)
       )
     ],
     inventory: [

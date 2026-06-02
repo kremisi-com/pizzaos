@@ -5,6 +5,12 @@
   color: #111827;
 }
 
+.dashboard button,
+.dashboard input,
+.dashboard select {
+  font-family: var(--pizzaos-font-family);
+}
+
 .pageHeader {
   display: flex;
   align-items: flex-start;
@@ -208,9 +214,15 @@
 
 .contentGrid {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 360px;
-  gap: 14px;
+  grid-template-columns: minmax(0, 1fr) 350px;
+  gap: 16px;
   align-items: start;
+}
+
+.leftColumn {
+  display: grid;
+  gap: 14px;
+  min-width: 0;
 }
 
 .ordersPanel,
@@ -555,12 +567,32 @@
 .pagination button {
   min-width: 32px;
   height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
 }
 
 .activePage {
   background: #ef1d1d !important;
   color: #ffffff !important;
   border-color: #ef1d1d !important;
+}
+
+.pagination button:disabled {
+  cursor: not-allowed;
+  opacity: 0.35;
+}
+
+.pagination img {
+  display: block;
+  width: 11px;
+  height: 11px;
+  object-fit: contain;
+}
+
+.nextPageIcon {
+  transform: rotate(180deg);
 }
 
 .tableFooter label {
@@ -571,7 +603,7 @@
 
 .detailColumn {
   display: grid;
-  gap: 12px;
+  gap: 10px;
   position: sticky;
   top: 12px;
 }
@@ -579,13 +611,13 @@
 .routingCards {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 10px;
+  gap: 8px;
 }
 
 .routingCards article {
   display: grid;
-  gap: 8px;
-  padding: 12px;
+  gap: 7px;
+  padding: 11px;
   border: 1px solid #eef0f4;
   border-radius: 8px;
   background: #ffffff;
@@ -615,7 +647,7 @@
 
 .routingCards span {
   color: #64748b;
-  font-size: 0.76rem;
+  font-size: 0.7rem;
   font-weight: 800;
 }
 
