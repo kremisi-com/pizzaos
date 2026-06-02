@@ -19,7 +19,7 @@ import {
 } from "@pizzaos/domain";
 import { Button } from "@pizzaos/ui";
 import Image from "next/image";
-import { useCallback, useState, type ReactElement, useEffect } from "react";
+import { useCallback, useState, type ReactElement, useEffect, useRef } from "react";
 import { OrdersDashboard } from "../../orders/components/orders-dashboard";
 import { StoreSwitcher } from "../../store-switch/components/store-switcher";
 import { CatalogManager } from "../../catalog/components/catalog-manager";
@@ -678,6 +678,8 @@ export function AdminShell(): ReactElement {
   const [isSimulationRunning, setIsSimulationRunning] = useState(true);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [newOrderToasts, setNewOrderToasts] = useState<readonly NewOrderToast[]>([]);
+  const knownOrderIdsRef = useRef<ReadonlySet<string> | null>(null);
+  const knownOrderStoreIdRef = useRef<string | null>(null);
 
   const activeDataset = seed.datasetsByStoreId[seed.activeStoreId];
 
@@ -707,21 +709,12 @@ export function AdminShell(): ReactElement {
   }, [seed]);
 
   const handleAdvanceSimulation = useCallback((): void => {
-    let arrivedOrders: readonly Order[] = [];
-
     setSeed((currentSeed) => {
       const activeStoreId = currentSeed.activeStoreId;
       const currentDataset = currentSeed.datasetsByStoreId[activeStoreId];
       const nextSimulationDate = deriveNextSimulationDate(
         currentDataset.simulationCursorIso,
       );
-      const nextSimulationTimestamp = nextSimulationDate.getTime();
-
-      arrivedOrders = currentDataset.futureOrders.filter((order) => {
-        const createdAtTimestamp = Date.parse(order.createdAtIso);
-
-        return Number.isFinite(createdAtTimestamp) && createdAtTimestamp <= nextSimulationTimestamp;
-      });
 
       const updatedDataset = advanceOrderSimulation(
         currentDataset,
@@ -740,17 +733,33 @@ export function AdminShell(): ReactElement {
         },
       };
     });
-
-    if (arrivedOrders.length > 0) {
-      setNewOrderToasts((currentToasts) => [
-        ...arrivedOrders.map((order) => ({
-          id: `${order.id}-${order.updatedAtIso}`,
-          order,
-        })),
-        ...currentToasts,
-      ].slice(0, 4));
-    }
   }, []);
+
+  useEffect(() => {
+    const currentOrderIds = new Set(activeDataset.orders.map((order) => order.id));
+
+    if (knownOrderStoreIdRef.current !== seed.activeStoreId || knownOrderIdsRef.current === null) {
+      knownOrderStoreIdRef.current = seed.activeStoreId;
+      knownOrderIdsRef.current = currentOrderIds;
+      return;
+    }
+
+    const arrivedOrders = activeDataset.orders.filter((order) => !knownOrderIdsRef.current?.has(order.id));
+
+    knownOrderIdsRef.current = currentOrderIds;
+
+    if (arrivedOrders.length === 0) {
+      return;
+    }
+
+    setNewOrderToasts((currentToasts) => [
+      ...arrivedOrders.map((order) => ({
+        id: `${order.id}-${order.updatedAtIso}`,
+        order,
+      })),
+      ...currentToasts,
+    ].slice(0, 4));
+  }, [activeDataset.orders, seed.activeStoreId]);
 
   useEffect(() => {
     if (newOrderToasts.length === 0) {

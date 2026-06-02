@@ -313,7 +313,7 @@ describe("order simulation", () =>
       simulationCursorIso: clientSeed.simulationCursorIso
     };
 
-    const oneStepTimestamp = "2026-03-25T18:43:00.000Z";
+    const oneStepTimestamp = "2026-03-25T18:42:30.000Z";
     const oneStepProgressed = advanceOrderSimulation(initialState, oneStepTimestamp);
 
     expect(oneStepProgressed.orders[0].status).toBe("preparing");
@@ -323,7 +323,7 @@ describe("order simulation", () =>
 
     expect(noExtraStep).toEqual(oneStepProgressed);
 
-    const twoMoreStepsTimestamp = "2026-03-25T18:45:00.000Z";
+    const twoMoreStepsTimestamp = "2026-03-25T18:43:30.000Z";
     const twoMoreStepsProgressed = advanceOrderSimulation(oneStepProgressed, twoMoreStepsTimestamp);
 
     expect(getNextOrderStatuses("preparing")).toContain("ready");
@@ -347,7 +347,7 @@ describe("order simulation", () =>
       simulationCursorIso: clientSeed.simulationCursorIso
     };
 
-    const timestamp = "2026-03-25T18:44:00.000Z";
+    const timestamp = "2026-03-25T18:43:00.000Z";
 
     expect(advanceOrderSimulation(state, timestamp)).toEqual(advanceOrderSimulation(state, timestamp));
   });
@@ -376,7 +376,7 @@ describe("order simulation", () =>
       simulationCursorIso: "2026-03-25T18:00:00.000Z"
     };
 
-    const nextTimestamp = "2026-03-25T18:01:00.000Z";
+    const nextTimestamp = "2026-03-25T18:00:30.000Z";
     const progressed = advanceOrderSimulation(initialState, nextTimestamp);
 
     expect(progressed.orders[0].status).toBe("delivered");

@@ -26,7 +26,7 @@
   dense order table, persistent selected-order detail, SLA/payment/priority mock metadata, and kitchen timing cards.
 - Orders page header now uses the supplied calendar and notification bitmap icons; the lighter date control opens a
   local demo calendar popover without adding backend or external calendar integration.
-- Order simulation now runs at one simulated minute every two real seconds, drains deterministic per-store future-order
+- Order simulation now runs at 30 simulated seconds every two real seconds, drains deterministic per-store future-order
   queues into the active board, and shows bottom-right notifications when new orders arrive.
 - Orders toolbar uses the supplied calendar, export, and update bitmap icons instead of CSS-drawn placeholders.
 

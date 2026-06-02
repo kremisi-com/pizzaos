@@ -276,15 +276,19 @@ describe("admin shell", () =>
       updatedSeed.datasetsByStoreId[updatedSeed.activeStoreId];
 
     expect(updatedDataset.simulationCursorIso).toBe(expectedNextCursorIso);
-    expect(updatedDataset.orders.map((order) => order.demoOrderRef)).toContain("POC-1021");
-    expect(updatedDataset.futureOrders.map((order) => order.demoOrderRef)).not.toContain("POC-1021");
+    expect(updatedDataset.orders.map((order) => order.demoOrderRef)).not.toContain("POC-1021");
+    expect(updatedDataset.futureOrders.map((order) => order.demoOrderRef)).toContain("POC-1021");
   });
 
-  it("shows a bottom-right notification when a future order arrives", () => {
+  it("shows a bottom-right notification when a future order arrives", async () => {
     vi.useFakeTimers();
     render(<AdminShell />);
 
-    act(() => {
+    await act(async () => {
+      vi.advanceTimersByTime(ADMIN_SIMULATION_INTERVAL_MS);
+    });
+
+    await act(async () => {
       vi.advanceTimersByTime(ADMIN_SIMULATION_INTERVAL_MS);
     });
 
