@@ -669,6 +669,7 @@ export function AdminShell(): ReactElement {
     (typeof NAV_ITEMS)[number]["id"]
   >("dashboard");
   const [isSimulationRunning, setIsSimulationRunning] = useState(true);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
   const activeDataset = seed.datasetsByStoreId[seed.activeStoreId];
 
@@ -902,61 +903,90 @@ export function AdminShell(): ReactElement {
   }
 
   return (
-    <div className={styles.shell}>
-      <aside className={styles.sidebar}>
-        <h1 className={styles.logo}>
-          <Image
-            className={styles.logoImage}
-            src="/images/logo.png"
-            alt="PizzaOS Admin"
-            width={180}
-            height={52}
-            priority
-          />
-        </h1>
+    <div
+      className={`${styles.shell} ${
+        isSidebarCollapsed ? styles.shellSidebarCollapsed : ""
+      }`}
+    >
+      <aside
+        className={`${styles.sidebar} ${
+          isSidebarCollapsed ? styles.sidebarCollapsed : ""
+        }`}
+      >
+        <button
+          aria-controls="admin-sidebar-content"
+          aria-expanded={!isSidebarCollapsed}
+          aria-label={
+            isSidebarCollapsed ? "Mostra sidebar" : "Nascondi sidebar"
+          }
+          className={styles.sidebarToggle}
+          onClick={() => setIsSidebarCollapsed((current) => !current)}
+          type="button"
+        >
+          <span aria-hidden="true">
+            {isSidebarCollapsed ? <>&rsaquo;</> : <>&lsaquo;</>}
+          </span>
+        </button>
 
-        <nav className={styles.nav}>
-          {NAV_ITEMS.map((item) => (
-            <button
-              key={item.id}
-              aria-label={
-                item.id === "analytics" ? "Analytics and AI" : undefined
-              }
-              onClick={() => setActiveTab(item.id)}
-              className={`${styles.navButton} ${
-                activeTab === item.id ? styles.navItemActive : ""
-              }`}
-            >
-              <span aria-hidden="true" className={styles.navIcon}>
-                <Image alt="" height={18} src={item.iconSrc} width={18} />
-              </span>
-              <span>{item.label}</span>
-            </button>
-          ))}
-        </nav>
+        {!isSidebarCollapsed ? (
+          <div className={styles.sidebarContent} id="admin-sidebar-content">
+            <h1 className={styles.logo}>
+              <Image
+                className={styles.logoImage}
+                src="/images/logo.png"
+                alt="PizzaOS Admin"
+                width={180}
+                height={52}
+                priority
+              />
+            </h1>
 
-        <StoreSwitcher
-          stores={seed.stores}
-          activeStoreId={seed.activeStoreId}
-          onStoreChange={handleStoreChange}
-        />
+            <nav className={styles.nav}>
+              {NAV_ITEMS.map((item) => (
+                <button
+                  key={item.id}
+                  aria-label={
+                    item.id === "analytics" ? "Analytics and AI" : undefined
+                  }
+                  onClick={() => setActiveTab(item.id)}
+                  className={`${styles.navButton} ${
+                    activeTab === item.id ? styles.navItemActive : ""
+                  }`}
+                >
+                  <span aria-hidden="true" className={styles.navIcon}>
+                    <Image alt="" height={18} src={item.iconSrc} width={18} />
+                  </span>
+                  <span>{item.label}</span>
+                </button>
+              ))}
+            </nav>
 
-        <div className={styles.sidebarFooter}>
-          <Button
-            onClick={() => setIsSimulationRunning((current) => !current)}
-            variant={isSimulationRunning ? "secondary" : "primary"}
-            className={styles.advanceButton}
-          >
-            {isSimulationRunning ? "Pausa simulazione" : "Riprendi simulazione"}
-          </Button>
-          <Button
-            onClick={handleResetClick}
-            variant="secondary"
-            className={styles.resetButton}
-          >
-            Reset Demo
-          </Button>
-        </div>
+            <StoreSwitcher
+              stores={seed.stores}
+              activeStoreId={seed.activeStoreId}
+              onStoreChange={handleStoreChange}
+            />
+
+            <div className={styles.sidebarFooter}>
+              <Button
+                onClick={() => setIsSimulationRunning((current) => !current)}
+                variant={isSimulationRunning ? "secondary" : "primary"}
+                className={styles.advanceButton}
+              >
+                {isSimulationRunning
+                  ? "Pausa simulazione"
+                  : "Riprendi simulazione"}
+              </Button>
+              <Button
+                onClick={handleResetClick}
+                variant="secondary"
+                className={styles.resetButton}
+              >
+                Reset Demo
+              </Button>
+            </div>
+          </div>
+        ) : null}
       </aside>
 
       <main className={styles.content}>

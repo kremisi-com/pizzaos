@@ -170,6 +170,30 @@ describe("admin shell", () =>
     ).toBeNull();
   });
 
+  it("collapses and reopens the admin sidebar from the edge toggle", () => {
+    render(<AdminShell />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Nascondi sidebar" }));
+
+    expect(
+      screen
+        .getByRole("button", { name: "Mostra sidebar" })
+        .getAttribute("aria-expanded"),
+    ).toBe("false");
+    expect(screen.queryByRole("button", { name: "Dashboard" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Reset Demo" })).toBeNull();
+
+    fireEvent.click(screen.getByRole("button", { name: "Mostra sidebar" }));
+
+    expect(
+      screen
+        .getByRole("button", { name: "Nascondi sidebar" })
+        .getAttribute("aria-expanded"),
+    ).toBe("true");
+    expect(screen.getByRole("button", { name: "Dashboard" })).toBeDefined();
+    expect(screen.getByRole("button", { name: "Reset Demo" })).toBeDefined();
+  });
+
   it("opens the orders queue from the live orders card", () => {
     render(<AdminShell />);
 
