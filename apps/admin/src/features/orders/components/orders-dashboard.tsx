@@ -279,9 +279,15 @@ export function OrdersDashboard(props: OrdersDashboardProps): ReactElement {
                     </td>
                     <td>
                       <div className={styles.rowActions} aria-label={`Azioni ${row.displayId}`}>
-                        <button type="button" aria-label={`Vedi ${row.displayId}`}>o</button>
-                        <button type="button" aria-label={`Stampa ${row.displayId}`}>p</button>
-                        <button type="button" aria-label={`Altro ${row.displayId}`}>...</button>
+                        <button type="button" aria-label={`Vedi ${row.displayId}`}>
+                          <img src="/images/order-actions/view.png" alt="" />
+                        </button>
+                        <button type="button" aria-label={`Stampa ${row.displayId}`}>
+                          <img src="/images/order-actions/printer.png" alt="" />
+                        </button>
+                        <button type="button" aria-label={`Altro ${row.displayId}`}>
+                          <img src="/images/order-actions/more.png" alt="" />
+                        </button>
                       </div>
                     </td>
                   </tr>
