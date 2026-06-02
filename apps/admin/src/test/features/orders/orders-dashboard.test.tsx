@@ -65,6 +65,12 @@ describe("OrdersDashboard", () => {
     expect(markup).toContain("Totali oggi");
     expect(markup).toContain("Da confermare");
     expect(markup).toContain("In consegna");
+    expect(markup).toContain("/images/live-orders/writing.png");
+    expect(markup).toContain("/images/live-orders/hourglass.png");
+    expect(markup).toContain("/images/live-orders/chef.png");
+    expect(markup).toContain("/images/live-orders/scooter.png");
+    expect(markup).toContain("/images/live-orders/check.png");
+    expect(markup).toContain("/images/live-orders/remove.png");
     expect(markup).toContain("Cerca ordine, cliente o telefono");
     expect(markup).toContain("ID ordine");
     expect(markup).toContain("Pagamento");

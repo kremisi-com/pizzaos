@@ -41,7 +41,8 @@ interface KpiCard {
   readonly value: number;
   readonly delta: string;
   readonly tone: "purple" | "red" | "orange" | "amber" | "green" | "gray";
-  readonly icon: string;
+  readonly iconSrc: string;
+  readonly iconAlt: string;
 }
 
 const CUSTOMER_NAMES = [
@@ -142,7 +143,9 @@ export function OrdersDashboard(props: OrdersDashboardProps): ReactElement {
       <div className={styles.kpiGrid}>
         {kpis.map((kpi) => (
           <article key={kpi.label} className={styles.kpiCard} data-tone={kpi.tone}>
-            <span className={styles.kpiIcon} aria-hidden="true">{kpi.icon}</span>
+            <span className={styles.kpiIcon} aria-hidden="true">
+              <img src={kpi.iconSrc} alt={kpi.iconAlt} />
+            </span>
             <div>
               <span className={styles.kpiLabel}>{kpi.label}</span>
               <strong>{kpi.value}</strong>
@@ -376,12 +379,54 @@ function buildKpis(rows: readonly OrderRowViewModel[]): readonly KpiCard[] {
   const cancelled = rows.filter((row) => row.order.status === "cancelled").length;
 
   return [
-    { label: "Totali oggi", value: rows.length, delta: "+ 6% vs ieri", tone: "purple", icon: "[]" },
-    { label: "Da confermare", value: received, delta: received > 0 ? "+ 2" : "=", tone: "red", icon: "!" },
-    { label: "In preparazione", value: preparing, delta: "=", tone: "orange", icon: "^" },
-    { label: "In consegna", value: delivery, delta: delivery > 0 ? "+ 2" : "=", tone: "amber", icon: ">" },
-    { label: "Completati", value: completed, delta: "+ 8%", tone: "green", icon: "v" },
-    { label: "Annullati", value: cancelled, delta: cancelled > 0 ? "- 1" : "=", tone: "gray", icon: "x" }
+    {
+      label: "Totali oggi",
+      value: rows.length,
+      delta: "+ 6% vs ieri",
+      tone: "purple",
+      iconSrc: "/images/live-orders/writing.png",
+      iconAlt: "Ordini totali"
+    },
+    {
+      label: "Da confermare",
+      value: received,
+      delta: received > 0 ? "+ 2" : "=",
+      tone: "red",
+      iconSrc: "/images/live-orders/hourglass.png",
+      iconAlt: "Ordini in attesa"
+    },
+    {
+      label: "In preparazione",
+      value: preparing,
+      delta: "=",
+      tone: "orange",
+      iconSrc: "/images/live-orders/chef.png",
+      iconAlt: "Ordini in preparazione"
+    },
+    {
+      label: "In consegna",
+      value: delivery,
+      delta: delivery > 0 ? "+ 2" : "=",
+      tone: "amber",
+      iconSrc: "/images/live-orders/scooter.png",
+      iconAlt: "Ordini in consegna"
+    },
+    {
+      label: "Completati",
+      value: completed,
+      delta: "+ 8%",
+      tone: "green",
+      iconSrc: "/images/live-orders/check.png",
+      iconAlt: "Ordini completati"
+    },
+    {
+      label: "Annullati",
+      value: cancelled,
+      delta: cancelled > 0 ? "- 1" : "=",
+      tone: "gray",
+      iconSrc: "/images/live-orders/remove.png",
+      iconAlt: "Ordini annullati"
+    }
   ];
 }
 

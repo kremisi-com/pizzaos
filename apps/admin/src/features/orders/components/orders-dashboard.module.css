@@ -97,6 +97,13 @@
   font-weight: 900;
 }
 
+.kpiIcon img {
+  display: block;
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+}
+
 .kpiCard[data-tone="purple"] .kpiIcon {
   color: #7c3aed;
   background: #f3e8ff;
