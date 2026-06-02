@@ -1,7 +1,6 @@
 "use client";
 
 import type { Order, OrderStatus, Product, Rider } from "@pizzaos/domain";
-import { Button } from "@pizzaos/ui";
 import { type ReactElement, useMemo, useState } from "react";
 import { OrderDetails, type OrderDisplayContext } from "./order-details";
 import styles from "./orders-dashboard.module.css";
@@ -222,14 +221,29 @@ export function OrdersDashboard(props: OrdersDashboardProps): ReactElement {
                 <option key={channel} value={channel}>{channel}</option>
               ))}
             </select>
-            <button className={styles.secondaryAction} type="button">Aggiorna</button>
-            <button className={styles.secondaryAction} type="button">Esporta</button>
-            <Button
+            <button
+              className={styles.toolbarDateFilter}
+              type="button"
+              aria-label="Filtro data ordini"
+              onClick={() => setIsCalendarOpen((current) => !current)}
+            >
+              Oggi (00:00 - 23:59)
+            </button>
+            <button className={styles.secondaryAction} type="button">
+              <span aria-hidden="true" className={styles.refreshIcon} />
+              Aggiorna
+            </button>
+            <button className={styles.secondaryAction} type="button">
+              <span aria-hidden="true" className={styles.exportIcon} />
+              Esporta
+            </button>
+            <button
+              className={styles.primaryAction}
               onClick={() => alert("Nuovo ordine manuale disponibile nella demo finale")}
-              style={{ padding: "9px 13px", borderRadius: "8px" }}
+              type="button"
             >
               + Nuovo ordine
-            </Button>
+            </button>
           </div>
 
           <div className={styles.tableShell}>

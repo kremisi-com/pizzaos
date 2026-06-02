@@ -83,6 +83,7 @@ describe("OrdersDashboard", () => {
     expect(markup).toContain("/images/order-actions/printer.png");
     expect(markup).toContain("/images/order-actions/more.png");
     expect(markup).toContain("Cerca ordine, cliente o telefono");
+    expect(markup).toContain("Oggi (00:00 - 23:59)");
     expect(markup).toContain("ID ordine");
     expect(markup).toContain("Pagamento");
     expect(markup).toContain("Priorita");
@@ -120,5 +121,19 @@ describe("OrdersDashboard", () => {
 
     expect(screen.getByRole("dialog", { name: "Calendario ordini" })).toBeDefined();
     expect(screen.getByLabelText("Data ordini")).toHaveProperty("value", "2026-06-02");
+  });
+
+  it("opens the local calendar from the toolbar date filter", () => {
+    render(
+      <OrdersDashboard
+        orders={MOCK_ORDERS}
+        lastUpdateIso="2026-06-02T08:00:00.000Z"
+        allProducts={[]}
+      />
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Filtro data ordini" }));
+
+    expect(screen.getByRole("dialog", { name: "Calendario ordini" })).toBeDefined();
   });
 });
