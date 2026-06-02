@@ -61,18 +61,19 @@ describe("OrdersDashboard", () => {
       })
     );
 
-    expect(markup).toContain("Ordini Attivi");
+    expect(markup).toContain("Gestione ordini in tempo reale");
+    expect(markup).toContain("Totali oggi");
+    expect(markup).toContain("Da confermare");
     expect(markup).toContain("In consegna");
-    expect(markup).toContain("Totale oggi");
+    expect(markup).toContain("Cerca ordine, cliente o telefono");
+    expect(markup).toContain("ID ordine");
+    expect(markup).toContain("Pagamento");
+    expect(markup).toContain("Priorita");
     expect(markup).toContain("Prodotto");
-    expect(markup).toContain("1234");
-    expect(markup).toContain("2");
-    expect(markup).toContain("x");
-    expect(markup).toContain("Ricevuto");
     expect(markup).toContain("Rif. demo cliente:");
     expect(markup).toContain("POC-1001");
-    expect(markup).toContain("Milestone cliente:");
-    expect(markup).toContain("Ordine ricevuto dal locale");
+    expect(markup).toContain("Coda live cucina");
+    expect(markup).toContain("Tempi medi oggi");
   });
 
   it("renders empty state when no orders", () => {

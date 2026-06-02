@@ -22,6 +22,8 @@
   light canvas, white panels, PizzaOS red primary actions, soft borders, and premium operational cards.
 - Dashboard polish adds a third-row marketing snapshot with active coupon/fidelity metrics and automatic opportunity
   cards, reusing admin public icon assets plus supplied gift/star dashboard icons.
+- Orders page polish moves the live order board toward the supplied operational table reference: KPI strip, filters,
+  dense order table, persistent selected-order detail, SLA/payment/priority mock metadata, and kitchen timing cards.
 
 ## Step 1: Build the admin shell, seeded operator state, store switching, and reset flow
 

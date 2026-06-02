@@ -67,13 +67,16 @@ describe("OrderDetails", () => {
       })
     );
 
-    expect(markup).toContain("Ordine #");
+    expect(markup).toContain("Ordine");
     expect(markup).toContain("RDER-1");
     expect(markup).toContain("Rif. demo cliente:");
     expect(markup).toContain("POC-1001");
     expect(markup).toContain("Ricevuto");
     expect(markup).toContain("Narrativa cliente:");
     expect(markup).toContain("Il locale ha ricevuto l&#x27;ordine e lo sta verificando.");
+    expect(markup).toContain("Pagamento");
+    expect(markup).toContain("Priorita");
+    expect(markup).toContain("SLA stimato");
     expect(markup).toContain("Cucina");
     expect(markup).toContain("Margherita");
     expect(markup).toContain("Extra cheese");

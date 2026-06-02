@@ -174,8 +174,8 @@ describe("admin shell", () =>
 
     fireEvent.click(screen.getByRole("button", { name: "Apri coda ordini" }));
 
-    expect(screen.getByText("Ordini Attivi")).toBeDefined();
-    expect(screen.getByText("Totale oggi")).toBeDefined();
+    expect(screen.getByText("Gestione ordini in tempo reale")).toBeDefined();
+    expect(screen.getByText("Totali oggi")).toBeDefined();
   });
 
   it("opens the orders queue from the operational timeline card", () => {
@@ -185,8 +185,8 @@ describe("admin shell", () =>
       screen.getByRole("button", { name: /Vedi tutta l'attivit/i }),
     );
 
-    expect(screen.getByText("Ordini Attivi")).toBeDefined();
-    expect(screen.getByText("Totale oggi")).toBeDefined();
+    expect(screen.getByText("Gestione ordini in tempo reale")).toBeDefined();
+    expect(screen.getByText("Totali oggi")).toBeDefined();
   });
 
   it("opens delivery management from the fleet card", () => {

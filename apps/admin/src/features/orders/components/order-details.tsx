@@ -17,8 +17,22 @@ interface OrderDetailsProps {
   readonly order: Order;
   readonly allProducts: readonly Product[];
   readonly riders?: readonly Rider[];
+  readonly displayContext?: OrderDisplayContext;
   readonly onStatusUpdate: (orderId: string, nextStatus: OrderStatus, riderId?: string) => void;
   readonly onClose: () => void;
+}
+
+export interface OrderDisplayContext {
+  readonly displayId: string;
+  readonly customerName: string;
+  readonly customerPhone: string;
+  readonly address: string;
+  readonly paymentMethod: string;
+  readonly priority: string;
+  readonly statusLabel: string;
+  readonly slaLabel: string;
+  readonly totalLabel: string;
+  readonly allergenLabels: readonly string[];
 }
 
 const STATUS_LABELS: Record<OrderStatus, string> = {
@@ -50,7 +64,7 @@ const CLIENT_STORY_BY_STATUS: Record<OrderStatus, string> = {
 };
 
 export function OrderDetails(props: OrderDetailsProps): ReactElement {
-  const { order, allProducts, riders = [], onStatusUpdate, onClose } = props;
+  const { order, allProducts, displayContext, riders = [], onStatusUpdate, onClose } = props;
 
   const [selectedRiderId, setSelectedRiderId] = useState<string | undefined>(order.riderId);
 
@@ -78,11 +92,14 @@ export function OrderDetails(props: OrderDetailsProps): ReactElement {
     <div className={styles.details}>
       <header className={styles.header}>
         <div>
-          <div className={styles.orderId}>Ordine #{order.id.slice(-6).toUpperCase()}</div>
+          <div className={styles.orderId}>Ordine {displayContext?.displayId ?? `#${order.id.slice(-6).toUpperCase()}`}</div>
           {order.demoOrderRef && <div className={styles.demoRef}>Rif. demo cliente: {order.demoOrderRef}</div>}
         </div>
+        <button className={styles.closeButton} type="button" onClick={onClose} aria-label="Chiudi dettaglio">
+          x
+        </button>
         <Badge tone={order.status === "cancelled" ? "critical" : order.status === "delivered" ? "success" : "warning"}>
-          {STATUS_LABELS[order.status]}
+          {displayContext?.statusLabel ?? STATUS_LABELS[order.status]}
         </Badge>
       </header>
 
@@ -91,7 +108,19 @@ export function OrderDetails(props: OrderDetailsProps): ReactElement {
       <div className={styles.customerInfo}>
         <div className={styles.infoBlock}>
           <span className={styles.label}>Cliente</span>
-          <span className={styles.value}>ID: {order.customerId.slice(-8).toUpperCase()}</span>
+          <span className={styles.value}>{displayContext?.customerName ?? `ID: ${order.customerId.slice(-8).toUpperCase()}`}</span>
+          {displayContext ? <span className={styles.metaValue}>{displayContext.customerPhone}</span> : null}
+        </div>
+        {displayContext ? (
+          <div className={styles.infoBlock}>
+            <span className={styles.label}>Indirizzo di consegna</span>
+            <span className={styles.value}>{displayContext.address}</span>
+            <span className={styles.metaValue}>00165 Roma - 3 piano</span>
+          </div>
+        ) : null}
+        <div className={styles.infoBlock}>
+          <span className={styles.label}>Pagamento</span>
+          <span className={styles.value}>{displayContext?.paymentMethod ?? "Carta online"}</span>
         </div>
         <div className={styles.infoBlock}>
           <span className={styles.label}>Slot Consegna</span>
@@ -102,6 +131,21 @@ export function OrderDetails(props: OrderDetailsProps): ReactElement {
           <span className={styles.value}>{new Date(order.createdAtIso).toLocaleString("it-IT")}</span>
         </div>
       </div>
+
+      <section className={styles.orderSummary} aria-label="Riepilogo operativo">
+        <span>
+          <strong>Priorita</strong>
+          {displayContext?.priority ?? "Normale"}
+        </span>
+        <span>
+          <strong>SLA stimato</strong>
+          {displayContext?.slaLabel ?? "In orario"}
+        </span>
+        <span>
+          <strong>Totale</strong>
+          {displayContext?.totalLabel ?? `${order.total.amountCents / 100} ${order.total.currencyCode}`}
+        </span>
+      </section>
 
       <div className={styles.stations}>
         {order.status === "ready" && riders.length > 0 && (
@@ -160,6 +204,13 @@ export function OrderDetails(props: OrderDetailsProps): ReactElement {
           </div>
         )}
       </div>
+
+      {displayContext?.allergenLabels.length ? (
+        <section className={styles.allergens}>
+          <span className={styles.label}>Allergeni segnalati</span>
+          <strong>{displayContext.allergenLabels.join(", ")}</strong>
+        </section>
+      ) : null}
 
       <footer className={styles.footer}>
         <div className={styles.totalBlock}>

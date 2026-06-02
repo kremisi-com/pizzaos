@@ -1,186 +1,234 @@
 .details {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 14px;
+  padding: 16px;
+  border: 1px solid #eef0f4;
+  border-radius: 8px;
+  background: #ffffff;
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.05);
+  color: #111827;
 }
 
 .header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-bottom: 1px solid var(--pizzaos-color-border);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: start;
+  gap: 8px;
   padding-bottom: 12px;
+  border-bottom: 1px solid #f1f5f9;
 }
 
 .orderId {
+  color: #111827;
   font-size: 1.25rem;
-  font-weight: 700;
-  color: var(--pizzaos-color-foreground);
+  font-weight: 900;
 }
 
 .demoRef {
-  margin-top: 4px;
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: var(--pizzaos-color-primary);
+  margin-top: 6px;
+  color: #ef1d1d;
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0;
+}
+
+.closeButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: #64748b;
+  font-weight: 900;
+  cursor: pointer;
 }
 
 .clientStory {
-  margin: -8px 0 0;
-  font-size: 0.85rem;
-  color: var(--pizzaos-color-foreground-muted);
+  margin: 0;
+  color: #64748b;
+  font-size: 0.82rem;
+  font-weight: 700;
 }
 
 .customerInfo {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 16px;
-  background-color: #fffaf8;
-  padding: 12px;
-  border-radius: var(--pizzaos-radius-control);
+  gap: 10px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #f1f5f9;
 }
 
 .infoBlock {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 3px;
 }
 
 .label {
-  font-size: 0.75rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  color: var(--pizzaos-color-foreground-muted);
+  color: #64748b;
+  font-size: 0.7rem;
+  font-weight: 900;
 }
 
 .value {
-  font-weight: 600;
+  color: #111827;
+  font-weight: 900;
+}
+
+.metaValue {
+  color: #64748b;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.orderSummary {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.orderSummary span {
+  display: grid;
+  gap: 4px;
+  padding: 10px;
+  border-radius: 8px;
+  background: #f8fafc;
+  color: #111827;
+  font-size: 0.78rem;
+  font-weight: 900;
+}
+
+.orderSummary strong {
+  color: #64748b;
+  font-size: 0.68rem;
 }
 
 .stations {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 10px;
 }
 
-.riderAssignment {
-  background-color: #fffaf8;
-  padding: 16px;
-  border-radius: var(--pizzaos-radius-control);
-  border: 1px solid var(--pizzaos-color-border);
+.riderAssignment,
+.station,
+.allergens {
+  border: 1px solid #eef0f4;
+  border-radius: 8px;
+  background: #ffffff;
+  padding: 12px;
 }
 
 .riderSelect {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  gap: 12px;
-  margin-top: 12px;
+  gap: 8px;
+  margin-top: 10px;
 }
 
 .riderOption {
   display: flex;
-  flex-direction: column;
-  gap: 4px;
-  padding: 12px;
-  border: 1px solid var(--pizzaos-color-border);
-  border-radius: var(--pizzaos-radius-control);
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
   background: #ffffff;
-  cursor: pointer;
   text-align: left;
-  transition: all 0.2s;
+  cursor: pointer;
 }
 
 .riderOptionActive {
-  border-color: var(--pizzaos-color-primary);
-  background-color: rgba(var(--pizzaos-color-primary-rgb), 0.05);
-  box-shadow: 0 0 0 1px var(--pizzaos-color-primary);
+  border-color: #ef1d1d;
+  box-shadow: 0 0 0 1px #ef1d1d;
 }
 
 .riderOptionDisabled {
-  opacity: 0.6;
+  opacity: 0.58;
   cursor: not-allowed;
-  background-color: #f6f1ee;
 }
 
-.riderName {
-  font-weight: 700;
+.riderName,
+.stationTitle {
+  font-weight: 900;
 }
 
 .assignmentHint {
-  font-size: 0.75rem;
-  color: var(--pizzaos-color-foreground-muted);
-  margin-top: 8px;
-  font-style: italic;
-}
-
-.station {
-  border: 1px solid var(--pizzaos-color-border);
-  border-radius: var(--pizzaos-radius-control);
-  padding: 12px;
-  background: #ffffff;
+  margin: 8px 0 0;
+  color: #64748b;
+  font-size: 0.76rem;
+  font-weight: 700;
 }
 
 .stationHeader {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 8px;
-  margin-bottom: 12px;
-  padding-bottom: 8px;
-  border-bottom: 1px solid var(--pizzaos-color-border);
-}
-
-.stationTitle {
-  font-weight: 700;
-  text-transform: capitalize;
+  margin-bottom: 8px;
 }
 
 .lineItem {
-  display: flex;
-  flex-direction: column;
+  display: grid;
   gap: 4px;
   padding: 8px 0;
-}
-
-.lineItem:not(:last-child) {
-  border-bottom: 1px dashed var(--pizzaos-color-border);
+  border-top: 1px dashed #e5e7eb;
 }
 
 .lineMain {
   display: flex;
   justify-content: space-between;
-  font-weight: 600;
+  gap: 8px;
+  color: #111827;
+  font-weight: 900;
 }
 
 .lineNotes {
-  font-size: 0.875rem;
-  color: var(--pizzaos-color-critical);
-  font-style: italic;
-}
-
-.footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 12px;
-  padding-top: 16px;
-  border-top: 1px solid var(--pizzaos-color-border);
-}
-
-.totalLabel {
-  font-size: 1.125rem;
+  color: #64748b;
+  font-size: 0.78rem;
   font-weight: 700;
 }
 
+.allergens {
+  display: grid;
+  gap: 4px;
+  color: #ea580c;
+  background: #fff7ed;
+}
+
+.footer {
+  display: grid;
+  gap: 10px;
+  padding-top: 12px;
+  border-top: 1px solid #f1f5f9;
+}
+
+.totalBlock {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.totalLabel {
+  color: #64748b;
+  font-weight: 900;
+}
+
 .totalValue {
-  font-size: 1.25rem;
-  font-weight: 800;
-  color: var(--pizzaos-color-primary);
+  color: #111827;
+  font-size: 1.45rem;
+  font-weight: 900;
 }
 
 .actions {
-  display: flex;
-  gap: 12px;
-  justify-content: flex-end;
+  display: grid;
+  gap: 8px;
+}
+
+.actions button {
+  width: 100%;
+  border-radius: 8px !important;
 }
