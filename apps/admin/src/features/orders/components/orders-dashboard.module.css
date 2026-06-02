@@ -220,7 +220,7 @@
 
 .toolbar {
   display: grid;
-  grid-template-columns: minmax(230px, 1.18fr) minmax(132px, 0.5fr) minmax(132px, 0.5fr) auto auto auto auto;
+  grid-template-columns: minmax(180px, 0.9fr) minmax(132px, 0.55fr) minmax(132px, 0.55fr) auto auto auto auto;
   align-items: center;
   gap: 8px;
   padding: 12px;
@@ -232,6 +232,7 @@
 .searchField {
   position: relative;
   display: block;
+  min-width: 0;
 }
 
 .searchField::before {
@@ -276,13 +277,16 @@
 }
 
 .searchField input {
-  padding-left: 32px;
+  min-width: 0;
+  padding-left: 28px;
+  padding-right: 8px;
   font-weight: 600;
 }
 
 .searchField input::placeholder {
   color: #667085;
   opacity: 1;
+  font-size: 0.68rem;
   font-weight: 600;
 }
 
