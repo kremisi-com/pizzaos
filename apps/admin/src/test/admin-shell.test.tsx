@@ -276,6 +276,22 @@ describe("admin shell", () =>
       updatedSeed.datasetsByStoreId[updatedSeed.activeStoreId];
 
     expect(updatedDataset.simulationCursorIso).toBe(expectedNextCursorIso);
+    expect(updatedDataset.orders.map((order) => order.demoOrderRef)).toContain("POC-1021");
+    expect(updatedDataset.futureOrders.map((order) => order.demoOrderRef)).not.toContain("POC-1021");
+  });
+
+  it("shows a bottom-right notification when a future order arrives", () => {
+    vi.useFakeTimers();
+    render(<AdminShell />);
+
+    act(() => {
+      vi.advanceTimersByTime(ADMIN_SIMULATION_INTERVAL_MS);
+    });
+
+    expect(screen.getByLabelText("Notifiche ordini live")).toBeDefined();
+    expect(screen.getByText("Nuovo ordine ricevuto")).toBeDefined();
+    expect(screen.getByText(/POC-1021/)).toBeDefined();
+    expect(screen.getByText(/Slot/)).toBeDefined();
   });
 
   it("pauses and resumes automatic simulation", () => {

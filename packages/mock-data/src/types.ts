@@ -43,6 +43,7 @@ export interface AdminStoreDataset
   readonly menus: readonly Menu[];
   readonly products: readonly Product[];
   readonly orders: readonly Order[];
+  readonly futureOrders: readonly Order[];
   readonly riders: readonly Rider[];
   readonly inventory: readonly InventoryItem[];
   readonly analytics: AnalyticsSnapshot;
@@ -99,6 +100,7 @@ export interface AdminDatasetTemplate
   readonly menu: Menu;
   readonly menus: readonly Menu[];
   readonly orders: readonly Order[];
+  readonly futureOrders: readonly Order[];
   readonly riders: readonly Rider[];
   readonly inventory: readonly InventoryItem[];
   readonly analytics: AnalyticsSnapshot;

@@ -11,6 +11,7 @@ import {
   type AdminSeed,
 } from "@pizzaos/mock-data";
 import {
+  type Order,
   type OrderStatus,
   type Product,
   type Menu,
@@ -31,6 +32,7 @@ import { ProfileManager } from "../../profile/components/profile-manager";
 import styles from "./admin-shell.module.css";
 
 const APP_ID = "admin" as const;
+const NEW_ORDER_TOAST_TTL_MS = 7000;
 
 const NAV_ITEMS = [
   {
@@ -90,6 +92,11 @@ const OPERATIONAL_TIMELINE_ITEMS = [
     tone: "amber",
   },
 ] as const;
+
+interface NewOrderToast {
+  readonly id: string;
+  readonly order: Order;
+}
 
 function deriveNextSimulationDate(simulationCursorIso: string): Date {
   const cursorTimestamp = Date.parse(simulationCursorIso);
@@ -670,6 +677,7 @@ export function AdminShell(): ReactElement {
   >("dashboard");
   const [isSimulationRunning, setIsSimulationRunning] = useState(true);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [newOrderToasts, setNewOrderToasts] = useState<readonly NewOrderToast[]>([]);
 
   const activeDataset = seed.datasetsByStoreId[seed.activeStoreId];
 
@@ -699,12 +707,21 @@ export function AdminShell(): ReactElement {
   }, [seed]);
 
   const handleAdvanceSimulation = useCallback((): void => {
+    let arrivedOrders: readonly Order[] = [];
+
     setSeed((currentSeed) => {
       const activeStoreId = currentSeed.activeStoreId;
       const currentDataset = currentSeed.datasetsByStoreId[activeStoreId];
       const nextSimulationDate = deriveNextSimulationDate(
         currentDataset.simulationCursorIso,
       );
+      const nextSimulationTimestamp = nextSimulationDate.getTime();
+
+      arrivedOrders = currentDataset.futureOrders.filter((order) => {
+        const createdAtTimestamp = Date.parse(order.createdAtIso);
+
+        return Number.isFinite(createdAtTimestamp) && createdAtTimestamp <= nextSimulationTimestamp;
+      });
 
       const updatedDataset = advanceOrderSimulation(
         currentDataset,
@@ -723,7 +740,29 @@ export function AdminShell(): ReactElement {
         },
       };
     });
+
+    if (arrivedOrders.length > 0) {
+      setNewOrderToasts((currentToasts) => [
+        ...arrivedOrders.map((order) => ({
+          id: `${order.id}-${order.updatedAtIso}`,
+          order,
+        })),
+        ...currentToasts,
+      ].slice(0, 4));
+    }
   }, []);
+
+  useEffect(() => {
+    if (newOrderToasts.length === 0) {
+      return undefined;
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      setNewOrderToasts((currentToasts) => currentToasts.slice(0, -1));
+    }, NEW_ORDER_TOAST_TTL_MS);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [newOrderToasts]);
 
   useEffect(() => {
     if (!isSimulationRunning) {
@@ -1237,6 +1276,46 @@ export function AdminShell(): ReactElement {
           <div>Tab non ancora implementato</div>
         )}
       </main>
+
+      {newOrderToasts.length > 0 ? (
+        <aside className={styles.toastStack} aria-label="Notifiche ordini live">
+          {newOrderToasts.map((toast) => (
+            <article className={styles.orderToast} key={toast.id} role="status">
+              <span className={styles.orderToastPulse} aria-hidden="true" />
+              <div>
+                <strong>Nuovo ordine ricevuto</strong>
+                <p>
+                  {toast.order.demoOrderRef ?? `#${toast.order.id.slice(-6).toUpperCase()}`}{" "}
+                  - {getOrderItemsCount(toast.order)} prodotti - {formatOrderTotal(toast.order)}
+                </p>
+                <small>Slot {formatOrderSlot(toast.order.scheduledSlot)}</small>
+              </div>
+            </article>
+          ))}
+        </aside>
+      ) : null}
     </div>
   );
+}
+
+function getOrderItemsCount(order: Order): number {
+  return order.lines.reduce((total, line) => total + line.quantity, 0);
+}
+
+function formatOrderTotal(order: Order): string {
+  return new Intl.NumberFormat("it-IT", {
+    currency: order.total.currencyCode,
+    style: "currency",
+  }).format(order.total.amountCents / 100);
+}
+
+function formatOrderSlot(value: string): string {
+  if (/^\d{2}:\d{2}$/.test(value)) {
+    return value;
+  }
+
+  return new Date(value).toLocaleTimeString("it-IT", {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
 }

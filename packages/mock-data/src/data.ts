@@ -964,6 +964,50 @@ export const ADMIN_DATASET_TEMPLATES: Readonly<Record<EntityIdentifier, AdminDat
         formatDemoOrderRef(1020)
       )
     ],
+    futureOrders: [
+      createOrder(
+        "order-roma-future-021",
+        "store-roma-centro",
+        "customer-roma-071",
+        "received",
+        "2026-03-25T12:01:00.000Z",
+        "2026-03-25T12:46:00.000Z",
+        [
+          createLine("product-margherita", 1, 900, ""),
+          createLine("product-birra-bionda", 1, 450, "")
+        ],
+        180,
+        undefined,
+        formatDemoOrderRef(1021)
+      ),
+      createOrder(
+        "order-roma-future-022",
+        "store-roma-centro",
+        "customer-roma-072",
+        "received",
+        "2026-03-25T12:03:00.000Z",
+        "2026-03-25T12:52:00.000Z",
+        [createLine("product-diavola", 2, 1150, "Una senza peperoncino")],
+        200,
+        undefined,
+        formatDemoOrderRef(1022)
+      ),
+      createOrder(
+        "order-roma-future-023",
+        "store-roma-centro",
+        "customer-roma-073",
+        "received",
+        "2026-03-25T12:05:00.000Z",
+        "2026-03-25T12:58:00.000Z",
+        [
+          createLine("product-capricciosa", 1, 1250, "No olive"),
+          createLine("product-focaccia-rosmarino", 1, 550, "")
+        ],
+        150,
+        undefined,
+        formatDemoOrderRef(1023)
+      )
+    ],
     inventory: [
       createInventoryItem("inv-roma-01", "store-roma-centro", "ING-FIOR-01", "ingredient-fiordilatte", 42, 15),
       createInventoryItem("inv-roma-02", "store-roma-centro", "ING-POMS-02", "ingredient-pomodoro-san-marzano", 21, 12),
@@ -1120,6 +1164,35 @@ export const ADMIN_DATASET_TEMPLATES: Readonly<Record<EntityIdentifier, AdminDat
         formatDemoOrderRef(2003)
       )
     ],
+    futureOrders: [
+      createOrder(
+        "order-milano-future-104",
+        "store-milano-navigli",
+        "customer-milano-022",
+        "received",
+        "2026-03-25T12:02:00.000Z",
+        "2026-03-25T18:18:00.000Z",
+        [
+          createLine("product-4-formaggi", 1, 1300, ""),
+          createLine("product-focaccia-rosmarino", 1, 550, "")
+        ],
+        250,
+        undefined,
+        formatDemoOrderRef(2004)
+      ),
+      createOrder(
+        "order-milano-future-105",
+        "store-milano-navigli",
+        "customer-milano-023",
+        "received",
+        "2026-03-25T12:04:00.000Z",
+        "2026-03-25T18:24:00.000Z",
+        [createLine("product-tonno-cipolla", 2, 1220, "Cipolla separata")],
+        250,
+        undefined,
+        formatDemoOrderRef(2005)
+      )
+    ],
     inventory: [
       createInventoryItem("inv-milano-01", "store-milano-navigli", "ING-GORG-05", "ingredient-gorgonzola", 6, 12),
       createInventoryItem("inv-milano-02", "store-milano-navigli", "ING-TONN-06", "ingredient-tonno", 4, 8),
@@ -1252,6 +1325,20 @@ export const ADMIN_DATASET_TEMPLATES: Readonly<Record<EntityIdentifier, AdminDat
         150,
         undefined,
         formatDemoOrderRef(3002)
+      )
+    ],
+    futureOrders: [
+      createOrder(
+        "order-torino-future-203",
+        "store-torino-porta-nuova",
+        "customer-torino-011",
+        "received",
+        "2026-03-25T12:01:00.000Z",
+        "2026-03-25T12:35:00.000Z",
+        [createLine("product-vegetariana", 2, 1200, "Impasto sottile")],
+        150,
+        undefined,
+        formatDemoOrderRef(3003)
       )
     ],
     inventory: [

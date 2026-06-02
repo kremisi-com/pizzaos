@@ -1715,6 +1715,60 @@
   background: rgba(255, 255, 255, 0.72);
 }
 
+.toastStack {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 50;
+  display: grid;
+  gap: 12px;
+  width: min(360px, calc(100vw - 32px));
+  pointer-events: none;
+}
+
+.orderToast {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 12px;
+  align-items: start;
+  padding: 16px;
+  color: #18181b;
+  background: #ffffff;
+  border: 1px solid rgba(239, 29, 29, 0.22);
+  border-radius: 8px;
+  box-shadow: 0 18px 45px rgba(15, 23, 42, 0.16);
+}
+
+.orderToastPulse {
+  width: 10px;
+  height: 10px;
+  margin-top: 5px;
+  background: #ef1d1d;
+  border-radius: 999px;
+  box-shadow: 0 0 0 6px rgba(239, 29, 29, 0.12);
+}
+
+.orderToast strong {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 0.94rem;
+  font-weight: 900;
+}
+
+.orderToast p {
+  margin: 0;
+  color: #52525b;
+  font-size: 0.86rem;
+  font-weight: 700;
+}
+
+.orderToast small {
+  display: block;
+  margin-top: 6px;
+  color: #71717a;
+  font-size: 0.78rem;
+}
+
 @media (max-width: 1180px) {
   .dashboardGrid {
     grid-template-columns: repeat(2, minmax(0, 1fr));

@@ -6,6 +6,7 @@ import { cloneData } from "./utils";
 export interface SimulationDataset extends OrderSimulationState
 {
   readonly analytics?: AnalyticsSnapshot;
+  readonly futureOrders?: readonly Order[];
 }
 
 export function advanceOrderSimulation<State extends SimulationDataset>(
@@ -38,6 +39,13 @@ export function advanceOrderSimulation<State extends SimulationDataset>(
   }
 
   const progressedOrders = state.orders.map((order) => progressOrderWithSteps(order, elapsedSteps, nextCursorIso));
+  const futureOrders = state.futureOrders ?? [];
+  const arrivedOrders = futureOrders.filter((order) => {
+    const createdAtMs = Date.parse(order.createdAtIso);
+
+    return Number.isFinite(createdAtMs) && createdAtMs <= nextCursorMs;
+  });
+  const pendingFutureOrders = futureOrders.filter((order) => !arrivedOrders.includes(order));
 
   let nextAnalytics = state.analytics ? cloneData(state.analytics) : undefined;
 
@@ -71,12 +79,29 @@ export function advanceOrderSimulation<State extends SimulationDataset>(
     }
   }
 
-  return {
+  const nextState = {
     ...cloneData(state),
-    orders: progressedOrders,
+    orders: [
+      ...progressedOrders,
+      ...arrivedOrders.map((order) => ({
+        ...order,
+        status: "received" as const,
+        updatedAtIso: nextCursorIso
+      }))
+    ],
     analytics: nextAnalytics,
     simulationCursorIso: nextCursorIso
   };
+
+  if ("futureOrders" in state)
+  {
+    return {
+      ...nextState,
+      futureOrders: pendingFutureOrders
+    };
+  }
+
+  return nextState;
 }
 
 export const SUPPORTED_ORDER_STATUSES = ORDER_STATUS;

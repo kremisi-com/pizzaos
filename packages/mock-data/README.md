@@ -11,7 +11,7 @@ This package owns:
 - seed factories for app demo starting states
 - shared mock helpers used by app surfaces
 - deterministic reset and reseed persistence helpers
-- deterministic order simulation stepping helpers
+- deterministic order simulation stepping helpers, including queued future admin orders
 
 This package does not own rendering or app route composition.
 
@@ -33,7 +33,7 @@ Current exports from `src/index.ts`:
   - `reseedDemoState(appId, options?)`
   - `resetDemoState(appId, options?)`
 - deterministic simulation:
-  - `advanceOrderSimulation(state, now)`
+  - `advanceOrderSimulation(state, now)` advances statuses and moves due `futureOrders` into active `orders`
 - constants:
   - `ADMIN_STORE_IDS`
   - `SUPPORTED_ORDER_STATUSES`

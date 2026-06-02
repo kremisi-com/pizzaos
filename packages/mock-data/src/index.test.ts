@@ -183,9 +183,12 @@ describe("admin multi-store dataset", () =>
   {
     const romaSeed = createAdminSeed("store-roma-centro");
     const romaOrders = romaSeed.datasetsByStoreId["store-roma-centro"].orders;
+    const romaFutureOrders = romaSeed.datasetsByStoreId["store-roma-centro"].futureOrders;
 
     expect(romaOrders).toHaveLength(20);
+    expect(romaFutureOrders).toHaveLength(3);
     expect(romaOrders.map((order) => order.demoOrderRef)).toContain("POC-1020");
+    expect(romaFutureOrders.map((order) => order.demoOrderRef)).toContain("POC-1021");
   });
 
   it("falls back to default store for unknown store id", () =>
@@ -310,7 +313,7 @@ describe("order simulation", () =>
       simulationCursorIso: clientSeed.simulationCursorIso
     };
 
-    const oneStepTimestamp = "2026-03-25T18:45:00.000Z";
+    const oneStepTimestamp = "2026-03-25T18:43:00.000Z";
     const oneStepProgressed = advanceOrderSimulation(initialState, oneStepTimestamp);
 
     expect(oneStepProgressed.orders[0].status).toBe("preparing");
@@ -320,7 +323,7 @@ describe("order simulation", () =>
 
     expect(noExtraStep).toEqual(oneStepProgressed);
 
-    const twoMoreStepsTimestamp = "2026-03-25T18:51:00.000Z";
+    const twoMoreStepsTimestamp = "2026-03-25T18:45:00.000Z";
     const twoMoreStepsProgressed = advanceOrderSimulation(oneStepProgressed, twoMoreStepsTimestamp);
 
     expect(getNextOrderStatuses("preparing")).toContain("ready");
@@ -344,7 +347,7 @@ describe("order simulation", () =>
       simulationCursorIso: clientSeed.simulationCursorIso
     };
 
-    const timestamp = "2026-03-25T18:48:00.000Z";
+    const timestamp = "2026-03-25T18:44:00.000Z";
 
     expect(advanceOrderSimulation(state, timestamp)).toEqual(advanceOrderSimulation(state, timestamp));
   });
@@ -373,8 +376,7 @@ describe("order simulation", () =>
       simulationCursorIso: "2026-03-25T18:00:00.000Z"
     };
 
-    // Progress time by 3 minutes (1 step)
-    const nextTimestamp = "2026-03-25T18:03:00.000Z";
+    const nextTimestamp = "2026-03-25T18:01:00.000Z";
     const progressed = advanceOrderSimulation(initialState, nextTimestamp);
 
     expect(progressed.orders[0].status).toBe("delivered");
@@ -385,5 +387,18 @@ describe("order simulation", () =>
       expect(progressed.analytics.averageOrderValue.amountCents).toBe(Math.round(22500 / 11));
       expect(progressed.analytics.generatedAtIso).toBe(nextTimestamp);
     }
+  });
+
+  it("moves future admin orders into the active queue when simulated time reaches them", () =>
+  {
+    const adminSeed = createAdminSeed("store-roma-centro");
+    const dataset = adminSeed.datasetsByStoreId["store-roma-centro"];
+
+    const progressed = advanceOrderSimulation(dataset, "2026-03-25T12:01:00.000Z");
+
+    expect(progressed.orders).toHaveLength(21);
+    expect(progressed.futureOrders).toHaveLength(2);
+    expect(progressed.orders.map((order) => order.demoOrderRef)).toContain("POC-1021");
+    expect(progressed.orders.find((order) => order.id === "order-roma-future-021")?.status).toBe("received");
   });
 });

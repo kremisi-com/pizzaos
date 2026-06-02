@@ -93,6 +93,7 @@ function buildAdminDatasets(): Readonly<Record<EntityIdentifier, AdminStoreDatas
         menus: cloneData(template.menus),
         products: cloneData(PRODUCTS),
         orders: cloneData(template.orders),
+        futureOrders: cloneData(template.futureOrders),
         riders: cloneData(template.riders),
         inventory: cloneData(template.inventory),
         analytics: cloneData(template.analytics),
