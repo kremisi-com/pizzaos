@@ -24,6 +24,8 @@
   cards, reusing admin public icon assets plus supplied gift/star dashboard icons.
 - Orders page polish moves the live order board toward the supplied operational table reference: KPI strip, filters,
   dense order table, persistent selected-order detail, SLA/payment/priority mock metadata, and kitchen timing cards.
+- Orders page header now uses the supplied calendar and notification bitmap icons; the lighter date control opens a
+  local demo calendar popover without adding backend or external calendar integration.
 
 ## Step 1: Build the admin shell, seeded operator state, store switching, and reset flow
 

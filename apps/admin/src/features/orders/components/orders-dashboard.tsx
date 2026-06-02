@@ -82,9 +82,11 @@ export function OrdersDashboard(props: OrdersDashboardProps): ReactElement {
   const { allProducts, lastUpdateIso, onOrderStatusUpdate, orders, riders = [] } = props;
 
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
+  const [isCalendarOpen, setIsCalendarOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [channelFilter, setChannelFilter] = useState("all");
+  const [selectedDate, setSelectedDate] = useState(() => formatDateInputValue(lastUpdateIso));
 
   const productById = useMemo(() => {
     return new Map(allProducts.map((product) => [product.id, product]));
@@ -129,14 +131,46 @@ export function OrdersDashboard(props: OrdersDashboardProps): ReactElement {
         <div className={styles.headerActions} aria-label="Azioni operative">
           <button className={styles.iconButton} type="button" aria-label="Notifiche">
             <span className={styles.notificationDot}>3</span>
-            !
+            <img src="/images/header/notification.png" alt="" />
           </button>
-          <button className={styles.iconButton} type="button" aria-label="Calendario">
-            #
+          <button
+            className={styles.iconButton}
+            type="button"
+            aria-label="Apri calendario"
+            aria-expanded={isCalendarOpen}
+            aria-controls="orders-calendar-panel"
+            onClick={() => setIsCalendarOpen((current) => !current)}
+          >
+            <img src="/images/header/calendar.png" alt="" />
           </button>
-          <button className={styles.dateButton} type="button">
+          <button
+            className={styles.dateButton}
+            type="button"
+            aria-haspopup="dialog"
+            aria-expanded={isCalendarOpen}
+            aria-controls="orders-calendar-panel"
+            onClick={() => setIsCalendarOpen((current) => !current)}
+          >
             {formatHeaderDate(lastUpdateIso)}
           </button>
+          {isCalendarOpen ? (
+            <div
+              id="orders-calendar-panel"
+              className={styles.calendarPanel}
+              role="dialog"
+              aria-label="Calendario ordini"
+            >
+              <label>
+                Data ordini
+                <input
+                  type="date"
+                  value={selectedDate}
+                  onChange={(event) => setSelectedDate(event.target.value)}
+                />
+              </label>
+              <span>Vista demo locale, senza sincronizzazione esterna.</span>
+            </div>
+          ) : null}
         </div>
       </header>
 
@@ -491,6 +525,16 @@ function formatHeaderDate(iso: string): string {
     hour: "2-digit",
     minute: "2-digit"
   }).format(date);
+}
+
+function formatDateInputValue(iso: string): string {
+  const date = new Date(iso);
+
+  if (Number.isNaN(date.getTime())) {
+    return "";
+  }
+
+  return date.toISOString().slice(0, 10);
 }
 
 function formatTime(value: string): string {

@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { createElement } from "react";
 import { renderToString } from "react-dom/server";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { afterEach } from "vitest";
 import { OrdersDashboard } from "@/features/orders/components/orders-dashboard";
 import type { Order } from "@pizzaos/domain";
 
@@ -51,6 +53,10 @@ const MOCK_ORDERS: Order[] = [
   }
 ];
 
+afterEach(() => {
+  cleanup();
+});
+
 describe("OrdersDashboard", () => {
   it("renders orders and stats", () => {
     const markup = renderToString(
@@ -71,6 +77,8 @@ describe("OrdersDashboard", () => {
     expect(markup).toContain("/images/live-orders/scooter.png");
     expect(markup).toContain("/images/live-orders/check.png");
     expect(markup).toContain("/images/live-orders/remove.png");
+    expect(markup).toContain("/images/header/notification.png");
+    expect(markup).toContain("/images/header/calendar.png");
     expect(markup).toContain("Cerca ordine, cliente o telefono");
     expect(markup).toContain("ID ordine");
     expect(markup).toContain("Pagamento");
@@ -92,5 +100,22 @@ describe("OrdersDashboard", () => {
     );
 
     expect(markup).toContain("Nessun ordine trovato");
+  });
+
+  it("opens the local calendar from the header date", () => {
+    render(
+      <OrdersDashboard
+        orders={MOCK_ORDERS}
+        lastUpdateIso="2026-06-02T08:00:00.000Z"
+        allProducts={[]}
+      />
+    );
+
+    expect(screen.queryByRole("dialog", { name: "Calendario ordini" })).toBeNull();
+
+    fireEvent.click(screen.getByRole("button", { name: /mar|giu|2026/i }));
+
+    expect(screen.getByRole("dialog", { name: "Calendario ordini" })).toBeDefined();
+    expect(screen.getByLabelText("Data ordini")).toHaveProperty("value", "2026-06-02");
   });
 });
