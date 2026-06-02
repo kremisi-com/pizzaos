@@ -247,14 +247,15 @@ export function OrdersDashboard(props: OrdersDashboardProps): ReactElement {
                 aria-label="Filtro data ordini"
                 onClick={() => setIsCalendarOpen((current) => !current)}
               >
+                <img src="/images/orders-toolbar/calendar.png" alt="" />
                 Oggi (00:00 - 23:59)
               </button>
               <button className={styles.secondaryAction} type="button">
-                <span aria-hidden="true" className={styles.refreshIcon} />
+                <img src="/images/orders-toolbar/update.png" alt="" />
                 Aggiorna
               </button>
               <button className={styles.secondaryAction} type="button">
-                <span aria-hidden="true" className={styles.exportIcon} />
+                <img src="/images/orders-toolbar/export.png" alt="" />
                 Esporta
               </button>
               <button

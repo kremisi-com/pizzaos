@@ -26,6 +26,7 @@
   dense order table, persistent selected-order detail, SLA/payment/priority mock metadata, and kitchen timing cards.
 - Orders page header now uses the supplied calendar and notification bitmap icons; the lighter date control opens a
   local demo calendar popover without adding backend or external calendar integration.
+- Orders toolbar uses the supplied calendar, export, and update bitmap icons instead of CSS-drawn placeholders.
 
 ## Step 1: Build the admin shell, seeded operator state, store switching, and reset flow
 
