@@ -87,7 +87,7 @@ describe("landing shell", () => {
     );
     expect(markup).toContain("LE SFIDE DI OGNI PIZZERIA");
     expect(markup).toContain("soluzione-completa");
-    expect(markup).toContain("Tre modi di gestire una pizzeria.");
+    expect(markup).toContain("Unico sistema dedicato esclusivamente");
     expect(markup).toContain("dati-crescita");
     expect(markup).toContain("gestione-ordini");
     expect(markup).not.toContain("GESTIONE CATENE");
@@ -148,8 +148,8 @@ describe("landing shell", () => {
   it("renders the fifth margin comparison section from the supplied screen", () => {
     const markup = renderToString(createElement(MarginComparisonSection));
 
-    expect(markup).toContain("Tre modi di gestire una pizzeria.");
-    expect(markup).toContain("massimizza i guadagni.");
+    expect(markup).toContain("Unico sistema dedicato esclusivamente");
+    expect(markup).toContain("alle pizzerie a domicilio.");
     expect(markup).toContain("Marketplace");
     expect(markup).toContain("Sito semplice");
     expect(markup).toContain("Il sistema che massimizza il profitto");

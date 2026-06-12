@@ -209,9 +209,9 @@ export function MarginComparisonSection(): ReactElement {
     >
       <div className={styles.inner}>
         <h2 className={styles.title} id="margin-title">
-          Tre modi di gestire una pizzeria.
+          Unico sistema dedicato esclusivamente
           <br />
-          Uno solo <span>massimizza i guadagni.</span>
+          <span>alle pizzerie a domicilio.</span>
         </h2>
 
         <p className={styles.subtitle}>
