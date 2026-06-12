@@ -170,3 +170,6 @@ clean interaction states.
   and SVG-based app icons.
 - Added a real contact form to the FAQ/contact section, posting through the existing landing mail route with a compatible
   `pizzaos-mail.php` update for server deployment while preserving the existing demo request flow.
+- Added a dedicated 1200x630 social sharing image for WhatsApp/Open Graph, aligned the default canonical domain to
+  `https://www.pizzaos.app`, refreshed landing metadata, added structured JSON-LD, and covered the social image contract
+  with regression tests.

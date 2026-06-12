@@ -8,7 +8,11 @@ import Script from "next/script";
 import type { CSSProperties, ReactElement, ReactNode } from "react";
 import "./globals.css";
 import { GoogleTag } from "./google-tag";
-import { landingMetadata, landingViewport } from "./seo";
+import {
+  createLandingJsonLd,
+  landingMetadata,
+  landingViewport,
+} from "./seo";
 
 export const metadata: Metadata = landingMetadata;
 export const viewport: Viewport = landingViewport;
@@ -27,6 +31,12 @@ export default function RootLayout(props: RootLayoutProps): ReactElement
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(createLandingJsonLd()),
+          }}
+        />
       </head>
       <body
         className={getThemeClass(surface)}

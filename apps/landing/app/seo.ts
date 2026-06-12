@@ -1,19 +1,35 @@
 import type { Metadata, MetadataRoute, Viewport } from "next";
 
-const defaultSiteUrl = "https://pizzaos.it";
+const defaultSiteUrl = "https://www.pizzaos.app";
 
 export const landingSiteUrl = new URL(
   process.env.NEXT_PUBLIC_SITE_URL ?? defaultSiteUrl,
 );
 
+export const landingSeoTitle =
+  "PizzaOS | Gestionale per pizzerie: ordini, marketing e analytics";
+
 export const landingSeoDescription =
-  "PizzaOS è la piattaforma premium per pizzerie moderne: ordini online, menu dinamico, marketing automatico, analytics AI e controllo operativo senza commissioni marketplace.";
+  "PizzaOS è il gestionale per pizzerie moderne: ordini online, menu digitale, marketing automatico, analytics AI e controllo operativo senza commissioni marketplace.";
+
+export const landingSocialImage = {
+  url: "/social/og-image.png",
+  width: 1200,
+  height: 630,
+  alt: "Logo PizzaOS e promessa prodotto per pizzerie moderne",
+  type: "image/png",
+} as const;
+
+export const landingSocialImageUrl = new URL(
+  landingSocialImage.url,
+  landingSiteUrl,
+).toString();
 
 export const landingMetadata: Metadata = {
   metadataBase: landingSiteUrl,
   applicationName: "PizzaOS",
   title: {
-    default: "PizzaOS | Software premium per pizzerie moderne",
+    default: landingSeoTitle,
     template: "%s | PizzaOS",
   },
   description: landingSeoDescription,
@@ -28,13 +44,19 @@ export const landingMetadata: Metadata = {
     "food tech Italia",
     "delivery pizzeria",
     "fidelity pizzeria",
+    "CRM pizzeria",
+    "software delivery ristorante",
+    "gestionale ordini ristorante",
   ],
   authors: [{ name: "PizzaOS" }],
   creator: "PizzaOS",
   publisher: "PizzaOS",
-  category: "Restaurant technology",
+  category: "Software per ristorazione",
   alternates: {
     canonical: "/",
+    languages: {
+      "it-IT": "/",
+    },
   },
   icons: {
     icon: [
@@ -42,11 +64,22 @@ export const landingMetadata: Metadata = {
         url: "/brand/icon-color.svg",
         type: "image/svg+xml",
       },
+      {
+        url: "/favicon/favicon-32x32.png",
+        sizes: "32x32",
+        type: "image/png",
+      },
+      {
+        url: "/favicon/favicon-16x16.png",
+        sizes: "16x16",
+        type: "image/png",
+      },
     ],
     apple: [
       {
-        url: "/brand/pictogram-color.svg",
-        type: "image/svg+xml",
+        url: "/favicon/apple-touch-icon.png",
+        sizes: "180x180",
+        type: "image/png",
       },
     ],
   },
@@ -59,23 +92,16 @@ export const landingMetadata: Metadata = {
     type: "website",
     url: "/",
     siteName: "PizzaOS",
-    title: "PizzaOS | Software premium per pizzerie moderne",
+    title: landingSeoTitle,
     description: landingSeoDescription,
     locale: "it_IT",
-    images: [
-      {
-        url: "/images/hero/admin-dashboard.png",
-        width: 1448,
-        height: 1086,
-        alt: "Dashboard operativa PizzaOS per ordini, analytics e marketing",
-      },
-    ],
+    images: [landingSocialImage],
   },
   twitter: {
     card: "summary_large_image",
-    title: "PizzaOS | Software premium per pizzerie moderne",
+    title: landingSeoTitle,
     description: landingSeoDescription,
-    images: ["/images/hero/admin-dashboard.png"],
+    images: [landingSocialImageUrl],
   },
   robots: {
     index: true,
@@ -87,6 +113,16 @@ export const landingMetadata: Metadata = {
       "max-snippet": -1,
       "max-video-preview": -1,
     },
+  },
+  appleWebApp: {
+    capable: true,
+    title: "PizzaOS",
+    statusBarStyle: "default",
+  },
+  other: {
+    "og:image:secure_url": landingSocialImageUrl,
+    "og:image:type": landingSocialImage.type,
+    "twitter:image:alt": landingSocialImage.alt,
   },
 };
 
@@ -132,23 +168,55 @@ export function createLandingManifest(): MetadataRoute.Manifest {
     categories: ["business", "food", "productivity"],
     icons: [
       {
-        src: "/brand/icon-color.svg",
-        sizes: "any",
-        type: "image/svg+xml",
+        src: "/favicon/icon-192.png",
+        sizes: "192x192",
+        type: "image/png",
         purpose: "any",
       },
       {
-        src: "/brand/pictogram-color.svg",
-        sizes: "any",
-        type: "image/svg+xml",
+        src: "/favicon/icon-512.png",
+        sizes: "512x512",
+        type: "image/png",
         purpose: "any",
       },
       {
-        src: "/brand/pictogram-color.svg",
-        sizes: "any",
-        type: "image/svg+xml",
+        src: "/favicon/icon-512.png",
+        sizes: "512x512",
+        type: "image/png",
         purpose: "maskable",
       },
     ],
   };
+}
+
+export function createLandingJsonLd(): Record<string, unknown>[] {
+  return [
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      name: "PizzaOS",
+      url: landingSiteUrl.toString(),
+      logo: new URL("/brand/icon-color.svg", landingSiteUrl).toString(),
+      sameAs: [landingSiteUrl.toString()],
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      name: "PizzaOS",
+      applicationCategory: "BusinessApplication",
+      operatingSystem: "Web",
+      inLanguage: "it-IT",
+      description: landingSeoDescription,
+      image: landingSocialImageUrl,
+      offers: {
+        "@type": "Offer",
+        priceCurrency: "EUR",
+        availability: "https://schema.org/InStock",
+      },
+      publisher: {
+        "@type": "Organization",
+        name: "PizzaOS",
+      },
+    },
+  ];
 }
