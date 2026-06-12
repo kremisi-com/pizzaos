@@ -317,6 +317,10 @@ describe("landing shell", () => {
     expect(markup).toContain("WhatsApp");
     expect(markup).toContain("Email");
     expect(markup).toContain("info@kremisi.com");
+    expect(markup).toContain("Email o telefono");
+    expect(markup).toContain("Nome completo");
+    expect(markup).toContain("Messaggio");
+    expect(markup).toContain("Invia messaggio");
     expect(markup).toContain("/brand/logo-horizontal-color.svg");
     expect(markup).toContain("La piattaforma completa per pizzerie moderne.");
   });

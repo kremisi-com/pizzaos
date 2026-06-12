@@ -21,7 +21,7 @@ This app does not own shared tokens, domain contracts, or reusable cross-app pri
 - `app/seo.ts`: canonical SEO metadata, viewport settings, manifest, sitemap, and robots contracts
 - `app/manifest.ts`, `app/robots.ts`, `app/sitemap.ts`: App Router metadata routes for discoverability
 - `app/page.tsx`: landing route entry, including the `?c=t` gate for the chain-management section
-- `src/features/home`: landing shell composition, including the hero, challenge grid, complete-platform visual section, feature-difference section, margin comparison section, analytics-growth section, intelligent order-management section, pricing section, product story sections, differentiation, FAQ, final CTA, Iubenda policy links, and the demo request flow
+- `src/features/home`: landing shell composition, including the hero, challenge grid, complete-platform visual section, feature-difference section, margin comparison section, analytics-growth section, intelligent order-management section, pricing section, product story sections, differentiation, FAQ with contact form, final CTA, Iubenda policy links, and the demo request flow
 - `public/brand`: real PizzaOS brand assets sourced from `external/PIZZAOS-ELEMNTS`, including horizontal logos, pictogram, app icon, and the circular pattern used by the landing visual system
 - `public/favicon`: legacy PNG favicon fallbacks retained for compatibility
 
@@ -43,7 +43,7 @@ From repository root:
 
 ## Environment
 
-- `KREMISI_MAIL_ENDPOINT`: optional server-only endpoint for demo request submissions. Defaults to `https://api.kremisi.com/pizzaos-mail.php`.
+- `KREMISI_MAIL_ENDPOINT`: optional server-only endpoint for demo request and contact form submissions. Defaults to `https://api.kremisi.com/pizzaos-mail.php`.
 - `LINK_CLIENT`: optional client demo URL shown after the demo request form succeeds. Defaults to `/client`.
 - `LINK_ADMIN`: optional admin demo URL shown after the demo request form succeeds. Defaults to `/admin`.
 - `NEXT_PUBLIC_SITE_URL`: optional canonical public URL used for SEO metadata, sitemap, and robots. Defaults to `https://pizzaos.it`.

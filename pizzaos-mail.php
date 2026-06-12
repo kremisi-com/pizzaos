@@ -34,46 +34,95 @@ function send_plain_mail($to, $subject, $body, $replyTo = "") {
     exit;
 }
 
-$name = sanitize($_POST["name"] ?? "");
-$email = filter_var($_POST["email"] ?? "", FILTER_SANITIZE_EMAIL);
-$pizzeriaName = sanitize($_POST["pizzeriaName"] ?? "");
-$city = sanitize($_POST["city"] ?? "");
+function send_contact_message() {
+    $name = sanitize($_POST["name"] ?? "");
+    $emailOrPhone = sanitize($_POST["emailOrPhone"] ?? "");
+    $message = sanitize($_POST["message"] ?? "");
 
-$errors = [];
+    if (empty($emailOrPhone)) {
+        http_response_code(400);
+        echo json_encode([
+            "success" => false,
+            "errors" => ["Inserisci email o telefono"],
+            "error" => "Inserisci email o telefono"
+        ]);
+        exit;
+    }
 
-if (empty($name)) {
-    $errors[] = "Name is required.";
+    $to = "info@kremisi.com";
+    $subject = "Nuovo messaggio contatti PizzaOS";
+    $timestamp = gmdate("c");
+
+    $body = "Nuovo messaggio contatti PizzaOS:\n\n";
+
+    if (!empty($name)) {
+        $body .= "Nome completo: $name\n";
+    }
+
+    $body .= "Email o telefono: $emailOrPhone\n";
+
+    if (!empty($message)) {
+        $body .= "Messaggio:\n$message\n";
+    }
+
+    $body .= "Timestamp: $timestamp\n";
+    $body .= "Sorgente: PizzaOS landing contatti\n";
+
+    $replyTo = is_valid_email($emailOrPhone) ? $emailOrPhone : "";
+
+    send_plain_mail($to, $subject, $body, $replyTo);
 }
 
-if (!is_valid_email($email)) {
-    $errors[] = "Invalid email.";
+function send_demo_request() {
+    $name = sanitize($_POST["name"] ?? "");
+    $email = filter_var($_POST["email"] ?? "", FILTER_SANITIZE_EMAIL);
+    $pizzeriaName = sanitize($_POST["pizzeriaName"] ?? "");
+    $city = sanitize($_POST["city"] ?? "");
+
+    $errors = [];
+
+    if (empty($name)) {
+        $errors[] = "Name is required.";
+    }
+
+    if (!is_valid_email($email)) {
+        $errors[] = "Invalid email.";
+    }
+
+    if (empty($pizzeriaName)) {
+        $errors[] = "Pizzeria name is required.";
+    }
+
+    if (!empty($errors)) {
+        http_response_code(400);
+        echo json_encode(["success" => false, "errors" => $errors]);
+        exit;
+    }
+
+    $to = "info@kremisi.com";
+    $subject = "Nuova richiesta demo PizzaOS";
+    $timestamp = gmdate("c");
+
+    $body = "Nuova richiesta demo PizzaOS:\n\n";
+    $body .= "Nome e cognome: $name\n";
+    $body .= "Email: $email\n";
+    $body .= "Nome pizzeria: $pizzeriaName\n";
+
+    if (!empty($city)) {
+        $body .= "Citta: $city\n";
+    }
+
+    $body .= "Timestamp: $timestamp\n";
+    $body .= "Sorgente: PizzaOS landing\n";
+
+    send_plain_mail($to, $subject, $body, $email);
 }
 
-if (empty($pizzeriaName)) {
-    $errors[] = "Pizzeria name is required.";
+$requestType = sanitize($_POST["requestType"] ?? "");
+
+if ($requestType === "contact") {
+    send_contact_message();
 }
 
-if (!empty($errors)) {
-    http_response_code(400);
-    echo json_encode(["success" => false, "errors" => $errors]);
-    exit;
-}
-
-$to = "info@kremisi.com";
-$subject = "Nuova richiesta demo PizzaOS";
-$timestamp = gmdate("c");
-
-$body = "Nuova richiesta demo PizzaOS:\n\n";
-$body .= "Nome e cognome: $name\n";
-$body .= "Email: $email\n";
-$body .= "Nome pizzeria: $pizzeriaName\n";
-
-if (!empty($city)) {
-    $body .= "Citta: $city\n";
-}
-
-$body .= "Timestamp: $timestamp\n";
-$body .= "Sorgente: PizzaOS landing\n";
-
-send_plain_mail($to, $subject, $body, $email);
+send_demo_request();
 ?>

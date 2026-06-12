@@ -1,5 +1,12 @@
+"use client";
+
 import Image from "next/image";
-import type { ReactElement } from "react";
+import {
+  type ChangeEvent,
+  type FormEvent,
+  type ReactElement,
+  useState,
+} from "react";
 import styles from "./faq-section.module.css";
 
 const CONTACTS = [
@@ -24,7 +31,95 @@ const CONTACTS = [
   readonly href?: string;
 }[];
 
+interface ContactFormData {
+  readonly emailOrPhone: string;
+  readonly name: string;
+  readonly message: string;
+}
+
+interface ContactSubmitResponse {
+  readonly success?: boolean;
+  readonly message?: string;
+  readonly error?: string;
+  readonly errors?: readonly string[];
+}
+
+const EMPTY_CONTACT_FORM: ContactFormData = {
+  emailOrPhone: "",
+  name: "",
+  message: "",
+};
+
 export function FaqSection(): ReactElement {
+  const [formData, setFormData] =
+    useState<ContactFormData>(EMPTY_CONTACT_FORM);
+  const [contactError, setContactError] = useState<string | null>(null);
+  const [fieldError, setFieldError] = useState<string | null>(null);
+  const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+
+  function handleFieldChange(
+    field: keyof ContactFormData,
+  ): (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void {
+    return (event) => {
+      setFormData((current) => ({
+        ...current,
+        [field]: event.target.value,
+      }));
+      setContactError(null);
+      setSubmitted(false);
+
+      if (field === "emailOrPhone") {
+        setFieldError(null);
+      }
+    };
+  }
+
+  async function handleSubmit(
+    event: FormEvent<HTMLFormElement>,
+  ): Promise<void> {
+    event.preventDefault();
+
+    if (!formData.emailOrPhone.trim()) {
+      setFieldError("Inserisci email o telefono");
+      setSubmitted(false);
+      return;
+    }
+
+    setSubmitting(true);
+    setContactError(null);
+    setFieldError(null);
+    setSubmitted(false);
+
+    try {
+      const response = await fetch("/api/demo-request", {
+        method: "POST",
+        body: new URLSearchParams({
+          requestType: "contact",
+          emailOrPhone: formData.emailOrPhone,
+          name: formData.name,
+          message: formData.message,
+        }),
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+      });
+      const result = await readContactSubmitResponse(response);
+
+      if (!response.ok || !result.success) {
+        setContactError(getContactSubmitError(result));
+        return;
+      }
+
+      setSubmitted(true);
+      setFormData(EMPTY_CONTACT_FORM);
+    } catch {
+      setContactError("Impossibile inviare il messaggio. Riprova tra poco.");
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
   return (
     <section className={styles.section} id="faq" aria-labelledby="faq-title">
       <div className={styles.inner}>
@@ -65,6 +160,88 @@ export function FaqSection(): ReactElement {
               </a>
             ))}
           </div>
+
+          <form
+            className={styles.contactForm}
+            onSubmit={handleSubmit}
+            noValidate
+          >
+            <div className={styles.formHeader}>
+              <h4>Scrivici direttamente</h4>
+              <p>Lascia un recapito e ti rispondiamo appena possibile.</p>
+            </div>
+
+            <div className={styles.field}>
+              <label htmlFor="contact-email-or-phone">Email o telefono</label>
+              <input
+                id="contact-email-or-phone"
+                name="emailOrPhone"
+                type="text"
+                value={formData.emailOrPhone}
+                onChange={handleFieldChange("emailOrPhone")}
+                placeholder="mario@pizzeria.it oppure +39 333 123 4567"
+                autoComplete="email"
+                aria-required="true"
+                aria-describedby={
+                  fieldError ? "contact-email-or-phone-error" : undefined
+                }
+              />
+              {fieldError ? (
+                <span
+                  className={styles.formError}
+                  id="contact-email-or-phone-error"
+                  role="alert"
+                >
+                  {fieldError}
+                </span>
+              ) : null}
+            </div>
+
+            <div className={styles.field}>
+              <label htmlFor="contact-name">Nome completo</label>
+              <input
+                id="contact-name"
+                name="name"
+                type="text"
+                value={formData.name}
+                onChange={handleFieldChange("name")}
+                placeholder="Mario Rossi"
+                autoComplete="name"
+              />
+            </div>
+
+            <div className={styles.field}>
+              <label htmlFor="contact-message">Messaggio</label>
+              <textarea
+                id="contact-message"
+                name="message"
+                value={formData.message}
+                onChange={handleFieldChange("message")}
+                placeholder="Raccontaci cosa vuoi sapere su PizzaOS"
+                rows={4}
+              />
+            </div>
+
+            {contactError ? (
+              <p className={styles.submitError} role="alert">
+                {contactError}
+              </p>
+            ) : null}
+
+            {submitted ? (
+              <p className={styles.submitSuccess} role="status">
+                Messaggio inviato. Ti ricontatteremo al piu presto.
+              </p>
+            ) : null}
+
+            <button
+              className={styles.submitButton}
+              type="submit"
+              disabled={submitting}
+            >
+              {submitting ? "Invio in corso..." : "Invia messaggio"}
+            </button>
+          </form>
         </div>
 
         <div className={styles.signature}>
@@ -81,6 +258,32 @@ export function FaqSection(): ReactElement {
       </div>
     </section>
   );
+}
+
+async function readContactSubmitResponse(
+  response: Response,
+): Promise<ContactSubmitResponse> {
+  try {
+    const jsonValue: unknown = await response.json();
+
+    if (jsonValue && typeof jsonValue === "object") {
+      return jsonValue as ContactSubmitResponse;
+    }
+  } catch {
+    return {};
+  }
+
+  return {};
+}
+
+function getContactSubmitError(result: ContactSubmitResponse): string {
+  if (typeof result.error === "string" && result.error.trim()) {
+    return result.error;
+  }
+
+  const firstError = result.errors?.find((error) => error.trim() !== "");
+
+  return firstError ?? "Impossibile inviare il messaggio. Riprova tra poco.";
 }
 
 function IconBase({

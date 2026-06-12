@@ -45,6 +45,42 @@ describe("demo request mail", () => {
     ]);
   });
 
+  it("reads PizzaOS contact fields from form data", () => {
+    const formData = new FormData();
+
+    formData.set("requestType", "contact");
+    formData.set("name", " Mario Rossi ");
+    formData.set("emailOrPhone", " +39 333 123 4567 ");
+    formData.set("message", " Vorrei maggiori informazioni. ");
+
+    expect(readDemoRequestFormData(formData)).toEqual({
+      requestType: "contact",
+      name: "Mario Rossi",
+      emailOrPhone: "+39 333 123 4567",
+      message: "Vorrei maggiori informazioni.",
+    });
+  });
+
+  it("requires only a non-empty contact string for contact messages", () => {
+    expect(
+      validateDemoRequestData({
+        requestType: "contact",
+        name: "",
+        emailOrPhone: " +39 333 123 4567 ",
+        message: "",
+      }),
+    ).toEqual([]);
+
+    expect(
+      validateDemoRequestData({
+        requestType: "contact",
+        name: "Mario Rossi",
+        emailOrPhone: "   ",
+        message: "Vorrei maggiori informazioni.",
+      }),
+    ).toEqual(["Inserisci email o telefono"]);
+  });
+
   it("requires policy consent for otherwise valid leads", () => {
     expect(
       validateDemoRequestData({
@@ -153,6 +189,22 @@ describe("demo request mail", () => {
         "message",
         'Richiesta inviata dopo il click sul pulsante "Inizia la prova gratuita". Consenso Privacy Policy e Cookie Policy accettato.',
       ],
+    ]);
+  });
+
+  it("builds the contact payload expected by pizzaos-mail.php", () => {
+    const payload = buildPizzaOsMailPayload({
+      requestType: "contact",
+      name: "Mario Rossi",
+      emailOrPhone: "+39 333 123 4567",
+      message: "Vorrei maggiori informazioni.",
+    });
+
+    expect([...payload.entries()]).toEqual([
+      ["requestType", "contact"],
+      ["name", "Mario Rossi"],
+      ["emailOrPhone", "+39 333 123 4567"],
+      ["message", "Vorrei maggiori informazioni."],
     ]);
   });
 

@@ -1,6 +1,7 @@
 import { POLICY_CONSENT_MESSAGE } from "./policy-links";
 
 export interface DemoRequestData {
+  readonly requestType?: "demo";
   readonly name: string;
   readonly email: string;
   readonly pizzeriaName: string;
@@ -8,6 +9,15 @@ export interface DemoRequestData {
   readonly message?: string;
   readonly policyConsent: boolean;
 }
+
+export interface ContactRequestData {
+  readonly requestType: "contact";
+  readonly name: string;
+  readonly emailOrPhone: string;
+  readonly message: string;
+}
+
+export type PizzaOsMailRequestData = DemoRequestData | ContactRequestData;
 
 export interface DemoRequestMailResult {
   readonly success: boolean;
@@ -39,7 +49,18 @@ const DEMO_REQUEST_MESSAGES: Record<DemoRequestIntent, string> = {
     'Richiesta inviata dopo il click sul pulsante "Inizia la prova gratuita".',
 };
 
-export function readDemoRequestFormData(formData: FormData): DemoRequestData {
+export function readDemoRequestFormData(
+  formData: FormData,
+): PizzaOsMailRequestData {
+  if (getFormValue(formData, "requestType") === "contact") {
+    return {
+      requestType: "contact",
+      name: getFormValue(formData, "name"),
+      emailOrPhone: getFormValue(formData, "emailOrPhone"),
+      message: getFormValue(formData, "message"),
+    };
+  }
+
   return {
     name: getFormValue(formData, "name"),
     email: getFormValue(formData, "email"),
@@ -51,9 +72,17 @@ export function readDemoRequestFormData(formData: FormData): DemoRequestData {
 }
 
 export function validateDemoRequestData(
-  data: DemoRequestData,
+  data: PizzaOsMailRequestData,
 ): readonly string[] {
   const errors: string[] = [];
+
+  if (data.requestType === "contact") {
+    if (!data.emailOrPhone.trim()) {
+      errors.push("Inserisci email o telefono");
+    }
+
+    return errors;
+  }
 
   if (!data.name.trim()) {
     errors.push("Nome richiesto");
@@ -77,8 +106,17 @@ export function validateDemoRequestData(
 }
 
 export function buildPizzaOsMailPayload(
-  data: DemoRequestData,
+  data: PizzaOsMailRequestData,
 ): URLSearchParams {
+  if (data.requestType === "contact") {
+    return new URLSearchParams({
+      requestType: "contact",
+      name: data.name.trim(),
+      emailOrPhone: data.emailOrPhone.trim(),
+      message: data.message.trim(),
+    });
+  }
+
   return new URLSearchParams({
     name: data.name.trim(),
     email: data.email.trim(),
@@ -93,7 +131,7 @@ export function createDemoRequestMessage(intent: DemoRequestIntent): string {
 }
 
 export async function sendDemoRequestMail(
-  data: DemoRequestData,
+  data: PizzaOsMailRequestData,
   options: SendDemoRequestOptions = {},
 ): Promise<DemoRequestMailResult> {
   const errors = validateDemoRequestData(data);

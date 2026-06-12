@@ -168,3 +168,5 @@ clean interaction states.
 - Refreshed the landing visual system to match the real PizzaOS brand identity from `external/PIZZAOS-ELEMNTS`, using the
   navy, sand, and tomato palette, real horizontal logo assets, circular pattern motifs, softer card shadows, pill CTAs,
   and SVG-based app icons.
+- Added a real contact form to the FAQ/contact section, posting through the existing landing mail route with a compatible
+  `pizzaos-mail.php` update for server deployment while preserving the existing demo request flow.
