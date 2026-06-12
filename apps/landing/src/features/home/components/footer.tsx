@@ -49,10 +49,10 @@ export function Footer({
             <Link href="/" className={styles.logo} aria-label="PizzaOS home">
               <Image
                 className={styles.logoImage}
-                src="/images/logo-light.png"
+                src="/brand/logo-horizontal-white.svg"
                 alt="PizzaOS"
-                width={1663}
-                height={332}
+                width={469}
+                height={117}
               />
             </Link>
             <p className={styles.tagline}>

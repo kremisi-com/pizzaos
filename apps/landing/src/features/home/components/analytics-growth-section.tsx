@@ -161,7 +161,7 @@ function DashboardMockup(): ReactElement {
         <div className={styles.brand}>
           <Image
             className={styles.logoImage}
-            src="/images/logo.png"
+            src="/brand/logo-horizontal-color.svg"
             alt="PizzaOS"
             width={1663}
             height={332}

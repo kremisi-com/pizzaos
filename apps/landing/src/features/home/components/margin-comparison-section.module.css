@@ -2,7 +2,7 @@
   overflow: hidden;
   padding: 30px 0 76px;
   background:
-    radial-gradient(circle at 50% 0%, rgba(244, 58, 38, 0.05), transparent 34%),
+    radial-gradient(circle at 50% 0%, rgba(207, 84, 48, 0.05), transparent 34%),
     linear-gradient(180deg, #fffdfb 0%, #ffffff 46%, #fffdfb 100%);
   scroll-margin-top: 104px;
 }
@@ -16,7 +16,7 @@
 .title {
   max-width: 1040px;
   margin: 0 auto;
-  color: #070915;
+  color: var(--color-dark);
   font-family: var(--font-heading);
   font-size: clamp(42px, 4.6vw, 70px);
   font-weight: 900;
@@ -26,7 +26,7 @@
 }
 
 .title span {
-  color: #ed1717;
+  color: var(--color-brand-red);
 }
 
 .subtitle {
@@ -80,12 +80,12 @@
 }
 
 .pizzaosHeader {
-  border-color: rgba(244, 58, 38, 0.22);
-  border-right: 1px solid rgba(244, 58, 38, 0.22);
+  border-color: rgba(207, 84, 48, 0.22);
+  border-right: 1px solid rgba(207, 84, 48, 0.22);
   border-radius: 0 16px 0 0;
   background: linear-gradient(
     180deg,
-    rgba(244, 58, 38, 0.075),
+    rgba(207, 84, 48, 0.075),
     rgba(255, 255, 255, 0.9)
   );
 }
@@ -99,7 +99,7 @@
 }
 
 .pizzaosHeader .headerIcon {
-  color: #ed1717;
+  color: var(--color-brand-red);
 }
 
 .headerLogo {
@@ -124,7 +124,7 @@
 
 .columnHeader strong,
 .pizzaosHeader strong {
-  color: #070915;
+  color: var(--color-dark);
   font-family: var(--font-heading);
   font-size: clamp(18px, 1.45vw, 24px);
   font-weight: 900;
@@ -133,7 +133,7 @@
 }
 
 .pizzaosHeader strong span {
-  color: #ed1717;
+  color: var(--color-brand-red);
 }
 
 .columnHeader small,
@@ -179,7 +179,7 @@
 }
 
 .rowLabel strong {
-  color: #070915;
+  color: var(--color-dark);
   font-size: clamp(14px, 0.98vw, 17px);
   font-weight: 900;
   line-height: 1.18;
@@ -229,7 +229,7 @@
 }
 
 .valueCell[data-tone="bad"] .statusIcon {
-  color: #ff1717;
+  color: var(--color-brand-red);
 }
 
 .valueCell[data-tone="ok"] .statusIcon {
@@ -249,7 +249,7 @@
 }
 
 .valueCell strong {
-  color: #070915;
+  color: var(--color-dark);
   font-size: clamp(16px, 1.13vw, 20px);
   font-weight: 900;
   line-height: 1.1;
@@ -277,7 +277,7 @@
 
 .cardEyebrow {
   display: block;
-  color: #ed1717;
+  color: var(--color-brand-red);
   font-size: 18px;
   font-weight: 900;
   line-height: 1;
@@ -285,7 +285,7 @@
 
 .cumulativeCard h3 {
   margin: 14px 0 28px;
-  color: #070915;
+  color: var(--color-dark);
   font-family: var(--font-heading);
   font-size: clamp(27px, 2.08vw, 35px);
   font-weight: 900;
@@ -294,7 +294,7 @@
 }
 
 .cumulativeCard h3 span {
-  color: #ed1717;
+  color: var(--color-brand-red);
 }
 
 .cumulativeList {
@@ -339,7 +339,7 @@
 }
 
 .cumulativeItem strong {
-  color: #070915;
+  color: var(--color-dark);
   font-size: 16px;
   font-weight: 900;
 }

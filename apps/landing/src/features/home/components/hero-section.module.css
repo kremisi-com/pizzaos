@@ -6,9 +6,23 @@
 
 .hero {
   position: relative;
-  background-color: var(--color-white);
+  background:
+    radial-gradient(circle at 85% 12%, rgba(221, 183, 133, 0.18), transparent 28%),
+    var(--color-surface-warm);
   padding-top: 68px; /* navbar height */
   overflow: hidden;
+}
+
+.hero::before {
+  content: "";
+  position: absolute;
+  inset: 82px 0 auto auto;
+  width: min(44vw, 560px);
+  height: min(44vw, 560px);
+  background-image: url("/brand/pattern.svg");
+  background-size: cover;
+  opacity: 0.08;
+  pointer-events: none;
 }
 
 /* ── Inner layout ── */
@@ -46,7 +60,7 @@
   align-items: center;
   gap: 10px;
   padding: 9px 18px 9px 16px;
-  background-color: rgba(244, 58, 38, 0.075);
+  background-color: rgba(207, 84, 48, 0.1);
   border: 0;
   border-radius: 9999px;
   margin-bottom: 34px;
@@ -90,7 +104,7 @@
   font-family: var(--font-body);
   font-size: 20px;
   line-height: 1.5;
-  color: #666666;
+  color: var(--color-muted);
   margin-bottom: 20px;
   font-weight: 400;
   animation: heroCopyIn 620ms var(--ease) 260ms both;
@@ -122,7 +136,7 @@
   text-decoration: none;
   border: none;
   cursor: pointer;
-  box-shadow: 0 8px 20px rgba(244, 58, 38, 0.25);
+  box-shadow: 0 12px 26px rgba(207, 84, 48, 0.25);
   transition: all var(--duration-fast) var(--ease);
   white-space: nowrap;
 }
@@ -133,7 +147,7 @@
 
 .primaryCta:hover {
   transform: translateY(-2px);
-  box-shadow: 0 12px 28px rgba(244, 58, 38, 0.35);
+  box-shadow: 0 16px 34px rgba(207, 84, 48, 0.34);
   background-color: var(--color-brand-red-dark);
 }
 
@@ -156,7 +170,7 @@
 
 .secondaryCta:hover {
   border-color: var(--color-dark);
-  background-color: rgba(0, 0, 0, 0.02);
+  background-color: rgba(10, 56, 79, 0.04);
 }
 
 .playIconWrapper {
@@ -199,7 +213,7 @@
   --hero-final-transform: rotate(4.5deg);
   transform: var(--hero-final-transform);
   transform-origin: center;
-  filter: drop-shadow(0 32px 64px rgba(0, 0, 0, 0.1));
+  filter: drop-shadow(0 32px 64px rgba(10, 56, 79, 0.12));
   animation: heroVisualIn 720ms var(--ease) 240ms both;
 }
 
@@ -213,7 +227,7 @@
   z-index: 3;
   --hero-final-transform: rotate(-5.5deg);
   transform: var(--hero-final-transform);
-  filter: drop-shadow(0 42px 52px rgba(0, 0, 0, 0.18));
+  filter: drop-shadow(0 42px 52px rgba(10, 56, 79, 0.2));
   animation: heroVisualIn 720ms var(--ease) 420ms both;
 }
 
@@ -227,60 +241,46 @@
   z-index: 2;
   --hero-final-transform: rotate(7.5deg);
   transform: var(--hero-final-transform);
-  filter: drop-shadow(0 22px 34px rgba(0, 0, 0, 0.12));
+  filter: drop-shadow(0 22px 34px rgba(10, 56, 79, 0.16));
   animation: heroVisualIn 680ms var(--ease) 620ms both;
 }
 
-.basilDecoration {
+.circleDecoration {
   position: absolute;
-  top: -60px;
-  right: -100px;
+  top: -34px;
+  right: -74px;
   z-index: 5;
-  width: 180px;
-  height: 150px;
+  width: 190px;
+  height: 190px;
   pointer-events: none;
   animation: heroBasilIn 560ms var(--ease) 860ms both;
 }
 
-.basilLeaf {
+.brandRing,
+.brandDot,
+.brandOrbit {
   position: absolute;
   display: block;
-  width: 82px;
-  height: 50px;
-  border-radius: 80% 12% 80% 12%;
-  background:
-    linear-gradient(135deg, rgba(255, 255, 255, 0.4), transparent 40%),
-    linear-gradient(135deg, #a4e637 0%, #29a32f 56%, #157a22 100%);
-  box-shadow: 0 8px 16px rgba(28, 91, 19, 0.18);
-  transform: rotate(34deg);
+  border-radius: 50%;
 }
 
-.basilLeaf::after {
-  content: "";
-  position: absolute;
-  inset: 50% 12% auto 12%;
-  height: 1.5px;
-  background: rgba(255, 255, 255, 0.5);
-  transform: rotate(-10deg);
-  filter: blur(0.5px);
+.brandRing {
+  inset: 10px;
+  border: 18px solid rgba(221, 183, 133, 0.86);
+  box-shadow: 0 22px 42px rgba(10, 56, 79, 0.1);
 }
 
-.basilLeaf:nth-child(1) {
-  right: 64px;
-  top: 28px;
-  transform: rotate(18deg) scale(0.72);
+.brandDot {
+  inset: 62px;
+  background: var(--color-brand-red);
 }
 
-.basilLeaf:nth-child(2) {
-  right: 12px;
-  top: 0;
-  transform: rotate(48deg);
-}
-
-.basilLeaf:nth-child(3) {
-  right: -20px;
-  top: 60px;
-  transform: rotate(-12deg) scale(1.1);
+.brandOrbit {
+  right: 4px;
+  top: 26px;
+  width: 54px;
+  height: 54px;
+  border: 12px solid rgba(207, 84, 48, 0.22);
 }
 
 /* ── Pizza decoration ── */
@@ -343,7 +343,7 @@
   width: 48px;
   height: 48px;
   border-radius: 14px;
-  background: rgba(244, 58, 38, 0.08);
+  background: rgba(207, 84, 48, 0.1);
   color: var(--color-brand-red);
   flex-shrink: 0;
   transition: all var(--duration-fast) var(--ease);
@@ -412,7 +412,7 @@
   .dashboardImage,
   .phoneImage,
   .deliveryImage,
-  .basilDecoration,
+  .circleDecoration,
   .featureItem {
     animation: none;
     opacity: 1;
@@ -468,7 +468,7 @@
     bottom: 20px;
   }
 
-  .basilDecoration {
+  .circleDecoration {
     right: -18px;
     top: -38px;
   }
@@ -535,7 +535,7 @@
     bottom: -30px;
   }
 
-  .basilDecoration {
+  .circleDecoration {
     display: none;
   }
 }

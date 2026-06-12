@@ -5,7 +5,7 @@
   background:
     radial-gradient(
       circle at 38% 6%,
-      rgba(244, 58, 38, 0.055),
+      rgba(207, 84, 48, 0.055),
       transparent 33%
     ),
     linear-gradient(180deg, #ffffff 0%, #fffdfb 56%, #ffffff 100%);
@@ -39,7 +39,7 @@
   gap: 12px;
   padding: 11px 22px;
   border-radius: 999px;
-  background: rgba(244, 58, 38, 0.055);
+  background: rgba(207, 84, 48, 0.055);
   color: var(--color-brand-red);
   font-size: clamp(13px, 0.95vw, 16px);
   font-weight: 900;
@@ -48,7 +48,7 @@
 
 .title {
   margin: 0;
-  color: #050505;
+  color: var(--color-dark);
   font-family: var(--font-heading);
   font-size: clamp(48px, 4.65vw, 76px);
   font-weight: 900;
@@ -89,8 +89,8 @@
   border-radius: 16px;
   background: linear-gradient(
     135deg,
-    rgba(244, 58, 38, 0.11),
-    rgba(244, 58, 38, 0.035)
+    rgba(207, 84, 48, 0.11),
+    rgba(207, 84, 48, 0.035)
   );
   color: var(--color-brand-red);
 }
@@ -98,7 +98,7 @@
 .pillar h3,
 .benefit h3 {
   margin: 0 0 4px;
-  color: #111318;
+  color: var(--color-dark);
   font-family: var(--font-heading);
   font-size: 18px;
   font-weight: 900;
@@ -172,7 +172,7 @@
 }
 
 .sideItemActive {
-  background: rgba(244, 58, 38, 0.1);
+  background: rgba(207, 84, 48, 0.1);
   color: var(--color-brand-red);
 }
 
@@ -198,7 +198,7 @@
   background:
     radial-gradient(
       circle at 100% 0%,
-      rgba(244, 58, 38, 0.08),
+      rgba(207, 84, 48, 0.08),
       transparent 46%
     ),
     linear-gradient(135deg, #fbf5ef 0%, #f5faf5 100%);
@@ -217,7 +217,7 @@
 }
 
 .restaurantAccount strong {
-  color: #111318;
+  color: var(--color-dark);
   font-size: 13px;
   font-weight: 900;
   text-transform: lowercase;
@@ -244,7 +244,7 @@
 }
 
 .boardHeader h3 {
-  color: #111318;
+  color: var(--color-dark);
   font-family: var(--font-heading);
   font-size: 18px;
   font-weight: 900;
@@ -280,7 +280,7 @@
   padding: 0 16px;
   background: var(--color-brand-red);
   color: #ffffff;
-  box-shadow: 0 10px 20px rgba(244, 58, 38, 0.2);
+  box-shadow: 0 10px 20px rgba(207, 84, 48, 0.2);
 }
 
 .filters {
@@ -343,7 +343,7 @@
 }
 
 .lane-red .laneHeader {
-  background: rgba(244, 58, 38, 0.08);
+  background: rgba(207, 84, 48, 0.08);
   color: #f02419;
 }
 
@@ -372,7 +372,7 @@
 }
 
 .lane-red .orderCard {
-  border-color: rgba(244, 58, 38, 0.17);
+  border-color: rgba(207, 84, 48, 0.17);
 }
 
 .lane-orange .orderCard {
@@ -450,7 +450,7 @@
   align-items: center;
   padding: 0 8px;
   border-radius: 6px;
-  background: rgba(244, 58, 38, 0.055);
+  background: rgba(207, 84, 48, 0.055);
   color: var(--color-brand-red);
   font-size: 10px;
   font-weight: 900;
@@ -478,11 +478,10 @@
   z-index: 3;
   width: 250px;
   padding: 24px 22px 18px;
-  border: 1px solid rgba(32, 25, 20, 0.1);
-  border-radius: 14px;
-  background: rgba(255, 255, 255, 0.92);
-  box-shadow: 0 24px 56px rgba(32, 25, 20, 0.1);
-  backdrop-filter: blur(16px);
+  border: 1px solid rgba(10, 56, 79, 0.1);
+  border-radius: 22px;
+  background: #ffffff;
+  box-shadow: 0 24px 56px rgba(10, 56, 79, 0.1);
 }
 
 .rushEyebrow {
@@ -504,7 +503,7 @@
 }
 
 .rushHeader h3 {
-  color: #111318;
+  color: var(--color-dark);
   font-family: var(--font-heading);
   font-size: 17px;
   font-weight: 900;
@@ -517,7 +516,7 @@
   height: 23px;
   border-radius: 999px;
   background: var(--color-brand-red);
-  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.05);
+  box-shadow: inset 0 0 0 1px rgba(10, 56, 79, 0.05);
 }
 
 .toggle::after {
@@ -578,15 +577,15 @@
   border-radius: 9px;
   background: linear-gradient(
     135deg,
-    rgba(244, 58, 38, 0.08),
-    rgba(244, 58, 38, 0.025)
+    rgba(207, 84, 48, 0.08),
+    rgba(207, 84, 48, 0.025)
   );
 }
 
 .rushStats > svg {
   width: 32px;
   height: 32px;
-  color: #111318;
+  color: var(--color-dark);
 }
 
 .rushStats span,
@@ -600,7 +599,7 @@
 .rushStats strong {
   display: block;
   margin-top: 2px;
-  color: #111318;
+  color: var(--color-dark);
   font-size: 18px;
   font-weight: 900;
   line-height: 1;
@@ -626,7 +625,7 @@
   min-height: 118px;
   padding: 14px 12px 10px;
   background: #ffffff;
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.14);
+  box-shadow: 0 6px 16px rgba(10, 56, 79, 0.14);
   transform: rotate(-20deg);
 }
 
@@ -634,7 +633,7 @@
 .receipt p,
 .receipt b {
   display: block;
-  color: #111318;
+  color: var(--color-dark);
   font-size: 8px;
   line-height: 1.35;
 }
@@ -647,7 +646,7 @@
 .receipt strong {
   display: block;
   margin: 4px 0 8px;
-  color: #111318;
+  color: var(--color-dark);
   font-size: 10px;
   line-height: 1.18;
 }
@@ -672,7 +671,7 @@
   top: -130px;
   width: 500px;
   height: 500px;
-  filter: drop-shadow(0 22px 34px rgba(244, 58, 38, 0.12));
+  filter: drop-shadow(0 22px 34px rgba(207, 84, 48, 0.12));
 }
 
 .integrationPanel,
@@ -680,10 +679,9 @@
   position: relative;
   z-index: 5;
   display: grid;
-  border: 1px solid rgba(32, 25, 20, 0.1);
-  background: rgba(255, 255, 255, 0.88);
-  box-shadow: 0 16px 44px rgba(32, 25, 20, 0.055);
-  backdrop-filter: blur(16px);
+  border: 1px solid rgba(10, 56, 79, 0.1);
+  background: #ffffff;
+  box-shadow: 0 18px 44px rgba(10, 56, 79, 0.07);
 }
 
 .integrationPanel {
@@ -691,7 +689,7 @@
   gap: 28px;
   align-items: center;
   padding: 24px 34px;
-  border-radius: 14px;
+  border-radius: 22px;
   max-width: 900px;
   margin-top: 50px;
 }
@@ -699,7 +697,7 @@
 .panelTitle {
   display: block;
   margin-bottom: 22px;
-  color: #111318;
+  color: var(--color-dark);
   font-size: 12px;
   font-weight: 900;
 }
@@ -772,7 +770,7 @@
   display: grid;
   justify-items: center;
   gap: 10px;
-  color: #111318;
+  color: var(--color-dark);
   font-size: 12px;
   text-align: center;
 }
@@ -815,8 +813,8 @@
   display: grid;
   place-items: center;
   border-radius: 50%;
-  background: rgba(244, 58, 38, 0.08);
-  color: #111318;
+  background: rgba(207, 84, 48, 0.08);
+  color: var(--color-dark);
 }
 
 .cta {
@@ -832,7 +830,7 @@
   font-size: 14px;
   font-weight: 900;
   white-space: nowrap;
-  box-shadow: 0 14px 28px rgba(244, 58, 38, 0.22);
+  box-shadow: 0 14px 28px rgba(207, 84, 48, 0.22);
 }
 
 .eyebrow svg,

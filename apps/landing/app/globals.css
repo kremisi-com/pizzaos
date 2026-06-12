@@ -13,17 +13,25 @@
    -------------------------------------------------------------------------- */
 :root {
   /* ── Color palette ── */
-  --color-brand-red: #f43a26;
-  --color-brand-red-dark: #d42e1b;
-  --color-brand-red-light: #ff5a44;
-  --color-brand-red-subtle: rgba(244, 58, 38, 0.08);
+  --color-navy: #0a384f;
+  --color-sand: #ddb785;
+  --color-sand-soft: #f4e6d2;
+  --color-tomato: #cf5430;
+  --color-tomato-dark: #a94025;
+  --color-tomato-light: #df7253;
+  --color-surface-warm: #faf7f1;
 
-  --color-dark: #111111;
-  --color-muted: #5f6368;
-  --color-bg-soft: #faf8f6;
+  --color-brand-red: var(--color-tomato);
+  --color-brand-red-dark: var(--color-tomato-dark);
+  --color-brand-red-light: var(--color-tomato-light);
+  --color-brand-red-subtle: rgba(207, 84, 48, 0.1);
+
+  --color-dark: var(--color-navy);
+  --color-muted: #5b6d73;
+  --color-bg-soft: var(--color-surface-warm);
   --color-white: #ffffff;
-  --color-border: #eae7e4;
-  --color-border-strong: #d4d0cc;
+  --color-border: #e9ded0;
+  --color-border-strong: #d4bea3;
 
   --color-success: #19b36b;
   --color-warning: #f59e0b;
@@ -70,17 +78,17 @@
   /* ── Border radius ── */
   --radius-sm: 8px;
   --radius-md: 14px;
-  --radius-btn: 16px;
+  --radius-btn: 9999px;
   --radius-card: 24px;
   --radius-mockup: 32px;
   --radius-full: 9999px;
 
   /* ── Shadows ── */
-  --shadow-card: 0 10px 30px rgba(0, 0, 0, 0.06);
-  --shadow-card-hover: 0 20px 40px rgba(0, 0, 0, 0.1);
-  --shadow-device: 0 25px 60px rgba(0, 0, 0, 0.12);
-  --shadow-btn-primary: 0 4px 14px rgba(244, 58, 38, 0.35);
-  --shadow-btn-primary-hover: 0 6px 20px rgba(244, 58, 38, 0.45);
+  --shadow-card: 0 18px 42px rgba(10, 56, 79, 0.08);
+  --shadow-card-hover: 0 24px 58px rgba(10, 56, 79, 0.12);
+  --shadow-device: 0 28px 70px rgba(10, 56, 79, 0.16);
+  --shadow-btn-primary: 0 10px 22px rgba(207, 84, 48, 0.24);
+  --shadow-btn-primary-hover: 0 14px 30px rgba(207, 84, 48, 0.32);
 
   /* ── Motion ── */
   --duration-fast: 220ms;
@@ -458,7 +466,7 @@ p {
 
 .card--accent {
   background-color: var(--color-brand-red-subtle);
-  border-color: rgba(244, 58, 38, 0.2);
+  border-color: rgba(207, 84, 48, 0.22);
 }
 
 /* --------------------------------------------------------------------------

@@ -4,10 +4,8 @@
   left: 0;
   right: 0;
   z-index: var(--z-sticky, 100);
-  background-color: rgba(255, 255, 255, 0.88);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border-bottom: 0;
+  background-color: rgba(250, 247, 241, 0.96);
+  border-bottom: 1px solid rgba(10, 56, 79, 0.08);
   height: 84px;
   display: flex;
   align-items: center;
@@ -35,7 +33,7 @@
 
 .logoImage {
   display: block;
-  width: clamp(138px, 11vw, 168px);
+  width: clamp(134px, 11vw, 164px);
   height: auto;
 }
 
@@ -50,7 +48,7 @@
 .navLink {
   font-size: 15px;
   font-weight: 500;
-  color: #111111;
+  color: var(--color-navy);
   text-decoration: none;
   transition: all var(--duration-fast) var(--ease);
   white-space: nowrap;
@@ -73,7 +71,7 @@
 .loginLink {
   font-size: 15px;
   font-weight: 600;
-  color: #111111;
+  color: var(--color-navy);
   text-decoration: none;
   transition: color var(--duration-fast) var(--ease);
   white-space: nowrap;
@@ -98,14 +96,14 @@
   border: none;
   cursor: pointer;
   text-decoration: none;
-  box-shadow: 0 4px 12px rgba(244, 58, 38, 0.2);
+  box-shadow: 0 10px 22px rgba(207, 84, 48, 0.22);
   transition: all var(--duration-fast) var(--ease);
   white-space: nowrap;
 }
 
 .ctaBtn:hover {
   transform: translateY(-1px);
-  box-shadow: 0 8px 16px rgba(244, 58, 38, 0.3);
+  box-shadow: 0 14px 30px rgba(207, 84, 48, 0.3);
   background-color: var(--color-brand-red-dark);
 }
 

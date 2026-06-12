@@ -34,6 +34,10 @@ function resolveStorage(): Storage | undefined {
     return undefined;
   }
 
+  if (typeof window.localStorage.getItem !== "function") {
+    return undefined;
+  }
+
   return window.localStorage;
 }
 

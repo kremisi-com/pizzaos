@@ -95,8 +95,8 @@ describe("landing shell", () => {
     expect(markup).toContain("Serve ancora aiuto");
     expect(markup).toContain("Ecosistema");
     expect(markup).toContain("Apri la demo");
-    expect(markup).toContain("%2Fimages%2Flogo-light.png");
-    expect(markup).toContain("%2Fimages%2Flogo.png");
+    expect(markup).toContain("/brand/logo-horizontal-white.svg");
+    expect(markup).toContain("/brand/logo-horizontal-color.svg");
     expect(markup).not.toContain('href="#gestione-catene"');
     expect(markup).not.toContain("hero-composite");
   });
@@ -181,7 +181,7 @@ describe("landing shell", () => {
     expect(markup).toContain("Analytics avanzate");
     expect(markup).toContain("Previsioni di vendita");
     expect(markup).toContain("Panoramica");
-    expect(markup).toContain("%2Fimages%2Flogo.png");
+    expect(markup).toContain("/brand/logo-horizontal-color.svg");
     expect(markup).toContain("pizza demo");
     expect(markup).not.toContain("Suggerimento AI");
     expect(markup).toContain("Fatturato");
@@ -203,7 +203,7 @@ describe("landing shell", () => {
     );
     expect(markup).toContain("Ordini in tempo reale");
     expect(markup).toContain("#1258");
-    expect(markup).toContain("%2Fimages%2Flogo.png");
+    expect(markup).toContain("/brand/logo-horizontal-color.svg");
     expect(markup).toContain("pizza demo");
     expect(markup).toContain("Non possiedi riders?");
     expect(markup).toContain("non vuole gestire una flotta di");
@@ -238,7 +238,7 @@ describe("landing shell", () => {
     expect(markup).toContain("Standard e qualità");
     expect(markup).toContain("Pricing e menu coordinati");
     expect(markup).toContain("Ruoli e permessi");
-    expect(markup).toContain("%2Fimages%2Flogo.png");
+    expect(markup).toContain("/brand/logo-horizontal-color.svg");
     expect(markup).toContain("Panoramica network");
     expect(markup).toContain("Performance per pizzeria");
     expect(markup).toContain("Mappa pizzerie");
@@ -317,7 +317,7 @@ describe("landing shell", () => {
     expect(markup).toContain("WhatsApp");
     expect(markup).toContain("Email");
     expect(markup).toContain("info@kremisi.com");
-    expect(markup).toContain("%2Fimages%2Flogo.png");
+    expect(markup).toContain("/brand/logo-horizontal-color.svg");
     expect(markup).toContain("La piattaforma completa per pizzerie moderne.");
   });
 

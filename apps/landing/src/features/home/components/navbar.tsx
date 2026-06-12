@@ -30,10 +30,10 @@ export function Navbar({ onRequestDemo }: NavbarProps): ReactElement {
         >
           <Image
             className={styles.logoImage}
-            src="/images/logo.png"
+            src="/brand/logo-horizontal-color.svg"
             alt="PizzaOS"
-            width={1663}
-            height={332}
+            width={469}
+            height={117}
             priority
           />
         </Link>

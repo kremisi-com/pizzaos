@@ -73,6 +73,15 @@ describe("@pizzaos/brand", () =>
     }
   });
 
+  it("keeps the landing theme aligned to the real PizzaOS brand palette", () =>
+  {
+    expect(SURFACE_THEME_TOKENS.landing.color.primary).toBe("#0A384F");
+    expect(SURFACE_THEME_TOKENS.landing.color.background).toBe("#FAF7F1");
+    expect(SURFACE_THEME_TOKENS.landing.color.foreground).toBe("#0A384F");
+    expect(SURFACE_THEME_TOKENS.landing.color.border).toBe("#E9DED0");
+    expect(getThemeStyleVariables("landing")["--pizzaos-color-primary-rgb"]).toBe("10, 56, 79");
+  });
+
   it("keeps the admin theme aligned to the landing dashboard preview", () =>
   {
     expect(SURFACE_THEME_TOKENS.admin.color.primary).toBe("#f43a26");

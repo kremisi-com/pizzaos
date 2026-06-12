@@ -1,7 +1,7 @@
 .footer {
-  background-color: var(--color-dark);
+  background-color: var(--color-navy);
   padding-block: 56px 40px;
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  border-top: 1px solid rgba(221, 183, 133, 0.18);
 }
 
 .inner {
@@ -33,14 +33,14 @@
 
 .logoImage {
   display: block;
-  width: 132px;
+  width: 142px;
   height: auto;
   border-radius: 3px;
 }
 
 .tagline {
   font-size: 14px;
-  color: rgba(255, 255, 255, 0.45);
+  color: rgba(255, 255, 255, 0.62);
   line-height: 1.5;
   max-width: 260px;
 }
@@ -57,7 +57,7 @@
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.4);
+  color: rgba(221, 183, 133, 0.86);
   margin-bottom: 4px;
 }
 
@@ -68,7 +68,7 @@
   background: transparent;
   font-size: 14px;
   font-family: inherit;
-  color: rgba(255, 255, 255, 0.6);
+  color: rgba(255, 255, 255, 0.66);
   text-align: left;
   text-decoration: none;
   cursor: pointer;
@@ -76,7 +76,7 @@
 }
 
 .colLink:hover {
-  color: var(--color-white);
+  color: var(--color-sand);
 }
 
 /* Bottom bar */
@@ -86,13 +86,13 @@
   justify-content: space-between;
   gap: 16px;
   padding-top: 32px;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-top: 1px solid rgba(221, 183, 133, 0.16);
   flex-wrap: wrap;
 }
 
 .copyright {
   font-size: 13px;
-  color: rgba(255, 255, 255, 0.3);
+  color: rgba(255, 255, 255, 0.46);
 }
 
 .legalLinks {
@@ -104,13 +104,13 @@
 
 .legalLink {
   font-size: 13px;
-  color: rgba(255, 255, 255, 0.44);
+  color: rgba(255, 255, 255, 0.58);
   text-decoration: none;
   transition: color var(--duration-fast) var(--ease);
 }
 
 .legalLink:hover {
-  color: rgba(255, 255, 255, 0.75);
+  color: var(--color-sand);
 }
 
 .resetLink {

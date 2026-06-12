@@ -152,7 +152,8 @@ clean interaction states.
 
 **Implementation note**
 
-- Updated the global landing brand treatment to use the curated `public/images/logo.png` asset in the navbar and footer.
+- Updated the global landing brand treatment to use curated logo assets, later replaced by the real SVG brand assets in
+  `public/brand`.
 - Added lightweight scroll-triggered entrance motion across the landing page with a local `MotionReveal` wrapper, global
   `data-motion` styles, reduced-motion handling, and a subtle navbar load animation.
 - Added CTA source tracking for the landing demo form so submissions opened from "Inizia la prova gratuita" include that
@@ -164,3 +165,6 @@ clean interaction states.
   demo request form while preserving the existing mail endpoint payload shape.
 - Gated the chain-management section behind the `?c=t` URL parameter so the default landing page stays focused on the
   single-store narrative while still allowing the chain story to be demoed directly.
+- Refreshed the landing visual system to match the real PizzaOS brand identity from `external/PIZZAOS-ELEMNTS`, using the
+  navy, sand, and tomato palette, real horizontal logo assets, circular pattern motifs, softer card shadows, pill CTAs,
+  and SVG-based app icons.

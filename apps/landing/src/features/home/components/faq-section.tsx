@@ -70,7 +70,7 @@ export function FaqSection(): ReactElement {
         <div className={styles.signature}>
           <Image
             className={styles.signatureLogo}
-            src="/images/logo.png"
+            src="/brand/logo-horizontal-color.svg"
             alt="PizzaOS"
             width={1663}
             height={332}

@@ -21,7 +21,7 @@ describe("landing seo metadata", () => {
       "software pizzeria",
     );
     expect(JSON.stringify(landingMetadata.icons)).toContain(
-      "/favicon/favicon-32x32.png",
+      "/brand/icon-color.svg",
     );
     expect(landingMetadata.openGraph).toMatchObject({
       type: "website",
@@ -41,7 +41,7 @@ describe("landing seo metadata", () => {
     expect(landingViewport).toMatchObject({
       width: "device-width",
       initialScale: 1,
-      themeColor: "#FAF8F6",
+      themeColor: "#0A384F",
     });
     expect(robots).toMatchObject({
       rules: {
@@ -61,8 +61,8 @@ describe("landing seo metadata", () => {
       short_name: "PizzaOS",
       lang: "it",
       start_url: "/",
-      theme_color: "#F43A26",
+      theme_color: "#0A384F",
     });
-    expect(JSON.stringify(manifest.icons)).toContain("/favicon/icon-512.png");
+    expect(JSON.stringify(manifest.icons)).toContain("/brand/pictogram-color.svg");
   });
 });

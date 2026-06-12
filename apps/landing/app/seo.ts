@@ -39,26 +39,14 @@ export const landingMetadata: Metadata = {
   icons: {
     icon: [
       {
-        url: "/favicon/favicon-16x16.png",
-        sizes: "16x16",
-        type: "image/png",
-      },
-      {
-        url: "/favicon/favicon-32x32.png",
-        sizes: "32x32",
-        type: "image/png",
-      },
-      {
-        url: "/favicon/icon-192.png",
-        sizes: "192x192",
-        type: "image/png",
+        url: "/brand/icon-color.svg",
+        type: "image/svg+xml",
       },
     ],
     apple: [
       {
-        url: "/favicon/apple-touch-icon.png",
-        sizes: "180x180",
-        type: "image/png",
+        url: "/brand/pictogram-color.svg",
+        type: "image/svg+xml",
       },
     ],
   },
@@ -106,7 +94,7 @@ export const landingViewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   colorScheme: "light",
-  themeColor: "#FAF8F6",
+  themeColor: "#0A384F",
 };
 
 export function createLandingRobots(): MetadataRoute.Robots {
@@ -138,27 +126,27 @@ export function createLandingManifest(): MetadataRoute.Manifest {
     start_url: "/",
     scope: "/",
     display: "standalone",
-    background_color: "#FAF8F6",
-    theme_color: "#F43A26",
+    background_color: "#FAF7F1",
+    theme_color: "#0A384F",
     lang: "it",
     categories: ["business", "food", "productivity"],
     icons: [
       {
-        src: "/favicon/icon-192.png",
-        sizes: "192x192",
-        type: "image/png",
+        src: "/brand/icon-color.svg",
+        sizes: "any",
+        type: "image/svg+xml",
         purpose: "any",
       },
       {
-        src: "/favicon/icon-512.png",
-        sizes: "512x512",
-        type: "image/png",
+        src: "/brand/pictogram-color.svg",
+        sizes: "any",
+        type: "image/svg+xml",
         purpose: "any",
       },
       {
-        src: "/favicon/icon-512.png",
-        sizes: "512x512",
-        type: "image/png",
+        src: "/brand/pictogram-color.svg",
+        sizes: "any",
+        type: "image/svg+xml",
         purpose: "maskable",
       },
     ],

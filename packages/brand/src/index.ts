@@ -84,13 +84,17 @@ const BASE_THEME_TOKENS: Omit<SurfaceThemeTokens, "color" | "type"> = {
 export const SURFACE_THEME_TOKENS: Record<AppSurface, SurfaceThemeTokens> = {
   landing: {
     ...BASE_THEME_TOKENS,
+    elevation: {
+      card: "0 18px 42px rgba(10, 56, 79, 0.08)",
+      overlay: "0 28px 70px rgba(10, 56, 79, 0.14)"
+    },
     color: {
-      background: "#FAF8F6",
+      background: "#FAF7F1",
       backgroundAccent: "#FFFFFF",
-      foreground: "#111111",
-      foregroundMuted: "#5F6368",
-      border: "#EAE7E4",
-      primary: "#F43A26",
+      foreground: "#0A384F",
+      foregroundMuted: "#5B6D73",
+      border: "#E9DED0",
+      primary: "#0A384F",
       primaryForeground: "#FFFFFF"
     },
     type: {

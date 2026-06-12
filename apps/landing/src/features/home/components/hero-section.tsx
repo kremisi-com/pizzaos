@@ -197,11 +197,11 @@ export function HeroSection({ onRequestDemo }: HeroSectionProps): ReactElement {
             />
           </div>
 
-          {/* Dynamic Basil Leaves */}
-          <div className={styles.basilDecoration} aria-hidden="true">
-            <span className={styles.basilLeaf} />
-            <span className={styles.basilLeaf} />
-            <span className={styles.basilLeaf} />
+          {/* Brand circle motif */}
+          <div className={styles.circleDecoration} aria-hidden="true">
+            <span className={styles.brandRing} />
+            <span className={styles.brandDot} />
+            <span className={styles.brandOrbit} />
           </div>
         </div>
       </div>

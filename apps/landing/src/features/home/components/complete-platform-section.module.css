@@ -1,7 +1,7 @@
 .section {
   padding: 32px 0 72px;
   background:
-    radial-gradient(circle at 52% 0%, rgba(244, 58, 38, 0.07), transparent 34%),
+    radial-gradient(circle at 52% 0%, rgba(207, 84, 48, 0.07), transparent 34%),
     linear-gradient(180deg, #fffdfb 0%, #ffffff 56%, #fffdfb 100%);
   overflow: hidden;
   scroll-margin-top: 104px;
@@ -21,7 +21,7 @@
   gap: 10px;
   padding: 11px 18px;
   border-radius: 999px;
-  background: rgba(244, 58, 38, 0.08);
+  background: rgba(207, 84, 48, 0.08);
   color: var(--color-brand-red);
   font-size: 16px;
   font-weight: 900;
@@ -44,7 +44,7 @@
   max-width: 1000px;
   margin: 0 auto;
   text-align: center;
-  color: #050505;
+  color: var(--color-dark);
   font-family: var(--font-heading);
   font-size: clamp(50px, 5.7vw, 92px);
   font-weight: 900;
@@ -98,9 +98,9 @@
   height: 58px;
   display: grid;
   place-items: center;
-  border: 1px solid rgba(244, 58, 38, 0.17);
+  border: 1px solid rgba(207, 84, 48, 0.17);
   border-radius: 50%;
-  background: rgba(244, 58, 38, 0.035);
+  background: rgba(207, 84, 48, 0.035);
   color: var(--color-brand-red);
   font-size: 22px;
   font-weight: 900;
@@ -112,7 +112,7 @@
   display: grid;
   place-items: center;
   border-radius: 50%;
-  background: rgba(244, 58, 38, 0.1);
+  background: rgba(207, 84, 48, 0.1);
   color: var(--color-brand-red);
 }
 
@@ -163,11 +163,11 @@
   bottom: -12px;
   z-index: 2;
   overflow: hidden;
-  border: 8px solid #111111;
+  border: 8px solid var(--color-dark);
   border-bottom-width: 0;
   border-radius: 42px 42px 0 0;
   background: #ffffff;
-  box-shadow: 0 22px 38px rgba(0, 0, 0, 0.16);
+  box-shadow: 0 22px 38px rgba(10, 56, 79, 0.16);
   transform: rotate(-5deg);
 }
 
@@ -179,7 +179,7 @@
   width: 76px;
   height: 18px;
   border-radius: 999px;
-  background: #050505;
+  background: var(--color-dark);
   transform: translateX(-50%);
   z-index: 3;
 }
@@ -193,7 +193,7 @@
 
 .phoneBar {
   padding: 14px 20px 8px;
-  color: #111111;
+  color: var(--color-dark);
   font-size: 10px;
   font-weight: 800;
 }
@@ -208,7 +208,7 @@
   width: 18px;
   height: 18px;
   fill: none;
-  stroke: #111111;
+  stroke: var(--color-dark);
   stroke-linecap: round;
   stroke-linejoin: round;
   stroke-width: 2;
@@ -222,7 +222,7 @@
 .phoneContent h5 {
   margin: 0;
   font-family: var(--font-heading);
-  color: #111111;
+  color: var(--color-dark);
   letter-spacing: 0;
 }
 
@@ -274,14 +274,14 @@
 .featuredPizza strong,
 .menuCard strong {
   display: block;
-  color: #111111;
+  color: var(--color-dark);
   font-size: 12px;
   line-height: 1.1;
 }
 
 .featuredPizza b,
 .menuCard b {
-  color: #111111;
+  color: var(--color-dark);
   font-size: 12px;
 }
 
@@ -324,7 +324,7 @@
 }
 
 .tabs span:first-child {
-  background: #111111;
+  background: var(--color-dark);
   color: #ffffff;
 }
 
@@ -339,7 +339,7 @@
   display: grid;
   place-items: center;
   border-radius: 50%;
-  background: #111111;
+  background: var(--color-dark);
   color: #ffffff;
   font-size: 14px;
   font-weight: 800;
@@ -361,7 +361,7 @@
 .receipt strong {
   display: block;
   margin-bottom: 14px;
-  color: #111111;
+  color: var(--color-dark);
   font-size: 12px;
 }
 
@@ -370,7 +370,7 @@
   justify-content: space-between;
   gap: 12px;
   margin-bottom: 10px;
-  color: #111111;
+  color: var(--color-dark);
   font-size: 11px;
 }
 
@@ -433,7 +433,7 @@
 }
 
 .routeDark {
-  stroke: #111111;
+  stroke: var(--color-dark);
 }
 
 .routeRed {
@@ -465,7 +465,7 @@
 }
 
 .deliveryPanel > strong {
-  color: #111111;
+  color: var(--color-dark);
 }
 
 .deliveryPanel > span {
@@ -487,7 +487,7 @@
   border-radius: 50%;
   background:
     radial-gradient(circle at 50% 34%, #2b1c16 0 18%, transparent 19%),
-    linear-gradient(#d98f56 0 48%, #111111 49%);
+    linear-gradient(#d98f56 0 48%, var(--color-dark) 49%);
 }
 
 .rider b,
@@ -499,7 +499,7 @@
 
 .deliveryPanel p {
   margin: 17px 0;
-  color: #111111;
+  color: var(--color-dark);
   font-size: 10px;
 }
 
@@ -539,7 +539,7 @@
 }
 
 .deliveryPanel li b {
-  color: #111111;
+  color: var(--color-dark);
   font-weight: 700;
 }
 
@@ -558,7 +558,7 @@
   place-items: center;
   border-radius: 50%;
   background: #ffffff;
-  color: #111111;
+  color: var(--color-dark);
   box-shadow: 0 12px 26px rgba(17, 17, 17, 0.18);
 }
 
@@ -589,7 +589,7 @@
 }
 
 .distanceBadge strong {
-  color: #111111;
+  color: var(--color-dark);
   font-size: 18px;
 }
 
@@ -624,14 +624,14 @@
 
 .metricCard span,
 .aiTitle {
-  color: #111111;
+  color: var(--color-dark);
   font-size: 12px;
   font-weight: 800;
 }
 
 .metricCard strong {
   margin-top: 12px;
-  color: #050505;
+  color: var(--color-dark);
   font-size: 25px;
   line-height: 1;
 }
@@ -670,7 +670,7 @@
   border-radius: 50%;
   background:
     radial-gradient(circle at 50% 34%, #2b1c16 0 19%, transparent 20%),
-    linear-gradient(var(--avatar-color) 0 53%, #111111 54%);
+    linear-gradient(var(--avatar-color) 0 53%, var(--color-dark) 54%);
 }
 
 .customers b {
@@ -678,7 +678,7 @@
   padding: 8px 10px;
   border-radius: 999px;
   background: #f5f1ed;
-  color: #111111;
+  color: var(--color-dark);
   font-size: 12px;
 }
 
@@ -745,11 +745,11 @@
   width: var(--retention-width);
   height: 100%;
   border-radius: inherit;
-  background: linear-gradient(90deg, var(--color-brand-red), #ff7b2f);
+  background: linear-gradient(90deg, var(--color-brand-red), var(--color-sand));
 }
 
 .retentionRow b {
-  color: #111111;
+  color: var(--color-dark);
   font-size: 10px;
   text-align: right;
 }
@@ -770,7 +770,7 @@
   width: 15px;
   height: 15px;
   fill: none;
-  stroke: #111111;
+  stroke: var(--color-dark);
   stroke-linejoin: round;
   stroke-width: 2;
 }
@@ -786,7 +786,7 @@
   margin-top: auto;
   padding: 9px 12px;
   background: #f2efec;
-  color: #111111;
+  color: var(--color-dark);
   font-size: 12px;
 }
 
@@ -855,14 +855,14 @@
   display: grid;
   place-items: center;
   border-radius: 50%;
-  background: rgba(244, 58, 38, 0.09);
-  color: #111111;
+  background: rgba(207, 84, 48, 0.09);
+  color: var(--color-dark);
 }
 
 .benefit strong {
   display: block;
   margin-bottom: 5px;
-  color: #111111;
+  color: var(--color-dark);
   font-size: 16px;
   line-height: 1.2;
 }

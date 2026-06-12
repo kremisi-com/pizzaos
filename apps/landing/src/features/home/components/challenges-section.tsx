@@ -178,10 +178,10 @@ export function ChallengesSection(): ReactElement {
                 <path
                   d="M0,35 Q25,32 40,25 T70,28 T100,10"
                   fill="none"
-                  stroke="#f43a26"
+                  stroke="var(--color-brand-red)"
                   strokeWidth="2"
                 />
-                <circle cx="100" cy="10" r="2" fill="#f43a26" />
+                <circle cx="100" cy="10" r="2" fill="var(--color-brand-red)" />
               </svg>
             </div>
           </ChallengeCard>

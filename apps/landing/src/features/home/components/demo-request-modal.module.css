@@ -134,7 +134,7 @@
 
 .input:focus {
   border-color: var(--color-brand-red);
-  box-shadow: 0 0 0 3px rgba(244, 58, 38, 0.12);
+  box-shadow: 0 0 0 3px rgba(207, 84, 48, 0.12);
   background-color: var(--color-white);
 }
 
