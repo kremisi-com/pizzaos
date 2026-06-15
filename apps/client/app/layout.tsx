@@ -1,8 +1,9 @@
 import { getThemeClass, getThemeStyleVariables } from "@pizzaos/brand";
-import { BottomNav } from "@/features/navigation/BottomNav";
+import { BottomNav } from "../src/features/navigation/BottomNav";
 import type { Metadata } from "next";
 import type { CSSProperties, ReactElement, ReactNode } from "react";
 import "./globals.css";
+import styles from "./layout.module.css";
 
 export const metadata: Metadata = {
   title: "PizzaOS Client",
@@ -21,18 +22,17 @@ export default function RootLayout(props: RootLayoutProps): ReactElement
   return (
     <html lang="it">
       <body
-        className={getThemeClass(surface)}
+        className={`${getThemeClass(surface)} ${styles.body}`}
         style={{
-          ...(getThemeStyleVariables(surface) as CSSProperties),
-          minHeight: "100vh",
-          display: "flex",
-          flexDirection: "column"
+          ...(getThemeStyleVariables(surface) as CSSProperties)
         }}
       >
-        <main style={{ flex: 1, paddingBottom: "100px" }}>
-          {props.children}
-        </main>
-        <BottomNav />
+        <div className={styles.clientFrame} data-testid="client-phone-frame">
+          <main className={styles.content}>
+            {props.children}
+          </main>
+          <BottomNav />
+        </div>
       </body>
     </html>
   );

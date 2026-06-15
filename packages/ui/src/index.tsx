@@ -530,8 +530,9 @@ export function BottomNavigation(props: BottomNavigationProps): ReactElement
       style={{
         position: "fixed",
         bottom: 0,
-        left: 0,
-        right: 0,
+        left: "50%",
+        width: "min(var(--client-frame-width, 100vw), 100vw)",
+        transform: "translateX(-50%)",
         backgroundColor: "var(--pizzaos-color-background)",
         borderTop: "1px solid var(--pizzaos-color-border)",
         display: "flex",

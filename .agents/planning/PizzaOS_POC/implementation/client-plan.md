@@ -231,6 +231,9 @@ Finish the client app as a polished, demo-ready mobile product.
 **Implementation note**
 
 - The cart summary footer was refined into a full-width bottom band without the previous outlined card, keeping the checkout CTA more contemporary and visually aligned with the mobile-first client polish goals.
+- Desktop and tablet previews now render the client app inside a centered `390 x 844` mobile-sized frame, while real
+  mobile-width viewports remain full-screen. Fixed client controls such as the bottom navigation and product CTA are
+  constrained to that simulated phone viewport.
 - Add component tests for feedback and empty or invalid states.
 
 **Integration with previous work**

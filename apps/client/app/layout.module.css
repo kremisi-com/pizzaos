@@ -1,0 +1,60 @@
+.body
+{
+  --client-frame-width: 390px;
+  --client-frame-height: min(844px, calc(100dvh - 32px));
+
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  overflow: hidden;
+}
+
+.clientFrame
+{
+  position: relative;
+  isolation: isolate;
+  width: var(--client-frame-width);
+  height: var(--client-frame-height);
+  overflow-x: hidden;
+  overflow-y: auto;
+  background: var(--pizzaos-color-background);
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  border-radius: 32px;
+  box-shadow:
+    0 24px 70px rgba(15, 23, 42, 0.24),
+    0 2px 8px rgba(15, 23, 42, 0.12);
+  transform: translateZ(0);
+}
+
+.content
+{
+  min-height: 100%;
+  padding-bottom: 100px;
+}
+
+@media (max-width: 479px)
+{
+  .body
+  {
+    --client-frame-width: 100vw;
+    --client-frame-height: 100dvh;
+
+    display: block;
+    min-height: 100dvh;
+    padding: 0;
+    overflow: auto;
+  }
+
+  .clientFrame
+  {
+    width: 100%;
+    min-height: 100dvh;
+    height: auto;
+    overflow: visible;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    transform: none;
+  }
+}

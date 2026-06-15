@@ -4,6 +4,9 @@
 
 Client app for the PizzaOS mobile-first ordering experience.
 
+On desktop and tablet browser widths, the app intentionally renders inside a centered `390 x 844` mobile-sized frame so
+the demo keeps the same phone-first composition. On narrow mobile viewports, it behaves as a normal full-screen web app.
+
 ## Ownership
 
 This app owns:
