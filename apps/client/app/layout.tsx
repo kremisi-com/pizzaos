@@ -1,9 +1,8 @@
 import { getThemeClass, getThemeStyleVariables } from "@pizzaos/brand";
-import { BottomNav } from "../src/features/navigation/BottomNav";
+import { BottomNav } from "@/features/navigation/BottomNav";
 import type { Metadata } from "next";
 import type { CSSProperties, ReactElement, ReactNode } from "react";
 import "./globals.css";
-import styles from "./layout.module.css";
 import { MicrosoftClarity } from "./microsoft-clarity";
 
 export const metadata: Metadata = {
@@ -23,17 +22,18 @@ export default function RootLayout(props: RootLayoutProps): ReactElement
   return (
     <html lang="it">
       <body
-        className={`${getThemeClass(surface)} ${styles.body}`}
+        className={getThemeClass(surface)}
         style={{
-          ...(getThemeStyleVariables(surface) as CSSProperties)
+          ...(getThemeStyleVariables(surface) as CSSProperties),
+          minHeight: "100vh",
+          display: "flex",
+          flexDirection: "column"
         }}
       >
-        <div className={styles.clientFrame} data-testid="client-phone-frame">
-          <main className={styles.content}>
-            {props.children}
-          </main>
-          <BottomNav />
-        </div>
+        <main style={{ flex: 1, paddingBottom: "100px" }}>
+          {props.children}
+        </main>
+        <BottomNav />
         <MicrosoftClarity />
       </body>
     </html>

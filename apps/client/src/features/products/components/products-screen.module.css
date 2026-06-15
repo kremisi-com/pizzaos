@@ -376,11 +376,7 @@
 /* ── Toast overlay ── */
 .toastOverlay {
   position: fixed;
-  top: 0;
-  bottom: 0;
-  left: 50%;
-  width: min(var(--client-frame-width, 100vw), 100vw);
-  transform: translateX(-50%);
+  inset: 0;
   z-index: 200;
   display: flex;
   align-items: flex-end;
