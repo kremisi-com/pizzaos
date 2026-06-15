@@ -48,6 +48,7 @@ From repository root:
 ## Environment
 
 - `NEXT_PUBLIC_CLARITY_PROJECT_ID`: optional Microsoft Clarity project ID. When unset, the Clarity tracking script is not rendered.
+- Google tag measurement ID is currently configured as `G-CSKKSEV8MG` in `app/google-tag.tsx`.
 
 ## Vercel
 

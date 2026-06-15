@@ -2,6 +2,7 @@ import { getThemeClass, getThemeStyleVariables } from "@pizzaos/brand";
 import type { Metadata } from "next";
 import type { CSSProperties, ReactElement, ReactNode } from "react";
 import "./globals.css";
+import { GoogleTag } from "./google-tag";
 import { MicrosoftClarity } from "./microsoft-clarity";
 
 export const metadata: Metadata = {
@@ -29,6 +30,7 @@ export default function RootLayout(props: RootLayoutProps): ReactElement
         style={getThemeStyleVariables(surface) as CSSProperties}
       >
         {props.children}
+        <GoogleTag />
         <MicrosoftClarity />
       </body>
     </html>
