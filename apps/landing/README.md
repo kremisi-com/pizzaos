@@ -48,6 +48,7 @@ From repository root:
 - `LINK_CLIENT`: optional client demo URL shown after the demo request form succeeds. Defaults to `/client`.
 - `LINK_ADMIN`: optional admin demo URL shown after the demo request form succeeds. Defaults to `/admin`.
 - `NEXT_PUBLIC_SITE_URL`: optional canonical public URL used for SEO metadata, social sharing, sitemap, and robots. Defaults to `https://www.pizzaos.app`.
+- `NEXT_PUBLIC_CLARITY_PROJECT_ID`: optional Microsoft Clarity project ID. When unset, the Clarity tracking script is not rendered.
 - Google tag measurement ID is currently configured as `G-6SN8XE5KY1` in `app/google-tag.tsx`.
 - Iubenda policy embeds are loaded from `app/layout.tsx` using the policy URLs and script sources in `src/features/home/policy-links.ts`. The demo request form requires explicit Privacy Policy and Cookie Policy consent before submission.
 

@@ -8,6 +8,7 @@
 - [X] Step 4: Implement shared domain models, mock data seeds, and reset logic.
 - [X] Step 5: Build shared UI primitives and shared testing utilities.
 - [X] Step 6: Wire the three app shells to the shared platform and verify cross-workspace quality gates.
+- [X] Maintenance: Add optional Microsoft Clarity tracking to all three app shells through app-owned environment variables.
 
 ## Step 1: Bootstrap the Turborepo workspace and shared toolchain
 

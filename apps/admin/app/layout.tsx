@@ -2,6 +2,7 @@ import { getThemeClass, getThemeStyleVariables } from "@pizzaos/brand";
 import type { Metadata } from "next";
 import type { CSSProperties, ReactElement, ReactNode } from "react";
 import "./globals.css";
+import { MicrosoftClarity } from "./microsoft-clarity";
 
 export const metadata: Metadata = {
   title: "PizzaOS Admin",
@@ -28,6 +29,7 @@ export default function RootLayout(props: RootLayoutProps): ReactElement
         style={getThemeStyleVariables(surface) as CSSProperties}
       >
         {props.children}
+        <MicrosoftClarity />
       </body>
     </html>
   );

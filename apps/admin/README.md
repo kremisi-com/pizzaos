@@ -45,6 +45,10 @@ From repository root:
 - `pnpm --filter @pizzaos/admin typecheck`
 - `pnpm --filter @pizzaos/admin test`
 
+## Environment
+
+- `NEXT_PUBLIC_CLARITY_PROJECT_ID`: optional Microsoft Clarity project ID. When unset, the Clarity tracking script is not rendered.
+
 ## Vercel
 
 - Create a dedicated Vercel project for this app.

@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import type { CSSProperties, ReactElement, ReactNode } from "react";
 import "./globals.css";
 import styles from "./layout.module.css";
+import { MicrosoftClarity } from "./microsoft-clarity";
 
 export const metadata: Metadata = {
   title: "PizzaOS Client",
@@ -33,6 +34,7 @@ export default function RootLayout(props: RootLayoutProps): ReactElement
           </main>
           <BottomNav />
         </div>
+        <MicrosoftClarity />
       </body>
     </html>
   );

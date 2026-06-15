@@ -8,6 +8,7 @@ import Script from "next/script";
 import type { CSSProperties, ReactElement, ReactNode } from "react";
 import "./globals.css";
 import { GoogleTag } from "./google-tag";
+import { MicrosoftClarity } from "./microsoft-clarity";
 import {
   createLandingJsonLd,
   landingMetadata,
@@ -44,6 +45,7 @@ export default function RootLayout(props: RootLayoutProps): ReactElement
       >
         {props.children}
         <GoogleTag />
+        <MicrosoftClarity />
         <Script
           id="iubenda-widget"
           src={IUBENDA_WIDGET_SCRIPT_SRC}
