@@ -3,6 +3,7 @@ import { BottomNav } from "@/features/navigation/BottomNav";
 import type { Metadata } from "next";
 import type { CSSProperties, ReactElement, ReactNode } from "react";
 import "./globals.css";
+import { GoogleTag } from "./google-tag";
 import { MicrosoftClarity } from "./microsoft-clarity";
 
 export const metadata: Metadata = {
@@ -34,6 +35,7 @@ export default function RootLayout(props: RootLayoutProps): ReactElement
           {props.children}
         </main>
         <BottomNav />
+        <GoogleTag />
         <MicrosoftClarity />
       </body>
     </html>
