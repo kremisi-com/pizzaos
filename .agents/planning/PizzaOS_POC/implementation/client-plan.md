@@ -11,6 +11,7 @@
 - [X] Step 7: Implement loyalty, rewards, coupons, and subscription UI.
 - [X] Step 8: Implement feedback prompts, selected edge states, and end-to-end demo polish.
 - [X] Group Order: implementare contributi locali persistiti, riepilogo partecipanti e checkout unico.
+- [X] Contratti frontend/API: definire il confine tipizzato per catalogo, carrello, checkout, ordini, loyalty e tracking.
 
 ## Step 1: Build the client shell, seeded home state, and demo reset flow
 

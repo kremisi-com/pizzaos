@@ -14,6 +14,10 @@ This app owns:
 
 This app does not own shared package APIs or admin and landing code paths.
 
+The frontend boundary for catalog, cart, checkout, orders, loyalty, and tracking is defined in
+`@pizzaos/domain` through `ClientApiContract`. The current implementation remains local and deterministic; a future
+transport adapter can implement that contract without changing the UI feature APIs.
+
 ## Feature Map
 
 - `app/layout.tsx`: root metadata and layout shell
@@ -39,6 +43,7 @@ This app does not own shared package APIs or admin and landing code paths.
 ## Shared Dependencies
 
 - `@pizzaos/brand`
+- `@pizzaos/domain`
 - `@pizzaos/mock-data`
 - `@pizzaos/ui`
 

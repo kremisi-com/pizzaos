@@ -4,6 +4,8 @@ export const APP_SURFACES = [
   "admin"
 ] as const;
 
+export * from "./client-api-contracts";
+
 export type AppSurface = (typeof APP_SURFACES)[number];
 
 export interface AppShellSeed

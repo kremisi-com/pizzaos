@@ -23,6 +23,9 @@ Current exports from `src/index.ts`:
 - app shell primitives: `APP_SURFACES`, `AppSurface`, `AppShellSeed`
 - shared entity contracts: `Money`, `Product`, `Menu`, `Order`, `StoreProfile`, `InventoryItem`, `Coupon`,
   `LoyaltyState`, `AnalyticsSnapshot`, `AiInsight`, `SlotAvailability`
+- client frontend API boundary: `ClientApiContract`, with typed request and response contracts for catalog, cart,
+  checkout, orders and reorders, loyalty, rewards, and order tracking. The POC satisfies this boundary through local
+  deterministic state; it does not make network calls.
 - status constants and unions:
   - `PRODUCT_STATUS`, `ProductStatus`
   - `PREPARATION_MODES`, `PreparationMode`
