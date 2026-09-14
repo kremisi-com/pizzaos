@@ -43,6 +43,43 @@ describe("orders screen", () =>
     expect(domScreen.getAllByText("order-client-history-003").length).toBeGreaterThan(0);
   });
 
+  it("renders the persisted active order instead of a static tracking mock", async () =>
+  {
+    const seed = createClientSeed();
+    const activeOrder = {
+      ...seed.orderHistory[0],
+      id: "order-client-mock-12345",
+      status: "confirmed" as const,
+      lines: [
+        {
+          ...seed.orderHistory[0].lines[0],
+          productId: "product-margherita",
+          quantity: 2
+        }
+      ],
+      total: {
+        amountCents: 2140,
+        currencyCode: "EUR" as const
+      }
+    };
+
+    window.localStorage.setItem(
+      getClientDemoStateStorageKey(),
+      JSON.stringify({
+        ...seed,
+        activeOrders: [activeOrder],
+        orderHistory: [activeOrder, ...seed.orderHistory]
+      })
+    );
+
+    renderDom(<OrdersScreen />);
+
+    expect(await domScreen.findByTestId("orders-active-order")).toBeDefined();
+    expect(domScreen.getByText("#order-client-mock-12345")).toBeDefined();
+    expect(domScreen.getByText("2× Margherita Classica")).toBeDefined();
+    expect(domScreen.getByText("21,40 €")).toBeDefined();
+  });
+
   it("prepares the cart from quick reorder on the selected order", async () =>
   {
     const seed = createClientSeed();

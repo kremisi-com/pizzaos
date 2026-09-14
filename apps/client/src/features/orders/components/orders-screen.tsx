@@ -1,16 +1,33 @@
 "use client";
 
-import type { Order, OrderStatus } from "@pizzaos/domain";
+import type { Order } from "@pizzaos/domain";
 import type { ClientSeed } from "@pizzaos/mock-data";
 import { Badge, Button } from "@pizzaos/ui";
-import { useEffect, useMemo, useRef, useState, type ReactElement } from "react";
+import { useEffect, useMemo, useState, type ReactElement } from "react";
 import { saveCartState } from "../../cart/cart-model";
-import { loadClientDemoState } from "../../home/client-demo-state";
 import {
+  getOrderFeedbackEntry,
+  loadClientFeedbackState,
+  markGoogleReviewRedirected,
+  saveClientFeedbackState,
+  shouldSuggestGoogleReviewRedirect,
+  submitOrderFeedback,
+  type ClientFeedbackState,
+  type FeedbackRating
+} from "../../feedback/feedback-model";
+import { loadClientDemoState, saveClientDemoState } from "../../home/client-demo-state";
+import {
+  advanceClientOrderState,
   createCartStateFromOrder,
+  deriveTrackingSnapshot,
   deriveOrderTimeline,
   getOrderStatusLabel,
-  isArchivedOrder
+  isArchivedOrder,
+  loadOrderNotifications,
+  markAllOrderNotificationsAsRead,
+  saveOrderNotifications,
+  type ClientOrderNotification,
+  CLIENT_ORDER_SIMULATION_TICK_MS
 } from "../orders-model";
 import styles from "./orders-screen.module.css";
 
@@ -30,24 +47,6 @@ const MONEY_FORMATTER = new Intl.NumberFormat("it-IT", {
   currency: "EUR"
 });
 
-const ACTIVE_ORDER_STATUSES: readonly OrderStatus[] = [
-  "confirmed",
-  "preparing",
-  "ready",
-  "out_for_delivery",
-  "delivered"
-];
-
-const ACTIVE_ORDER_SIMULATION_TICK_MS = 3000;
-
-const MOCK_ACTIVE_ORDER_ITEMS = [
-  { name: "Diavola Piccante", qty: 1 },
-  { name: "Focaccia al Rosmarino", qty: 2 }
-] as const;
-
-const MOCK_ACTIVE_ORDER_TOTAL = "18,50 €";
-const MOCK_ACTIVE_ORDER_NUMBER = "#4";
-
 function resolveStorage(): Storage | undefined
 {
   if (typeof window === "undefined")
@@ -61,6 +60,14 @@ function resolveStorage(): Storage | undefined
 export function OrdersScreen(): ReactElement
 {
   const [seed, setSeed] = useState<ClientSeed>(() => loadClientDemoState());
+  const [notifications, setNotifications] = useState<readonly ClientOrderNotification[]>(() =>
+    loadOrderNotifications(resolveStorage())
+  );
+  const [feedbackState, setFeedbackState] = useState<ClientFeedbackState>(() =>
+    loadClientFeedbackState(resolveStorage())
+  );
+  const [feedbackRating, setFeedbackRating] = useState<FeedbackRating>(5);
+  const [feedbackComment, setFeedbackComment] = useState("");
   const [reorderedOrderId, setReorderedOrderId] = useState<string | null>(null);
 
   useEffect(() =>
@@ -68,7 +75,36 @@ export function OrdersScreen(): ReactElement
     const hydratedSeed = loadClientDemoState(resolveStorage());
 
     setSeed(hydratedSeed);
+    setNotifications(loadOrderNotifications(resolveStorage()));
+    setFeedbackState(loadClientFeedbackState(resolveStorage()));
   }, []);
+
+  useEffect(() =>
+  {
+    if (seed.activeOrders.length === 0)
+    {
+      return undefined;
+    }
+
+    const simulationInterval = window.setInterval(() =>
+    {
+      const storage = resolveStorage();
+
+      setSeed((currentSeed) =>
+      {
+        const result = advanceClientOrderState(
+          currentSeed,
+          loadOrderNotifications(storage)
+        );
+
+        saveOrderNotifications(result.notifications, storage);
+        setNotifications(result.notifications);
+        return saveClientDemoState(result.seed, storage);
+      });
+    }, CLIENT_ORDER_SIMULATION_TICK_MS);
+
+    return () => window.clearInterval(simulationInterval);
+  }, [seed.activeOrders.length]);
 
   const displayedOrders = useMemo(
     () => deriveSelectableOrders(seed),
@@ -88,6 +124,36 @@ export function OrdersScreen(): ReactElement
     saveCartState(nextCartState, storage);
     setReorderedOrderId(order.id);
   }
+
+  function handleFeedbackSubmit(order: Order): void
+  {
+    const nextState = saveClientFeedbackState(submitOrderFeedback({
+      state: feedbackState,
+      orderId: order.id,
+      rating: feedbackRating,
+      comment: feedbackComment
+    }), resolveStorage());
+
+    setFeedbackState(nextState);
+  }
+
+  function handleGoogleReviewRedirect(orderId: string): void
+  {
+    setFeedbackState(saveClientFeedbackState(
+      markGoogleReviewRedirected(feedbackState, orderId),
+      resolveStorage()
+    ));
+  }
+
+  function handleMarkNotificationsRead(): void
+  {
+    setNotifications(markAllOrderNotificationsAsRead(notifications, resolveStorage()));
+  }
+
+  const latestDeliveredOrder = seed.orderHistory.find((order) => order.status === "delivered");
+  const latestDeliveredFeedback = latestDeliveredOrder
+    ? getOrderFeedbackEntry(feedbackState, latestDeliveredOrder.id)
+    : null;
 
   return (
     <main className={styles.screen}>
@@ -118,7 +184,22 @@ export function OrdersScreen(): ReactElement
         </div>
       ) : null}
 
-      <ActiveOrderPanel />
+      <ActiveOrderPanel order={seed.activeOrders[0]} productsById={productsById} />
+
+      <OrderNotifications notifications={notifications} onMarkAllRead={handleMarkNotificationsRead} />
+
+      {latestDeliveredOrder ? (
+        <FeedbackPrompt
+          order={latestDeliveredOrder}
+          feedback={latestDeliveredFeedback}
+          rating={feedbackRating}
+          comment={feedbackComment}
+          onRatingChange={setFeedbackRating}
+          onCommentChange={setFeedbackComment}
+          onSubmit={handleFeedbackSubmit}
+          onGoogleReviewRedirect={handleGoogleReviewRedirect}
+        />
+      ) : null}
 
       <section className={styles.historySection} aria-labelledby="orders-title">
         <h2 className={styles.sectionLabel}>Storico</h2>
@@ -169,37 +250,29 @@ export function OrdersScreen(): ReactElement
   );
 }
 
-function ActiveOrderPanel(): ReactElement
+interface ActiveOrderPanelProps
 {
-  const [statusIndex, setStatusIndex] = useState(0);
-  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  readonly order?: Order;
+  readonly productsById: ReadonlyMap<string, string>;
+}
 
-  useEffect(() =>
+function ActiveOrderPanel({ order, productsById }: ActiveOrderPanelProps): ReactElement | null
+{
+  if (!order)
   {
-    intervalRef.current = setInterval(() =>
-    {
-      setStatusIndex((prev) => (prev + 1) % ACTIVE_ORDER_STATUSES.length);
-    }, ACTIVE_ORDER_SIMULATION_TICK_MS);
+    return null;
+  }
 
-    return () =>
-    {
-      if (intervalRef.current !== null)
-      {
-        clearInterval(intervalRef.current);
-      }
-    };
-  }, []);
-
-  const currentStatus = ACTIVE_ORDER_STATUSES[statusIndex];
-  const timeline = deriveOrderTimeline(currentStatus);
-  const isDelivered = currentStatus === "delivered";
-  const isOutForDelivery = currentStatus === "out_for_delivery";
+  const timeline = deriveOrderTimeline(order.status);
+  const trackingSnapshot = deriveTrackingSnapshot(order);
+  const isDelivered = order.status === "delivered";
+  const isOutForDelivery = order.status === "out_for_delivery";
 
   return (
-    <section className={styles.activeOrderSection} aria-label="Ordine in corso">
+    <section className={styles.activeOrderSection} aria-label="Ordine in corso" data-testid="orders-active-order">
       <div className={styles.activeOrderHeader}>
         <div className={styles.activeOrderMeta}>
-          <span className={styles.activeOrderNumber}>{MOCK_ACTIVE_ORDER_NUMBER}</span>
+          <span className={styles.activeOrderNumber}>#{order.id}</span>
           <span
             className={
               `${styles.activeOrderLiveBadge}${
@@ -211,9 +284,10 @@ function ActiveOrderPanel(): ReactElement
           </span>
         </div>
         <div className={styles.activeOrderItems}>
-          {MOCK_ACTIVE_ORDER_ITEMS.map((item) => (
-            <span key={item.name} className={styles.activeOrderItemChip}>
-              {item.qty > 1 ? `${item.qty}× ` : ""}{item.name}
+          {order.lines.map((line, index) => (
+            <span key={`${line.productId}-${index}`} className={styles.activeOrderItemChip}>
+              {line.quantity > 1 ? `${line.quantity}× ` : ""}
+              {productsById.get(line.productId) ?? line.productId.replace(/^product-/, "").replace(/-/g, " ")}
             </span>
           ))}
         </div>
@@ -244,6 +318,10 @@ function ActiveOrderPanel(): ReactElement
                   isDelivered ? ` ${styles.activeOrderMapRiderDelivered}` : ""
                 }`
               }
+              style={{
+                left: `${trackingSnapshot?.mapPosition.xPercent ?? 52}%`,
+                top: `${trackingSnapshot?.mapPosition.yPercent ?? 54}%`
+              }}
             >
               <span className={styles.activeOrderMapRiderIcon}>🛵</span>
             </div>
@@ -282,13 +360,13 @@ function ActiveOrderPanel(): ReactElement
       <div className={styles.activeOrderFooter}>
         <div className={styles.activeOrderFooterLeft}>
           <span className={styles.activeOrderStatusLabel}>
-            {getOrderStatusLabel(currentStatus)}
+            {getOrderStatusLabel(order.status)}
           </span>
           <span className={styles.activeOrderEta}>
             {isDelivered ? "Buon appetito! 🎉" : "Stima: 18–25 min"}
           </span>
         </div>
-        <span className={styles.activeOrderTotal}>{MOCK_ACTIVE_ORDER_TOTAL}</span>
+        <span className={styles.activeOrderTotal}>{formatMoney(order.total.amountCents)}</span>
       </div>
     </section>
   );
