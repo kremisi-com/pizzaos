@@ -46,11 +46,8 @@ describe("checkout screen", () =>
 
     domFireEvent.click(domScreen.getByTestId("checkout-submit-button"));
 
-    expect(domScreen.getByText("Inserisci il nome intestatario della carta.").textContent).toBe(
-      "Inserisci il nome intestatario della carta."
-    );
-    expect(domScreen.getByText("Inserisci le ultime 4 cifre della carta.").textContent).toBe(
-      "Inserisci le ultime 4 cifre della carta."
+    expect(domScreen.getByText("Il pagamento sicuro non è ancora pronto.").textContent).toBe(
+      "Il pagamento sicuro non è ancora pronto."
     );
   });
 
@@ -58,16 +55,7 @@ describe("checkout screen", () =>
   {
     renderDom(<CheckoutScreen />);
 
-    domFireEvent.change(domScreen.getByLabelText("Intestatario carta"), {
-      target: {
-        value: "Mario Rossi"
-      }
-    });
-    domFireEvent.change(domScreen.getByLabelText("Ultime 4 cifre"), {
-      target: {
-        value: "1234"
-      }
-    });
+    domFireEvent.click(domScreen.getByLabelText("Contanti alla consegna"));
     domFireEvent.click(domScreen.getByTestId("checkout-submit-button"));
 
     const confirmationTitle = await domScreen.findByRole("heading", { name: "Il tuo ordine è confermato" });
@@ -79,8 +67,6 @@ describe("checkout screen", () =>
 
   it("applies coupon and updates total summary", async () =>
   {
-    vi.useFakeTimers();
-    vi.setSystemTime(new Date("2026-03-25T12:00:00.000Z"));
     const seed = createClientSeed();
     const persistedSeed = {
       ...seed,
@@ -107,6 +93,8 @@ describe("checkout screen", () =>
     });
     domFireEvent.click(domScreen.getByTestId("checkout-apply-coupon-button"));
 
+    await domScreen.findByTestId("checkout-coupon-feedback");
+    await Promise.resolve();
     expect(domScreen.getByTestId("checkout-coupon-feedback")).toBeDefined();
     expect(domScreen.getByTestId("checkout-coupon-feedback").textContent).toContain("Coupon BENTORNATO5 applicato.");
     expect(domScreen.getByText("Sconto coupon")).toBeDefined();
@@ -139,11 +127,34 @@ describe("checkout screen", () =>
     expect(domScreen.getByText("Il carrello è vuoto. Aggiungi prodotti per completare un ordine mock.")).toBeDefined();
   });
 
+  it("uses the seeded delivery address and captures order-specific instructions", () =>
+  {
+    renderDom(<CheckoutScreen />);
+
+    expect(domScreen.getByText(/Via dei Fori Imperiali 12/)).toBeDefined();
+    domFireEvent.change(domScreen.getByLabelText("Citofono"), { target: { value: "Rossi" } });
+    domFireEvent.change(domScreen.getByLabelText("Piano"), { target: { value: "3" } });
+
+    expect((domScreen.getByLabelText("Citofono") as HTMLInputElement).value).toBe("Rossi");
+    expect((domScreen.getByLabelText("Piano") as HTMLInputElement).value).toBe("3");
+  });
+
+  it("removes delivery data and its fee when pickup is selected", () =>
+  {
+    renderDom(<CheckoutScreen />);
+
+    domFireEvent.click(domScreen.getByLabelText("Ritiro in pizzeria"));
+
+    expect(domScreen.queryByLabelText("Citofono")).toBeNull();
+    expect(domScreen.queryByText("Consegna")).toBeNull();
+    expect(domScreen.getByText(/nessun costo di consegna/i)).toBeDefined();
+  });
+
   it("uses the shared cart for a single group checkout and clears only group state", async () =>
   {
     addGroupOrderItem({ productId: "product-margherita", productName: "Margherita Classica", unitPriceCents: 900 }, window.localStorage);
     renderDom(<CheckoutScreen isGroupOrder />);
-    domFireEvent.click(domScreen.getByLabelText("Contanti alla consegna (simulazione)"));
+    domFireEvent.click(domScreen.getByLabelText("Contanti alla consegna"));
     domFireEvent.click(domScreen.getByTestId("checkout-submit-button"));
     expect(await domScreen.findByRole("heading", { name: "Il tuo ordine è confermato" })).toBeDefined();
     expect(window.localStorage.getItem(CLIENT_GROUP_ORDER_STORAGE_KEY)).toBeNull();

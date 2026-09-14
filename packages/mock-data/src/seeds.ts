@@ -3,6 +3,7 @@ import { DEFAULT_ADMIN_STORE_ID, DEFAULT_CLIENT_STORE_ID } from "./constants";
 import {
   ADMIN_DATASET_TEMPLATES,
   CLIENT_MENU,
+  DEFAULT_CLIENT_CUSTOMER,
   DEFAULT_CLIENT_ACTIVE_ORDERS,
   DEFAULT_CLIENT_COUPONS,
   DEFAULT_CLIENT_LOYALTY,
@@ -36,6 +37,14 @@ export function createClientSeed(): ClientSeed
     surface: "client",
     title: "PizzaOS Client",
     subtitle: "Ordinazione mobile-first, rapida e chiara.",
+    customer: cloneData(DEFAULT_CLIENT_CUSTOMER),
+    session: {
+      id: "session-client-demo",
+      surface: "client",
+      customerId: DEFAULT_CLIENT_CUSTOMER.id,
+      activeStoreId: DEFAULT_CLIENT_STORE_ID,
+      createdAtIso: "2026-03-25T18:00:00.000Z"
+    },
     store: cloneData(getStoreById(DEFAULT_CLIENT_STORE_ID)),
     menu: cloneData(CLIENT_MENU),
     products: cloneData(PRODUCTS),
@@ -56,6 +65,22 @@ export function createAdminSeed(storeId?: EntityIdentifier): AdminSeed
     surface: "admin",
     title: "PizzaOS Admin",
     subtitle: "Dashboard operativa desktop-first.",
+    operator: {
+      id: "operator-admin-demo",
+      firstName: "Giulia",
+      lastName: "Bianchi",
+      email: "giulia.bianchi@example.test",
+      role: "manager"
+    },
+    session: {
+      id: "session-admin-demo",
+      surface: "admin",
+      operatorId: "operator-admin-demo",
+      role: "manager",
+      authorizedStoreIds: ADMIN_STORE_IDS,
+      activeStoreId: resolvedStoreId,
+      createdAtIso: "2026-03-25T08:00:00.000Z"
+    },
     activeStoreId: resolvedStoreId,
     stores: cloneData(STORES),
     datasetsByStoreId: buildAdminDatasets(),

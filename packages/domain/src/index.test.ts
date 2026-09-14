@@ -63,6 +63,7 @@ describe("domain contracts", () =>
       "sold_out"
     ]);
     expect(ORDER_STATUS).toEqual([
+      "pending_payment",
       "received",
       "confirmed",
       "preparing",

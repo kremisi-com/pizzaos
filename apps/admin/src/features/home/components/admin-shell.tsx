@@ -792,6 +792,9 @@ export function AdminShell(): ReactElement {
   }
 
   function handleStoreChange(storeId: string): void {
+    if (!seed.session.authorizedStoreIds.includes(storeId)) {
+      return;
+    }
     const updatedSeed = reseedDemoState(APP_ID, {
       storage: resolveStorage(),
       storeId,

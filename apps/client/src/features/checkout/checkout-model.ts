@@ -1,4 +1,4 @@
-import type { Order, OrderLine, SlotAvailability } from "@pizzaos/domain";
+import type { Order, OrderContact, OrderFulfillment, OrderLine, SlotAvailability } from "@pizzaos/domain";
 import type { CartItem } from "../cart/cart-model";
 
 export const TIP_PERCENT_OPTIONS = [
@@ -28,22 +28,27 @@ export interface CheckoutValidationInput
   readonly slots: readonly SlotAvailability[];
   readonly selectedSlotId: string;
   readonly paymentMethod: PaymentMethod;
-  readonly cardholderName: string;
-  readonly cardLastDigits: string;
+  readonly contact: OrderContact;
+  readonly fulfillment: OrderFulfillment;
 }
 
 export interface CheckoutValidationErrors
 {
   cart?: string;
   selectedSlotId?: string;
-  cardholderName?: string;
-  cardLastDigits?: string;
+  payment?: string;
+  contactFirstName?: string;
+  contactLastName?: string;
+  contactEmail?: string;
+  contactPhone?: string;
 }
 
 export interface CreateMockOrderInput
 {
   readonly storeId: string;
   readonly customerId: string;
+  readonly contact: OrderContact;
+  readonly fulfillment: OrderFulfillment;
   readonly items: readonly CartItem[];
   readonly selectedSlotId: string;
   readonly totals: CheckoutTotals;
@@ -128,17 +133,24 @@ export function validateCheckoutInput(input: CheckoutValidationInput): CheckoutV
     errors.selectedSlotId = "Seleziona uno slot disponibile per continuare.";
   }
 
-  if (input.paymentMethod === "card")
+  if (input.contact.firstName.trim().length < 2)
   {
-    if (input.cardholderName.trim().length < 3)
-    {
-      errors.cardholderName = "Inserisci il nome intestatario della carta.";
-    }
+    errors.contactFirstName = "Inserisci il nome.";
+  }
 
-    if (!/^\d{4}$/.test(input.cardLastDigits))
-    {
-      errors.cardLastDigits = "Inserisci le ultime 4 cifre della carta.";
-    }
+  if (input.contact.lastName.trim().length < 2)
+  {
+    errors.contactLastName = "Inserisci il cognome.";
+  }
+
+  if (!/^\S+@\S+\.\S+$/.test(input.contact.email))
+  {
+    errors.contactEmail = "Inserisci un'email valida.";
+  }
+
+  if (input.contact.phone.trim().length < 7)
+  {
+    errors.contactPhone = "Inserisci un numero di telefono valido.";
   }
 
   return errors;
@@ -161,6 +173,8 @@ export function createMockOrder(input: CreateMockOrderInput): Order
     id: orderId,
     storeId: input.storeId,
     customerId: input.customerId,
+    contact: input.contact,
+    fulfillment: input.fulfillment,
     lines: orderLines,
     subtotal: {
       amountCents: input.totals.subtotalCents,

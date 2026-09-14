@@ -15,8 +15,18 @@ This app owns:
 This app does not own shared package APIs or admin and landing code paths.
 
 The frontend boundary for catalog, cart, checkout, orders, loyalty, and tracking is defined in
-`@pizzaos/domain` through `ClientApiContract`. The current implementation remains local and deterministic; a future
-transport adapter can implement that contract without changing the UI feature APIs.
+`@pizzaos/domain` through `ClientApiContract`. `src/api/local-client-api.ts` is the current deterministic repository:
+it adapts the existing mock seeds and local persistence to the contract. A future HTTP repository can replace the
+provider implementation without changing feature-facing API calls.
+
+## Aggiornamenti operativi
+
+Nel POC la schermata ordini avanza con timer locali deterministici: è intenzionale e rende la demo ripetibile. Il
+confine `ClientApiContract` espone comunque `getLiveUpdates`, con cursore riprendibile ed eventi versionati per stato
+ordine, disponibilità prodotto, slot e tracking. In produzione il repository HTTP potrà usare polling, SSE o WebSocket
+senza cambiare le feature UI. La timeline, le revisioni e i conflitti di disponibilità sono server-authoritative:
+un checkout che trova uno slot o un prodotto non più disponibile riceve un conflitto tipizzato (`slot_unavailable`,
+`product_unavailable` o `inventory_changed`) e deve ricaricare il catalogo prima di un nuovo tentativo.
 
 ## Feature Map
 
@@ -26,7 +36,7 @@ transport adapter can implement that contract without changing the UI feature AP
 - `app/group-order/page.tsx`: group order locale con contributi personali, riepilogo partecipanti e checkout unico dell'host
 - `app/product/[id]/page.tsx`: product detail route with guided customization flow
 - `app/cart/page.tsx`: cart review route with quantity updates and checkout entry
-- `app/checkout/page.tsx`: slot, tip, mock payment, and confirmation route
+- `app/checkout/page.tsx`: contatti per ordine, consegna/ritiro, slot, tip, mock payment, and confirmation route
 - `app/orders/page.tsx`: order timeline, notifications, tracking, history, quick reorder, and post-delivery feedback route
 - `app/rewards/page.tsx`: loyalty, reward, coupon, and subscription overview route
 - `src/features/home`: mobile-first home shell, seeded demo state, order-like-last-time prompt, and reset flow
@@ -34,11 +44,21 @@ transport adapter can implement that contract without changing the UI feature AP
 - `src/features/customization`: product detail, guided stepper, pricing logic, allergens, and pairings
 - `src/features/cart`: cart persistence, quantity management, and cart review UI
 - `src/features/group-order`: stato locale persistito del gruppo, contributo personale e riepilogo del carrello condiviso; resta separato dal carrello individuale
-- `src/features/checkout`: checkout totals, validation, mock payment, and confirmation flow
+- `src/features/checkout`: checkout totals, contatti snapshot, consegna/ritiro, validation, mock payment, and confirmation flow
 - `src/features/orders`: order simulation, timeline, notifications, tracking UI, history, and reorder helpers
 - `src/features/feedback`: local feedback persistence, rating helpers, and simulated Google review redirect state
 - `src/features/loyalty`: loyalty helpers, coupon validation, rewards UI, and subscription messaging
 - `src/features/home/client-demo-state.ts`: local storage hydration and reset helpers
+- `src/api/local-client-api.ts`: local `ClientApiContract` repository for catalog, cart, checkout, orders, loyalty,
+  coupons, group order, and tracking
+- `src/api/client-api-provider.tsx`: contract provider consumed by client UI features
+
+## Pagamenti reali
+
+La carta è raccolta esclusivamente da Stripe Elements. Configurare `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` nel client e
+`DATABASE_URL`, `STRIPE_SECRET_KEY`, `CLIENT_ORIGIN` nel servizio `@pizzaos/checkout-api`; nessun segreto Stripe o
+numero carta deve essere inserito in `localStorage`, props, contratti di dominio o log. Il backend è la source of truth
+per tentativi, idempotenza e conferma operativa.
 
 ## Shared Dependencies
 

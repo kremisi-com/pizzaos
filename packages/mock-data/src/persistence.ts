@@ -64,7 +64,7 @@ export function recoverPersistedDemoState<AppId extends DemoAppId>(
   {
     const adminState = parsedState as Partial<AdminSeed>;
 
-    if (!hasValidAdminActiveStoreDataset(adminState))
+    if (!hasValidAdminActiveStoreDataset(adminState) || !hasValidAdminIdentity(adminState))
     {
       return createAdminSeed(options.storeId) as DemoStateByApp[AppId];
     }
@@ -74,7 +74,7 @@ export function recoverPersistedDemoState<AppId extends DemoAppId>(
   {
     const clientState = parsedState as Partial<ClientSeed>;
 
-    if (!hasRequiredClientSeedFields(clientState))
+    if (!hasRequiredClientSeedFields(clientState) || !hasValidClientIdentity(clientState))
     {
       return createClientSeed() as DemoStateByApp[AppId];
     }
@@ -180,6 +180,41 @@ function hasRequiredClientSeedFields(state: Partial<ClientSeed>): boolean
     Array.isArray(state.activeOrders) &&
     Array.isArray(state.orderHistory) &&
     typeof state.simulationCursorIso === "string"
+  );
+}
+
+function hasValidClientIdentity(state: Partial<ClientSeed>): boolean
+{
+  if (!isRecord(state.customer) || !isRecord(state.session))
+  {
+    return false;
+  }
+
+  return (
+    typeof state.customer.id === "string" &&
+    typeof state.customer.defaultDeliveryAddressId === "string" &&
+    Array.isArray(state.customer.deliveryAddresses) &&
+    typeof state.session.customerId === "string" &&
+    typeof state.session.activeStoreId === "string" &&
+    state.session.customerId === state.customer.id
+  );
+}
+
+function hasValidAdminIdentity(state: Partial<AdminSeed>): boolean
+{
+  if (!isRecord(state.operator) || !isRecord(state.session))
+  {
+    return false;
+  }
+
+  return (
+    typeof state.operator.id === "string" &&
+    typeof state.session.operatorId === "string" &&
+    Array.isArray(state.session.authorizedStoreIds) &&
+    typeof state.session.activeStoreId === "string" &&
+    state.session.operatorId === state.operator.id &&
+    state.session.activeStoreId === state.activeStoreId &&
+    state.session.authorizedStoreIds.includes(state.activeStoreId)
   );
 }
 

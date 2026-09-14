@@ -3,6 +3,8 @@ import type {
   AnalyticsSnapshot,
   AppShellSeed,
   AppSurface,
+  CustomerProfile,
+  CustomerSession,
   Coupon,
   EntityIdentifier,
   InventoryItem,
@@ -13,7 +15,9 @@ import type {
   Product,
   Rider,
   SlotAvailability,
-  StoreProfile
+  StoreProfile,
+  OperatorProfile,
+  OperatorSession
 } from "@pizzaos/domain";
 
 export interface LandingSeed extends AppShellSeed
@@ -25,6 +29,8 @@ export interface LandingSeed extends AppShellSeed
 
 export interface ClientSeed extends AppShellSeed
 {
+  readonly customer: CustomerProfile;
+  readonly session: CustomerSession;
   readonly store: StoreProfile;
   readonly menu: Menu;
   readonly products: readonly Product[];
@@ -57,6 +63,8 @@ export interface AdminStoreDataset
 
 export interface AdminSeed extends AppShellSeed
 {
+  readonly operator: OperatorProfile;
+  readonly session: OperatorSession;
   readonly activeStoreId: EntityIdentifier;
   readonly stores: readonly StoreProfile[];
   readonly datasetsByStoreId: Readonly<Record<EntityIdentifier, AdminStoreDataset>>;

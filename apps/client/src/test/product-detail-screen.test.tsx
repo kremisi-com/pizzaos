@@ -172,10 +172,10 @@ describe("product detail screen", () => {
     );
 
     expect(persistedCartState).not.toBeNull();
-    expect(persistedCartState).toContain("Note: Taglia a spicchi piccoli");
-    expect(persistedCartState).toContain("Base: Rossa");
-    expect(persistedCartState).toContain("Impasto: Classico");
-    expect(persistedCartState).toContain("\"removedIngredients\":[\"Fiordilatte\"]");
+    expect(persistedCartState).toContain("\"notes\":\"Taglia a spicchi piccoli\"");
+    expect(persistedCartState).toContain("\"baseId\":\"base-rossa\"");
+    expect(persistedCartState).toContain("\"doughId\":\"dough-classico\"");
+    expect(persistedCartState).toContain("\"ingredientId\":\"ingredient-fiordilatte\",\"mode\":\"senza\"");
   });
 
   it("adds a customization to the group contribution without changing the standard cart", () => {

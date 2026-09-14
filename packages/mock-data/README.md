@@ -26,6 +26,8 @@ Current exports from `src/index.ts`:
   - `createClientSeed()`
   - `createAdminSeed(storeId?)`
 - client seed browse state includes deterministic `slots` plus visible sold-out and preparation-mode products
+- client and admin seeds include resettable local identity sessions; the client has one default delivery address and the
+  admin operator is restricted to its seeded authorized stores
 - storage and recovery helpers:
   - `getDemoStateStorageKey(appId)`
   - `loadDemoState(appId, options?)`

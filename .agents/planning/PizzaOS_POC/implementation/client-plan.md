@@ -12,6 +12,10 @@
 - [X] Step 8: Implement feedback prompts, selected edge states, and end-to-end demo polish.
 - [X] Group Order: implementare contributi locali persistiti, riepilogo partecipanti e checkout unico.
 - [X] Contratti frontend/API: definire il confine tipizzato per catalogo, carrello, checkout, ordini, loyalty e tracking.
+- [X] Identità e checkout POC: sessioni locali seedate, customer/operator identity, indirizzo predefinito e snapshot ordine.
+- [X] Adapter/repository client: implementare `ClientApiContract` su mock deterministici e `localStorage`, predisponendo la sostituzione con HTTP.
+- [X] Checkout Stripe: introdotti contratti payment-safe, stato separato ordine/pagamento, campi Stripe ospitati e servizio Fastify/PostgreSQL. Questa è un'esplicita deviazione dal precedente vincolo POC frontend-only.
+- [X] Aggiornamenti ordine, stock e tracking: timer locali deterministici per il POC; contratti versionati e riprendibili per polling/SSE/WebSocket, con conflitti di disponibilità server-authoritative per la produzione.
 
 ## Step 1: Build the client shell, seeded home state, and demo reset flow
 

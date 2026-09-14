@@ -1,5 +1,6 @@
 import { getThemeClass, getThemeStyleVariables } from "@pizzaos/brand";
 import { BottomNav } from "@/features/navigation/BottomNav";
+import { ClientApiProvider } from "@/api/client-api-provider";
 import type { Metadata } from "next";
 import type { CSSProperties, ReactElement, ReactNode } from "react";
 import "./globals.css";
@@ -32,7 +33,7 @@ export default function RootLayout(props: RootLayoutProps): ReactElement
         }}
       >
         <main style={{ flex: 1, paddingBottom: "100px" }}>
-          {props.children}
+          <ClientApiProvider>{props.children}</ClientApiProvider>
         </main>
         <BottomNav />
         <GoogleTag />

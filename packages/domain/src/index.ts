@@ -130,7 +130,92 @@ export interface SlotAvailability
   readonly etaMinutes: number;
 }
 
+export interface DeliveryAddress
+{
+  readonly id: EntityIdentifier;
+  readonly label: string;
+  readonly line1: string;
+  readonly postalCode: string;
+  readonly city: string;
+  readonly province: string;
+}
+
+export interface CustomerProfile
+{
+  readonly id: EntityIdentifier;
+  readonly firstName: string;
+  readonly lastName: string;
+  readonly email: string;
+  readonly phone: string;
+  readonly defaultDeliveryAddressId: EntityIdentifier;
+  readonly deliveryAddresses: readonly DeliveryAddress[];
+}
+
+export interface CustomerSession
+{
+  readonly id: EntityIdentifier;
+  readonly surface: "client";
+  readonly customerId: EntityIdentifier;
+  readonly activeStoreId: EntityIdentifier;
+  readonly createdAtIso: string;
+}
+
+export type OperatorRole = "owner" | "manager";
+
+export interface OperatorProfile
+{
+  readonly id: EntityIdentifier;
+  readonly firstName: string;
+  readonly lastName: string;
+  readonly email: string;
+  readonly role: OperatorRole;
+}
+
+export interface OperatorSession
+{
+  readonly id: EntityIdentifier;
+  readonly surface: "admin";
+  readonly operatorId: EntityIdentifier;
+  readonly role: OperatorRole;
+  readonly authorizedStoreIds: readonly EntityIdentifier[];
+  readonly activeStoreId: EntityIdentifier;
+  readonly createdAtIso: string;
+}
+
+export type DemoSession = CustomerSession | OperatorSession;
+
+export interface OrderContact
+{
+  readonly firstName: string;
+  readonly lastName: string;
+  readonly email: string;
+  readonly phone: string;
+}
+
+export interface DeliveryInstructions
+{
+  readonly doorbell: string;
+  readonly floor: string;
+  readonly note: string;
+}
+
+export interface DeliveryFulfillment
+{
+  readonly method: "delivery";
+  readonly address: DeliveryAddress;
+  readonly instructions: DeliveryInstructions;
+}
+
+export interface PickupFulfillment
+{
+  readonly method: "pickup";
+  readonly storeId: EntityIdentifier;
+}
+
+export type OrderFulfillment = DeliveryFulfillment | PickupFulfillment;
+
 export const ORDER_STATUS = [
+  "pending_payment",
   "received",
   "confirmed",
   "preparing",
@@ -181,6 +266,8 @@ export interface Order
   readonly id: EntityIdentifier;
   readonly storeId: EntityIdentifier;
   readonly customerId: EntityIdentifier;
+  readonly contact: OrderContact;
+  readonly fulfillment: OrderFulfillment;
   readonly lines: readonly OrderLine[];
   readonly subtotal: Money;
   readonly discountTotal: Money;
@@ -192,6 +279,39 @@ export interface Order
   readonly updatedAtIso: string;
   readonly demoOrderRef?: string;
   readonly riderId?: EntityIdentifier;
+}
+
+export const PAYMENT_ATTEMPT_STATUS = [
+  "requires_payment_method",
+  "processing",
+  "requires_action",
+  "succeeded",
+  "failed",
+  "cash_due"
+] as const;
+
+export type PaymentAttemptStatus = (typeof PAYMENT_ATTEMPT_STATUS)[number];
+
+export interface PaymentSummary
+{
+  readonly method: "card" | "cash";
+  readonly brand?: string;
+  readonly last4?: string;
+}
+
+/** A provider-safe record. Card numbers, CVCs and Stripe client secrets never belong here. */
+export interface PaymentAttempt
+{
+  readonly id: EntityIdentifier;
+  readonly orderId: EntityIdentifier;
+  readonly idempotencyKey: string;
+  readonly provider: "stripe" | "cash";
+  readonly providerPaymentIntentId?: string;
+  readonly status: PaymentAttemptStatus;
+  readonly summary: PaymentSummary;
+  readonly failureMessage?: string;
+  readonly createdAtIso: string;
+  readonly updatedAtIso: string;
 }
 
 export function formatDemoOrderRef(sequence: number): string
@@ -313,6 +433,10 @@ export interface AiInsight
 }
 
 export const ORDER_STATUS_TRANSITIONS: Readonly<Record<OrderStatus, readonly OrderStatus[]>> = {
+  pending_payment: [
+    "confirmed",
+    "cancelled"
+  ],
   received: [
     "confirmed",
     "cancelled"

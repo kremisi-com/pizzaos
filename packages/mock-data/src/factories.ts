@@ -54,6 +54,26 @@ export function createOrder(
     id,
     storeId,
     customerId,
+    contact: {
+      firstName: "Cliente",
+      lastName: "Demo",
+      email: "cliente@example.test",
+      phone: "+39 333 000 0000"
+    },
+    fulfillment: deliveryFeeCents > 0
+      ? {
+          method: "delivery",
+          address: {
+            id: "address-demo",
+            label: "Casa",
+            line1: "Via Demo 1",
+            postalCode: "00100",
+            city: "Roma",
+            province: "RM"
+          },
+          instructions: { doorbell: "", floor: "", note: "" }
+        }
+      : { method: "pickup", storeId },
     lines,
     subtotal: toMoney(subtotalAmountCents),
     discountTotal: toMoney(0),

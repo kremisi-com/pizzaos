@@ -108,7 +108,8 @@ export function createCartStateFromOrder(order: Order, products: readonly Produc
       unitPriceCents: line.unitPrice.amountCents,
       quantity: Math.max(1, Math.round(line.quantity)),
       notes: line.notes,
-      removedIngredients: []
+      removedIngredients: [],
+      customization: null
     }))
   };
 }
@@ -386,6 +387,7 @@ export function deriveTrackingSnapshot(order?: Order): TrackingSnapshotView | nu
 export function getOrderStatusLabel(status: OrderStatus): string
 {
   const labels: Record<OrderStatus, string> = {
+    pending_payment: "In attesa di pagamento",
     received: "Ricevuto",
     confirmed: "Confermato",
     preparing: "In preparazione",

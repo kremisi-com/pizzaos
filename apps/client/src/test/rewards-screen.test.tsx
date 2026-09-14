@@ -14,8 +14,8 @@ describe("rewards screen", () =>
   {
     renderDom(<RewardsScreen />);
 
-    expect(await domScreen.findByRole("heading", { name: "Programma fedelta e vantaggi" })).toBeDefined();
-    expect(domScreen.getByText("Saldo fedelta")).toBeDefined();
+    expect(await domScreen.findByRole("heading", { name: "Programma fedeltà e vantaggi" })).toBeDefined();
+    expect(domScreen.getByText("Saldo fedeltà")).toBeDefined();
     expect(domScreen.getByText("Reward riscattabili")).toBeDefined();
   });
 

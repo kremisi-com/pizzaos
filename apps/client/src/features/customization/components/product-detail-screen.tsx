@@ -1,9 +1,10 @@
 "use client";
 
-import type { Product, ProductAllergen } from "@pizzaos/domain";
+import type { ClientProductCustomization, Product, ProductAllergen } from "@pizzaos/domain";
 import type { ClientSeed } from "@pizzaos/mock-data";
 import { Badge, Dialog } from "@pizzaos/ui";
 import { useCallback, useEffect, useReducer, useRef, useState, type Dispatch, type ReactElement } from "react";
+import { createLocalClientApi, CLIENT_CART_ID, DEFAULT_GROUP_ORDER_ID } from "../../../api/local-client-api";
 import { addCartItem } from "../../cart/cart-model";
 import { addGroupOrderItem } from "../../group-order/group-order-model";
 import { loadClientDemoState } from "../../home/client-demo-state";
@@ -135,40 +136,23 @@ export function ProductDetailScreen(props: ProductDetailScreenProps): ReactEleme
   const pairings = product ? getPairingSuggestions(product.id) : [];
   const toppingImage = product ? getProductToppingImage(product.id) : undefined;
 
-  function handleAddToCartClick(): void
+  async function handleAddToCartClick(): Promise<void>
   {
     if (!product)
     {
       return;
     }
 
-    const doughLabel = DOUGH_OPTIONS.find((option) => option.id === state.selectedDoughId)?.label ?? "Classico";
-    const baseLabel = PIZZA_BASE_OPTIONS.find((option) => option.id === state.selectedBaseId)?.label ?? "Rossa";
-    const variantLabel = VARIANT_OPTIONS.find((option) => option.id === state.selectedVariantId)?.label ?? "Classica";
-    const selectedExtras = EXTRA_OPTIONS
-      .filter((extra) => state.selectedExtraIds.includes(extra.id))
-      .map((extra) => extra.label);
-    const removedIngredients = deriveRemovedIngredientLabels(product.id, state.ingredientModes);
-    const notes = createCustomizationNotes({
-      baseLabel,
-      doughLabel,
-      variantLabel,
-      selectedExtras,
-      customerNote
-    });
-
-    const addItem = props.isGroupOrder ? addGroupOrderItem : addCartItem;
-    addItem(
-      {
-        productId: product.id,
-        productName: product.name,
-        unitPriceCents: priceBreakdown.totalCents,
-        quantity: 1,
-        notes,
-        removedIngredients
-      },
-      resolveStorage()
-    );
+    const api = createLocalClientApi({ storage: resolveStorage() });
+    const customization = createCustomizationPayload(state);
+    if (props.isGroupOrder)
+    {
+      await api.addGroupOrderLine({ groupOrderId: DEFAULT_GROUP_ORDER_ID, participantId: "participant-tu", productId: product.id, quantity: 1, notes: customerNote, customization });
+    }
+    else
+    {
+      await api.addCartLine({ cartId: CLIENT_CART_ID, productId: product.id, quantity: 1, notes: customerNote, customization });
+    }
 
     // Success flash animation
     setIsAddSuccess(true);
@@ -821,33 +805,15 @@ function deriveIngredientChangesSummary(productId: string, state: CustomizationS
   return `Senza ${removedIngredients.join(", ")}`;
 }
 
-function createCustomizationNotes(input: {
-  readonly baseLabel: string;
-  readonly doughLabel: string;
-  readonly variantLabel: string;
-  readonly selectedExtras: readonly string[];
-  readonly customerNote: string;
-}): string
+function createCustomizationPayload(state: CustomizationState): ClientProductCustomization
 {
-  const segments = [
-    `Base: ${input.baseLabel}`,
-    `Impasto: ${input.doughLabel}`,
-    `Formato: ${input.variantLabel}`
-  ];
-
-  if (input.selectedExtras.length > 0)
-  {
-    segments.push(`Extra: ${input.selectedExtras.join(", ")}`);
-  }
-
-  const sanitizedCustomerNote = input.customerNote.trim();
-
-  if (sanitizedCustomerNote)
-  {
-    segments.push(`Note: ${sanitizedCustomerNote}`);
-  }
-
-  return segments.join(" · ");
+  return {
+    doughId: state.selectedDoughId,
+    baseId: state.selectedBaseId,
+    variantId: state.selectedVariantId,
+    ingredientSelections: Object.entries(state.ingredientModes).map(([ingredientId, mode]) => ({ ingredientId, mode: mode === "normale" ? "standard" : mode })),
+    extraIds: state.selectedExtraIds
+  };
 }
 
 function inferDefaultBaseId(product: Product | undefined): string

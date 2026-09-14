@@ -1,7 +1,10 @@
 "use client";
 
 import type { ClientSeed } from "@pizzaos/mock-data";
+import type { OrderContact, OrderFulfillment } from "@pizzaos/domain";
 import { Badge, Button } from "@pizzaos/ui";
+import { createLocalClientApi, LOCAL_CART_ID } from "../../../api/local-client-api";
+import { StripePaymentFields } from "./stripe-payment-fields";
 import { useEffect, useMemo, useState, type FormEvent, type ReactElement } from "react";
 import {
   clearCartState,
@@ -26,7 +29,6 @@ import {
   saveClientDemoState
 } from "../../home/client-demo-state";
 import {
-  applyCouponCode,
   deriveCheckoutCoupons,
   deriveEarnedLoyaltyPoints,
   resolveLoyaltyTierId
@@ -73,8 +75,12 @@ export function CheckoutScreen(props: CheckoutScreenProps): ReactElement
   const [selectedSlotId, setSelectedSlotId] = useState("");
   const [tipPercent, setTipPercent] = useState<number>(TIP_PERCENT_OPTIONS[1]);
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("card");
-  const [cardholderName, setCardholderName] = useState("");
-  const [cardLastDigits, setCardLastDigits] = useState("");
+  const [createPaymentMethod, setCreatePaymentMethod] = useState<(() => Promise<string>) | null>(null);
+  const [fulfillmentMethod, setFulfillmentMethod] = useState<"delivery" | "pickup">("delivery");
+  const [contact, setContact] = useState<OrderContact>(() => toOrderContact(seed.customer));
+  const [doorbell, setDoorbell] = useState("");
+  const [floor, setFloor] = useState("");
+  const [deliveryNote, setDeliveryNote] = useState("");
   const [couponCodeInput, setCouponCodeInput] = useState("");
   const [appliedCouponCode, setAppliedCouponCode] = useState<string | null>(null);
   const [appliedCouponDiscountCents, setAppliedCouponDiscountCents] = useState(0);
@@ -92,6 +98,7 @@ export function CheckoutScreen(props: CheckoutScreenProps): ReactElement
     setSeed(hydratedSeed);
     setCartState(hydratedCart);
     setSelectedSlotId(resolveSlotSelection(hydratedSeed.slots));
+    setContact(toOrderContact(hydratedSeed.customer));
   }, [props.isGroupOrder]);
 
   const availableCoupons = useMemo(
@@ -106,23 +113,22 @@ export function CheckoutScreen(props: CheckoutScreenProps): ReactElement
     () =>
       deriveCheckoutTotals(cartState.items, {
         tipPercent,
-        deliveryFeeCents: DELIVERY_FEE_CENTS,
+        deliveryFeeCents: fulfillmentMethod === "delivery" ? DELIVERY_FEE_CENTS : 0,
         discountCents: appliedCouponDiscountCents
       }),
-    [appliedCouponDiscountCents, cartState.items, tipPercent]
+    [appliedCouponDiscountCents, cartState.items, fulfillmentMethod, tipPercent]
   );
   const projectedEarnedPoints = useMemo(
     () => deriveEarnedLoyaltyPoints(subtotalCents - totals.discountCents),
     [subtotalCents, totals.discountCents]
   );
 
-  function handleApplyCouponClick(): void
+  async function handleApplyCouponClick(): Promise<void>
   {
-    const result = applyCouponCode({
-      rawCode: couponCodeInput,
-      coupons: availableCoupons,
-      subtotalCents,
-      referenceIso: new Date(Date.now()).toISOString()
+    const result = await createLocalClientApi(resolveStorage()).applyCoupon({
+      cartId: LOCAL_CART_ID,
+      couponCode: couponCodeInput,
+      referenceIso: seed.simulationCursorIso
     });
 
     setCouponFeedback(result.message);
@@ -130,7 +136,7 @@ export function CheckoutScreen(props: CheckoutScreenProps): ReactElement
     if (result.status === "applied" && result.coupon)
     {
       setAppliedCouponCode(result.coupon.code);
-      setAppliedCouponDiscountCents(result.discountCents);
+      setAppliedCouponDiscountCents(result.discount.amountCents);
       setCouponCodeInput(result.coupon.code);
       return;
     }
@@ -147,23 +153,47 @@ export function CheckoutScreen(props: CheckoutScreenProps): ReactElement
     setCouponFeedback(null);
   }
 
-  function handleCheckoutSubmit(event: FormEvent<HTMLFormElement>): void
+  async function handleCheckoutSubmit(event: FormEvent<HTMLFormElement>): Promise<void>
   {
     event.preventDefault();
 
+    const defaultAddress = seed.customer.deliveryAddresses.find(
+      (address) => address.id === seed.customer.defaultDeliveryAddressId
+    );
+    const fulfillment: OrderFulfillment = fulfillmentMethod === "delivery" && defaultAddress
+      ? { method: "delivery", address: defaultAddress, instructions: { doorbell, floor, note: deliveryNote } }
+      : { method: "pickup", storeId: seed.session.activeStoreId };
     const errors = validateCheckoutInput({
       items: cartState.items,
       slots: seed.slots,
       selectedSlotId,
       paymentMethod,
-      cardholderName,
-      cardLastDigits
+      contact,
+      fulfillment
     });
 
     if (Object.keys(errors).length > 0)
     {
       setValidationErrors(errors);
       return;
+    }
+
+    if (paymentMethod === "card")
+    {
+      if (!createPaymentMethod)
+      {
+        setValidationErrors({ payment: "Il pagamento sicuro non è ancora pronto." });
+        return;
+      }
+      try
+      {
+        await createPaymentMethod();
+      }
+      catch (error)
+      {
+        setValidationErrors({ payment: error instanceof Error ? error.message : "Impossibile verificare la carta." });
+        return;
+      }
     }
 
     const selectedSlot = seed.slots.find((slot) => slot.slotId === selectedSlotId);
@@ -187,7 +217,9 @@ export function CheckoutScreen(props: CheckoutScreenProps): ReactElement
       const nextPointsBalance = seed.loyalty.pointsBalance + earnedPoints;
       const nextOrder = createMockOrder({
         storeId: seed.store.id,
-        customerId: seed.loyalty.customerId,
+        customerId: seed.session.customerId,
+        contact,
+        fulfillment,
         items: cartState.items,
         selectedSlotId: selectedSlot.slotId,
         totals,
@@ -344,7 +376,49 @@ export function CheckoutScreen(props: CheckoutScreenProps): ReactElement
 
       <form className={styles.form} onSubmit={handleCheckoutSubmit}>
         <div className={styles.section}>
-          <p className={styles.sectionTitle}>Slot consegna</p>
+          <p className={styles.sectionTitle}>Contatti per questo ordine</p>
+          <div className={styles.cardFields}>
+            <div>
+              <label className={styles.fieldLabel} htmlFor="checkout-first-name">Nome</label>
+              <input id="checkout-first-name" className={styles.textInput} value={contact.firstName} onChange={(event) => setContact({ ...contact, firstName: event.target.value })} />
+              {validationErrors.contactFirstName ? <p className={styles.errorMessage} role="alert">{validationErrors.contactFirstName}</p> : null}
+            </div>
+            <div>
+              <label className={styles.fieldLabel} htmlFor="checkout-last-name">Cognome</label>
+              <input id="checkout-last-name" className={styles.textInput} value={contact.lastName} onChange={(event) => setContact({ ...contact, lastName: event.target.value })} />
+              {validationErrors.contactLastName ? <p className={styles.errorMessage} role="alert">{validationErrors.contactLastName}</p> : null}
+            </div>
+            <div>
+              <label className={styles.fieldLabel} htmlFor="checkout-email">Email</label>
+              <input id="checkout-email" type="email" className={styles.textInput} value={contact.email} onChange={(event) => setContact({ ...contact, email: event.target.value })} />
+              {validationErrors.contactEmail ? <p className={styles.errorMessage} role="alert">{validationErrors.contactEmail}</p> : null}
+            </div>
+            <div>
+              <label className={styles.fieldLabel} htmlFor="checkout-phone">Telefono</label>
+              <input id="checkout-phone" type="tel" className={styles.textInput} value={contact.phone} onChange={(event) => setContact({ ...contact, phone: event.target.value })} />
+              {validationErrors.contactPhone ? <p className={styles.errorMessage} role="alert">{validationErrors.contactPhone}</p> : null}
+            </div>
+          </div>
+        </div>
+
+        <div className={styles.section}>
+          <p className={styles.sectionTitle}>Come vuoi ricevere l&apos;ordine?</p>
+          <div className={styles.paymentStack} role="radiogroup" aria-label="Metodo di ritiro">
+            <label className={styles.paymentMethod}><input type="radio" name="fulfillment-method" checked={fulfillmentMethod === "delivery"} onChange={() => setFulfillmentMethod("delivery")} /><span>Consegna a domicilio</span></label>
+            <label className={styles.paymentMethod}><input type="radio" name="fulfillment-method" checked={fulfillmentMethod === "pickup"} onChange={() => setFulfillmentMethod("pickup")} /><span>Ritiro in pizzeria</span></label>
+          </div>
+          {fulfillmentMethod === "delivery" ? (
+            <div className={styles.cardFields}>
+              <p className={styles.metaCopy}>Consegna a {formatAddress(seed.customer.deliveryAddresses.find((address) => address.id === seed.customer.defaultDeliveryAddressId))}</p>
+              <div><label className={styles.fieldLabel} htmlFor="checkout-doorbell">Citofono</label><input id="checkout-doorbell" className={styles.textInput} value={doorbell} onChange={(event) => setDoorbell(event.target.value)} /></div>
+              <div><label className={styles.fieldLabel} htmlFor="checkout-floor">Piano</label><input id="checkout-floor" className={styles.textInput} value={floor} onChange={(event) => setFloor(event.target.value)} /></div>
+              <div><label className={styles.fieldLabel} htmlFor="checkout-delivery-note">Note per la consegna</label><input id="checkout-delivery-note" className={styles.textInput} value={deliveryNote} onChange={(event) => setDeliveryNote(event.target.value)} /></div>
+            </div>
+          ) : <p className={styles.metaCopy}>Ritiro presso {seed.store.displayName}; nessun costo di consegna.</p>}
+        </div>
+
+        <div className={styles.section}>
+          <p className={styles.sectionTitle}>Slot {fulfillmentMethod === "delivery" ? "consegna" : "ritiro"}</p>
           <div className={styles.slotList} role="radiogroup" aria-label="Selezione slot checkout">
             {seed.slots.map((slot) =>
             {
@@ -446,7 +520,7 @@ export function CheckoutScreen(props: CheckoutScreenProps): ReactElement
         </div>
 
         <div className={styles.section}>
-          <p className={styles.sectionTitle}>Pagamento mock</p>
+          <p className={styles.sectionTitle}>Pagamento</p>
           <div className={styles.paymentStack}>
             <label className={styles.paymentMethod}>
               <input
@@ -456,7 +530,7 @@ export function CheckoutScreen(props: CheckoutScreenProps): ReactElement
                 checked={paymentMethod === "card"}
                 onChange={() => setPaymentMethod("card")}
               />
-              <span>Carta (simulazione)</span>
+              <span>Carta</span>
             </label>
 
             <label className={styles.paymentMethod}>
@@ -467,45 +541,13 @@ export function CheckoutScreen(props: CheckoutScreenProps): ReactElement
                 checked={paymentMethod === "cash"}
                 onChange={() => setPaymentMethod("cash")}
               />
-              <span>Contanti alla consegna (simulazione)</span>
+              <span>Contanti alla consegna</span>
             </label>
 
             {paymentMethod === "card" ? (
               <div className={styles.cardFields}>
-                <div>
-                  <label className={styles.fieldLabel} htmlFor="checkout-cardholder-name">
-                    Intestatario carta
-                  </label>
-                  <input
-                    id="checkout-cardholder-name"
-                    type="text"
-                    className={styles.textInput}
-                    value={cardholderName}
-                    onChange={(event) => setCardholderName(event.target.value)}
-                    placeholder="Mario Rossi"
-                  />
-                  {validationErrors.cardholderName ? (
-                    <p className={styles.errorMessage} role="alert">{validationErrors.cardholderName}</p>
-                  ) : null}
-                </div>
-
-                <div>
-                  <label className={styles.fieldLabel} htmlFor="checkout-card-last-digits">
-                    Ultime 4 cifre
-                  </label>
-                  <input
-                    id="checkout-card-last-digits"
-                    type="text"
-                    className={styles.textInput}
-                    value={cardLastDigits}
-                    onChange={(event) => setCardLastDigits(event.target.value.replace(/\D/g, "").slice(0, 4))}
-                    placeholder="1234"
-                    inputMode="numeric"
-                  />
-                  {validationErrors.cardLastDigits ? (
-                    <p className={styles.errorMessage} role="alert">{validationErrors.cardLastDigits}</p>
-                  ) : null}
-                </div>
+                <StripePaymentFields onReady={setCreatePaymentMethod} />
+                {validationErrors.payment ? <p className={styles.errorMessage} role="alert">{validationErrors.payment}</p> : null}
               </div>
             ) : null}
           </div>
@@ -522,8 +564,7 @@ export function CheckoutScreen(props: CheckoutScreenProps): ReactElement
                 <p>-{formatMoney(totals.discountCents)}</p>
               </>
             ) : null}
-            <p>Consegna</p>
-            <p>{formatMoney(totals.deliveryFeeCents)}</p>
+            {fulfillmentMethod === "delivery" ? <><p>Consegna</p><p>{formatMoney(totals.deliveryFeeCents)}</p></> : null}
             <p>Mancia ({tipPercent}%)</p>
             <p>{formatMoney(totals.tipCents)}</p>
             <p>Punti stimati</p>
@@ -544,7 +585,7 @@ export function CheckoutScreen(props: CheckoutScreenProps): ReactElement
               data-testid="checkout-submit-button"
               disabled={isProcessingPayment}
             >
-              {isProcessingPayment ? "Pagamento mock in corso..." : "Conferma ordine mock"}
+              {isProcessingPayment ? "Pagamento in corso..." : "Conferma e paga"}
             </Button>
           </div>
         </div>
@@ -556,4 +597,14 @@ export function CheckoutScreen(props: CheckoutScreenProps): ReactElement
 function formatMoney(amountCents: number): string
 {
   return MONEY_FORMATTER.format(amountCents / 100);
+}
+
+function toOrderContact(customer: ClientSeed["customer"]): OrderContact
+{
+  return { firstName: customer.firstName, lastName: customer.lastName, email: customer.email, phone: customer.phone };
+}
+
+function formatAddress(address: ClientSeed["customer"]["deliveryAddresses"][number] | undefined): string
+{
+  return address ? `${address.label}: ${address.line1}, ${address.postalCode} ${address.city} (${address.province})` : "Indirizzo non disponibile";
 }

@@ -44,7 +44,7 @@ describe("cart screen", () =>
     expect(domScreen.getByTestId("cart-checkout-link").textContent).toContain("Vai al checkout");
   });
 
-  it("returns to the empty state after clearing the cart", () =>
+  it("returns to the empty state after clearing the cart", async () =>
   {
     window.localStorage.setItem(CLIENT_CART_STORAGE_KEY, CART_STATE_PAYLOAD);
 
@@ -52,7 +52,7 @@ describe("cart screen", () =>
 
     domFireEvent.click(domScreen.getByRole("button", { name: "Svuota carrello" }));
 
-    expect(domScreen.getByText("Carrello vuoto")).toBeDefined();
+    expect(await domScreen.findByText("Carrello vuoto")).toBeDefined();
     expect(domScreen.queryByRole("heading", { name: "Riepilogo ordine" })).toBeNull();
   });
 });

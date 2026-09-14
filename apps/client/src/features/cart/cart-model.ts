@@ -1,4 +1,5 @@
 import type { DemoStorage } from "@pizzaos/mock-data";
+import type { ClientProductCustomization } from "@pizzaos/domain";
 
 export const CLIENT_CART_STORAGE_KEY = "pizzaos:client:cart-state:v1";
 
@@ -11,6 +12,7 @@ export interface CartItem
   readonly quantity: number;
   readonly notes: string;
   readonly removedIngredients: readonly string[];
+  readonly customization?: ClientProductCustomization | null;
 }
 
 export interface CartState
@@ -26,6 +28,7 @@ export interface CartItemDraft
   readonly quantity?: number;
   readonly notes?: string;
   readonly removedIngredients?: readonly string[];
+  readonly customization?: ClientProductCustomization | null;
 }
 
 export function createInitialCartState(): CartState
@@ -80,7 +83,8 @@ export function addCartItem(itemDraft: CartItemDraft, storage?: DemoStorage): Ca
         unitPriceCents: Math.max(0, Math.round(itemDraft.unitPriceCents)),
         quantity: Math.max(1, Math.round(itemDraft.quantity ?? 1)),
         notes: itemDraft.notes?.trim() ?? "",
-        removedIngredients: sanitizeRemovedIngredients(itemDraft.removedIngredients)
+        removedIngredients: itemDraft.removedIngredients ?? [],
+        customization: itemDraft.customization ?? null
       }
     ]
   };
@@ -149,7 +153,8 @@ function parsePersistedCartState(payload: string | null): CartState | null
         unitPriceCents: Math.max(0, Math.round(item.unitPriceCents)),
         quantity: Math.max(1, Math.round(item.quantity)),
         notes: item.notes,
-        removedIngredients: sanitizeRemovedIngredients(item.removedIngredients)
+        removedIngredients: item.removedIngredients ?? [],
+        customization: parseCustomization(item.customization)
       }))
     };
   }
@@ -188,12 +193,9 @@ function isPersistedCartItem(value: unknown): value is PersistedCartItem
     typeof value.unitPriceCents === "number" &&
     typeof value.quantity === "number" &&
     typeof value.notes === "string" &&
+    (value.removedIngredients === undefined || (Array.isArray(value.removedIngredients) && value.removedIngredients.every((ingredient) => typeof ingredient === "string"))) &&
     (
-      value.removedIngredients === undefined ||
-      (
-        Array.isArray(value.removedIngredients) &&
-        value.removedIngredients.every((ingredient) => typeof ingredient === "string")
-      )
+      (value.customization === undefined || value.customization === null || isCustomization(value.customization))
     )
   );
 }
@@ -212,6 +214,7 @@ interface PersistedCartItem
   readonly quantity: number;
   readonly notes: string;
   readonly removedIngredients?: readonly string[];
+  readonly customization?: ClientProductCustomization | null;
 }
 
 function isRecord(value: unknown): value is Record<string, unknown>
@@ -219,14 +222,27 @@ function isRecord(value: unknown): value is Record<string, unknown>
   return typeof value === "object" && value !== null;
 }
 
-function sanitizeRemovedIngredients(removedIngredients: readonly string[] | undefined): readonly string[]
+function parseCustomization(value: ClientProductCustomization | null | undefined): ClientProductCustomization | null
 {
-  if (!removedIngredients)
+  if (!value || !isCustomization(value))
   {
-    return [];
+    return null;
   }
 
-  return removedIngredients
-    .map((ingredient) => ingredient.trim())
-    .filter((ingredient) => ingredient.length > 0);
+  return value;
+}
+
+function isCustomization(value: unknown): value is ClientProductCustomization
+{
+  if (!isRecord(value) || typeof value.doughId !== "string" || typeof value.baseId !== "string" || typeof value.variantId !== "string")
+  {
+    return false;
+  }
+
+  return Array.isArray(value.ingredientSelections) &&
+    value.ingredientSelections.every((selection) =>
+      isRecord(selection) &&
+      typeof selection.ingredientId === "string" &&
+      (selection.mode === "standard" || selection.mode === "senza" || selection.mode === "extra")) &&
+    Array.isArray(value.extraIds) && value.extraIds.every((extraId) => typeof extraId === "string");
 }

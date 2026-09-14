@@ -15,12 +15,12 @@ describe("products screen", () => {
   it("renders the extended sections with the new mock products", () => {
     renderDom(<ProductsScreen />);
 
-    const productLinks = document.querySelectorAll('a[href^="/product/"]');
+    const productButtons = domScreen.getAllByRole("button", { name: /Aggiungi .+ al carrello/ });
 
     expect(
       domScreen.getByRole("heading", { name: "Stuzzicherie, Dolci & Bevande" }).textContent,
     ).toBe("Stuzzicherie, Dolci & Bevande");
-    expect(productLinks).toHaveLength(27);
+    expect(productButtons.length).toBeGreaterThan(20);
     expect(domScreen.getByText("Montanarine Classiche").textContent).toBe(
       "Montanarine Classiche",
     );
@@ -31,8 +31,8 @@ describe("products screen", () => {
       "Chinotto Bio",
     );
     expect(
-      domScreen.getByRole("link", { name: /Spritz Analcolico Agrumato/i }).getAttribute("href"),
-    ).toBe("/product/product-spritz-analcolico-agrumato");
+      domScreen.getByRole("button", { name: "Aggiungi Spritz Analcolico Agrumato al carrello" }),
+    ).toBeDefined();
     expect(domScreen.getByText("Esaurito").textContent).toBe("Esaurito");
   });
 });

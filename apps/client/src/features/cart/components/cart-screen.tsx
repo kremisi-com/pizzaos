@@ -1,13 +1,9 @@
 "use client";
 
 import { useEffect, useMemo, useState, type ReactElement } from "react";
-import {
-  clearCartState,
-  loadCartState,
-  removeCartItem,
-  setCartItemQuantity,
-  type CartState
-} from "../cart-model";
+import type { ClientCart } from "@pizzaos/domain";
+import { useClientApi } from "../../../api/client-api-provider";
+import { loadCartState, type CartItem, type CartState } from "../cart-model";
 import { DELIVERY_FEE_CENTS, deriveCheckoutTotals } from "../../checkout/checkout-model";
 import styles from "./cart-screen.module.css";
 
@@ -16,26 +12,22 @@ const MONEY_FORMATTER = new Intl.NumberFormat("it-IT", {
   currency: "EUR"
 });
 
+const CLIENT_CONTEXT = { customerId: "customer-client-demo", storeId: "store-roma-centro" };
+
 function resolveStorage(): Storage | undefined
 {
-  if (typeof window === "undefined")
-  {
-    return undefined;
-  }
-
-  return window.localStorage;
+  return typeof window === "undefined" ? undefined : window.localStorage;
 }
 
 export function CartScreen(): ReactElement
 {
-  const [cartState, setCartState] = useState<CartState>(() => loadCartState());
+  const api = useClientApi();
+  const [cartState, setCartState] = useState<CartState>(() => loadCartState(resolveStorage()));
 
   useEffect(() =>
   {
-    const storage = resolveStorage();
-
-    setCartState(loadCartState(storage));
-  }, []);
+    void api.getCart(CLIENT_CONTEXT).then((response) => setCartState(toCartState(response.cart)));
+  }, [api]);
 
   const totals = useMemo(
     () =>
@@ -48,17 +40,21 @@ export function CartScreen(): ReactElement
 
   function handleQuantityChange(itemId: string, nextQuantity: number): void
   {
-    setCartState(setCartItemQuantity(itemId, nextQuantity, resolveStorage()));
+    void api.updateCartLine({ cartId: "client-cart", lineId: itemId, quantity: nextQuantity })
+      .then((response) => setCartState(toCartState(response.cart)));
   }
 
   function handleRemove(itemId: string): void
   {
-    setCartState(removeCartItem(itemId, resolveStorage()));
+    void api.removeCartLine({ cartId: "client-cart", lineId: itemId })
+      .then((response) => setCartState(toCartState(response.cart)));
   }
 
   function handleClearCart(): void
   {
-    setCartState(clearCartState(resolveStorage()));
+    setCartState({ items: [] });
+    void Promise.all(cartState.items.map((item) => api.removeCartLine({ cartId: "client-cart", lineId: item.id })))
+      .then((responses) => setCartState(toCartState(responses.at(-1)?.cart ?? { id: "client-cart", ...CLIENT_CONTEXT, lines: [], updatedAtIso: new Date().toISOString() })));
   }
 
   return (
@@ -197,4 +193,20 @@ export function CartScreen(): ReactElement
 function formatMoney(amountCents: number): string
 {
   return MONEY_FORMATTER.format(amountCents / 100);
+}
+
+function toCartState(cart: ClientCart): CartState
+{
+  return {
+    items: cart.lines.map((line): CartItem => ({
+      id: line.id,
+      productId: line.productId,
+      productName: line.productId,
+      unitPriceCents: line.unitPrice.amountCents,
+      quantity: line.quantity,
+      notes: line.notes,
+      removedIngredients: [],
+      customization: line.customization
+    }))
+  };
 }

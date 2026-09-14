@@ -142,6 +142,8 @@ describe("seed factories", () =>
       "order-client-history-003"
     ]);
     expect(clientSeed.orderHistory.every((order) => DEMO_ORDER_REF_PATTERN.test(order.demoOrderRef ?? ""))).toBe(true);
+    expect(clientSeed.session.customerId).toBe(clientSeed.customer.id);
+    expect(clientSeed.customer.deliveryAddresses).toHaveLength(1);
   });
 
   it("keeps demo order references coherent between client and admin seeds", () =>
@@ -167,6 +169,8 @@ describe("admin multi-store dataset", () =>
     expect(romaSeed.activeStoreId).toBe("store-roma-centro");
     expect(milanoSeed.activeStoreId).toBe("store-milano-navigli");
     expect(torinoSeed.activeStoreId).toBe("store-torino-porta-nuova");
+    expect(romaSeed.session.authorizedStoreIds).toContain(romaSeed.session.activeStoreId);
+    expect(milanoSeed.session.activeStoreId).toBe(milanoSeed.activeStoreId);
 
     expect(romaSeed.datasetsByStoreId[romaSeed.activeStoreId].analytics.ordersToday).not.toBe(
       milanoSeed.datasetsByStoreId[milanoSeed.activeStoreId].analytics.ordersToday
@@ -257,6 +261,18 @@ describe("reset, reseed, and recovery", () =>
     });
 
     expect(recovered).toEqual(createClientSeed());
+  });
+
+  it("reseeds legacy identities and an admin session outside its authorized stores", () =>
+  {
+    const legacyClient = { ...createClientSeed(), customer: undefined, session: undefined };
+    const invalidAdmin = {
+      ...createAdminSeed(),
+      session: { ...createAdminSeed().session, authorizedStoreIds: ["store-milano-navigli"] }
+    };
+
+    expect(recoverPersistedDemoState("client", legacyClient)).toEqual(createClientSeed());
+    expect(recoverPersistedDemoState("admin", invalidAdmin)).toEqual(createAdminSeed());
   });
 
   it("recovers admin state when persisted payload has malformed datasets or active store id", () =>

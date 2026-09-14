@@ -79,7 +79,8 @@ export function addGroupOrderItem(itemDraft: CartItemDraft, storage?: DemoStorag
     unitPriceCents: Math.max(0, Math.round(itemDraft.unitPriceCents)),
     quantity: Math.max(1, Math.round(itemDraft.quantity ?? 1)),
     notes: itemDraft.notes?.trim() ?? "",
-    removedIngredients: itemDraft.removedIngredients?.filter((ingredient) => ingredient.trim().length > 0) ?? []
+    removedIngredients: itemDraft.removedIngredients ?? [],
+    customization: itemDraft.customization ?? null
   };
 
   return saveGroupOrderState({ ...state, items: [...state.items, item] }, storage);
@@ -129,7 +130,7 @@ export function getGroupOrderParticipantItems(state: GroupOrderState, participan
 
 function createSeedItem(id: string, participantId: string, productId: string, productName: string, unitPriceCents: number, quantity: number, notes = ""): GroupOrderItem
 {
-  return { id, participantId, productId, productName, unitPriceCents, quantity, notes, removedIngredients: [] };
+  return { id, participantId, productId, productName, unitPriceCents, quantity, notes, removedIngredients: [], customization: null };
 }
 
 function parseGroupOrderState(payload: string | null): GroupOrderState | null
@@ -165,7 +166,12 @@ function isParticipant(value: unknown): value is GroupOrderParticipant
 
 function isGroupOrderItem(value: unknown): value is GroupOrderItem
 {
-  return isRecord(value) && typeof value.id === "string" && typeof value.participantId === "string" && typeof value.productId === "string" && typeof value.productName === "string" && typeof value.unitPriceCents === "number" && typeof value.quantity === "number" && typeof value.notes === "string" && Array.isArray(value.removedIngredients) && value.removedIngredients.every((ingredient) => typeof ingredient === "string");
+  return isRecord(value) && typeof value.id === "string" && typeof value.participantId === "string" && typeof value.productId === "string" && typeof value.productName === "string" && typeof value.unitPriceCents === "number" && typeof value.quantity === "number" && typeof value.notes === "string" && (value.customization === null || value.customization === undefined || isCustomization(value.customization));
+}
+
+function isCustomization(value: unknown): boolean
+{
+  return isRecord(value) && typeof value.doughId === "string" && typeof value.baseId === "string" && typeof value.variantId === "string" && Array.isArray(value.ingredientSelections) && Array.isArray(value.extraIds);
 }
 
 function isRecord(value: unknown): value is Record<string, unknown>

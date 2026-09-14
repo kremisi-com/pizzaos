@@ -14,11 +14,14 @@ export default defineConfig({
       "@pizzaos/ui": fileURLToPath(new URL("./packages/ui/src/index.tsx", import.meta.url)),
       "@pizzaos/testing": fileURLToPath(new URL("./packages/testing/src/index.ts", import.meta.url)),
       "@testing-library/react": fileURLToPath(new URL("./packages/testing/node_modules/@testing-library/react/dist/index.js", import.meta.url)),
+      "@/api": fileURLToPath(new URL("./apps/client/src/api", import.meta.url)),
+      "@/features": fileURLToPath(new URL("./apps/client/src/features", import.meta.url)),
       "@": fileURLToPath(new URL("./apps/admin/src", import.meta.url))
     }
   },
   test: {
     environment: "jsdom",
+    setupFiles: [fileURLToPath(new URL("./apps/client/src/test/setup.ts", import.meta.url))],
     include: [
       "src/**/*.test.ts",
       "src/**/*.test.tsx",

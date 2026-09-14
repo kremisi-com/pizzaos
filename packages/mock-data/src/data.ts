@@ -1,5 +1,6 @@
 import type {
   Coupon,
+  CustomerProfile,
   EntityIdentifier,
   Ingredient,
   LoyaltyState,
@@ -41,6 +42,25 @@ export const STORES: readonly StoreProfile[] = [
     isOpen: false
   }
 ] as const;
+
+export const DEFAULT_CLIENT_CUSTOMER: CustomerProfile = {
+  id: "customer-client-demo",
+  firstName: "Mario",
+  lastName: "Rossi",
+  email: "mario.rossi@example.test",
+  phone: "+39 333 123 4567",
+  defaultDeliveryAddressId: "address-client-home",
+  deliveryAddresses: [
+    {
+      id: "address-client-home",
+      label: "Casa",
+      line1: "Via dei Fori Imperiali 12",
+      postalCode: "00186",
+      city: "Roma",
+      province: "RM"
+    }
+  ]
+};
 
 function createIngredients(names: readonly string[]): readonly Ingredient[]
 {

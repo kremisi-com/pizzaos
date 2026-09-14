@@ -8,6 +8,8 @@ const MOCK_ORDER: Order = {
   id: "order-1",
   customerId: "cust-1",
   storeId: "store-1",
+  contact: { firstName: "Mario", lastName: "Rossi", email: "mario@example.test", phone: "+39 333 1234567" },
+  fulfillment: { method: "pickup", storeId: "store-1" },
   status: "received",
   lines: [
     {

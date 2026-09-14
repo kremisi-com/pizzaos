@@ -58,8 +58,8 @@ describe("checkout model", () =>
       slots: seed.slots,
       selectedSlotId: "slot-2026-03-25T19:50",
       paymentMethod: "card",
-      cardholderName: "Mario Rossi",
-      cardLastDigits: "1234"
+      contact: { firstName: "Mario", lastName: "Rossi", email: "mario@example.test", phone: "+39 333 1234567" },
+      fulfillment: { method: "delivery", address: createClientSeed().customer.deliveryAddresses[0], instructions: { doorbell: "Rossi", floor: "3", note: "" } }
     });
 
     expect(selectableSlotId).toBe("slot-2026-03-25T19:10");
@@ -72,6 +72,8 @@ describe("checkout model", () =>
     const order = createMockOrder({
       storeId: "store-roma-centro",
       customerId: "customer-client-demo",
+      contact: { firstName: "Mario", lastName: "Rossi", email: "mario@example.test", phone: "+39 333 1234567" },
+      fulfillment: { method: "pickup", storeId: "store-roma-centro" },
       items: CART_ITEMS,
       selectedSlotId: "slot-2026-03-25T19:10",
       totals: {

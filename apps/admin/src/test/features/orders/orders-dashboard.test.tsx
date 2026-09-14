@@ -11,6 +11,8 @@ const MOCK_ORDERS: Order[] = [
     id: "order-1",
     customerId: "cust-1",
     storeId: "store-1",
+    contact: { firstName: "Mario", lastName: "Rossi", email: "mario@example.test", phone: "+39 333 1234567" },
+    fulfillment: { method: "pickup", storeId: "store-1" },
     status: "received",
     lines: [
       {
@@ -33,6 +35,8 @@ const MOCK_ORDERS: Order[] = [
     id: "order-2",
     customerId: "cust-2",
     storeId: "store-1",
+    contact: { firstName: "Giulia", lastName: "Verdi", email: "giulia@example.test", phone: "+39 333 7654321" },
+    fulfillment: { method: "delivery", address: { id: "address-2", label: "Casa", line1: "Via Roma 1", postalCode: "00100", city: "Roma", province: "RM" }, instructions: { doorbell: "Verdi", floor: "2", note: "" } },
     status: "out_for_delivery",
     lines: [
       {
