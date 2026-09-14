@@ -123,6 +123,102 @@
   text-decoration: underline;
 }
 
+.notifications,
+.feedbackCard
+{
+  margin: 16px 20px 0;
+  padding: 16px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 16px;
+  background: #fffaf5;
+}
+
+.notificationsHeader
+{
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+  color: var(--pizzaos-color-foreground);
+}
+
+.markReadButton,
+.googleReviewButton,
+.ratingButton,
+.ratingButtonActive
+{
+  border: 0;
+  background: transparent;
+  font: inherit;
+  cursor: pointer;
+}
+
+.markReadButton,
+.googleReviewButton
+{
+  color: var(--pizzaos-color-primary);
+  font-weight: 800;
+}
+
+.notification
+{
+  margin: 10px 0 0;
+  color: var(--pizzaos-color-foreground-muted);
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+.feedbackCard
+{
+  display: grid;
+  gap: 12px;
+  color: var(--pizzaos-color-foreground);
+}
+
+.feedbackCard p
+{
+  margin: 0;
+  color: var(--pizzaos-color-foreground-muted);
+}
+
+.ratingButtons
+{
+  display: flex;
+  gap: 5px;
+}
+
+.ratingButton,
+.ratingButtonActive
+{
+  padding: 0;
+  color: #d6d3d1;
+  font-size: 1.8rem;
+  line-height: 1;
+}
+
+.ratingButtonActive
+{
+  color: #f59e0b;
+}
+
+.feedbackLabel
+{
+  display: grid;
+  gap: 6px;
+  color: var(--pizzaos-color-foreground-muted);
+  font-size: 0.86rem;
+}
+
+.feedbackLabel textarea
+{
+  min-height: 68px;
+  resize: vertical;
+  border: 1px solid rgba(0, 0, 0, 0.14);
+  border-radius: 10px;
+  padding: 10px;
+  font: inherit;
+}
+
 /* ── History section ── */
 
 .historySection

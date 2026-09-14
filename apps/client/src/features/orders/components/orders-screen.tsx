@@ -372,6 +372,100 @@ function ActiveOrderPanel({ order, productsById }: ActiveOrderPanelProps): React
   );
 }
 
+function OrderNotifications({
+  notifications,
+  onMarkAllRead
+}: {
+  readonly notifications: readonly ClientOrderNotification[];
+  readonly onMarkAllRead: () => void;
+}): ReactElement | null
+{
+  if (notifications.length === 0)
+  {
+    return null;
+  }
+
+  return (
+    <section className={styles.notifications} aria-label="Aggiornamenti ordine" data-testid="order-notifications">
+      <div className={styles.notificationsHeader}>
+        <strong>Aggiornamenti ordine</strong>
+        {notifications.some((notification) => !notification.isRead) ? (
+          <button type="button" className={styles.markReadButton} onClick={onMarkAllRead}>
+            Segna come letti
+          </button>
+        ) : null}
+      </div>
+      {notifications.slice(0, 3).map((notification) => (
+        <p key={notification.id} className={styles.notification} data-testid={`order-notification-${notification.status}`}>
+          <strong>{notification.title}.</strong> {notification.description}
+        </p>
+      ))}
+    </section>
+  );
+}
+
+function FeedbackPrompt({
+  order,
+  feedback,
+  rating,
+  comment,
+  onRatingChange,
+  onCommentChange,
+  onSubmit,
+  onGoogleReviewRedirect
+}: {
+  readonly order: Order;
+  readonly feedback: ReturnType<typeof getOrderFeedbackEntry>;
+  readonly rating: FeedbackRating;
+  readonly comment: string;
+  readonly onRatingChange: (rating: FeedbackRating) => void;
+  readonly onCommentChange: (comment: string) => void;
+  readonly onSubmit: (order: Order) => void;
+  readonly onGoogleReviewRedirect: (orderId: string) => void;
+}): ReactElement
+{
+  if (feedback)
+  {
+    return (
+      <section className={styles.feedbackCard} data-testid="order-feedback-thanks">
+        <strong>Grazie per il tuo feedback!</strong>
+        {shouldSuggestGoogleReviewRedirect(feedback.rating) ? (
+          feedback.googleReviewRedirectedAtIso ? (
+            <p>Recensione Google simulata: grazie per aver condiviso la tua esperienza.</p>
+          ) : (
+            <button type="button" className={styles.googleReviewButton} onClick={() => onGoogleReviewRedirect(order.id)}>
+              Condividi anche su Google
+            </button>
+          )
+        ) : null}
+      </section>
+    );
+  }
+
+  return (
+    <section className={styles.feedbackCard} aria-label="Feedback ordine" data-testid="order-feedback-prompt">
+      <strong>Com&apos;è andato l&apos;ordine {order.demoOrderRef ?? ""}?</strong>
+      <div className={styles.ratingButtons} aria-label="Valutazione da una a cinque stelle">
+        {([1, 2, 3, 4, 5] as const).map((value) => (
+          <button
+            key={value}
+            type="button"
+            aria-label={`${value} stelle`}
+            aria-pressed={rating === value}
+            className={rating >= value ? styles.ratingButtonActive : styles.ratingButton}
+            onClick={() => onRatingChange(value)}
+          >★</button>
+        ))}
+      </div>
+      <label className={styles.feedbackLabel}>
+        Raccontaci in breve (facoltativo)
+        <textarea value={comment} onChange={(event) => onCommentChange(event.target.value)} />
+      </label>
+      <Button onClick={() => onSubmit(order)} data-testid="order-feedback-submit">Invia feedback</Button>
+    </section>
+  );
+}
+
 function deriveSelectableOrders(seed: ClientSeed): readonly Order[]
 {
   const archivedOrders = seed.orderHistory.filter((order) => isArchivedOrder(order));
