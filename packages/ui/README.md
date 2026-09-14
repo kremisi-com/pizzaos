@@ -30,6 +30,8 @@ Current exports from `src/index.tsx`:
 - `DataList`
 - `Table`
 - `StatusIndicator`
+- `NetworkState` — stato asincrono accessibile per `loading`, `error`, `session-expired` e
+  `temporarily-unavailable`; le callback `onRetry` e `onReauthenticate` restano di competenza dell'app.
 
 ## Import Rules
 

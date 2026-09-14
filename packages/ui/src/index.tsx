@@ -66,6 +66,25 @@ const STATUS_INDICATOR_COLOR: Record<StatusTone, string> = {
   error: "#dc2626"
 };
 
+const NETWORK_STATE_COPY: Record<NetworkStateKind, Readonly<{ title: string; message: string }>> = {
+  loading: {
+    title: "Caricamento in corso",
+    message: "Stiamo aggiornando i dati."
+  },
+  error: {
+    title: "Qualcosa non ha funzionato",
+    message: "Controlla la connessione e riprova."
+  },
+  "session-expired": {
+    title: "Sessione scaduta",
+    message: "Accedi di nuovo per continuare in sicurezza."
+  },
+  "temporarily-unavailable": {
+    title: "Servizio temporaneamente non disponibile",
+    message: "Riprova tra qualche istante."
+  }
+};
+
 export interface ShellCardProps extends PropsWithChildren
 {
   readonly title: string;
@@ -504,6 +523,78 @@ export function StatusIndicator(props: StatusIndicatorProps): ReactElement
       />
       <span>{props.label}</span>
     </span>
+  );
+}
+
+export type NetworkStateKind = "loading" | "error" | "session-expired" | "temporarily-unavailable";
+
+export interface NetworkStateProps
+{
+  readonly state: NetworkStateKind;
+  readonly title?: string;
+  readonly message?: string;
+  readonly onRetry?: () => void;
+  readonly onReauthenticate?: () => void;
+  readonly retryLabel?: string;
+  readonly reauthenticateLabel?: string;
+}
+
+/**
+ * Shared recovery surface for async data integrations. It intentionally owns no
+ * transport logic: apps decide when to fetch, retry, or renew a session.
+ */
+export function NetworkState(props: NetworkStateProps): ReactElement
+{
+  const copy = NETWORK_STATE_COPY[props.state];
+  const title = props.title ?? copy.title;
+  const message = props.message ?? copy.message;
+  const isLoading = props.state === "loading";
+  const isSessionExpired = props.state === "session-expired";
+  const canRetry = !isLoading && !isSessionExpired && Boolean(props.onRetry);
+  const canReauthenticate = isSessionExpired && Boolean(props.onReauthenticate);
+
+  return (
+    <section
+      role={isLoading ? "status" : "alert"}
+      aria-live={isLoading ? "polite" : "assertive"}
+      aria-busy={isLoading || undefined}
+      data-network-state={props.state}
+      style={{
+        display: "grid",
+        justifyItems: "start",
+        gap: "10px",
+        padding: "18px",
+        border: "1px solid var(--pizzaos-color-border)",
+        borderRadius: "var(--pizzaos-radius-card)",
+        backgroundColor: "var(--pizzaos-color-background-accent)",
+        color: "var(--pizzaos-color-foreground)"
+      }}
+    >
+      {isLoading ? (
+        <span
+          aria-hidden="true"
+          style={{
+            width: "18px",
+            height: "18px",
+            border: "2px solid var(--pizzaos-color-border)",
+            borderTopColor: "var(--pizzaos-color-primary)",
+            borderRadius: "999px",
+            animation: "pizzaos-network-spin 700ms linear infinite"
+          }}
+        />
+      ) : null}
+      <div>
+        <strong>{title}</strong>
+        <p style={{ margin: "4px 0 0", color: "var(--pizzaos-color-foreground-muted)" }}>{message}</p>
+      </div>
+      {canRetry ? <Button variant="secondary" onClick={props.onRetry}>{props.retryLabel ?? "Riprova"}</Button> : null}
+      {canReauthenticate ? (
+        <Button variant="primary" onClick={props.onReauthenticate}>
+          {props.reauthenticateLabel ?? "Accedi di nuovo"}
+        </Button>
+      ) : null}
+      <style>{"@keyframes pizzaos-network-spin { to { transform: rotate(360deg); } }"}</style>
+    </section>
   );
 }
 

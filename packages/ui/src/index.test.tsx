@@ -8,6 +8,7 @@ import {
   DataList,
   Dialog,
   Input,
+  NetworkState,
   ShellCard,
   StatusIndicator,
   Table,
@@ -152,5 +153,32 @@ describe("@pizzaos/ui", () =>
 
     expect(markup).toContain("data-tone=\"active\"");
     expect(markup).toContain("Operativo");
+  });
+
+  it("renders loading and recoverable network states with their accessible actions", () =>
+  {
+    const loadingMarkup = renderToStaticMarkup(createElement(NetworkState, { state: "loading" }));
+    const errorMarkup = renderToStaticMarkup(
+      createElement(NetworkState, { state: "error", onRetry: () => undefined })
+    );
+    const unavailableMarkup = renderToStaticMarkup(
+      createElement(NetworkState, { state: "temporarily-unavailable", onRetry: () => undefined })
+    );
+
+    expect(loadingMarkup).toContain('data-network-state="loading"');
+    expect(loadingMarkup).toContain('aria-busy="true"');
+    expect(errorMarkup).toContain('data-network-state="error"');
+    expect(errorMarkup).toContain("Riprova");
+    expect(unavailableMarkup).toContain("Servizio temporaneamente non disponibile");
+  });
+
+  it("renders an explicit reauthentication action for an expired session", () =>
+  {
+    const markup = renderToStaticMarkup(
+      createElement(NetworkState, { state: "session-expired", onReauthenticate: () => undefined })
+    );
+
+    expect(markup).toContain('data-network-state="session-expired"');
+    expect(markup).toContain("Accedi di nuovo");
   });
 });
