@@ -5,6 +5,7 @@ import { beforeEach, describe, expect, it } from "vitest";
 import { createElement } from "react";
 import { renderToString } from "react-dom/server";
 import { CLIENT_CART_STORAGE_KEY } from "../features/cart/cart-model";
+import { CLIENT_GROUP_ORDER_STORAGE_KEY } from "../features/group-order/group-order-model";
 import { CLIENT_FEEDBACK_STORAGE_KEY } from "../features/feedback/feedback-model";
 import { ClientShell } from "../features/home/components/client-shell";
 import { getClientDemoStateStorageKey } from "../features/home/client-demo-state";
@@ -108,6 +109,7 @@ describe("client shell", () =>
         ]
       })
     );
+    window.localStorage.setItem(CLIENT_GROUP_ORDER_STORAGE_KEY, JSON.stringify({ test: true }));
 
     renderDom(<ClientShell />);
 
@@ -115,6 +117,7 @@ describe("client shell", () =>
 
     expect(window.localStorage.getItem(CLIENT_ORDER_NOTIFICATIONS_STORAGE_KEY)).toBeNull();
     expect(window.localStorage.getItem(CLIENT_FEEDBACK_STORAGE_KEY)).toBeNull();
+    expect(window.localStorage.getItem(CLIENT_GROUP_ORDER_STORAGE_KEY)).toBeNull();
   });
 
   it("prepares the cart from the order-like-last-time CTA", async () =>

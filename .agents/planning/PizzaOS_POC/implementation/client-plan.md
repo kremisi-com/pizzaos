@@ -10,6 +10,7 @@
 - [X] Step 6: Implement order history, quick reorder, and "order like last time".
 - [X] Step 7: Implement loyalty, rewards, coupons, and subscription UI.
 - [X] Step 8: Implement feedback prompts, selected edge states, and end-to-end demo polish.
+- [X] Group Order: implementare contributi locali persistiti, riepilogo partecipanti e checkout unico.
 
 ## Step 1: Build the client shell, seeded home state, and demo reset flow
 
@@ -250,3 +251,6 @@ needed.
   i tuoi amici" narrative from the client home and avoiding a dead-end demo link.
 - The `/group-order` hub now presents a shared-cart narrative with inline QR placeholder, copy-link CTA, and QR
   visibility toggle so the group-order demo reads as self-serve ordering from each guest's phone.
+- Il Group Order usa ora una chiave `localStorage` dedicata e non modifica il carrello individuale. Il menu aperto con
+  `?order=group` aggiunge al solo contributo di `Tu`; il checkout `?order=group` aggrega tutte le scelte in un unico
+  ordine mock dell'host. QR e link restano volutamente locali e dimostrativi.

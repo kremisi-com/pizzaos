@@ -24,6 +24,7 @@ const MONEY_FORMATTER = new Intl.NumberFormat("it-IT", {
 interface MenuScreenProps
 {
   readonly initialSectionId?: string;
+  readonly isGroupOrder?: boolean;
 }
 
 function resolveStorage(): Storage | undefined
@@ -233,7 +234,7 @@ export function MenuScreen(props: MenuScreenProps): ReactElement
                     const imageSrc = getProductToppingImage(product.id);
                     const isOrderable = availability.isOrderable;
                     const CardTag = isOrderable ? "a" : "article";
-                    const cardProps = isOrderable ? { href: `/product/${product.id}` } : {};
+                    const cardProps = isOrderable ? { href: `/product/${product.id}${props.isGroupOrder ? "?order=group" : ""}` } : {};
 
                     return (
                       <CardTag

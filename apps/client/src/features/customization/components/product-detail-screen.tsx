@@ -5,6 +5,7 @@ import type { ClientSeed } from "@pizzaos/mock-data";
 import { Badge, Dialog } from "@pizzaos/ui";
 import { useCallback, useEffect, useReducer, useRef, useState, type Dispatch, type ReactElement } from "react";
 import { addCartItem } from "../../cart/cart-model";
+import { addGroupOrderItem } from "../../group-order/group-order-model";
 import { loadClientDemoState } from "../../home/client-demo-state";
 import { deriveProductAvailability } from "../../menu/menu-view-model";
 import {
@@ -40,6 +41,7 @@ type OpenSection = "dough" | "base" | "variant" | "ingredients" | "extras" | nul
 interface ProductDetailScreenProps
 {
   readonly productId: string;
+  readonly isGroupOrder?: boolean;
 }
 
 function resolveStorage(): Storage | undefined
@@ -155,7 +157,8 @@ export function ProductDetailScreen(props: ProductDetailScreenProps): ReactEleme
       customerNote
     });
 
-    addCartItem(
+    const addItem = props.isGroupOrder ? addGroupOrderItem : addCartItem;
+    addItem(
       {
         productId: product.id,
         productName: product.name,
@@ -375,7 +378,8 @@ export function ProductDetailScreen(props: ProductDetailScreenProps): ReactEleme
                     className={styles.pairingAddButton}
                     onClick={() =>
                     {
-                      addCartItem(
+                      const addItem = props.isGroupOrder ? addGroupOrderItem : addCartItem;
+                      addItem(
                         {
                           productId: pairing.id,
                           productName: pairing.title,
@@ -440,7 +444,7 @@ export function ProductDetailScreen(props: ProductDetailScreenProps): ReactEleme
               {product.name} con le tue personalizzazioni è stato aggiunto. Continua o vai al carrello.
             </p>
             <div className={styles.toastActions}>
-              <a href="/cart" className={styles.toastLink}>Vai al carrello</a>
+              <a href={props.isGroupOrder ? "/group-order" : "/cart"} className={styles.toastLink}>{props.isGroupOrder ? "Vai al gruppo" : "Vai al carrello"}</a>
               <a href="/" className={styles.toastLinkSecondary}>Continua</a>
             </div>
           </div>

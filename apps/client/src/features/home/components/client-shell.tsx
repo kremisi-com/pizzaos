@@ -6,6 +6,7 @@ import { Button } from "@pizzaos/ui";
 import { useEffect, useState, type ReactElement } from "react";
 import type { ClientSeed } from "@pizzaos/mock-data";
 import { clearCartState, saveCartState } from "../../cart/cart-model";
+import { clearGroupOrderState } from "../../group-order/group-order-model";
 import { clearClientFeedbackState } from "../../feedback/feedback-model";
 import {
   loadClientDemoState,
@@ -50,6 +51,7 @@ export function ClientShell(): ReactElement {
     const storage = resolveStorage();
 
     clearCartState(storage);
+    clearGroupOrderState(storage);
     clearClientFeedbackState(storage);
     clearOrderNotifications(storage);
     setSeed(resetClientDemoState(storage));

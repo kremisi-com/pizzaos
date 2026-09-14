@@ -8,6 +8,7 @@ import {
 import { createClientSeed } from "@pizzaos/mock-data";
 import { CheckoutScreen } from "../features/checkout/components/checkout-screen";
 import { CLIENT_CART_STORAGE_KEY } from "../features/cart/cart-model";
+import { addGroupOrderItem, CLIENT_GROUP_ORDER_STORAGE_KEY } from "../features/group-order/group-order-model";
 import { getClientDemoStateStorageKey } from "../features/home/client-demo-state";
 
 const CART_STATE_PAYLOAD = JSON.stringify({
@@ -69,15 +70,17 @@ describe("checkout screen", () =>
     });
     domFireEvent.click(domScreen.getByTestId("checkout-submit-button"));
 
-    const confirmationTitle = await domScreen.findByRole("heading", { name: "Ordine confermato" });
+    const confirmationTitle = await domScreen.findByRole("heading", { name: "Il tuo ordine è confermato" });
 
-    expect(confirmationTitle.textContent).toBe("Ordine confermato");
-    expect(domScreen.getByText(/Pagamento mock completato/i).textContent).toContain("Pagamento mock completato");
+    expect(confirmationTitle.textContent).toBe("Il tuo ordine è confermato");
+    expect(domScreen.getByText(/Preparazione confermata per lo slot/i)).toBeDefined();
     expect(domScreen.getByRole("link", { name: "Segui ordine" })).toBeDefined();
   });
 
   it("applies coupon and updates total summary", async () =>
   {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-03-25T12:00:00.000Z"));
     const seed = createClientSeed();
     const persistedSeed = {
       ...seed,
@@ -104,7 +107,7 @@ describe("checkout screen", () =>
     });
     domFireEvent.click(domScreen.getByTestId("checkout-apply-coupon-button"));
 
-    expect(await domScreen.findByTestId("checkout-coupon-feedback")).toBeDefined();
+    expect(domScreen.getByTestId("checkout-coupon-feedback")).toBeDefined();
     expect(domScreen.getByTestId("checkout-coupon-feedback").textContent).toContain("Coupon BENTORNATO5 applicato.");
     expect(domScreen.getByText("Sconto coupon")).toBeDefined();
     expect(domScreen.getByTestId("checkout-total-value").textContent).toBe("7,71 €");
@@ -134,5 +137,16 @@ describe("checkout screen", () =>
 
     expect(domScreen.getByRole("heading", { name: "Checkout" })).toBeDefined();
     expect(domScreen.getByText("Il carrello è vuoto. Aggiungi prodotti per completare un ordine mock.")).toBeDefined();
+  });
+
+  it("uses the shared cart for a single group checkout and clears only group state", async () =>
+  {
+    addGroupOrderItem({ productId: "product-margherita", productName: "Margherita Classica", unitPriceCents: 900 }, window.localStorage);
+    renderDom(<CheckoutScreen isGroupOrder />);
+    domFireEvent.click(domScreen.getByLabelText("Contanti alla consegna (simulazione)"));
+    domFireEvent.click(domScreen.getByTestId("checkout-submit-button"));
+    expect(await domScreen.findByRole("heading", { name: "Il tuo ordine è confermato" })).toBeDefined();
+    expect(window.localStorage.getItem(CLIENT_GROUP_ORDER_STORAGE_KEY)).toBeNull();
+    expect(window.localStorage.getItem(CLIENT_CART_STORAGE_KEY)).toBe(CART_STATE_PAYLOAD);
   });
 });

@@ -5,6 +5,7 @@ interface MenuPageProps
 {
   readonly searchParams?: Promise<{
     readonly section?: string;
+    readonly order?: string;
   }>;
 }
 
@@ -12,5 +13,5 @@ export default async function MenuPage(props: MenuPageProps): Promise<ReactEleme
 {
   const searchParams = await props.searchParams;
 
-  return <MenuScreen initialSectionId={searchParams?.section} />;
+  return <MenuScreen initialSectionId={searchParams?.section} isGroupOrder={searchParams?.order === "group"} />;
 }

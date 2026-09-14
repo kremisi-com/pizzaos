@@ -8,6 +8,7 @@ import {
   loadCartState,
   type CartState
 } from "../../cart/cart-model";
+import { clearGroupOrderState, loadGroupOrderState } from "../../group-order/group-order-model";
 import {
   createMockOrder,
   DELIVERY_FEE_CENTS,
@@ -50,6 +51,11 @@ interface CheckoutConfirmation
   readonly totalCents: number;
 }
 
+interface CheckoutScreenProps
+{
+  readonly isGroupOrder?: boolean;
+}
+
 function resolveStorage(): Storage | undefined
 {
   if (typeof window === "undefined")
@@ -60,7 +66,7 @@ function resolveStorage(): Storage | undefined
   return window.localStorage;
 }
 
-export function CheckoutScreen(): ReactElement
+export function CheckoutScreen(props: CheckoutScreenProps): ReactElement
 {
   const [seed, setSeed] = useState<ClientSeed>(() => loadClientDemoState());
   const [cartState, setCartState] = useState<CartState>(() => loadCartState());
@@ -81,12 +87,12 @@ export function CheckoutScreen(): ReactElement
   {
     const storage = resolveStorage();
     const hydratedSeed = loadClientDemoState(storage);
-    const hydratedCart = loadCartState(storage);
+    const hydratedCart = props.isGroupOrder ? { items: loadGroupOrderState(storage).items } : loadCartState(storage);
 
     setSeed(hydratedSeed);
     setCartState(hydratedCart);
     setSelectedSlotId(resolveSlotSelection(hydratedSeed.slots));
-  }, []);
+  }, [props.isGroupOrder]);
 
   const availableCoupons = useMemo(
     () => deriveCheckoutCoupons(seed.coupons, seed.loyalty),
@@ -206,7 +212,11 @@ export function CheckoutScreen(): ReactElement
       };
 
       setSeed(saveClientDemoState(nextSeed, storage));
-      setCartState(clearCartState(storage));
+      setCartState(props.isGroupOrder ? { items: [] } : clearCartState(storage));
+      if (props.isGroupOrder)
+      {
+        clearGroupOrderState(storage);
+      }
       setConfirmation({
         orderId: nextOrder.id,
         slotLabel: selectedSlot.label,
@@ -301,7 +311,7 @@ export function CheckoutScreen(): ReactElement
           <div className={styles.tertiaryLinks}>
             <a href="/rewards" className={styles.secondaryLink}>Apri loyalty</a>
             <span className={styles.dot} aria-hidden="true">·</span>
-            <a href="/menu" className={styles.secondaryLink}>Nuovo ordine</a>
+          <a href={props.isGroupOrder ? "/group-order" : "/menu"} className={styles.secondaryLink}>{props.isGroupOrder ? "Nuovo gruppo" : "Nuovo ordine"}</a>
           </div>
         </div>
       </main>

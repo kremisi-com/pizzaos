@@ -19,7 +19,7 @@ This app does not own shared package APIs or admin and landing code paths.
 - `app/layout.tsx`: root metadata and layout shell
 - `app/page.tsx`: client route entry
 - `app/menu/page.tsx`: menu browsing route with section preselection support
-- `app/group-order/page.tsx`: carrello condiviso demo hub linked from home and menu header
+- `app/group-order/page.tsx`: group order locale con contributi personali, riepilogo partecipanti e checkout unico dell'host
 - `app/product/[id]/page.tsx`: product detail route with guided customization flow
 - `app/cart/page.tsx`: cart review route with quantity updates and checkout entry
 - `app/checkout/page.tsx`: slot, tip, mock payment, and confirmation route
@@ -29,6 +29,7 @@ This app does not own shared package APIs or admin and landing code paths.
 - `src/features/menu`: section browsing, slot visibility, and product availability rendering
 - `src/features/customization`: product detail, guided stepper, pricing logic, allergens, and pairings
 - `src/features/cart`: cart persistence, quantity management, and cart review UI
+- `src/features/group-order`: stato locale persistito del gruppo, contributo personale e riepilogo del carrello condiviso; resta separato dal carrello individuale
 - `src/features/checkout`: checkout totals, validation, mock payment, and confirmation flow
 - `src/features/orders`: order simulation, timeline, notifications, tracking UI, history, and reorder helpers
 - `src/features/feedback`: local feedback persistence, rating helpers, and simulated Google review redirect state

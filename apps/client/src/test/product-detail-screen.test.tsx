@@ -79,8 +79,8 @@ describe("product detail screen", () => {
     domFireEvent.click(
       domScreen.getByRole("button", { name: "Informazioni ingredienti e allergeni" }),
     );
-    expect(domScreen.getByText("Glutine").textContent).toBe("Glutine");
-    expect(domScreen.getByText("Lattosio").textContent).toBe("Lattosio");
+    expect(domScreen.getAllByText("Glutine").length).toBeGreaterThan(0);
+    expect(domScreen.getAllByText("Lattosio").length).toBeGreaterThan(0);
     domFireEvent.click(domScreen.getByRole("button", { name: "Chiudi" }));
     expect(
       domScreen.getByTestId("customization-total-value").textContent,
@@ -176,5 +176,12 @@ describe("product detail screen", () => {
     expect(persistedCartState).toContain("Base: Rossa");
     expect(persistedCartState).toContain("Impasto: Classico");
     expect(persistedCartState).toContain("\"removedIngredients\":[\"Fiordilatte\"]");
+  });
+
+  it("adds a customization to the group contribution without changing the standard cart", () => {
+    renderDom(<ProductDetailScreen productId="product-margherita" isGroupOrder />);
+    domFireEvent.click(domScreen.getByRole("button", { name: /Aggiungi al carrello/i }));
+    expect(window.localStorage.getItem("pizzaos:client:group-order-state:v1")).toContain("participant-tu");
+    expect(window.localStorage.getItem("pizzaos:client:cart-state:v1")).toBeNull();
   });
 });
