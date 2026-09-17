@@ -1,8 +1,8 @@
 ---
-name: spec-driven-skill
+name: spec-driven-development
 description: Plan complex changes with observable requirements, public contracts, internal design, and test-first implementation in the project's SDD workflow.
 metadata:
-  short-description: Spec-driven design and implementation workflow
+    short-description: Spec-driven design and implementation workflow
 ---
 
 # Spec-Driven Development
