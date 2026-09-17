@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { createElement } from "react";
 import { renderToString } from "react-dom/server";
-import { AnalyticsManager } from "@/features/analytics/components/analytics-manager";
+import { AnalyticsManager } from "../../../features/analytics/components/analytics-manager";
 import type { AnalyticsSnapshot, AiInsight, Product } from "@pizzaos/domain";
 
 const MOCK_ANALYTICS: AnalyticsSnapshot = {

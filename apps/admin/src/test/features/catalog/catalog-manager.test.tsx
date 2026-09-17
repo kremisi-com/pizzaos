@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 import { createElement } from "react";
 import { renderToString } from "react-dom/server";
 import { render, screen, fireEvent } from "@testing-library/react";
-import { CatalogManager } from "@/features/catalog/components/catalog-manager";
+import { CatalogManager } from "../../../features/catalog/components/catalog-manager";
 import type { Menu, Product } from "@pizzaos/domain";
 
 // Mock @pizzaos/ui to avoid styles-related issues in JSDOM if any

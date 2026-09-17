@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
-import { InventoryManager } from "@/features/inventory/components/inventory-manager";
+import { InventoryManager } from "../../../features/inventory/components/inventory-manager";
 import type { Ingredient, InventoryItem } from "@pizzaos/domain";
 
 const MOCK_INGREDIENTS: Ingredient[] = [

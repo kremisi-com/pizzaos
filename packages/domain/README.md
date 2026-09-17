@@ -18,6 +18,8 @@ This package does not own app-specific rendering concerns.
 
 Entry point: `@pizzaos/domain`
 
+`src/index.ts` is the stable public entry. The entity and status model lives in `src/model.ts`; client API contracts import that model directly, so the entry point has no internal dependency cycle.
+
 Current exports from `src/index.ts`:
 
 - app shell primitives: `APP_SURFACES`, `AppSurface`, `AppShellSeed`

@@ -5,18 +5,18 @@ import type { Product } from "@pizzaos/domain";
 import { Button } from "@pizzaos/ui";
 import { useEffect, useState, type ReactElement } from "react";
 import type { ClientSeed } from "@pizzaos/mock-data";
-import { clearCartState, saveCartState } from "../../cart/cart-model";
-import { clearGroupOrderState } from "../../group-order/group-order-model";
-import { clearClientFeedbackState } from "../../feedback/feedback-model";
+import { clearCartState, saveCartState } from "../features/cart/cart-model";
+import { clearGroupOrderState } from "../features/group-order/group-order-model";
+import { clearClientFeedbackState } from "../features/feedback/feedback-model";
 import {
   loadClientDemoState,
   resetClientDemoState,
-} from "../client-demo-state";
+} from "./client-demo-state";
 import {
   clearOrderNotifications,
   createCartStateFromOrder,
   deriveLastReorderOrder,
-} from "../../orders/orders-model";
+} from "../features/orders/orders-model";
 import styles from "./client-shell.module.css";
 
 const SLOT_FORMATTER = new Intl.DateTimeFormat("it-IT", {

@@ -8,7 +8,7 @@ import {
   type AdminSeed,
 } from "@pizzaos/mock-data";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { AdminShell } from "@/features/home/components/admin-shell";
+import { AdminShell } from "../composition/admin-shell";
 
 const ADMIN_STORAGE_KEY = getDemoStateStorageKey("admin");
 

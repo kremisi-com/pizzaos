@@ -3,7 +3,7 @@
 import { getThemeClass } from "@pizzaos/brand";
 import type { ClientSeed } from "@pizzaos/mock-data";
 import { useEffect, useState, type ReactElement } from "react";
-import { loadClientDemoState } from "../../home/client-demo-state";
+import { loadClientDemoState } from "../../../composition/client-demo-state";
 import { deriveGroupOrderSubtotalCents, getGroupOrderParticipantItems, GROUP_ORDER_CURRENT_PARTICIPANT_ID, loadGroupOrderState, removeGroupOrderItem, setGroupOrderItemQuantity, type GroupOrderState } from "../group-order-model";
 import styles from "./group-order-screen.module.css";
 

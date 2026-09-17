@@ -3,7 +3,7 @@ import { createElement } from "react";
 import { renderToString } from "react-dom/server";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach } from "vitest";
-import { OrdersDashboard } from "@/features/orders/components/orders-dashboard";
+import { OrdersDashboard } from "../../../features/orders/components/orders-dashboard";
 import type { Order } from "@pizzaos/domain";
 
 const MOCK_ORDERS: Order[] = [

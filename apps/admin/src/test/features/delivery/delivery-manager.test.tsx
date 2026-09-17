@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { createElement } from "react";
 import { renderToString } from "react-dom/server";
-import { DeliveryManager } from "@/features/delivery/components/delivery-manager";
+import { DeliveryManager } from "../../../features/delivery/components/delivery-manager";
 import type { Order, Rider } from "@pizzaos/domain";
 
 const MOCK_RIDERS: Rider[] = [

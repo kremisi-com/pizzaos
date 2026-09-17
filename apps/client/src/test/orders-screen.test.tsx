@@ -3,7 +3,7 @@ import { cleanupDom, domFireEvent, domScreen, renderDom } from "@pizzaos/testing
 import { beforeEach, describe, expect, it } from "vitest";
 import { OrdersScreen } from "../features/orders/components/orders-screen";
 import { CLIENT_CART_STORAGE_KEY } from "../features/cart/cart-model";
-import { getClientDemoStateStorageKey } from "../features/home/client-demo-state";
+import { getClientDemoStateStorageKey } from "../composition/client-demo-state";
 import { CLIENT_FEEDBACK_STORAGE_KEY } from "../features/feedback/feedback-model";
 import { CLIENT_ORDER_NOTIFICATIONS_STORAGE_KEY } from "../features/orders/orders-model";
 

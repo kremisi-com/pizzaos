@@ -3,7 +3,7 @@
 import type { ClientSeed } from "@pizzaos/mock-data";
 import type { OrderContact, OrderFulfillment } from "@pizzaos/domain";
 import { Badge, Button } from "@pizzaos/ui";
-import { createLocalClientApi, LOCAL_CART_ID } from "../../../api/local-client-api";
+import { createLocalClientApi, LOCAL_CART_ID } from "../../../composition/api/local-client-api";
 import { StripePaymentFields } from "./stripe-payment-fields";
 import { useEffect, useMemo, useState, type FormEvent, type ReactElement } from "react";
 import {
@@ -27,7 +27,7 @@ import {
 import {
   loadClientDemoState,
   saveClientDemoState
-} from "../../home/client-demo-state";
+} from "../../../composition/client-demo-state";
 import {
   deriveCheckoutCoupons,
   deriveEarnedLoyaltyPoints,

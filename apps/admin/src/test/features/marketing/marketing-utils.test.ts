@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { formatMoney, getCouponStatusLabel, validateCouponCode } from "@/features/marketing/marketing-utils";
+import { formatMoney, getCouponStatusLabel, validateCouponCode } from "../../../features/marketing/marketing-utils";
 
 describe("Marketing Utils", () => {
   describe("formatMoney", () => {

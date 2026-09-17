@@ -4,7 +4,7 @@ import {
   getClientDemoStateStorageKey,
   loadClientDemoState,
   resetClientDemoState
-} from "../features/home/client-demo-state";
+} from "../composition/client-demo-state";
 
 class InMemoryStorage
 {

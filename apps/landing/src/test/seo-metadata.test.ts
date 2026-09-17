@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { readFileSync } from "node:fs";
-import { join } from "node:path";
+import { resolveLandingPath } from "./paths";
 import {
   createLandingJsonLd,
   createLandingManifest,
@@ -89,7 +89,7 @@ describe("landing seo metadata", () => {
 
   it("ships a WhatsApp-friendly social sharing image", () => {
     const image = readFileSync(
-      join(process.cwd(), "public/social/og-image.png"),
+      resolveLandingPath("public/social/og-image.png"),
     );
 
     expect(image.subarray(1, 4).toString("ascii")).toBe("PNG");

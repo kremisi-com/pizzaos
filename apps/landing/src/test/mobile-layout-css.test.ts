@@ -1,11 +1,9 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
+import { resolveLandingPath } from "./paths";
 
-const COMPONENTS_PATH = join(
-  process.cwd(),
-  "src/features/home/components",
-);
+const COMPONENTS_PATH = resolveLandingPath("src/features/home/components");
 
 function readComponentCss(fileName: string): string {
   return readFileSync(join(COMPONENTS_PATH, fileName), "utf8");

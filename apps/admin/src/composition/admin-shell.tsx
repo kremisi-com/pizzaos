@@ -20,15 +20,15 @@ import {
 import { Button } from "@pizzaos/ui";
 import Image from "next/image";
 import { useCallback, useState, type ReactElement, useEffect, useRef } from "react";
-import { OrdersDashboard } from "../../orders/components/orders-dashboard";
-import { StoreSwitcher } from "../../store-switch/components/store-switcher";
-import { CatalogManager } from "../../catalog/components/catalog-manager";
-import { InventoryManager } from "../../inventory/components/inventory-manager";
-import { MarketingManager } from "../../marketing/components/marketing-manager";
-import { AnalyticsManager } from "../../analytics/components/analytics-manager";
-import { DeliveryManager } from "../../delivery/components/delivery-manager";
-import { IntegrationsManager } from "../../integrations/components/integrations-manager";
-import { ProfileManager } from "../../profile/components/profile-manager";
+import { OrdersDashboard } from "../features/orders/components/orders-dashboard";
+import { StoreSwitcher } from "../features/store-switch/components/store-switcher";
+import { CatalogManager } from "../features/catalog/components/catalog-manager";
+import { InventoryManager } from "../features/inventory/components/inventory-manager";
+import { MarketingManager } from "../features/marketing/components/marketing-manager";
+import { AnalyticsManager } from "../features/analytics/components/analytics-manager";
+import { DeliveryManager } from "../features/delivery/components/delivery-manager";
+import { IntegrationsManager } from "../features/integrations/components/integrations-manager";
+import { ProfileManager } from "../features/profile/components/profile-manager";
 import styles from "./admin-shell.module.css";
 
 const APP_ID = "admin" as const;

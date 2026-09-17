@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState, type ReactElement } from "react";
 import type { ClientCart } from "@pizzaos/domain";
-import { useClientApi } from "../../../api/client-api-provider";
+import { useClientApi } from "../../../composition/api/client-api-provider";
 import { loadCartState, type CartItem, type CartState } from "../cart-model";
 import { DELIVERY_FEE_CENTS, deriveCheckoutTotals } from "../../checkout/checkout-model";
 import styles from "./cart-screen.module.css";

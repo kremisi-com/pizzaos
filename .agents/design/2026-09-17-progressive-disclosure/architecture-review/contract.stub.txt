@@ -1,0 +1,4 @@
+pnpm architecture:check
+
+Exit 0: checked repository boundaries hold.
+Exit 1: one or more violations are reported with source file locations.

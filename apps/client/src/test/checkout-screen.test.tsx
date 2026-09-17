@@ -9,7 +9,7 @@ import { createClientSeed } from "@pizzaos/mock-data";
 import { CheckoutScreen } from "../features/checkout/components/checkout-screen";
 import { CLIENT_CART_STORAGE_KEY } from "../features/cart/cart-model";
 import { addGroupOrderItem, CLIENT_GROUP_ORDER_STORAGE_KEY } from "../features/group-order/group-order-model";
-import { getClientDemoStateStorageKey } from "../features/home/client-demo-state";
+import { getClientDemoStateStorageKey } from "../composition/client-demo-state";
 
 const CART_STATE_PAYLOAD = JSON.stringify({
   items: [

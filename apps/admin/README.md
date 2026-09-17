@@ -11,14 +11,15 @@ This app owns:
 - route structure under `app/`
 - admin composition and operational UX patterns
 - admin feature modules under `src/features`
+- application coordination under `src/composition`
 
 This app does not own shared package internals or other app surfaces.
 
 ## Feature Map
 
 - `app/layout.tsx`: root metadata and layout shell
-- `app/page.tsx`: admin route entry and section orchestration
-- `src/features/home`: shell composition, top-level KPIs, marketing opportunity cards, and store reset actions
+- `app/page.tsx`: admin route entry
+- `src/composition/admin-shell.tsx`: shell composition, top-level KPIs, marketing opportunity cards, store reset, and coordination of operational features
 - `src/features/store-switch`: multi-store selector with deterministic local dataset switching
 - `src/features/orders`: live orders dashboard, new-order notifications, order details, kitchen/bar routing, and cross-POC narrative alignment (`demoOrderRef` + milestone cliente)
 - `src/features/catalog`: menu and product management with editable prezzo/ingredienti and allergeni derivati
@@ -44,6 +45,7 @@ From repository root:
 - `pnpm --filter @pizzaos/admin lint`
 - `pnpm --filter @pizzaos/admin typecheck`
 - `pnpm --filter @pizzaos/admin test`
+- `pnpm architecture:check` from the repository root
 
 ## Environment
 

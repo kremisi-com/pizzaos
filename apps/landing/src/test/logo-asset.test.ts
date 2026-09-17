@@ -1,8 +1,9 @@
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
+import { resolveLandingPath } from "./paths";
 
-const BRAND_ASSET_DIR = resolve(process.cwd(), "public/brand");
+const BRAND_ASSET_DIR = resolveLandingPath("public/brand");
 
 function readBrandAsset(fileName: string): string {
   return readFileSync(resolve(BRAND_ASSET_DIR, fileName), "utf8");

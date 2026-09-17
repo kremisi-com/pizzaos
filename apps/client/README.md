@@ -11,11 +11,12 @@ This app owns:
 - route structure under `app/`
 - client-facing composition and interaction flows
 - client feature modules under `src/features`
+- app-level local API and demo-state coordination under `src/composition`
 
 This app does not own shared package APIs or admin and landing code paths.
 
 The frontend boundary for catalog, cart, checkout, orders, loyalty, and tracking is defined in
-`@pizzaos/domain` through `ClientApiContract`. `src/api/local-client-api.ts` is the current deterministic repository:
+`@pizzaos/domain` through `ClientApiContract`. `src/composition/api/local-client-api.ts` is the current deterministic repository:
 it adapts the existing mock seeds and local persistence to the contract. A future HTTP repository can replace the
 provider implementation without changing feature-facing API calls.
 
@@ -39,7 +40,7 @@ un checkout che trova uno slot o un prodotto non più disponibile riceve un conf
 - `app/checkout/page.tsx`: contatti per ordine, consegna/ritiro, slot, tip, mock payment, and confirmation route
 - `app/orders/page.tsx`: order timeline, notifications, tracking, history, quick reorder, and post-delivery feedback route
 - `app/rewards/page.tsx`: loyalty, reward, coupon, and subscription overview route
-- `src/features/home`: mobile-first home shell, seeded demo state, order-like-last-time prompt, and reset flow
+- `src/composition/client-shell.tsx`: mobile-first home shell, reorder prompt, and reset UI
 - `src/features/menu`: section browsing, slot visibility, and product availability rendering
 - `src/features/customization`: product detail, guided stepper, pricing logic, allergens, and pairings
 - `src/features/cart`: cart persistence, quantity management, and cart review UI
@@ -48,10 +49,10 @@ un checkout che trova uno slot o un prodotto non più disponibile riceve un conf
 - `src/features/orders`: order simulation, timeline, notifications, tracking UI, history, and reorder helpers
 - `src/features/feedback`: local feedback persistence, rating helpers, and simulated Google review redirect state
 - `src/features/loyalty`: loyalty helpers, coupon validation, rewards UI, and subscription messaging
-- `src/features/home/client-demo-state.ts`: local storage hydration and reset helpers
-- `src/api/local-client-api.ts`: local `ClientApiContract` repository for catalog, cart, checkout, orders, loyalty,
+- `src/composition/client-demo-state.ts`: local storage hydration and reset helpers
+- `src/composition/api/local-client-api.ts`: local `ClientApiContract` repository for catalog, cart, checkout, orders, loyalty,
   coupons, group order, and tracking
-- `src/api/client-api-provider.tsx`: contract provider consumed by client UI features
+- `src/composition/api/client-api-provider.tsx`: contract provider consumed by client UI features
 
 ## Pagamenti reali
 
@@ -76,6 +77,7 @@ From repository root:
 - `pnpm --filter @pizzaos/client lint`
 - `pnpm --filter @pizzaos/client typecheck`
 - `pnpm --filter @pizzaos/client test`
+- `pnpm architecture:check` from the repository root
 
 ## Environment
 

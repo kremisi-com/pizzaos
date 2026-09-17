@@ -65,6 +65,7 @@ const ADDRESSES = [
 ] as const;
 
 const STATUS_VIEW: Record<OrderStatus, Pick<OrderRowViewModel, "statusLabel" | "statusTone">> = {
+  pending_payment: { statusLabel: "Pagamento in attesa", statusTone: "gray" },
   received: { statusLabel: "Da confermare", statusTone: "red" },
   confirmed: { statusLabel: "Da confermare", statusTone: "red" },
   preparing: { statusLabel: "In cucina", statusTone: "orange" },

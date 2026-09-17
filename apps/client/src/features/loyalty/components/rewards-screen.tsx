@@ -4,7 +4,7 @@ import type { Coupon } from "@pizzaos/domain";
 import type { ClientSeed } from "@pizzaos/mock-data";
 import { Badge, Button } from "@pizzaos/ui";
 import { useEffect, useMemo, useState, type ReactElement } from "react";
-import { loadClientDemoState } from "../../home/client-demo-state";
+import { loadClientDemoState } from "../../../composition/client-demo-state";
 import {
   deriveCheckoutCoupons,
   deriveGeneratedCouponsFromLoyalty,

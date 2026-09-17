@@ -1,6 +1,6 @@
 import { createInMemoryStorage } from "@pizzaos/testing";
 import { describe, expect, it } from "vitest";
-import { CLIENT_CART_ID, DEFAULT_GROUP_ORDER_ID, createLocalClientApi } from "../api/local-client-api";
+import { CLIENT_CART_ID, DEFAULT_GROUP_ORDER_ID, createLocalClientApi } from "../composition/api/local-client-api";
 
 describe("LocalClientApi", () =>
 {

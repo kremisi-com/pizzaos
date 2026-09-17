@@ -30,8 +30,8 @@ import type {
   LoyaltyState
 } from "@pizzaos/domain";
 import type { DemoStorage } from "@pizzaos/mock-data";
-import { createMockOrder, DELIVERY_FEE_CENTS, deriveCheckoutTotals } from "../features/checkout/checkout-model";
-import { deriveCustomizationPrice, type CustomizationState, type IngredientMode } from "../features/customization/customization-model";
+import { createMockOrder, DELIVERY_FEE_CENTS, deriveCheckoutTotals } from "../../features/checkout/checkout-model";
+import { deriveCustomizationPrice, type CustomizationState, type IngredientMode } from "../../features/customization/customization-model";
 import {
   addCartItem,
   clearCartState,
@@ -40,17 +40,17 @@ import {
   saveCartState,
   type CartItem,
   type CartState
-} from "../features/cart/cart-model";
+} from "../../features/cart/cart-model";
 import {
   addGroupOrderItem,
   loadGroupOrderState,
   removeGroupOrderItem,
   saveGroupOrderState,
   type GroupOrderState
-} from "../features/group-order/group-order-model";
-import { loadClientDemoState, saveClientDemoState } from "../features/home/client-demo-state";
-import { applyCouponCode, deriveCheckoutCoupons, deriveEarnedLoyaltyPoints, deriveRedeemableRewards, resolveLoyaltyTierId } from "../features/loyalty/loyalty-model";
-import { createCartStateFromOrder, deriveTrackingSnapshot } from "../features/orders/orders-model";
+} from "../../features/group-order/group-order-model";
+import { loadClientDemoState, saveClientDemoState } from "../client-demo-state";
+import { applyCouponCode, deriveCheckoutCoupons, deriveEarnedLoyaltyPoints, deriveRedeemableRewards, resolveLoyaltyTierId } from "../../features/loyalty/loyalty-model";
+import { createCartStateFromOrder, deriveTrackingSnapshot } from "../../features/orders/orders-model";
 
 export const CLIENT_CART_ID = "client-cart";
 export const DEFAULT_GROUP_ORDER_ID = "group-order-stasera";

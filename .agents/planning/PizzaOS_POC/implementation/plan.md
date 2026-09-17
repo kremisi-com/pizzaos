@@ -1,5 +1,13 @@
 # Shared Implementation Plan
 
+## Completed architecture maintenance (2026-09-17)
+
+- Moved admin cross-feature shell coordination to `apps/admin/src/composition`.
+- Moved client shell, local API, and demo-state coordination to `apps/client/src/composition`.
+- Added a repository import-boundary check and updated the README hierarchy. The detailed target, requirements, and review are in `.agents/design/2026-09-17-progressive-disclosure/`.
+- Removed the domain entry-point cycle while preserving its public exports.
+- Preserved the existing checkout service as a documented deviation from this plan's frontend-only POC constraint. The remaining direct imports between client ordering features are recorded in the new design for a later workflow refactor.
+
 ## Checklist
 
 - [X] Step 1: Bootstrap the Turborepo workspace and shared toolchain.

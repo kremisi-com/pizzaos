@@ -1,6 +1,6 @@
 import { getThemeClass, getThemeStyleVariables } from "@pizzaos/brand";
 import { BottomNav } from "@/features/navigation/BottomNav";
-import { ClientApiProvider } from "@/api/client-api-provider";
+import { ClientApiProvider } from "@/composition/api/client-api-provider";
 import type { Metadata } from "next";
 import type { CSSProperties, ReactElement, ReactNode } from "react";
 import "./globals.css";

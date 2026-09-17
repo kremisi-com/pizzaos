@@ -4,10 +4,10 @@ import type { ClientProductCustomization, Product, ProductAllergen } from "@pizz
 import type { ClientSeed } from "@pizzaos/mock-data";
 import { Badge, Dialog } from "@pizzaos/ui";
 import { useCallback, useEffect, useReducer, useRef, useState, type Dispatch, type ReactElement } from "react";
-import { createLocalClientApi, CLIENT_CART_ID, DEFAULT_GROUP_ORDER_ID } from "../../../api/local-client-api";
+import { createLocalClientApi, CLIENT_CART_ID, DEFAULT_GROUP_ORDER_ID } from "../../../composition/api/local-client-api";
 import { addCartItem } from "../../cart/cart-model";
 import { addGroupOrderItem } from "../../group-order/group-order-model";
-import { loadClientDemoState } from "../../home/client-demo-state";
+import { loadClientDemoState } from "../../../composition/client-demo-state";
 import { deriveProductAvailability } from "../../menu/menu-view-model";
 import {
   ALLERGEN_EMOJI_MAP,

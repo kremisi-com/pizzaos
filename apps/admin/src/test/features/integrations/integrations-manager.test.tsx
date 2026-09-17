@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { createElement } from "react";
 import { renderToString } from "react-dom/server";
-import { IntegrationsManager } from "@/features/integrations/components/integrations-manager";
+import { IntegrationsManager } from "../../../features/integrations/components/integrations-manager";
 
 describe("IntegrationsManager", () => {
   it("renders only supported placeholder integrations", () => {

@@ -5,7 +5,7 @@ import type { ClientSeed } from "@pizzaos/mock-data";
 import { PRODUCTS_MENU } from "@pizzaos/mock-data";
 import { useEffect, useState, type ReactElement } from "react";
 import { addCartItem } from "../../cart/cart-model";
-import { loadClientDemoState } from "../../home/client-demo-state";
+import { loadClientDemoState } from "../../../composition/client-demo-state";
 import {
   deriveMenuSections,
   deriveProductAvailability

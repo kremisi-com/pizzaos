@@ -24,6 +24,9 @@ packages/
   testing/
   eslint-config/
   typescript-config/
+
+services/
+  checkout-api/
 ```
 
 ## Demo Narrative
@@ -41,6 +44,7 @@ packages/
 - `pnpm test`: run Vitest suites
 - `pnpm test:workspaces`: run package and app test scripts through Turbo
 - `pnpm e2e`: run Playwright tests
+- `pnpm architecture:check`: check workspace import boundaries
 
 ## Vercel Deployment
 
@@ -62,6 +66,7 @@ Use `pnpm install` for install and `pnpm build` for build in each project. The a
 - `packages/testing`: shared test helpers
 - `packages/eslint-config`: lint config presets
 - `packages/typescript-config`: TypeScript config presets
+- `services/checkout-api`: existing Fastify checkout service, outside the original frontend-only POC scope
 
 ## Import Rules
 
@@ -69,6 +74,8 @@ Use `pnpm install` for install and `pnpm build` for build in each project. The a
 - Apps must not import from other apps.
 - Shared packages must not import from app code.
 - Shared packages should not deep-import internal `src` paths from other packages.
+- App-level `src/composition` owns cross-feature coordination in the admin and client apps.
+- The existing client ordering flow still has direct feature-to-feature imports; these are recorded in the progressive disclosure design for a later workflow refactor.
 
 ## TypeScript And Next.js Boundaries
 

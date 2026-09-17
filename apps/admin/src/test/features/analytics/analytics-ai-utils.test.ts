@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildOrderTrendSeries, buildSimulatedAiTypingText } from "@/features/analytics/analytics-ai-utils";
+import { buildOrderTrendSeries, buildSimulatedAiTypingText } from "../../../features/analytics/analytics-ai-utils";
 
 describe("analytics ai utils", () => {
   it("builds deterministic trend points from analytics snapshot", () => {

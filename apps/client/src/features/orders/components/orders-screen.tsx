@@ -15,7 +15,7 @@ import {
   type ClientFeedbackState,
   type FeedbackRating
 } from "../../feedback/feedback-model";
-import { loadClientDemoState, saveClientDemoState } from "../../home/client-demo-state";
+import { loadClientDemoState, saveClientDemoState } from "../../../composition/client-demo-state";
 import {
   advanceClientOrderState,
   createCartStateFromOrder,

@@ -37,6 +37,7 @@ export interface OrderDisplayContext {
 }
 
 const STATUS_LABELS: Record<OrderStatus, string> = {
+  pending_payment: "Pagamento in attesa",
   received: "Ricevuto",
   confirmed: "Confermato",
   preparing: "In preparazione",
@@ -55,6 +56,7 @@ const ACTION_LABELS: Partial<Record<OrderStatus, string>> = {
 };
 
 const CLIENT_STORY_BY_STATUS: Record<OrderStatus, string> = {
+  pending_payment: "Il pagamento dell'ordine e in attesa di conferma.",
   received: "Il locale ha ricevuto l'ordine e lo sta verificando.",
   confirmed: "L'ordine e confermato: il cliente vede la presa in carico.",
   preparing: "La cucina sta preparando l'ordine.",

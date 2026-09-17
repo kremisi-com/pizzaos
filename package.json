@@ -14,6 +14,7 @@
     "typecheck": "turbo run typecheck",
     "test": "vitest run",
     "test:workspaces": "turbo run test",
+    "architecture:check": "node scripts/check-architecture.mjs && node --test scripts/check-architecture.test.mjs",
     "e2e": "playwright test"
   },
   "devDependencies": {

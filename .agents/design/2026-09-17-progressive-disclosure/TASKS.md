@@ -1,0 +1,4 @@
+- [x] **admin-composition**: Move admin shell orchestration to app composition and verify route and simulation behavior.
+- [x] **client-composition**: Move client API and demo persistence to app composition and verify customer flows.
+- [x] **domain-cycle**: Remove the domain entry-point cycle while preserving package exports.
+- [x] **architecture-review**: Guard boundaries, update README hierarchy, and review the resulting import graph.

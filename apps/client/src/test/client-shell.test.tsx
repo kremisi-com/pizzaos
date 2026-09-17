@@ -7,8 +7,8 @@ import { renderToString } from "react-dom/server";
 import { CLIENT_CART_STORAGE_KEY } from "../features/cart/cart-model";
 import { CLIENT_GROUP_ORDER_STORAGE_KEY } from "../features/group-order/group-order-model";
 import { CLIENT_FEEDBACK_STORAGE_KEY } from "../features/feedback/feedback-model";
-import { ClientShell } from "../features/home/components/client-shell";
-import { getClientDemoStateStorageKey } from "../features/home/client-demo-state";
+import { ClientShell } from "../composition/client-shell";
+import { getClientDemoStateStorageKey } from "../composition/client-demo-state";
 import { CLIENT_ORDER_NOTIFICATIONS_STORAGE_KEY } from "../features/orders/orders-model";
 
 describe("client shell", () =>

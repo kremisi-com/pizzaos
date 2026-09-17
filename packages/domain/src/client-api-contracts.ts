@@ -13,7 +13,7 @@ import type {
   Product,
   ProductStatus,
   SlotAvailability
-} from "./index";
+} from "./model";
 
 /**
  * Frontend boundary for the client ordering experience.
