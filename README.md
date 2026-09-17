@@ -29,6 +29,10 @@ services/
   checkout-api/
 ```
 
+## Reading the Repository
+
+For a change within an app, start with that app's README and follow its links to the relevant feature README. Smaller feature folders are summarized by the app map; shared packages have their own READMEs.
+
 ## Demo Narrative
 
 1. `landing` introduces PizzaOS and its value.

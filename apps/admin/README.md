@@ -21,14 +21,14 @@ This app does not own shared package internals or other app surfaces.
 - `app/page.tsx`: admin route entry
 - `src/composition/admin-shell.tsx`: shell composition, top-level KPIs, marketing opportunity cards, store reset, and coordination of operational features
 - `src/features/store-switch`: multi-store selector with deterministic local dataset switching
-- `src/features/orders`: live orders dashboard, new-order notifications, order details, kitchen/bar routing, and cross-POC narrative alignment (`demoOrderRef` + milestone cliente)
-- `src/features/catalog`: menu and product management with editable prezzo/ingredienti and allergeni derivati
-- `src/features/inventory`: ingredient-first stock table, operational alerts, and replenishment actions
-- `src/features/marketing`: coupon, loyalty, automation cards, and Dynamic Pricing controls
-- `src/features/analytics`: "Analytics and AI" surface with animated trend charts, enriched insights, and AI live typing simulation
-- `src/features/delivery`: rider assignment and local tracking simulation
+- [`src/features/orders`](src/features/orders/README.md): operational orders
+- [`src/features/catalog`](src/features/catalog/README.md): menu and product editing
+- [`src/features/inventory`](src/features/inventory/README.md): ingredient stock
+- [`src/features/marketing`](src/features/marketing/README.md): coupons and growth controls
+- [`src/features/analytics`](src/features/analytics/README.md): analytics and AI presentation
+- [`src/features/delivery`](src/features/delivery/README.md): delivery overview
 - `src/features/integrations`: supported-only placeholder integrations for the POC scope
-- `src/features/profile`: profilo ristoratore con piano attivo, cambio piano simulato, e stato fatturazione mock persistito
+- [`src/features/profile`](src/features/profile/README.md): operator profile and mock billing
 
 ## Shared Dependencies
 

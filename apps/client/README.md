@@ -41,14 +41,16 @@ un checkout che trova uno slot o un prodotto non più disponibile riceve un conf
 - `app/orders/page.tsx`: order timeline, notifications, tracking, history, quick reorder, and post-delivery feedback route
 - `app/rewards/page.tsx`: loyalty, reward, coupon, and subscription overview route
 - `src/composition/client-shell.tsx`: mobile-first home shell, reorder prompt, and reset UI
-- `src/features/menu`: section browsing, slot visibility, and product availability rendering
-- `src/features/customization`: product detail, guided stepper, pricing logic, allergens, and pairings
-- `src/features/cart`: cart persistence, quantity management, and cart review UI
-- `src/features/group-order`: stato locale persistito del gruppo, contributo personale e riepilogo del carrello condiviso; resta separato dal carrello individuale
-- `src/features/checkout`: checkout totals, contatti snapshot, consegna/ritiro, validation, mock payment, and confirmation flow
-- `src/features/orders`: order simulation, timeline, notifications, tracking UI, history, and reorder helpers
-- `src/features/feedback`: local feedback persistence, rating helpers, and simulated Google review redirect state
-- `src/features/loyalty`: loyalty helpers, coupon validation, rewards UI, and subscription messaging
+- [`src/features/menu`](src/features/menu/README.md): menu browsing
+- [`src/features/customization`](src/features/customization/README.md): product choices
+- [`src/features/cart`](src/features/cart/README.md): individual cart
+- [`src/features/group-order`](src/features/group-order/README.md): local group cart
+- [`src/features/checkout`](src/features/checkout/README.md): checkout flow
+- [`src/features/orders`](src/features/orders/README.md): customer order lifecycle
+- [`src/features/feedback`](src/features/feedback/README.md): post-order ratings
+- [`src/features/loyalty`](src/features/loyalty/README.md): points and rewards
+- `src/features/products`: extended catalog view using menu and cart behavior
+- `src/features/navigation`: bottom navigation
 - `src/composition/client-demo-state.ts`: local storage hydration and reset helpers
 - `src/composition/api/local-client-api.ts`: local `ClientApiContract` repository for catalog, cart, checkout, orders, loyalty,
   coupons, group order, and tracking

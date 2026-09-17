@@ -21,7 +21,7 @@ This app does not own shared tokens, domain contracts, or reusable cross-app pri
 - `app/seo.ts`: canonical SEO metadata, social sharing image contract, JSON-LD structured data, viewport settings, manifest, sitemap, and robots contracts
 - `app/manifest.ts`, `app/robots.ts`, `app/sitemap.ts`: App Router metadata routes for discoverability
 - `app/page.tsx`: landing route entry, including the `?c=t` gate for the chain-management section
-- `src/features/home`: landing shell composition, including the hero, challenge grid, complete-platform visual section, feature-difference section, margin comparison section, analytics-growth section, intelligent order-management section, pricing section, product story sections, differentiation, FAQ with contact form, final CTA, Iubenda policy links, and the demo request flow
+- [`src/features/home`](src/features/home/README.md): landing narrative and demo-request flow
 - `public/brand`: real PizzaOS brand assets sourced from `external/PIZZAOS-ELEMNTS`, including horizontal logos, pictogram, app icon, and the circular pattern used by the landing visual system
 - `public/favicon`: legacy PNG favicon fallbacks retained for compatibility
 - `public/social`: Open Graph and WhatsApp-friendly social sharing artwork
