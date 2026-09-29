@@ -1,88 +1,56 @@
 # PizzaOS Monorepo
 
-PizzaOS is a frontend-only proof of concept built as a Turborepo with three separate Next.js apps:
+PizzaOS is a Turborepo monorepo with three independently owned product surfaces:
 
 - `landing`: product storytelling and marketing
-- `client`: customer ordering experience
+- `client`: customer ordering
 - `admin`: restaurant operations and insights
 
-All three surfaces are part of one ecosystem but remain runtime-independent for demo clarity.
+The applications share brand contracts and reusable packages while keeping separate routes, composition boundaries, and UX expressions. Server-side checkout and payment behavior belongs to `services/checkout-api`.
 
-## Workspace Map
+## Repository map
 
 ```text
+AGENTS.md
 apps/
-  landing/
-  client/
-  admin/
-
+  README.md
+  landing/README.md + AGENTS.md
+  client/README.md + AGENTS.md
+  admin/README.md + AGENTS.md
 packages/
-  brand/
-  ui/
-  domain/
-  mock-data/
-  testing/
-  eslint-config/
-  typescript-config/
-
+  README.md
+  <package>/README.md
 services/
-  checkout-api/
+  README.md
+  checkout-api/README.md + AGENTS.md
+docs/
+  architecture/ownership.md
+  frontend/conventions.md
+  frontend/design-system.md
+  testing/strategy.md
 ```
 
-## Reading the Repository
+## Reading the repository
 
-For a change within an app, start with that app's README and follow its links to the relevant feature README. Smaller feature folders are summarized by the app map; shared packages have their own READMEs.
-
-## Demo Narrative
-
-1. `landing` introduces PizzaOS and its value.
-2. `client` shows the ordering flow from the customer perspective.
-3. `admin` shows operational and insight workflows using simulated local data.
+Start from the nearest README for the module being changed and read its local `AGENTS.md` when present. Load child documentation only when directly relevant. The root [`AGENTS.md`](AGENTS.md) is the global context router; [`docs/`](docs/) contains cross-cutting guidance.
 
 ## Commands
 
-- `pnpm dev`: run all apps in parallel with Turborepo
+- `pnpm dev`: run all workspace apps in parallel with Turborepo
 - `pnpm build`: run workspace builds
 - `pnpm lint`: run workspace lint checks
 - `pnpm typecheck`: run workspace type checks
 - `pnpm test`: run Vitest suites
 - `pnpm test:workspaces`: run package and app test scripts through Turbo
 - `pnpm e2e`: run Playwright tests
-- `pnpm architecture:check`: check workspace import boundaries
+- `pnpm architecture:check`: check workspace import boundaries and circular dependencies
 
-## Vercel Deployment
+## Deployment
 
-Deploy each app as a separate Vercel project:
+Deploy each app as a separate Vercel project with its app directory as the root:
 
-- `client` -> `apps/client`
-- `admin` -> `apps/admin`
-- `landing` -> `apps/landing`
+- `client` → `apps/client`
+- `admin` → `apps/admin`
+- `landing` → `apps/landing`
 
-Use `pnpm install` for install and `pnpm build` for build in each project. The app-level `vercel.json` files keep those commands explicit.
-
-## Ownership Boundaries
-
-- `apps/*`: routing, page composition, and app-specific UX
-- `packages/brand`: shared brand contracts and theme utilities
-- `packages/ui`: shared reusable UI primitives
-- `packages/domain`: shared domain types and helpers
-- `packages/mock-data`: deterministic seeds and simulation helpers
-- `packages/testing`: shared test helpers
-- `packages/eslint-config`: lint config presets
-- `packages/typescript-config`: TypeScript config presets
-- `services/checkout-api`: existing Fastify checkout service, outside the original frontend-only POC scope
-
-## Import Rules
-
-- Apps can import from shared package public entry points only (for example `@pizzaos/domain`).
-- Apps must not import from other apps.
-- Shared packages must not import from app code.
-- Shared packages should not deep-import internal `src` paths from other packages.
-- App-level `src/composition` owns cross-feature coordination in the admin and client apps.
-- The existing client ordering flow still has direct feature-to-feature imports; these are recorded in the progressive disclosure design for a later workflow refactor.
-
-## TypeScript And Next.js Boundaries
-
-- Root `tsconfig.json` defines workspace project references for navigation and editor safety.
-- App `tsconfig.json` files define local `@/*` aliases and references to shared packages.
-- Every app `next.config.ts` defines `transpilePackages` for shared workspace packages.
+Service setup and runtime requirements are documented in [`services/checkout-api/README.md`](services/checkout-api/README.md).

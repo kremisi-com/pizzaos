@@ -1,241 +1,85 @@
-# AGENTS.md
+# PizzaOS Agent Guidelines
 
 ## Mission
 
-Build the PizzaOS Proof of Concept as a visually strong, frontend-only monorepo with three separate apps:
+Build and evolve PizzaOS as a maintainable monorepo composed of three independently owned product surfaces:
 
-- `landing`
-- `client`
-- `admin`
+- `landing`: product storytelling and marketing
+- `client`: customer ordering
+- `admin`: restaurant operations and insights
 
-The goal is to impress in demo while keeping implementation lightweight, mock-driven, and easy for humans and AI agents
-to navigate.
+The three surfaces belong to one ecosystem while retaining distinct responsibilities, navigation, and visual expression.
 
-## Read This First
+## Context loading
 
-Before making architectural or feature decisions, read these planning artifacts:
+Use progressive disclosure.
 
-- `.agents/planning/PizzaOS_POC/requirements/shared-requirements.md`
-- `.agents/planning/PizzaOS_POC/requirements/landing-requirements.md`
-- `.agents/planning/PizzaOS_POC/requirements/client-requirements.md`
-- `.agents/planning/PizzaOS_POC/requirements/admin-requirements.md`
-- `.agents/planning/PizzaOS_POC/design/detailed-design.md`
-- `.agents/planning/PizzaOS_POC/design/landing-design.md`
-- `.agents/planning/PizzaOS_POC/design/client-design.md`
-- `.agents/planning/PizzaOS_POC/design/admin-design.md`
-- `.agents/planning/PizzaOS_POC/implementation/plan.md`
-- `.agents/planning/PizzaOS_POC/implementation/landing-plan.md`
-- `.agents/planning/PizzaOS_POC/implementation/client-plan.md`
-- `.agents/planning/PizzaOS_POC/implementation/admin-plan.md`
+1. Identify the module that owns the requested change.
+2. Read its nearest `README.md`.
+3. Read its local `AGENTS.md` when present.
+4. Load child documentation only when directly relevant.
+5. Move upward only when broader architectural context is required.
 
-If implementation and code diverge from the planning docs, prefer updating the planning docs or explicitly documenting the
-reason for the deviation.
+Do not automatically read unrelated sibling modules, historical documents, or the complete documentation tree.
 
-## Product Constraints
+README files describe the current architecture. Historical documents should only be consulted when the reason behind an existing decision matters.
 
-- All three apps have equal demo priority.
-- The apps are part of one PizzaOS ecosystem, but they must remain separate app surfaces.
-- The demo narrative is:
-  - landing introduces PizzaOS
-  - client shows customer ordering
-  - admin shows restaurant operations and insights
-- The POC is frontend-only:
-  - no real backend
-  - no real payments
-  - no real AI
-  - no real GPS tracking
-  - no real external integrations
-  - no real app-to-app communication
-- Admin-side updates that appear to follow client-side orders must be simulated locally in the admin app.
-- Every feature from the brief must appear at least in navigable form, even if simulated or placeholder-based.
-- Use Italian in product-facing UI and content.
-- Never mention the restaurant name from the UX foundation source document anywhere in product code, copy, docs, or mocks.
+## Ownership
 
-## Repository Shape
+Repository structure represents conceptual ownership.
 
-The target repository structure is:
+- `apps/` owns routing, page composition, and app-specific UX.
+- `packages/` owns reusable capabilities and public contracts.
+- `services/` owns server-side capabilities, persistence, and external integrations.
 
-```text
-apps/
-  landing/
-  client/
-  admin/
+Modules communicate through public contracts.
 
-packages/
-  brand/
-  ui/
-  domain/
-  mock-data/
-  testing/
-  eslint-config/
-  typescript-config/
-```
+Apps must not import from other apps. Packages must not depend on applications or service implementations. Sibling modules must not depend on each other's private implementation. Business logic must always have a clear owner.
 
-Use feature-first organization inside each app under the route layer.
+Read the relevant directory README before making cross-module changes:
 
-Example:
+- [`apps/README.md`](apps/README.md)
+- [`packages/README.md`](packages/README.md)
+- [`services/README.md`](services/README.md)
 
-```text
-apps/client/
-  app/
-  src/
-    features/
-      menu/
-      checkout/
-      loyalty/
-```
+## Global product constraints
 
-## Ownership Rules
+Product-facing UI and content must use Italian.
 
-- `apps/*` own routes, page composition, and app-specific UX.
-- `packages/brand` owns tokens, themes, and brand-level visual contracts.
-- `packages/ui` owns reusable primitives and shared components.
-- `packages/domain` owns shared domain models and helpers.
-- `packages/mock-data` owns seeds, fixtures, simulation helpers, and reset logic.
-- `packages/testing` owns shared test helpers and fixtures.
+PizzaOS uses one shared brand system with controlled surface-specific expressions. Do not flatten the applications into one generic visual language or turn them into unrelated design systems.
 
-Do not put app-specific business logic into shared packages unless it is genuinely shared across at least two apps.
+Do not introduce direct app-to-app runtime coupling. Backend behavior, persistence, payments, and integrations must belong to an explicit service or module owner.
 
-Do not make packages depend on apps.
+Do not reference the restaurant brand from the UX foundation source document in product code, copy, documentation, or mocks.
 
-Prefer small public APIs and avoid deep imports across packages.
+## Engineering principles
 
-## Frontend Stack
+Implement the smallest complete increment that respects current public behavior and architecture.
 
-- `Next.js` App Router for all apps
-- `Turborepo` for the monorepo
-- `Radix Primitives` for accessibility and behavior
-- `vanilla-extract` for shared themes and styling contracts
-- `CSS Modules` or `SCSS Modules` for app-local composition
+Keep TypeScript, tests, and linting clean. Do not suppress errors using `any`, `@ts-ignore`, disabled lint rules, or equivalent shortcuts.
 
-Do not use Tailwind CSS.
+Prefer public package entry points and avoid deep imports into package or service internals.
 
-## Visual Direction
+## Workflow
 
-One brand core, three controlled surface expressions:
+1. Identify the owning module.
+2. Read its nearest README and local instructions.
+3. Load only the context required by the task.
+4. Use the appropriate repository skill when the task requires it.
+5. Implement the smallest complete change.
+6. Add or update relevant tests.
+7. Run the relevant checks.
+8. Update documentation when public behavior, ownership, structure, or commands change.
+9. Review the final diff and repository status.
 
-- `landing`: editorial premium food
-- `client`: warm tech premium
-- `admin`: bold operational SaaS
+## Definition of done
 
-These are theme and composition variants of one system, not three unrelated design systems.
+A change is complete when:
 
-Do not flatten the three apps into one generic visual language.
-Do not make them so different that they stop feeling like PizzaOS.
+- the implementation works;
+- relevant tests and checks pass;
+- public behavior and documentation are consistent;
+- ownership boundaries remain respected;
+- only expected files changed.
 
-## UX Priorities
-
-### Landing
-
-- Product storytelling first
-- Strong hero and CTA hierarchy
-- Responsive, but strongest on desktop
-
-### Client
-
-- Mobile-first
-- Fast reorder and fast ordering
-- Clear availability, pricing, allergens, and slot visibility
-- Guided customization without clutter
-
-### Admin
-
-- Desktop-first
-- Operational clarity and information density
-- Real store switching across distinct datasets
-- Strong analytics and AI value story, even if simulated
-
-## State And Simulation Rules
-
-- Persist local state with `localStorage`.
-- Every app must have a curated seeded starting state.
-- Every app must support explicit demo reset or reseed behavior.
-- Simulations should be deterministic enough to test reliably.
-- Use mock data and local timers instead of fake network complexity unless a feature explicitly benefits from a mock API
-  shape.
-
-## Documentation Requirements
-
-Maintain:
-
-- root `README.md`
-- one `README.md` per app
-- one `README.md` per shared package
-
-README files should explain:
-
-- purpose
-- ownership boundaries
-- public API or feature map
-- how to run or test the area
-
-Do not add feature-level README files unless there is a strong reason.
-
-## Testing And Delivery Rules
-
-Use a TDD mindset.
-
-Baseline stack:
-
-- `Vitest`
-- `React Testing Library`
-- `Playwright`
-
-For every implementation step:
-
-- add or update tests with the feature, not afterward
-- keep the codebase working at the end of the step
-- ensure the increment is manually demoable
-
-Do not create long stretches of orphaned code that are not yet wired into the app.
-
-## Coding Expectations
-
-- Keep files and functions small enough to stay readable.
-- Prefer clear names over short names.
-- Avoid duplication across apps when the logic is truly shared.
-- Keep comments rare and useful.
-- Use constants for repeated fixed values.
-- Keep lines reasonably short.
-
-## Agent Workflow
-
-When working on a task:
-
-1. Read the relevant requirement, design, and implementation-plan documents first.
-2. Confirm which app or shared package owns the change.
-3. Implement the smallest complete increment that matches the current plan step.
-4. Add or update tests in the same change.
-5. Fix any typescript error that appears. Never use any or tsignore to silence them.
-6. Fix any linting errors that appear. Never use disable linting rules to silence them.
-7. Use `@/` paths where possible
-8. Verify the step is demoable.
-9. Update documentation if public behavior, structure, or commands changed.
-10. After everything is done, run a final check that the change matches the plan, tests pass, and the demo works.
-11. Mark the task as complete in the implementation plan document, and optionally add a note if there were any deviations or discoveries during implementation that are worth recording for future reference.
-12. Run `git status` to confirm only expected files are changed, and the changes are properly staged for commit. If necessary, update the `.gitignore` to avoid accidentally including files that should not be committed.
-13. Commit the changes after each task, using the git standard commit message format, providing a clear short title, a thorough description of the changes and referencing any relevant issue or task IDs.
-
-## What Not To Do
-
-- Do not introduce a real backend as part of the POC.
-- Do not couple the apps together at runtime.
-- Do not add Tailwind.
-- Do not bypass the shared brand system with ad hoc global styles.
-- Do not bury mock data inside random components.
-- Do not use placeholder UIs that cannot be navigated when the plan expects interactive behavior.
-- Do not reference the source restaurant brand from the UX input.
-- Do not use `any` to silence TypeScript errors.
-
-## Definition Of Done
-
-A change is done when:
-
-- it matches the relevant planning document
-- tests for the new behavior exist and pass
-- the increment is demoable
-- the appropriate README coverage remains accurate
-- the change preserves the AI-friendly repository boundaries
-
-## Rules for Google Antigravity
-- don't use the live demo to test the visual design, let me send you the screenshots
+Any intentional architectural deviation must be explicit and documented.

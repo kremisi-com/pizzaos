@@ -13,6 +13,16 @@ This package owns:
 
 This package does not own app-specific layout or feature composition.
 
+## Design system role
+
+PizzaOS has one shared brand core with three controlled surface expressions:
+
+- `landing`: editorial premium food
+- `client`: warm tech premium
+- `admin`: bold operational SaaS
+
+The package owns the shared theme contracts and token mapping. Surface-specific layout, copy, UX priorities, and composition remain owned by the corresponding application. See [`docs/frontend/design-system.md`](../../docs/frontend/design-system.md) for the cross-surface design model.
+
 ## Public API
 
 Entry point: `@pizzaos/brand`
