@@ -30,6 +30,7 @@ Current exports from `src/index.ts`:
 - `domScreen`
 - `domFireEvent`
 - `domWithin`
+- `domWaitFor(callback, options?)`
 - `withFrozenDateNow(isoTimestamp, callback)`
 - `createDeterministicClock(startIso, stepMilliseconds)`
 

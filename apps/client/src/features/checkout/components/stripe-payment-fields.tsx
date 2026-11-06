@@ -1,7 +1,7 @@
 "use client";
 
 import { CardElement, Elements, useElements, useStripe } from "@stripe/react-stripe-js";
-import { loadStripe } from "@stripe/stripe-js";
+import { loadStripe } from "@stripe/stripe-js/pure";
 import { useEffect, type ReactElement } from "react";
 
 export interface StripePaymentFieldsProps

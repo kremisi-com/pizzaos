@@ -8,7 +8,7 @@ Applications consume explicit public contracts or HTTP boundaries; they must not
 
 ## Service map
 
-- [`checkout-api`](checkout-api/README.md) — Fastify service for checkout attempts, Stripe payment intents, idempotency, and PostgreSQL persistence. Read [`checkout-api/AGENTS.md`](checkout-api/AGENTS.md) before changing it.
+- [`checkout-api`](checkout-api/README.md) — Fastify owner for durable pilot identity, store configuration/catalog, individual orders, operational transitions, reservations, Stripe payments/refunds and PostgreSQL persistence. Read [`checkout-api/AGENTS.md`](checkout-api/AGENTS.md) before changing it.
 
 ## Service boundaries
 

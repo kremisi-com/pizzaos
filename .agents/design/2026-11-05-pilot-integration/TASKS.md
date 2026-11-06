@@ -1,0 +1,2 @@
+- [x] **runtime-http**: Collegare persistenza, autorizzazioni e route con test indipendenti end-to-end del servizio.
+- [x] **operational-surfaces**: Collegare analytics, elenco rider/assegnazioni e accesso rider alla stessa app admin; verificare UI e flusso browser.

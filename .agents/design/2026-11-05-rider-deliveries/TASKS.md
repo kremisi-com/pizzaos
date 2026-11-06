@@ -1,0 +1,2 @@
+- [x] **delivery-service**: Contratti, appartenenze separate, assegnazioni, problemi e guard atomico di avanzamento; 15 test indipendenti superati. Il collegamento del guard al runtime canonico resta da verificare nell'incremento di integrazione.
+- [x] **rider-interface**: Vista italiana delle sole consegne assegnate con port iniettato e adapter HTTP; 9 test indipendenti superati. Route, composizione admin e collegamento backend restano da verificare nell'incremento di integrazione.

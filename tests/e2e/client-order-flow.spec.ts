@@ -1,15 +1,13 @@
 import { expect, test } from "@playwright/test";
+import { loginDemo } from "./demo-login";
+
+test.beforeEach(async ({ context }) => { await loginDemo(context.request, "http://127.0.0.1:3001"); });
 
 test.describe("client order flow", () =>
 {
   test("places a full mock order through cart and checkout confirmation", async ({ page }) =>
   {
     await page.goto("http://127.0.0.1:3001/product/product-margherita");
-
-    for (let stepIndex = 0; stepIndex < 4; stepIndex += 1)
-    {
-      await page.getByRole("button", { name: "Continua" }).click();
-    }
 
     await page.getByRole("button", { name: "Aggiungi al carrello" }).click();
     await page.getByRole("link", { name: "Vai al carrello" }).click();
@@ -20,7 +18,6 @@ test.describe("client order flow", () =>
     await expect(page.getByRole("heading", { name: "Checkout" })).toBeVisible();
 
     await page.getByRole("button", { name: "10%" }).click();
-    await page.getByLabel("Ultime 4 cifre").fill("1234");
     await page.getByTestId("checkout-submit-button").click();
 
     await expect(page.getByRole("heading", { name: "Il tuo ordine è confermato" })).toBeVisible();
@@ -95,7 +92,7 @@ test.describe("client order flow", () =>
     await page.getByLabel("Ritiro in pizzeria").check();
     await expect(page.getByLabel("Citofono")).toHaveCount(0);
     await expect(page.getByText("Consegna", { exact: true })).toHaveCount(0);
-    await page.getByLabel("Contanti alla consegna (simulazione)").check();
+    await page.getByLabel("Contanti alla consegna").check();
     await page.getByTestId("checkout-submit-button").click();
 
     await expect(page.getByRole("heading", { name: "Il tuo ordine è confermato" })).toBeVisible();

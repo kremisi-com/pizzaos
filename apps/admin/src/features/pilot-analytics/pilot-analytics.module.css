@@ -1,0 +1,26 @@
+.panel {
+  padding: 1.25rem;
+  border: 1px solid #dbe1e8;
+  border-radius: 1rem;
+  background: #fff;
+  color: #172033;
+}
+
+.panel h2, .panel h3 { margin-top: 0; }
+.controls { display: flex; align-items: center; flex-wrap: wrap; gap: 0.6rem; margin: 1rem 0; }
+.controls select, .controls input, .controls button, .panel button {
+  font: inherit;
+  padding: 0.6rem 0.8rem;
+  border: 1px solid #b9c5d3;
+  border-radius: 0.5rem;
+  background: #fff;
+  color: inherit;
+}
+.controls button, .panel button { cursor: pointer; background: #172033; color: #fff; }
+.period { font-size: 0.9rem; color: #526174; }
+.metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr)); gap: 0.8rem; margin: 1.25rem 0; }
+.metrics > div { background: #f2f5f9; padding: 1rem; border-radius: 0.75rem; }
+.metrics dt { color: #526174; font-size: 0.85rem; }
+.metrics dd { margin: 0.4rem 0 0; font-size: 1.5rem; font-weight: 750; }
+.products { list-style: none; padding: 0; margin-bottom: 0; }
+.products li { display: flex; justify-content: space-between; gap: 1rem; padding: 0.6rem 0; border-top: 1px solid #e7edf4; }

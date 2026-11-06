@@ -4,4 +4,6 @@ Owns the individual customer's persisted cart lines and cart review screen. `car
 
 Group orders keep separate state. Checkout owns slot selection, payment, and order confirmation. This cart's storage key and line shape are part of the current demo-state contract, so changes need persistence and reorder coverage.
 
+The screen resolves product names from the catalog port when hydrating or updating API cart lines. Reordered products retain their readable names instead of displaying transport identifiers.
+
 Run `pnpm --filter @pizzaos/client test` for cart model, screen, and local API coverage.

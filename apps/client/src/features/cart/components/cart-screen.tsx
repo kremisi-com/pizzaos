@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState, type ReactElement } from "react";
-import type { ClientCart } from "@pizzaos/domain";
+import type { ClientCart, Product } from "@pizzaos/domain";
 import { useClientApi } from "../../../composition/api/client-api-provider";
 import { loadCartState, type CartItem, type CartState } from "../cart-model";
 import { DELIVERY_FEE_CENTS, deriveCheckoutTotals } from "../../checkout/checkout-model";
@@ -23,10 +23,17 @@ export function CartScreen(): ReactElement
 {
   const api = useClientApi();
   const [cartState, setCartState] = useState<CartState>(() => loadCartState(resolveStorage()));
+  const [products, setProducts] = useState<readonly Product[]>([]);
 
   useEffect(() =>
   {
-    void api.getCart(CLIENT_CONTEXT).then((response) => setCartState(toCartState(response.cart)));
+    let active = true;
+    void Promise.all([api.getCart(CLIENT_CONTEXT), api.getCatalog({ fulfillment: "delivery" })]).then(([response, catalog]) => {
+      if (!active) return;
+      setProducts(catalog.products);
+      setCartState(toCartState(response.cart, catalog.products));
+    });
+    return () => { active = false; };
   }, [api]);
 
   const totals = useMemo(
@@ -41,20 +48,20 @@ export function CartScreen(): ReactElement
   function handleQuantityChange(itemId: string, nextQuantity: number): void
   {
     void api.updateCartLine({ cartId: "client-cart", lineId: itemId, quantity: nextQuantity })
-      .then((response) => setCartState(toCartState(response.cart)));
+      .then((response) => setCartState(toCartState(response.cart, products)));
   }
 
   function handleRemove(itemId: string): void
   {
     void api.removeCartLine({ cartId: "client-cart", lineId: itemId })
-      .then((response) => setCartState(toCartState(response.cart)));
+      .then((response) => setCartState(toCartState(response.cart, products)));
   }
 
   function handleClearCart(): void
   {
     setCartState({ items: [] });
     void Promise.all(cartState.items.map((item) => api.removeCartLine({ cartId: "client-cart", lineId: item.id })))
-      .then((responses) => setCartState(toCartState(responses.at(-1)?.cart ?? { id: "client-cart", ...CLIENT_CONTEXT, lines: [], updatedAtIso: new Date().toISOString() })));
+      .then((responses) => setCartState(toCartState(responses.at(-1)?.cart ?? { id: "client-cart", ...CLIENT_CONTEXT, lines: [], updatedAtIso: new Date().toISOString() }, products)));
   }
 
   return (
@@ -195,13 +202,14 @@ function formatMoney(amountCents: number): string
   return MONEY_FORMATTER.format(amountCents / 100);
 }
 
-function toCartState(cart: ClientCart): CartState
+function toCartState(cart: ClientCart, products: readonly Product[]): CartState
 {
+  const names = new Map(products.map(product => [product.id, product.name]));
   return {
     items: cart.lines.map((line): CartItem => ({
       id: line.id,
       productId: line.productId,
-      productName: line.productId,
+      productName: names.get(line.productId) ?? line.productId,
       unitPriceCents: line.unitPrice.amountCents,
       quantity: line.quantity,
       notes: line.notes,

@@ -64,11 +64,13 @@ export function ProductDetailScreen(props: ProductDetailScreenProps): ReactEleme
   const [openSection, setOpenSection] = useState<OpenSection>(null);
   const [isPricePulsing, setIsPricePulsing] = useState(false);
   const [isAddSuccess, setIsAddSuccess] = useState(false);
+  const [isReady, setIsReady] = useState(false);
   const previousTotalRef = useRef<number | null>(null);
 
   useEffect(() =>
   {
     setSeed(loadClientDemoState(resolveStorage()));
+    setIsReady(true);
   }, []);
 
   const toggleSection = useCallback((section: OpenSection) =>
@@ -394,7 +396,7 @@ export function ProductDetailScreen(props: ProductDetailScreenProps): ReactEleme
             `${styles.stickyCtaButton}${isAddSuccess ? ` ${styles.stickyCtaSuccess}` : ""}`
           }
           onClick={handleAddToCartClick}
-          disabled={!isOrderable}
+          disabled={!isReady || !isOrderable}
           aria-label={`${formatMoney(priceBreakdown.totalCents)} – Aggiungi al carrello`}
         >
           {isAddSuccess ? (

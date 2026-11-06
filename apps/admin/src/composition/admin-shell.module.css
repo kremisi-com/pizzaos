@@ -89,6 +89,7 @@
 
 .content
 {
+  min-width: 0;
   padding: 38px clamp(24px, 3vw, 46px) 48px;
   background-color: transparent;
 }
@@ -159,6 +160,11 @@
   color: var(--pizzaos-color-foreground);
 }
 
+.navButton.navItemActive {
+  background-color: rgba(var(--pizzaos-color-primary-rgb), 0.1);
+  color: var(--pizzaos-color-primary);
+}
+
 .navIcon {
   display: inline-flex;
   width: 18px;
@@ -214,6 +220,79 @@
 
 .liveOrdersCard {
   grid-column: span 2;
+}
+
+.operationalHeading {
+  margin-bottom: 18px;
+}
+
+.operationalHeading h1 {
+  margin: 0;
+  color: var(--pizzaos-color-foreground);
+  font-size: 2rem;
+  line-height: 1.1;
+}
+
+.operationalHeading p {
+  margin: 8px 0 0;
+  color: var(--pizzaos-color-foreground-muted);
+}
+
+.operationalSettings {
+  display: grid;
+  gap: 16px;
+}
+
+.operationalInvite {
+  display: grid;
+  align-items: start;
+  justify-items: start;
+  gap: 12px;
+  padding: 20px;
+  border: 1px solid var(--pizzaos-color-border);
+  border-radius: 8px;
+  background: #fff;
+}
+
+.operationalInvite h2 {
+  margin: 0;
+}
+
+.operationalInvite input {
+  margin-left: 10px;
+  padding: 8px;
+  border: 1px solid var(--pizzaos-color-border);
+  border-radius: 8px;
+  font: inherit;
+}
+
+.operationalSignOut button {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid var(--pizzaos-color-border);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--pizzaos-color-foreground);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.operationalError,
+.operationalNotice {
+  padding: 12px 16px;
+  border-radius: 8px;
+  line-height: 1.5;
+}
+
+.operationalError {
+  background: #fff2f0;
+  color: #a43223;
+}
+
+.operationalNotice {
+  background: #ecfdf3;
+  color: #166534;
 }
 
 .liveOrdersPanel {

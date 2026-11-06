@@ -1,0 +1,8 @@
+.panels { max-width: 1380px; margin: 0 auto; padding: 24px; color: var(--color-text, #1f2430); }
+.tabs { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 20px; }
+.tabs button, .panels > button { border: 1px solid #c9c4b8; border-radius: 12px; padding: 12px 18px; font: inherit; font-weight: 700; cursor: pointer; background: #fff; color: #24363b; }
+.tabs button[aria-pressed="true"] { background: #24363b; border-color: #24363b; color: #fff; }
+.tabs button:focus-visible, .panels button:focus-visible, .riderAccount a:focus-visible { outline: 3px solid #f0a867; outline-offset: 3px; }
+.riderAccount { display: flex; justify-content: space-between; align-items: center; gap: 16px; max-width: 860px; margin: 0 auto; padding: 16px 24px 0; }
+.riderAccount a { color: #24363b; font-weight: 700; }
+@media (max-width: 640px) { .panels { padding: 16px; } }

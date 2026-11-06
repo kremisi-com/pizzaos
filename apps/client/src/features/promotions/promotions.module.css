@@ -1,0 +1,15 @@
+.selection { margin: 22px 0; padding: 20px 0; border-top: 1px solid #e7dfd4; border-bottom: 1px solid #e7dfd4; }
+.selection h3, .summary h3 { margin-top: 0; }
+.small { color: #6c635b; font-size: .82rem; line-height: 1.55; }
+.wallet { display: flex; flex-wrap: wrap; gap: 16px; margin: 16px 0; }
+.wallet dt { color: #6c635b; font-size: .78rem; }
+.wallet dd { font-size: 1.5rem; font-weight: 700; margin: 6px 0; }
+.selection .reward { display: flex; align-items: center; gap: 10px; font-weight: 500; }
+.reward input { width: 18px; height: 18px; accent-color: #a64529; }
+.selection summary { cursor: pointer; font-size: .85rem; color: #984021; }
+.movements { padding-left: 20px; font-size: .85rem; line-height: 1.7; }
+.summary { margin: 18px 0; }
+.summary dl { margin: 10px 0; }
+.summary dl div { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; margin: 14px 0; }
+.summary dd { margin: 0; font-weight: 650; }
+.summary .total { border-top: 1px solid #e7dfd4; padding-top: 15px; font-size: 1.15rem; }

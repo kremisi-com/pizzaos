@@ -1,4 +1,7 @@
 import { expect, test } from "@playwright/test";
+import { loginDemo } from "./demo-login";
+
+test.beforeEach(async ({ context }) => { await loginDemo(context.request, "http://127.0.0.1:3001"); });
 
 test.describe("client reorder flow", () =>
 {
@@ -20,8 +23,6 @@ test.describe("client reorder flow", () =>
 
     await expect(page.getByRole("heading", { name: "Checkout" })).toBeVisible();
 
-    await page.getByLabel("Intestatario carta").fill("Giulia Verdi");
-    await page.getByLabel("Ultime 4 cifre").fill("5678");
     await page.getByTestId("checkout-submit-button").click();
 
     await expect(page.getByRole("heading", { name: "Il tuo ordine è confermato" })).toBeVisible();

@@ -10,7 +10,7 @@ Each application has its own lifecycle and visual expression. Applications must 
 
 - [`landing`](landing/README.md) — product storytelling, acquisition, and marketing presentation. Read [`landing/AGENTS.md`](landing/AGENTS.md) for local design and editing constraints.
 - [`client`](client/README.md) — mobile-first customer ordering. Read [`client/AGENTS.md`](client/AGENTS.md) for ordering invariants and verification.
-- [`admin`](admin/README.md) — desktop-first restaurant operations and insights. Read [`admin/AGENTS.md`](admin/AGENTS.md) for operational UX constraints.
+- [`admin`](admin/README.md) — desktop-first restaurant operations and insights, plus the dedicated mobile rider experience. The approved target uses `admin.pizzaos.app` and `rider.pizzaos.app` on the same app project and frontend deployment per environment (D71). Read [`admin/AGENTS.md`](admin/AGENTS.md) for operational UX constraints.
 
 ## Architecture
 
@@ -23,7 +23,7 @@ Each application has its own lifecycle and visual expression. Applications must 
 
 ## State and simulation
 
-Production flows use explicit service contracts and server-owned state. `localStorage` is allowed only for browser-owned state that explicitly requires local persistence.
+Production flows use explicit service contracts and server-owned state. `localStorage` is allowed only for browser-owned state that explicitly requires local persistence. Client and admin default to real surfaces; their POC is available only through the service-verified demo session (`poc@pizzaos.app`, optional server-only `PIZZAOS_DEMO_PASSWORD`). The former global `PIZZAOS_MODE` switch is retired. Demo requests cannot call operational APIs, and demo payments never call Stripe.
 
 Demo seeds and simulations remain deterministic and are owned by [`packages/mock-data`](../packages/mock-data/README.md) or the application boundary that coordinates them. Local timers and mock APIs must not hide a missing production boundary. Features that expose local simulation must provide a reset or reseed path when required by the flow.
 

@@ -1,0 +1,2 @@
+- [x] **group-service**: raccolta persistente, capability, concorrenza, scadenza e checkout canonico unico verificati tramite servizio, HTTP e PostgreSQL reale su pool distinti.
+- [x] **group-surfaces**: esperienza italiana tra quattro browser distinti, checkout host e attribuzione ristorante verificati, con regressione individuale, build e documentazione.

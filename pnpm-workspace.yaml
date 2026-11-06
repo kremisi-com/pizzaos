@@ -2,6 +2,8 @@ packages:
   - "apps/*"
   - "packages/*"
   - "services/*"
+overrides:
+  "@auth/core>nodemailer": "10.3.1"
 allowBuilds:
   esbuild: true
   sharp: true

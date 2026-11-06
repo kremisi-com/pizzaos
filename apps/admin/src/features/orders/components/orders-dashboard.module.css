@@ -135,6 +135,41 @@
     gap: 12px;
 }
 
+.operationalKpis {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.toolbar.operationalToolbar {
+    grid-template-columns: minmax(0, 1fr) minmax(130px, auto) auto;
+}
+
+.operationalToolbar select {
+    min-height: 34px;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    background: #fff;
+    color: #111827;
+    font-size: 0.76rem;
+    padding: 0 8px;
+}
+
+.ordersTable.operationalTable {
+    min-width: 630px;
+}
+
+.orderLink {
+    color: var(--pizzaos-color-primary);
+    background: transparent;
+    border: 0;
+    padding: 4px 0;
+    font: inherit;
+    font-weight: 800;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
 .kpiCard {
     display: flex;
     align-items: center;
@@ -652,6 +687,8 @@
     }
 
     .kpiGrid,
+    .operationalKpis,
+    .toolbar.operationalToolbar,
     .toolbar,
     .routingCards {
         grid-template-columns: 1fr;

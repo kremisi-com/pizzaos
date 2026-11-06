@@ -14,10 +14,13 @@
     "jsx": "preserve"
   },
   "include": [
-    "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx",
-    ".next/types/**/*.ts"
+    ".next-pilot-build/types/**/*.ts",
+    ".next-pilot-extensions/types/**/*.ts",
+    ".next-session-demo/types/**/*.ts",
+    ".next/types/**/*.ts",
+    "next-env.d.ts"
   ],
   "exclude": [
     "node_modules"

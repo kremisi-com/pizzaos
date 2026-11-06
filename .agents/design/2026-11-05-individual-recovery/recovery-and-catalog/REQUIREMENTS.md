@@ -1,0 +1,6 @@
+# Requisiti osservabili
+
+R1. Un checkout in contanti accettato dal servizio, la cui risposta va persa, deve poter essere recuperato dal cliente senza duplicare l’ordine. Dopo reload il cliente può ordinare nuovamente con un carrello differente senza rimanere bloccato da idempotency_conflict. La UI mostra gli ordini reali. Esempio: 1 pizza inviata con risposta persa, reload, 2 pizze nel successivo carrello → due ordini complessivi (1 e 2 pizze), non tre e non conflitto permanente.
+R2. Se il servizio non permette di conoscere l’esito, non ruotare silenziosamente il tentativo per rischiare un duplicato. Conservare la possibilità di riprovare il tentativo originale con input identico. Non memorizzare dati carta o client secret.
+R3. Un evento live deve aggiornare catalogo della sede corrente, prezzo, disponibilità e fasce senza cancellare il carrello. Esempio: prodotto 800 cent disponibile → admin cambia 900 cent indisponibile → evento: mostra 9 euro e Non disponibile, carrello conservato. Il totale eventualmente mostrato deve essere riconfermato prima dell’invio dopo variazioni rilevanti.
+R4. Risposte catalogo obsolete di una sede precedente non possono sovrascrivere la sede corrente. Errori rete recuperabili e testi italiani.

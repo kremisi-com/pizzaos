@@ -1,0 +1,20 @@
+.panel { background: #fff; border: 1px solid #dfd7f3; border-radius: 18px; padding: 24px; margin: 24px 0; color: #221b32; }
+.header, .heading { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 16px; align-items: center; }
+.header h2 { margin: 8px 0; }
+.header p { font-size: .87rem; line-height: 1.55; color: #6d6383; max-width: 780px; }
+.header button { min-height: 44px; padding: 11px 16px; border: 1px solid #ded3fa; border-radius: 9px; color: #5737bd; background: #f3efff; font: inherit; font-size: .85rem; font-weight: 650; cursor: pointer; }
+.header button:focus-visible { outline: 3px solid #b69ee8; outline-offset: 3px; }
+.header button:disabled { opacity: .5; cursor: not-allowed; }
+.messages { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 360px), 1fr)); gap: 18px; margin-top: 20px; }
+.message { min-width: 0; padding: 20px; border: 1px solid #e2dbee; border-radius: 14px; overflow-wrap: anywhere; }
+.message h3 { font-size: 1rem; margin: 4px 0; }
+.message p { font-size: .87rem; line-height: 1.55; }
+.message dl { display: flex; flex-wrap: wrap; gap: 14px 22px; margin: 16px 0; font-size: .78rem; }
+.message dt, .small { color: #6d6383; }
+.message dd { margin: 6px 0; }
+.status { color: #6041c7; font-size: .8rem; }
+.message[data-status="sent"] .status { color: #28764a; }
+.message[data-status="blocked"], .message[data-status="retrying"] { border-color: #e5bf8f; background: #fffcf5; }
+.message[data-status="blocked"] .status, .message[data-status="retrying"] .status { color: #945e17; }
+.error { border: 1px solid #ebd3c3; border-radius: 10px; padding: 13px; font-size: .85rem; background: #fff4ea; color: #7d432b; }
+@media (max-width: 500px) { .panel, .message { padding: 16px; } }

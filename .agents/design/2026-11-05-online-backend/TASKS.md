@@ -1,0 +1,4 @@
+- [x] **runtime-hosting**: Ingressi HTTP/worker/standalone separati, artefatto Node 24 verificato; 425 test backend superati, inclusi PostgreSQL e SMTP locali.
+- [x] **provisioning**: Pilota test attivo su Neon/Vercel, produzione vuota e separata; OAuth Google, Resend gratuito e Stripe sandbox configurati con Secret protetti.
+- [x] **online-verification**: Backend e frontend comune admin/rider pubblicati; Google reale, isolamento/ruoli, ordine contanti fino alla consegna, carta/rimborso sandbox, webhook e persistenza dopo riavvio verificati. 97 test admin, 116 test client e build/lint/typecheck/architettura superati. Stato e limiti in services/checkout-api/online-deployment.md.
+- [x] **magic-link-delivery**: Un solo link inviato all'email indicata con autorizzazione specifica, stato Delivered verificato in Resend. Corretta la schermata di conferma con i metadati Auth.js, senza ulteriori invii.

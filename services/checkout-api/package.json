@@ -6,20 +6,28 @@
   "scripts": {
     "dev": "tsx watch src/server.ts",
     "build": "tsc --project tsconfig.json --noEmit",
+    "build:deployment": "node scripts/build-deployment.mjs",
     "typecheck": "tsc --project tsconfig.json --noEmit",
-    "test": "vitest run"
+    "test": "vitest run --config ../../vitest.config.ts src",
+    "migrate": "tsx src/migrate.ts",
+    "lint": "eslint src --max-warnings 0"
   },
   "dependencies": {
+    "@auth/core": "0.41.3",
+    "@auth/pg-adapter": "1.11.3",
     "@fastify/cors": "^11.0.1",
     "@pizzaos/domain": "workspace:*",
     "fastify": "^5.2.1",
+    "nodemailer": "10.3.1",
     "pg": "^8.13.3",
     "stripe": "^17.5.0"
   },
   "devDependencies": {
     "@pizzaos/typescript-config": "workspace:*",
     "@types/node": "^22.13.11",
+    "@types/nodemailer": "^8.0.2",
     "@types/pg": "^8.11.10",
+    "esbuild": "0.25.12",
     "tsx": "^4.19.3",
     "vitest": "^2.1.9"
   }

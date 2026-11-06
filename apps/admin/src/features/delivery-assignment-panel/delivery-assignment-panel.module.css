@@ -1,0 +1,29 @@
+.panel {
+  border: 1px solid var(--pizzaos-color-border, #dbe1e8);
+  border-radius: 1rem;
+  padding: 1.25rem;
+  background: var(--pizzaos-color-surface, #fff);
+  color: var(--pizzaos-color-foreground, #172033);
+}
+.header { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 1rem; }
+.header h2 { margin: 0; }
+.header a { color: inherit; font-weight: 700; }
+.form { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 0.75rem; margin: 1.25rem 0; }
+.field { display: grid; gap: 0.35rem; }
+.panel input, .panel select, .panel button {
+  border: 1px solid var(--pizzaos-color-border, #b9c5d3);
+  border-radius: 0.5rem;
+  padding: 0.65rem 0.8rem;
+  font: inherit;
+  color: inherit;
+  background: var(--pizzaos-color-surface, #fff);
+}
+.panel button { cursor: pointer; font-weight: 700; }
+.panel button:disabled { cursor: default; opacity: 0.5; }
+.panel .primary { background: var(--pizzaos-color-primary, #172033); color: var(--pizzaos-color-on-primary, #fff); }
+.list { list-style: none; padding: 0; margin: 1rem 0; display: grid; gap: 0.75rem; }
+.rider, .order { border: 1px solid var(--pizzaos-color-border, #dbe1e8); border-radius: 0.75rem; padding: 1rem; }
+.rider { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1rem; }
+.rider p, .order p { margin: 0.35rem 0; }
+.issue { padding: 0.75rem; border-left: 4px solid #b45309; background: #fffbeb; color: #78350f; }
+.guidance { font-size: 0.9rem; color: var(--pizzaos-color-foreground-muted, #526174); }

@@ -1,5 +1,5 @@
 import type { ReactElement } from "react";
-import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { renderToStaticMarkup } from "react-dom/server";
 
 export interface StorageAdapter
@@ -72,6 +72,7 @@ export function cleanupDom(): void
 export const domFireEvent = fireEvent;
 export const domScreen = screen;
 export const domWithin = within;
+export const domWaitFor = waitFor;
 
 export function withFrozenDateNow<Result>(isoTimestamp: string, callback: () => Result): Result
 {

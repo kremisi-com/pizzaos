@@ -1,0 +1,1 @@
+- [x] **session-demo**: Accesso e isolamento server, selezione delle superfici per sessione, checkout simulato e verifica completa.

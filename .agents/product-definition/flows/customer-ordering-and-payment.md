@@ -2,7 +2,7 @@
 
 ## Stato della specifica
 
-Versione iniziale del flusso pilota. Le decisioni approvate sono nel registro [`../decisions.md`](../decisions.md). Le parti dipendenti da decisioni aperte sono bloccate come indicato sotto.
+Specifica del primo incremento individuale a prezzi ordinari, aggiornata con le conferme del 2026-11-05 (D49-D55). Le decisioni approvate sono nel registro [`../decisions.md`](../decisions.md). Le parti dipendenti da decisioni aperte sono bloccate come indicato sotto.
 
 ## Obiettivo
 
@@ -44,16 +44,21 @@ Consentire al cliente di comporre un ordine come ospite, autenticarsi al termine
 
 ## Aggiornamenti admin
 
-La dashboard admin è il canale operativo per nuovi ordini e scadenze; deve aggiornarsi senza reload quando possibile tramite stream/socket. La scelta di trasporto e fallback è aperta in D40. Le notifiche esterne non fanno parte del comportamento deciso.
+La dashboard admin è il canale operativo per nuovi ordini e scadenze; deve aggiornarsi senza reload quando possibile tramite stream/socket. Il trasporto è SSE con polling di recupero (D40/D54). I contatti email/WhatsApp sono avviati manualmente; invii automatici rinviati.
 
-## Decisioni che bloccano la specifica eseguibile
+## Conferme che sbloccano il primo incremento
 
-- D48: durata del carrello locale e comportamento quando il server rifiuta prezzo/stock/slot.
-- D18: carta rifiutata, pagamento pendente e rimborso fallito.
-- D40: trasporto live e fallback della dashboard.
-- D25/D26: coupon e abbonamenti quando incidono sul totale.
+- D18/D49: carta rifiutata mantiene carrello e permette nuovo tentativo o contanti; esito incerto resta in verifica e impedisce doppio pagamento; rimborso fallito resta visibile e ritentabile.
+- D27/D42/D50: draft 7 giorni dall'ultima modifica, carrello dispositivo senza merge; nome/email account, telefono ordine, indirizzo solo delivery. Confermare nuovi prezzi, correggere prodotti o slot indisponibili.
+- D24/D41/D51: slot e capacità configurabili, ASAP prima disponibilità; riserve atomiche temporanee durante pagamento e consolidate all'invio; rilascio solo dopo esito certo.
+- D23/D52: raggio dalla sede e fasce di distanza con costo/minimo configurabili; alternativa ritiro fuori zona.
+- D25/D26/D53: coupon, premi, abbonamenti e gruppo non partecipano al totale del primo incremento; regole restano rinviate per incrementi successivi.
+- D17/D30/D40/D54: dashboard con countdown/attese, SSE più polling, comunicazioni manuali email/WhatsApp.
+- D28/D29/D55: superadmin crea sedi/invita operatori, ristoratore configura sede dal pannello, permessi operatori equivalenti.
 
-## Casi da specificare
+Nessuna decisione ancora aperta blocca questo perimetro. D16/D31 continuano a riguardare l'avvio in esercizio; questa task sviluppa e verifica localmente l'incremento senza pubblicazione o dati reali. Design e piano implementativo: [`../../design/2026-11-05-individual-ordering/design.md`](../../design/2026-11-05-individual-ordering/design.md).
+
+## Casi da verificare con SDD
 
 - Login completato in una nuova scheda o su dispositivo diverso da quello del carrello.
 - Prezzo, ingrediente o slot cambiato durante il login.
@@ -63,3 +68,9 @@ La dashboard admin è il canale operativo per nuovi ordini e scadenze; deve aggi
 - Rifiuto esplicito e annullamento automatico allo scadere del timeout.
 - Ordine in attesa di alternativa, sostituzione concordata via email/WhatsApp e ricreazione del carrello da ordine annullato.
 
+
+## Dettagli confermati di checkout
+
+Draft locale per 7 giorni dall'ultima modifica; leggere o autenticarsi non rinnova la scadenza. Quantità, personalizzazioni, note, sede, modalità, slot e indirizzo scelto sono dati browser-owned; credenziali, contatti ordine e dati pagamento non vengono memorizzati nel draft. Metadati di recupero del tentativo (identificatore/chiave, senza segreti) consentono retry sicuro.
+
+Lo stato dopo l'invio è recuperato dal servizio. Ordine annullato e rimborso sono stati distinti: l'interfaccia mostra in corso/fallito/eseguito secondo conferma provider. L'operatore può ritentare un rimborso fallito senza riaprire l'ordine. Una perdita di connessione non autorizza un nuovo addebito.

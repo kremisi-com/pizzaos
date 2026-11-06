@@ -4,7 +4,6 @@ import type { ClientSeed } from "@pizzaos/mock-data";
 import type { OrderContact, OrderFulfillment } from "@pizzaos/domain";
 import { Badge, Button } from "@pizzaos/ui";
 import { createLocalClientApi, LOCAL_CART_ID } from "../../../composition/api/local-client-api";
-import { StripePaymentFields } from "./stripe-payment-fields";
 import { useEffect, useMemo, useState, type FormEvent, type ReactElement } from "react";
 import {
   clearCartState,
@@ -75,7 +74,6 @@ export function CheckoutScreen(props: CheckoutScreenProps): ReactElement
   const [selectedSlotId, setSelectedSlotId] = useState("");
   const [tipPercent, setTipPercent] = useState<number>(TIP_PERCENT_OPTIONS[1]);
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("card");
-  const [createPaymentMethod, setCreatePaymentMethod] = useState<(() => Promise<string>) | null>(null);
   const [fulfillmentMethod, setFulfillmentMethod] = useState<"delivery" | "pickup">("delivery");
   const [contact, setContact] = useState<OrderContact>(() => toOrderContact(seed.customer));
   const [doorbell, setDoorbell] = useState("");
@@ -176,24 +174,6 @@ export function CheckoutScreen(props: CheckoutScreenProps): ReactElement
     {
       setValidationErrors(errors);
       return;
-    }
-
-    if (paymentMethod === "card")
-    {
-      if (!createPaymentMethod)
-      {
-        setValidationErrors({ payment: "Il pagamento sicuro non è ancora pronto." });
-        return;
-      }
-      try
-      {
-        await createPaymentMethod();
-      }
-      catch (error)
-      {
-        setValidationErrors({ payment: error instanceof Error ? error.message : "Impossibile verificare la carta." });
-        return;
-      }
     }
 
     const selectedSlot = seed.slots.find((slot) => slot.slotId === selectedSlotId);
@@ -546,8 +526,7 @@ export function CheckoutScreen(props: CheckoutScreenProps): ReactElement
 
             {paymentMethod === "card" ? (
               <div className={styles.cardFields}>
-                <StripePaymentFields onReady={setCreatePaymentMethod} />
-                {validationErrors.payment ? <p className={styles.errorMessage} role="alert">{validationErrors.payment}</p> : null}
+                <p>Pagamento carta simulato: non inserire dati di carte. Non verrà effettuato alcun addebito.</p>
               </div>
             ) : null}
           </div>

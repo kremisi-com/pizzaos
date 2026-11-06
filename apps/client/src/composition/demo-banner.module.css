@@ -1,0 +1,17 @@
+.banner {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 16px;
+  padding: 12px 20px;
+  background: var(--pizzaos-color-primary);
+  color: white;
+  font-size: 14px;
+}
+.banner p { margin: 0; color: inherit; }
+.banner button { padding: 6px 14px; border: 1px solid currentColor; border-radius: 8px; background: transparent; color: inherit; font: inherit; cursor: pointer; }
+.banner button:disabled { cursor: wait; opacity: 0.6; }

@@ -5,9 +5,10 @@ import type { ReactElement } from "react";
 
 export interface StoreSwitcherProps
 {
-  readonly stores: readonly StoreProfile[];
+  readonly stores: readonly Pick<StoreProfile, "id" | "displayName">[];
   readonly activeStoreId: string;
   readonly onStoreChange: (storeId: string) => void;
+  readonly disabled?: boolean;
 }
 
 export function StoreSwitcher(props: StoreSwitcherProps): ReactElement
@@ -29,6 +30,7 @@ export function StoreSwitcher(props: StoreSwitcherProps): ReactElement
       <select
         id="store-switcher"
         value={props.activeStoreId}
+        disabled={props.disabled || props.stores.length === 0}
         onChange={(e) => props.onStoreChange(e.target.value)}
         style={{
           width: "100%",
@@ -46,6 +48,7 @@ export function StoreSwitcher(props: StoreSwitcherProps): ReactElement
           backgroundSize: "16px"
         }}
       >
+        {props.stores.length === 0 && <option value="">Nessuna sede assegnata</option>}
         {props.stores.map((store) => (
           <option key={store.id} value={store.id}>
             {store.displayName}

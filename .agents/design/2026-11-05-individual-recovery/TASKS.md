@@ -1,0 +1,1 @@
+- [x] **recovery-and-catalog**: Recupero sicuro dopo risposta checkout persa e aggiornamento catalogo sugli eventi; test UI indipendenti e controlli client.

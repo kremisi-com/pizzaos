@@ -21,7 +21,7 @@ export default defineConfig({
   },
   test: {
     environment: "jsdom",
-    setupFiles: [fileURLToPath(new URL("./apps/client/src/test/setup.ts", import.meta.url))],
+    setupFiles: [fileURLToPath(new URL("./tests/vitest-setup.ts", import.meta.url))],
     include: [
       "src/**/*.test.ts",
       "src/**/*.test.tsx",
@@ -30,6 +30,7 @@ export default defineConfig({
       "apps/**/src/test/**/*.test.ts",
       "apps/**/src/test/**/*.test.tsx",
       "packages/**/src/**/*.test.ts",
+      "services/**/src/**/*.test.ts",
       "packages/**/src/**/*.test.tsx"
     ],
     passWithNoTests: false

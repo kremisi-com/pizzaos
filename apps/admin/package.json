@@ -21,6 +21,7 @@
   },
   "devDependencies": {
     "@pizzaos/eslint-config": "workspace:*",
+    "@pizzaos/testing": "workspace:*",
     "@pizzaos/typescript-config": "workspace:*",
     "@testing-library/dom": "^10.4.1",
     "@testing-library/jest-dom": "^6.9.1",

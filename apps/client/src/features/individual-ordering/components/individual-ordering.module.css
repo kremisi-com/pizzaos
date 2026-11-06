@@ -1,0 +1,51 @@
+.page { max-width: 1180px; margin: 0 auto; padding: 32px 22px 60px; }
+.header { display: flex; justify-content: space-between; align-items: center; gap: 24px; margin-bottom: 24px; }
+.header h1 { font-size: clamp(2rem, 5vw, 3.6rem); line-height: 1.05; letter-spacing: -.045em; margin: 12px 0; }
+.eyebrow { font-size: .78rem; text-transform: uppercase; letter-spacing: .12em; font-weight: 700; color: #a54222; }
+.account { display: flex; flex-wrap: wrap; gap: 16px; align-items: center; }
+.page a { color: #984021; font-weight: 650; }
+.page label { display: grid; gap: 7px; font-size: .9rem; font-weight: 600; margin: 14px 0; }
+.page input, .page select, .page textarea { width: 100%; box-sizing: border-box; padding: 11px 12px; border: 1px solid #d9d3cb; border-radius: 10px; font: inherit; color: #28221f; background: #fff; }
+.page input:focus-visible, .page select:focus-visible, .page textarea:focus-visible, .page button:focus-visible, .page a:focus-visible { outline: 3px solid #d99058; outline-offset: 3px; }
+.page textarea { min-height: 68px; resize: vertical; }
+.page fieldset { border: 1px solid #e7dfd4; border-radius: 12px; padding: 8px 14px; margin: 14px 0; min-width: 0; }
+.page legend { font-size: .85rem; font-weight: 650; }
+.page button, .linkButton { display: inline-flex; align-items: center; justify-content: center; padding: 12px 17px; background: #a64529; color: #fff !important; border: 1px solid transparent; border-radius: 11px; font: inherit; font-weight: 650; cursor: pointer; text-decoration: none; min-height: 44px; }
+.page button:disabled { opacity: .48; cursor: not-allowed; }
+.page .secondary { color: #473d34 !important; background: #f7f2eb; border-color: #e2d8cc; }
+.page .layout { display: grid; grid-template-columns: 1fr 400px; align-items: start; gap: 32px; padding: 0; margin: 0; border: 0; min-width: 0; }
+.products { display: grid; gap: 16px; }
+.product, .card, .order { background: #fffdf8; border: 1px solid #e9e1d6; border-radius: 20px; padding: 24px; box-shadow: 0 8px 28px #31251a06; }
+.product h3 { margin: 0; font-size: 1.2rem; }
+.product p { line-height: 1.55; }
+.price { font-weight: 750; color: #a64529; }
+.small { font-size: .8rem; line-height: 1.5; color: #6c635b; }
+.page .check { display: flex; align-items: center; font-weight: 400; }
+.check input { width: 18px; height: 18px; accent-color: #a64529; }
+.cartLines { padding: 0; list-style: none; margin: 0; }
+.cartLines li { border-bottom: 1px solid #e9e1d6; padding: 16px 0; }
+.quantity { display: flex; gap: 12px; align-items: center; }
+.quantity label { max-width: 150px; }
+.twoColumns { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.summary { border-top: 1px solid #e7dfd4; margin-top: 24px; padding-top: 8px; }
+.summary > p { display: flex; gap: 12px; justify-content: space-between; }
+.total { font-size: 1.2rem; padding-top: 12px; border-top: 1px solid #e7dfd4; }
+.storeSelector { max-width: 400px; margin-bottom: 28px; }
+.error, .notice { padding: 15px 18px; border-radius: 12px; margin: 16px 0; line-height: 1.55; }
+.error { background: #fff0ed; color: #8e291e; border: 1px solid #ebc5bc; }
+.notice { background: #fff5d6; color: #69501d; border: 1px solid #eddba4; }
+.connection { font-size: .78rem; color: #72685c; }
+.stripe { padding: 18px 10px; background: #fff; border: 1px solid #d9d3cb; border-radius: 10px; margin: 14px 0; }
+.history { margin-top: 48px; }
+.headingRow { display: flex; gap: 16px; align-items: center; justify-content: space-between; }
+.headingRow h3 { margin: 6px 0; }
+.order { margin: 18px 0; }
+.waiting { border: 2px solid #b87a22; background: #fff9e7; }
+.actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
+.login { margin-top: 24px; }
+.additions { border: 1px solid #e7dfd4; border-radius: 12px; margin: 20px 0; padding: 16px; }
+.additions summary { cursor: pointer; font-weight: 650; color: #984021; }
+.additions li { margin: 12px 0; }
+.additions li button { margin-left: 12px; }
+@media (max-width: 850px) { .page .layout { grid-template-columns: 1fr; } .header { align-items: flex-start; } .card { padding: 20px; } }
+@media (max-width: 500px) { .page { padding: 24px 16px 40px; } .header { flex-direction: column; } .product, .card, .order { border-radius: 16px; padding: 18px; } .headingRow { align-items: flex-start; flex-wrap: wrap; } .twoColumns { grid-template-columns: 1fr; } }

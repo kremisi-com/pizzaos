@@ -1,0 +1,25 @@
+.panel { border: 1px solid #dfd7f3; border-radius: 18px; padding: 24px; background: #fff; margin: 24px 0; color: #221b32; }
+.header { display: flex; flex-wrap: wrap; gap: 16px; align-items: center; justify-content: space-between; }
+.header h2, .header h3 { margin: 8px 0; }
+.header p { color: #6d6383; font-size: .88rem; }
+.layout { display: grid; grid-template-columns: minmax(250px, 360px) minmax(0, 1fr); gap: 26px; margin-top: 20px; }
+.card { min-width: 0; padding: 20px; border: 1px solid #e7e1f1; border-radius: 14px; background: #fdfcff; }
+.panel label { display: grid; gap: 7px; margin: 14px 0; font-size: .85rem; font-weight: 600; }
+.panel input, .panel select { box-sizing: border-box; width: 100%; padding: 11px; border: 1px solid #d9d0e9; border-radius: 8px; font: inherit; color: #221b32; background: white; }
+.panel fieldset { min-width: 0; padding: 0; border: 0; margin: 15px 0; }
+.panel legend { font-size: .82rem; font-weight: 650; margin-bottom: 6px; }
+.panel button { min-height: 42px; padding: 10px 14px; border: 1px solid transparent; border-radius: 9px; background: #6041c7; color: white; font: inherit; font-size: .85rem; font-weight: 650; cursor: pointer; }
+.panel button:disabled { opacity: .45; cursor: not-allowed; }
+.panel .secondary { background: #f3efff; color: #5737bd; border-color: #ded3fa; }
+.panel button:focus-visible, .panel input:focus-visible, .panel select:focus-visible { outline: 3px solid #b69ee8; outline-offset: 3px; }
+.panel .check { display: flex; align-items: center; gap: 9px; font-weight: 500; }
+.check input { width: 18px; height: 18px; accent-color: #6041c7; }
+.small { color: #6d6383; font-size: .78rem; line-height: 1.55; }
+.columns { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+.list { list-style: none; padding: 0; }
+.list li { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; justify-content: space-between; padding: 16px 0; border-bottom: 1px solid #e7e1f1; }
+.error, .notice { padding: 14px; border-radius: 10px; font-size: .88rem; }
+.error { background: #fff0ed; color: #9a3029; }
+.notice { background: #eefff3; color: #236f40; }
+@media (max-width: 850px) { .layout { grid-template-columns: 1fr; } }
+@media (max-width: 500px) { .panel, .card { padding: 16px; } .columns { grid-template-columns: 1fr; } }

@@ -16,5 +16,7 @@ export function ClientApiProvider({ children }: { readonly children: ReactNode }
 /** UI features use this port only; the provider can later supply an HTTP implementation. */
 export function useClientApi(): ClientApiContract
 {
-  return useContext(ClientApiContext) ?? createLocalClientApi();
+  const api = useContext(ClientApiContext);
+  const fallback = useMemo(() => createLocalClientApi(), []);
+  return api ?? fallback;
 }

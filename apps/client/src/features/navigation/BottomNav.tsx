@@ -27,29 +27,30 @@ const CartIcon = () => (
   </svg>
 );
 
-export function BottomNav(): ReactElement {
+export function BottomNav({ live = false }: { live?: boolean }): ReactElement {
   const pathname = usePathname();
   const router = useRouter();
+  const durable = live || pathname === "/ordina" || pathname === "/accesso";
 
   const items: BottomNavigationItem[] = [
     {
       id: "orders",
       label: "Ordini",
       icon: <ReceiptIcon />,
-      href: "/orders"
+      href: durable ? "/ordina#i-tuoi-ordini" : "/orders"
     },
     {
       id: "order",
       label: "Ordina",
       icon: <PlusIcon />,
-      href: "/",
+      href: durable ? "/ordina" : "/",
       isProminent: true
     },
     {
       id: "cart",
       label: "Carrello",
       icon: <CartIcon />,
-      href: "/cart"
+      href: durable ? "/ordina#il-tuo-ordine" : "/cart"
     }
   ];
 

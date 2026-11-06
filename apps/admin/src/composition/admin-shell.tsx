@@ -29,38 +29,12 @@ import { AnalyticsManager } from "../features/analytics/components/analytics-man
 import { DeliveryManager } from "../features/delivery/components/delivery-manager";
 import { IntegrationsManager } from "../features/integrations/components/integrations-manager";
 import { ProfileManager } from "../features/profile/components/profile-manager";
+import { LiveOrdersSummaryCard, QuickActionsCard } from "./admin-dashboard-cards";
+import { AdminFrame, type AdminTab } from "./admin-frame";
 import styles from "./admin-shell.module.css";
 
 const APP_ID = "admin" as const;
 const NEW_ORDER_TOAST_TTL_MS = 7000;
-
-const NAV_ITEMS = [
-  {
-    id: "dashboard",
-    label: "Dashboard",
-    iconSrc: "/images/sidebar/dashboard.png",
-  },
-  { id: "orders", label: "Ordini", iconSrc: "/images/sidebar/bag.png" },
-  { id: "catalog", label: "Menu", iconSrc: "/images/sidebar/pizza.png" },
-  { id: "inventory", label: "Magazzino", iconSrc: "/images/sidebar/box.png" },
-  {
-    id: "marketing",
-    label: "Marketing",
-    iconSrc: "/images/sidebar/megaphone.png",
-  },
-  {
-    id: "analytics",
-    label: "Analytics & AI",
-    iconSrc: "/images/sidebar/bar-chart.png",
-  },
-  { id: "delivery", label: "Consegne", iconSrc: "/images/sidebar/scooter.png" },
-  {
-    id: "integrations",
-    label: "Integrazioni",
-    iconSrc: "/images/sidebar/plugin.png",
-  },
-  { id: "profile", label: "Profilo", iconSrc: "/images/sidebar/user.png" },
-] as const;
 
 const OPERATIONAL_TIMELINE_ITEMS = [
   {
@@ -434,249 +408,13 @@ function DashboardMarketingRow({
   );
 }
 
-interface LiveOrdersSummaryCardProps {
-  readonly pendingOrdersCount: number;
-  readonly preparingOrdersCount: number;
-  readonly outForDeliveryOrdersCount: number;
-  readonly readyOrdersCount: number;
-  readonly onOpenOrders: () => void;
-}
-
-function LiveOrdersSummaryCard(
-  props: LiveOrdersSummaryCardProps,
-): ReactElement {
-  const liveOrderStats = [
-    {
-      id: "pending",
-      value: props.pendingOrdersCount,
-      label: "da confermare",
-      tone: "red",
-      iconSrc: "/images/live-orders/writing.png",
-    },
-    {
-      id: "preparing",
-      value: props.preparingOrdersCount,
-      label: "in cucina",
-      tone: "orange",
-      iconSrc: "/images/live-orders/chef.png",
-    },
-    {
-      id: "delivery",
-      value: props.outForDeliveryOrdersCount,
-      label: "in consegna",
-      tone: "amber",
-      iconSrc: "/images/live-orders/scooter.png",
-    },
-    {
-      id: "ready",
-      value: props.readyOrdersCount,
-      label: "pronto",
-      tone: "green",
-      iconSrc: "/images/live-orders/check.png",
-    },
-  ] as const;
-
-  return (
-    <article className={styles.liveOrdersPanel}>
-      <header className={styles.liveOrdersHeader}>
-        <h3>Ordini Live</h3>
-        <div className={styles.liveOrdersStatus}>
-          <span aria-hidden="true" />
-          Aggiornato in tempo reale
-        </div>
-      </header>
-
-      <div className={styles.liveOrdersKpis}>
-        {liveOrderStats.map((stat) => (
-          <div
-            className={`${styles.liveOrdersKpi} ${
-              styles[`liveOrdersKpi${stat.tone}`]
-            }`}
-            key={stat.id}
-          >
-            <span className={styles.liveOrdersKpiIcon} aria-hidden="true">
-              <Image
-                alt=""
-                height={22}
-                src={stat.iconSrc}
-                width={22}
-              />
-            </span>
-            <div>
-              <strong>{stat.value}</strong>
-              <span>{stat.label}</span>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      <div className={styles.liveOrdersBottom}>
-        <div className={styles.liveOrdersAverage}>
-          <span>Tempo medio</span>
-          <strong>24 min</strong>
-          <small>
-            <span aria-hidden="true">↓</span> 8% vs ieri
-          </small>
-        </div>
-
-        <div className={styles.liveOrdersChart} aria-label="Trend ordini live">
-          <div className={styles.liveOrdersChartScale} aria-hidden="true">
-            <span>40</span>
-            <span>30</span>
-            <span>20</span>
-            <span>10</span>
-          </div>
-          <svg viewBox="0 0 220 82" role="img" aria-label="Trend ordini">
-            <defs>
-              <linearGradient id="live-orders-fill" x1="0" x2="0" y1="0" y2="1">
-                <stop offset="0%" stopColor="#ff2d20" stopOpacity="0.18" />
-                <stop offset="100%" stopColor="#ff2d20" stopOpacity="0" />
-              </linearGradient>
-            </defs>
-            <path
-              d="M0 66 C14 58 22 70 34 58 C45 42 56 43 69 54 C83 66 93 42 106 46 C120 50 123 18 140 24 C154 29 157 44 170 36 C183 27 189 45 200 32 C209 23 215 30 220 25 L220 82 L0 82 Z"
-              fill="url(#live-orders-fill)"
-            />
-            <path
-              d="M0 66 C14 58 22 70 34 58 C45 42 56 43 69 54 C83 66 93 42 106 46 C120 50 123 18 140 24 C154 29 157 44 170 36 C183 27 189 45 200 32 C209 23 215 30 220 25"
-              fill="none"
-              stroke="#ff2d20"
-              strokeLinecap="round"
-              strokeWidth="3"
-            />
-            <circle cx="220" cy="25" fill="#ff2d20" r="5" />
-          </svg>
-          <div className={styles.liveOrdersChartLabels} aria-hidden="true">
-            <span>08:00</span>
-            <span>10:00</span>
-            <span>12:00</span>
-            <span>14:00</span>
-          </div>
-        </div>
-
-        <div className={styles.liveOrdersActions}>
-          <button
-            className={styles.liveOrdersPrimaryAction}
-            onClick={props.onOpenOrders}
-            type="button"
-          >
-            <Image
-              alt=""
-              aria-hidden="true"
-              height={16}
-              src="/images/live-orders/queue.png"
-              width={16}
-            />
-            Apri coda ordini
-          </button>
-          <button
-            className={styles.liveOrdersSecondaryAction}
-            onClick={() =>
-              alert("Nuovo ordine manuale disponibile nella demo finale")
-            }
-            type="button"
-          >
-            <Image
-              alt=""
-              aria-hidden="true"
-              height={16}
-              src="/images/live-orders/manual-order.png"
-              width={16}
-            />
-            Nuovo ordine manuale
-          </button>
-        </div>
-      </div>
-    </article>
-  );
-}
-
-interface QuickActionsCardProps {
-  readonly onAssignRider: () => void;
-  readonly onCreateCoupon: () => void;
-  readonly onPauseSimulation: () => void;
-  readonly onRefreshTimes: () => void;
-  readonly onUpdateMenu: () => void;
-}
-
-function QuickActionsCard(props: QuickActionsCardProps): ReactElement {
-  const quickActions = [
-    {
-      id: "pause",
-      label: "Metti in pausa",
-      iconSrc: "/images/quick-actions/pause.png",
-      isWide: false,
-      onClick: props.onPauseSimulation,
-    },
-    {
-      id: "times",
-      label: "Aggiorna tempi",
-      iconSrc: "/images/quick-actions/history.png",
-      isWide: false,
-      onClick: props.onRefreshTimes,
-    },
-    {
-      id: "coupon",
-      label: "Crea coupon",
-      iconSrc: "/images/quick-actions/promo-code.png",
-      isWide: false,
-      onClick: props.onCreateCoupon,
-    },
-    {
-      id: "menu",
-      label: "Modifica menu",
-      iconSrc: "/images/quick-actions/pizza.png",
-      isWide: false,
-      onClick: props.onUpdateMenu,
-    },
-    {
-      id: "rider",
-      label: "Assegna rider",
-      iconSrc: "/images/quick-actions/scooter.png",
-      onClick: props.onAssignRider,
-      isWide: true,
-    },
-  ] as const;
-
-  return (
-    <article className={styles.quickActionsPanel}>
-      <h3>Azioni rapide</h3>
-      <div className={styles.quickActionsGrid}>
-        {quickActions.map((action) => (
-          <button
-            className={`${styles.quickActionButton} ${
-              action.isWide ? styles.quickActionButtonWide : ""
-            }`}
-            key={action.id}
-            onClick={action.onClick}
-            type="button"
-          >
-            <span aria-hidden="true">
-              <Image
-                alt=""
-                height={22}
-                src={action.iconSrc}
-                width={22}
-              />
-            </span>
-            {action.label}
-          </button>
-        ))}
-      </div>
-    </article>
-  );
-}
-
 export function AdminShell(): ReactElement {
   const [seed, setSeed] = useState<AdminSeed>(() =>
     loadDemoState(APP_ID, { storage: resolveStorage() }),
   );
 
-  const [activeTab, setActiveTab] = useState<
-    (typeof NAV_ITEMS)[number]["id"]
-  >("dashboard");
+  const [activeTab, setActiveTab] = useState<AdminTab>("dashboard");
   const [isSimulationRunning, setIsSimulationRunning] = useState(true);
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [newOrderToasts, setNewOrderToasts] = useState<readonly NewOrderToast[]>([]);
   const knownOrderIdsRef = useRef<ReadonlySet<string> | null>(null);
   const knownOrderStoreIdRef = useRef<string | null>(null);
@@ -954,97 +692,54 @@ export function AdminShell(): ReactElement {
   }
 
   return (
-    <div
-      className={`${styles.shell} ${
-        isSidebarCollapsed ? styles.shellSidebarCollapsed : ""
-      }`}
-    >
-      <aside
-        className={`${styles.sidebar} ${
-          isSidebarCollapsed ? styles.sidebarCollapsed : ""
-        }`}
-      >
-        <button
-          aria-controls="admin-sidebar-content"
-          aria-expanded={!isSidebarCollapsed}
-          aria-label={
-            isSidebarCollapsed ? "Mostra sidebar" : "Nascondi sidebar"
-          }
-          className={styles.sidebarToggle}
-          onClick={() => setIsSidebarCollapsed((current) => !current)}
-          type="button"
+    <AdminFrame
+      demo
+      activeTab={activeTab}
+      onTabChange={setActiveTab}
+      storeSelector={<StoreSwitcher
+        stores={seed.stores}
+        activeStoreId={seed.activeStoreId}
+        onStoreChange={handleStoreChange}
+      />}
+      sidebarFooter={<>
+        <Button
+          onClick={() => setIsSimulationRunning((current) => !current)}
+          variant={isSimulationRunning ? "secondary" : "primary"}
+          className={styles.advanceButton}
         >
-          <span aria-hidden="true">
-            {isSidebarCollapsed ? <>&rsaquo;</> : <>&lsaquo;</>}
-          </span>
-        </button>
-
-        {!isSidebarCollapsed ? (
-          <div className={styles.sidebarContent} id="admin-sidebar-content">
-            <h1 className={styles.logo}>
-              <Image
-                className={styles.logoImage}
-                src="/images/logo.png"
-                alt="PizzaOS Admin"
-                width={180}
-                height={52}
-                priority
-              />
-            </h1>
-
-            <nav className={styles.nav}>
-              {NAV_ITEMS.map((item) => (
-                <button
-                  key={item.id}
-                  aria-label={
-                    item.id === "analytics" ? "Analytics and AI" : undefined
-                  }
-                  onClick={() => setActiveTab(item.id)}
-                  className={`${styles.navButton} ${
-                    activeTab === item.id ? styles.navItemActive : ""
-                  }`}
-                >
-                  <span aria-hidden="true" className={styles.navIcon}>
-                    <Image alt="" height={18} src={item.iconSrc} width={18} />
-                  </span>
-                  <span>{item.label}</span>
-                </button>
-              ))}
-            </nav>
-
-            <StoreSwitcher
-              stores={seed.stores}
-              activeStoreId={seed.activeStoreId}
-              onStoreChange={handleStoreChange}
-            />
-
-            <div className={styles.sidebarFooter}>
-              <Button
-                onClick={() => setIsSimulationRunning((current) => !current)}
-                variant={isSimulationRunning ? "secondary" : "primary"}
-                className={styles.advanceButton}
-              >
-                {isSimulationRunning
-                  ? "Pausa simulazione"
-                  : "Riprendi simulazione"}
-              </Button>
-              <Button
-                onClick={handleResetClick}
-                variant="secondary"
-                className={styles.resetButton}
-              >
-                Reset Demo
-              </Button>
-            </div>
-          </div>
-        ) : null}
-      </aside>
-
-      <main className={styles.content}>
+          {isSimulationRunning ? "Pausa simulazione" : "Riprendi simulazione"}
+        </Button>
+        <Button
+          onClick={handleResetClick}
+          variant="secondary"
+          className={styles.resetButton}
+        >
+          Reset Demo
+        </Button>
+      </>}
+      overlay={newOrderToasts.length > 0 ? (
+        <aside className={styles.toastStack} aria-label="Notifiche ordini live">
+          {newOrderToasts.map((toast) => (
+            <article className={styles.orderToast} key={toast.id} role="status">
+              <span className={styles.orderToastPulse} aria-hidden="true" />
+              <div>
+                <strong>Nuovo ordine ricevuto</strong>
+                <p>
+                  {toast.order.demoOrderRef ?? `#${toast.order.id.slice(-6).toUpperCase()}`}{" "}
+                  - {getOrderItemsCount(toast.order)} prodotti - {formatOrderTotal(toast.order)}
+                </p>
+                <small>Slot {formatOrderSlot(toast.order.scheduledSlot)}</small>
+              </div>
+            </article>
+          ))}
+        </aside>
+      ) : null}
+    >
         {activeTab === "dashboard" ? (
           <div className={styles.dashboardGrid}>
             <div className={styles.liveOrdersCard}>
               <LiveOrdersSummaryCard
+                demo
                 pendingOrdersCount={pendingOrdersCount}
                 preparingOrdersCount={preparingOrdersCount}
                 outForDeliveryOrdersCount={outForDeliveryOrdersCount}
@@ -1287,26 +982,7 @@ export function AdminShell(): ReactElement {
         ) : (
           <div>Tab non ancora implementato</div>
         )}
-      </main>
-
-      {newOrderToasts.length > 0 ? (
-        <aside className={styles.toastStack} aria-label="Notifiche ordini live">
-          {newOrderToasts.map((toast) => (
-            <article className={styles.orderToast} key={toast.id} role="status">
-              <span className={styles.orderToastPulse} aria-hidden="true" />
-              <div>
-                <strong>Nuovo ordine ricevuto</strong>
-                <p>
-                  {toast.order.demoOrderRef ?? `#${toast.order.id.slice(-6).toUpperCase()}`}{" "}
-                  - {getOrderItemsCount(toast.order)} prodotti - {formatOrderTotal(toast.order)}
-                </p>
-                <small>Slot {formatOrderSlot(toast.order.scheduledSlot)}</small>
-              </div>
-            </article>
-          ))}
-        </aside>
-      ) : null}
-    </div>
+    </AdminFrame>
   );
 }
 

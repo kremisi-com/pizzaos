@@ -1,0 +1,1 @@
+- [x] **admin-layout**: ripristinare la navigazione del POC e collegarla agli strumenti operativi della sede.

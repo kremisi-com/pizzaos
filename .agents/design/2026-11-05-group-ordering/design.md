@@ -1,0 +1,11 @@
+# Ordine di gruppo persistente
+
+Incremento D61-D63, avviato dopo il gate individuale. Il servizio checkout possiede raccolta, partecipanti, autorità e persistenza; il client compone una nuova esperienza `/ordina/gruppo`. Il POC locale `/group-order` resta nella demo autenticata. Non si avviano promozioni o email.
+
+L'organizzatore autenticato crea un gruppo per una sede e sceglie la scadenza della raccolta. Un link con segreto casuale permette di leggere il riepilogo minimizzato e di entrare con un nome; una capability personale HttpOnly distinta dal link autorizza le sole righe personali. L'organizzatore vede e modifica il proprio contributo e può rimuovere qualsiasi riga o partecipante. Le scritture richiedono la revisione osservata per evitare aggiornamenti persi.
+
+Alla scadenza il server chiude la raccolta; nessun ordine, pagamento o riserva nasce dalla raccolta. L'organizzatore può chiudere prima e correggere le righe dopo chiusura per risolvere conflitti. Il preventivo usa catalogo, stock, prezzi e slot correnti del checkout canonico. Il checkout produce un solo ordine canonico intestato all'organizzatore; le note di ciascuna riga identificano il partecipante. Una richiesta durevole congelata e una chiave canonica server impediscono duplicati anche attraverso retry, concorrenza e riavvio. Dopo invio il gruppo è immutabile e il flusso individuale gestisce ordine e pagamento.
+
+Si riusa il repository transazionale PostgreSQL esistente (snapshot sotto lock), senza un secondo motore di checkout. Il modulo gruppo è composto accanto ad analytics/rider, con le stesse protezioni proxy/sessione demo. La UI riceve `GroupOrderingApi`; usa polling server con revisioni e senza dati autoritativi nel browser. Il link contiene solo il segreto invito, mai contatti, indirizzo o capability personali. I partecipanti vedono esclusivamente nomi e scelte; nessun dato cliente o ordine completo viene restituito a un invitato.
+
+La verifica separa requisiti/contratti pubblici dai dettagli di implementazione. Un agente test senza contesto interno produce suite indipendenti e RED prima dell'implementazione. Seguono dominio/HTTP, UI, browser distinti con checkout unico visibile in admin, regressioni individuali, lint/typecheck/build e architettura.

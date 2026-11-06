@@ -1,0 +1,17 @@
+# Requisiti delle viste
+
+1. L'operatore della sede selezionata consulta analytics reali, abilita/disattiva rider e assegna ordini delivery pronti o problematici; cambi sede non mostrano dati precedenti.
+2. /rider usa la sessione Auth.js esistente con ritorno al percorso rider. Mostra solo dati restituiti dal port RiderDeliveryApi, senza shell operatore o mock.
+3. Gli utenti rider-only che arrivano alla home live o /operazioni sono indirizzati alla vista rider; la protezione effettiva rimane lato servizio. Gli operatori possono aprire la propria gestione.
+4. Gli errori sono leggibili e si può riprovare. Mutazioni disabilitate durante l'invio. La vista rider aggiorna la propria lista con polling autenticato e pulisce timer/richieste su smontaggio.
+5. Il fuso della sede è modificabile nella configurazione esistente. L'accesso non accetta destinazioni esterne arbitrarie; ritorni consentiti solo /operazioni e /rider.
+
+## Pannello operatore per assegnazione consegne
+
+6. DeliveryAssignmentsPanel riceve storeId, orders e DeliveryAdminApi. All'apertura e quando cambia refreshVersion carica riders(storeId) e assignments(storeId). Mostra Caricamento consegne… durante il caricamento; al cambio sede non mostra liste/errori precedenti e ignora risposte o mutazioni concluse dopo lo smontaggio.
+7. Il modulo di abilitazione contiene campi Email rider (tipo email) e Nome rider, entrambi obbligatori, e pulsante Abilita rider. Al submit valido invoca inviteRider(storeId,email.trim(),name.trim()), aggiorna i dati e chiama onChanged se fornito. Nessun testo afferma che sia stata inviata un'email: l'operazione abilita un'identità all'accesso. Input vuoti/spazi non generano mutazioni.
+8. L'elenco mostra nome/email/stato di tutti i rider restituiti per la sede. Per un rider attivo, Disattiva invoca setRiderActive(storeId,riderId,false); per uno inattivo, Riattiva invoca true. Le label accessibili dei pulsanti distinguono il rider per nome (es. Disattiva Mario). Dopo il successo ricarica i dati e chiama onChanged.
+9. La lista ordini include soltanto gli ordini con storeId uguale alla sede selezionata, cart.mode delivery e status ready o out_for_delivery. Mostra numero/id ordine, cliente e indirizzo. Ordini pickup, altre sedi, completati e annullati sono esclusi. Se nessuno è assegnabile: Nessuna consegna da assegnare.
+10. Per ciascun ordine visibile, mostra il rider assegnato tramite riders + assignments oppure Non assegnato. Se c'è issue mostra nota e segnalazione Consegna da risolvere. Il selettore Rider per ordine <id> contiene solo rider attivi; l'azione Assegna per ordine <id> invoca assign(orderId,riderId). È consentito scegliere anche lo stesso rider attuale per un nuovo tentativo. Senza scelta/nessun rider attivo il pulsante è disabilitato. Dopo il successo ricarica i dati e chiama onChanged.
+11. Durante qualsiasi mutazione i controlli di mutazione sono disabilitati e lo stato Aggiornamento consegne… è annunciato. Click ripetuti non generano invii duplicati. Un errore mostra Impossibile aggiornare le consegne. oppure Impossibile caricare le consegne. e un pulsante Riprova per ricaricare la sede attuale; non mostra messaggi tecnici del server e non dichiara riuscita una mutazione fallita.
+12. Il pannello include il link Area rider con href /rider e la guida Per annullare un ordine e avviare il rimborso usa le azioni dell'ordine. Non include una seconda azione di annullamento/rimborso, mappe simulate o GPS.

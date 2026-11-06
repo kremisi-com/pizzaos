@@ -1,0 +1,2 @@
+- [x] **email-outbox**: outbox atomica, eventi, policy, lease/retry e SMTP con runtime verificati tramite servizio, HTTP, PostgreSQL reale e sink locale.
+- [x] **email-admin**: stato invii e messaggi di errore admin integrati e verificati con UI/browser, build e regressioni pertinenti.

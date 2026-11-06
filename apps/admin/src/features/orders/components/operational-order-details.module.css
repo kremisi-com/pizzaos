@@ -1,0 +1,24 @@
+.order { min-width: 0; background: #fff; border: 1px solid #eef0f4; border-top: 4px solid #e2e8f0; border-radius: 8px; padding: 18px; box-shadow: 0 12px 28px rgba(15, 23, 42, .05); overflow-wrap: anywhere; }
+.order p { line-height: 1.5; }
+.order fieldset { min-width: 0; }
+.order :focus-visible { outline: 2px solid var(--pizzaos-color-primary); outline-offset: 3px; }
+.headingRow { display: flex; justify-content: space-between; align-items: center; gap: 18px; }
+.headingRow h3 { margin: 7px 0; }
+.headingRow > strong { flex-shrink: 0; white-space: nowrap; }
+.small { font-size: .78rem; color: #6e6678; line-height: 1.5; overflow-wrap: anywhere; }
+.newOrder { border-top-color: var(--pizzaos-color-primary); }
+.waiting { border: 2px solid #cc992e; background: #fffbef; }
+.countdown { background: #fff0ed; color: #a43223; font-weight: 700; border-radius: 8px; padding: 10px 13px; }
+.notes { border-left: 3px solid #cbd5e1; padding: 10px 14px; background: #f8fafc; }
+.actions, .contacts { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-top: 18px; }
+.contacts { gap: 18px; font-size: .85rem; }
+.refundError { color: #a43223; font-weight: 700; }
+.notice { background: #fff6db; border: 1px solid #ebd497; color: #765719; padding: 8px 12px; border-radius: 8px; }
+.order a { color: var(--pizzaos-color-primary); font-weight: 650; }
+.order button { display: inline-flex; justify-content: center; align-items: center; padding: 11px 15px; border: 1px solid transparent; background: var(--pizzaos-color-primary); color: #fff; font: inherit; font-size: .87rem; font-weight: 650; border-radius: 8px; cursor: pointer; text-decoration: none; min-height: 42px; }
+.order button:disabled { opacity: .45; cursor: not-allowed; }
+.order .secondary { background: #fff; border-color: var(--pizzaos-color-border); color: var(--pizzaos-color-foreground); }
+.order .danger { background: #fff2f0; border-color: #edc4bd; color: #a43223; }
+.order details { margin-top: 18px; }
+.order summary { cursor: pointer; color: var(--pizzaos-color-foreground); font-weight: 600; }
+.order .check { display: flex; align-items: center; gap: 8px; font-weight: 400; }

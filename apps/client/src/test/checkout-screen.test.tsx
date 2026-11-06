@@ -36,19 +36,24 @@ describe("checkout screen", () =>
   afterEach(() =>
   {
     vi.useRealTimers();
+    vi.unstubAllGlobals();
   });
 
-  it("shows checkout validation errors when payment fields are invalid", () =>
+  it("completes simulated card payment without collecting card data or contacting a provider", async () =>
   {
+    const fetch = vi.fn();
+    vi.stubGlobal("fetch", fetch);
     renderDom(<CheckoutScreen />);
+    domFireEvent.click(domScreen.getByLabelText(/carta/i));
 
     expect(domScreen.queryByText("Roma Centro")).toBeNull();
+    expect(domScreen.queryByLabelText(/Ultime 4 cifre|Numero carta|Scadenza|CVC/i)).toBeNull();
+    expect(document.querySelector('iframe[src*="stripe"], script[src*="stripe"]')).toBeNull();
 
     domFireEvent.click(domScreen.getByTestId("checkout-submit-button"));
 
-    expect(domScreen.getByText("Il pagamento sicuro non è ancora pronto.").textContent).toBe(
-      "Il pagamento sicuro non è ancora pronto."
-    );
+    expect(await domScreen.findByRole("heading", { name: "Il tuo ordine è confermato" })).toBeDefined();
+    expect(fetch).not.toHaveBeenCalled();
   });
 
   it("renders order confirmation after successful mock payment", async () =>

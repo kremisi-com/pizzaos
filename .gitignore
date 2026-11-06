@@ -2,6 +2,9 @@
 node_modules
 dist
 .next
+.next-*
+.next-pilot-extensions
+.next-pilot-build
 .env
 .env.*
 !.env.example

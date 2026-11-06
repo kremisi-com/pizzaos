@@ -1,0 +1,11 @@
+# Requisiti
+
+Client /ordina e admin /operazioni, tutte le etichette in italiano. Le home usano questi flussi quando PIZZAOS_MODE=live; demo preesistente compatibile negli altri casi. Le feature ricevono IndividualApi dalla composizione, non leggono repository/API concrete. Client sceglie sede, prodotti, opzioni, quantità, note, consegna/ritiro e slot/ASAP, vede preventivo autorevole e allergeni.
+
+Carrello guest versione 1 conservato in localStorage per sette giorni dall'ultima modifica; leggere/reload non prolunga scadenza. Non salvare dati pagamento, contatti o credenziali. Accesso Google o magic link al checkout mantiene draft del dispositivo; identità fornisce nome/email, cliente aggiunge telefono e per delivery indirizzo/punto. Se server segnala conflitto mostra correzione richiesta; prezzo cambiato richiede nuova conferma. Prezzi ordinari, nessun ingresso coupon/gruppo/rewards nel flusso.
+
+Carta raccolta solo Stripe Elements, con gestione 3DS; contanti alternativa esplicita. Retry rete e reload recuperano ordine/tentativo senza rinnovare chiave o creare nuovo addebito. In verifica blocca invio; failed permette nuovo tentativo o contanti; annullato con refund_pending/failed non mostra accredito già eseguito. Dopo invio recupera ordini da server. Note modificabili solo prima preparazione. Annullamento self-service prima accettazione; dopo indicare contatto ristorante. Riordine annullato ricrea carrello senza prodotti segnalati indisponibili e senza pagare automaticamente.
+
+Admin autenticato vede solo sedi assegnate. Superadmin crea sede e invita operatori per email; operatore configura catalogo (prezzi, ricette, opzioni/allergeni), ingredienti/scorte, coordinate sede, bande di consegna e slot/capacità/sospensione ordini. Configurazione tramite form etichettati; nessun editor JSON come flusso ordinario.
+
+Nuovi ordini e deadline visibili; azioni accetta, attendi cliente, annulla, preparazione, pronto, consegna, completa seguono stato e modalità; attesa evidenziata senza countdown. Rimborso fallito visibile con ritenta. Link email/WhatsApp per contatto manuale. SSE avvia reload dati; polling recupera disconnessione ed espone stato connessione. Gestire caricamento, errore, vuoto e retry senza mostrare dati di una sede precedente. Nessuna simulazione locale nel flusso live.

@@ -1,0 +1,2 @@
+- [x] **promotion-economics**: configurazione, quote, riserve, movimenti e lifecycle canonico verificati tramite dominio, HTTP e PostgreSQL reale con due pool.
+- [x] **promotion-surfaces**: configurazione admin e selezione cliente individuale/gruppo integrate e verificate con UI, cinque scenari browser, build e regressioni pertinenti.
