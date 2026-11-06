@@ -22,6 +22,7 @@ function fakeService(): OrderingService {
     reconcile: unavailable,
     action: unavailable,
     notes: unavailable,
+    searchStoreAddresses: unavailable,
     saveStore: unavailable,
     invite: unavailable,
     events: vi.fn(async (actor) => { if (!actor) throw unauthorized(); return { cursor: 0, events: [] }; }),

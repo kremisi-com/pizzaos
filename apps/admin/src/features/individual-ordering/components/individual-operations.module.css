@@ -12,6 +12,12 @@
 .configuration > fieldset { border: 1px solid var(--pizzaos-color-border); border-radius: 8px; padding: 18px; margin: 24px 0; min-width: 0; }
 .configuration legend { color: var(--pizzaos-color-foreground); font-weight: 700; }
 .configuration h2 { margin-top: 0; }
+.storeAddress { margin: 16px 0; }
+.storeAddress p { font-size: .86rem; margin: 8px 0; }
+.addressActions { display: flex; flex-wrap: wrap; gap: 8px; }
+.addressResults { border: 1px solid var(--pizzaos-color-border); border-radius: 8px; margin-top: 16px; min-width: 0; }
+.addressResults ul { display: grid; gap: 8px; padding: 0; list-style: none; }
+.addressResults button { text-align: left; }
 .formGrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 22px; }
 .repeatRow { display: flex; align-items: center; flex-wrap: wrap; gap: 14px; padding: 10px 0; border-bottom: 1px solid #ece8f2; margin-bottom: 14px; }
 .repeatRow label { flex: 1; min-width: 170px; }

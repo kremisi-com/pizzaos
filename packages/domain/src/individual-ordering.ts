@@ -11,6 +11,8 @@ export interface IndividualProduct {
 export interface IndividualSlot { id: string; startsAt: string; capacity: number; }
 export interface IndividualStore {
   id: string; name: string; latitude: number; longitude: number; acceptingOrders: boolean;
+  /** Confirmed store address, present only in the operator catalog. */
+  address?: string;
   /** IANA zone for store-local reporting; legacy pilot stores use Europe/Rome. */
   timeZone?: string;
   contactEmail?: string; contactPhone?: string;
@@ -61,6 +63,10 @@ export type IndividualOrderAction = "accept" | "wait_for_customer" | "cancel" | 
 export interface IndividualAction { action: IndividualOrderAction; unavailableProductIds?: string[]; }
 export interface IndividualSession { actor: IndividualActor | null; superadmin: boolean; storeIds: string[]; }
 export interface IndividualEvent { cursor: number; storeId: string; orderId: string; revision: number; }
+export interface StoreAddressCandidate { address: string; confirmation: string; }
+export interface StoreAddressApi {
+  searchStoreAddresses(storeId: string, query: string): Promise<StoreAddressCandidate[]>;
+}
 /** Public error payload, shared by HTTP and direct service callers. */
 export type IndividualErrorCode = "unauthorized" | "forbidden" | "not_found" | "invalid_input" | "product_unavailable" | "inventory_changed" | "slot_unavailable" | "price_changed" | "outside_delivery_area" | "minimum_not_met" | "idempotency_conflict" | "payment_unresolved" | "invalid_transition" | "service_unavailable" | "revision_conflict" | "coupon_unavailable" | "coupon_limit_reached" | "loyalty_insufficient" | "loyalty_unavailable";
 export interface IndividualApi {
@@ -75,7 +81,7 @@ export interface IndividualApi {
   notes(orderId: string, notes: string): Promise<IndividualOrder>;
   additionQuote?(orderId: string, lines: IndividualLine[]): Promise<IndividualAdditionQuote>;
   additions?(orderId: string, input: IndividualAdditionRequest): Promise<IndividualCheckoutResult>;
-  saveStore(store: IndividualStore): Promise<IndividualStore>;
+  saveStore(store: IndividualStore, addressConfirmation?: string): Promise<IndividualStore>;
   invite(storeId: string, email: string): Promise<void>;
   events(cursor: number, storeId?: string): Promise<{ cursor: number; events: IndividualEvent[] }>;
 }

@@ -13,6 +13,7 @@ export interface RuntimeConfiguration {
   environment: "test" | "production";
   reservationMs: number;
   demoPassword?: string;
+  openCageApiKey?: string;
 }
 
 /** Validate server configuration without opening resources or revealing values. */
@@ -45,11 +46,13 @@ export function readRuntimeConfiguration(env: Record<string, string | undefined>
   if (environment === "test" && !stripeSecretKey.startsWith("sk_test_")) throw new Error("STRIPE_SECRET_KEY deve essere una chiave test.");
   const reservationMs = Number(env.PAYMENT_RESERVATION_MINUTES ?? 10) * 60_000;
   if (!Number.isFinite(reservationMs) || reservationMs <= 0) throw new Error("PAYMENT_RESERVATION_MINUTES non valido.");
+  const openCageApiKey = env.OPENCAGE_API_KEY?.trim();
   return {
     databaseUrl, authSecret, proxySecret, origins, superadminEmails, environment, reservationMs,
     googleClientId: required("AUTH_GOOGLE_ID"), googleClientSecret: required("AUTH_GOOGLE_SECRET"),
     smtpUrl: required("SMTP_URL"), emailFrom: required("AUTH_EMAIL_FROM"), stripeSecretKey,
     stripeWebhookSecret: required("STRIPE_WEBHOOK_SECRET"),
+    ...(openCageApiKey ? { openCageApiKey } : {}),
     ...(env.PIZZAOS_DEMO_PASSWORD ? { demoPassword: env.PIZZAOS_DEMO_PASSWORD } : {})
   };
 }

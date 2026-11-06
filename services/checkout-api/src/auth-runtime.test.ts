@@ -16,7 +16,7 @@ const proxySecret = "only-a-local-test-proxy-secret";
 const trusted = { "x-pizzaos-origin": origin, "x-pizzaos-proxy-secret": proxySecret, origin };
 const unexpected = async (): Promise<never> => { throw new Error("Unexpected ordering operation during auth acceptance test"); };
 function orderingPort(): OrderingService {
-  return { session: async (actor) => ({ actor, superadmin: false, storeIds: [] }), stores: unexpected, catalog: unexpected, quote: unexpected, checkout: unexpected, additionQuote: unexpected, additions: unexpected, orders: unexpected, reconcile: unexpected, action: unexpected, notes: unexpected, saveStore: unexpected, invite: unexpected, events: unexpected, tick: unexpected };
+  return { session: async (actor) => ({ actor, superadmin: false, storeIds: [] }), stores: unexpected, catalog: unexpected, quote: unexpected, checkout: unexpected, additionQuote: unexpected, additions: unexpected, orders: unexpected, reconcile: unexpected, action: unexpected, notes: unexpected, searchStoreAddresses: unexpected, saveStore: unexpected, invite: unexpected, events: unexpected, tick: unexpected };
 }
 
 class CookieJar {

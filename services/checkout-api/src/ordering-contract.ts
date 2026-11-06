@@ -1,4 +1,5 @@
-import type { IndividualActor, IndividualApi, IndividualCart, IndividualCheckout, IndividualCheckoutResult, IndividualOrder, IndividualStore, IndividualSession, IndividualAction, IndividualQuote, IndividualEvent, IndividualAdditionQuote, IndividualAdditionRequest, IndividualLine } from "@pizzaos/domain";
+import type { IndividualActor, IndividualApi, IndividualCart, IndividualCheckout, IndividualCheckoutResult, IndividualOrder, IndividualStore, IndividualSession, IndividualAction, IndividualQuote, IndividualEvent, IndividualAdditionQuote, IndividualAdditionRequest, IndividualLine, StoreAddressCandidate } from "@pizzaos/domain";
+import type { StoreAddressGeocoder } from "./store-address";
 
 export interface OrderingState {
   stores: Record<string, IndividualStore>;
@@ -37,7 +38,8 @@ export interface OrderingService {
   notes(actor: IndividualActor | null, orderId: string, notes: string): Promise<IndividualOrder>;
   additionQuote(actor: IndividualActor | null, orderId: string, lines: IndividualLine[]): Promise<IndividualAdditionQuote>;
   additions(actor: IndividualActor | null, orderId: string, input: IndividualAdditionRequest): Promise<IndividualCheckoutResult>;
-  saveStore(actor: IndividualActor | null, store: IndividualStore): Promise<IndividualStore>;
+  searchStoreAddresses(actor: IndividualActor | null, storeId: string, query: string): Promise<StoreAddressCandidate[]>;
+  saveStore(actor: IndividualActor | null, store: IndividualStore, addressConfirmation?: string): Promise<IndividualStore>;
   invite(actor: IndividualActor | null, storeId: string, email: string): Promise<void>;
   events(actor: IndividualActor | null, cursor: number, storeId?: string): Promise<{ cursor: number; events: IndividualEvent[] }>;
   /** Reconcile remote operations and acceptance/reservation deadlines, safe across restarts. */
@@ -54,6 +56,7 @@ export interface OrderingServiceOptions {
   now?: () => Date;
   id?: () => string;
   reservationMs?: number;
+  storeGeocoding?: StoreAddressGeocoder;
   /** Economic extension, evaluated within the canonical quote/checkout transaction. */
   priceQuote?: (state: OrderingState, cart: IndividualCart, quote: IndividualQuote, actor?: IndividualActor | null) => IndividualQuote;
   /** Evaluated under the canonical order write lock; absent means deny. */

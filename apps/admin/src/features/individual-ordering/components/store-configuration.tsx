@@ -1,7 +1,8 @@
 "use client";
 
-import type { IndividualProduct, IndividualStore } from "@pizzaos/domain";
+import type { IndividualProduct, IndividualStore, StoreAddressApi, StoreAddressCandidate } from "@pizzaos/domain";
 import { useState } from "react";
+import { StoreAddressField } from "./store-address-field";
 import styles from "./individual-operations.module.css";
 
 function Recipe({ label, ingredients, recipe, onChange }: {
@@ -19,28 +20,41 @@ function localDate(iso: string) {
 
 export type StoreConfigurationSection = "catalog" | "inventory" | "profile";
 
-export function StoreConfiguration({ store, isNew, section, busy, onSave }: {
+export function StoreConfiguration({ store, isNew, section, busy, onSearchAddress, onSave }: {
   store: IndividualStore;
   isNew: boolean;
   section: StoreConfigurationSection;
   busy: boolean;
-  onSave: (draft: IndividualStore, original: IndividualStore) => Promise<void>;
+  onSearchAddress: StoreAddressApi["searchStoreAddresses"];
+  onSave: (draft: IndividualStore, original: IndividualStore, addressConfirmation?: string) => Promise<void>;
 }) {
   const [original] = useState(store);
   const [draft, setDraft] = useState(store);
+  const [address, setAddress] = useState(store.address ?? "");
+  const [confirmedAddress, setConfirmedAddress] = useState<StoreAddressCandidate | null>(null);
+  const needsConfirmation = (isNew || address.trim() !== (original.address ?? "")) && !confirmedAddress;
   const update = <K extends keyof IndividualStore>(key: K, value: IndividualStore[K]) => setDraft(current => ({ ...current, [key]: value }));
   function productChange(index: number, change: Partial<IndividualProduct>) { update("products", draft.products.map((product, i) => i === index ? { ...product, ...change } : product)); }
-  return <form className={`${styles.page} ${styles.configuration}`} onSubmit={event => { event.preventDefault(); void onSave(draft, original); }}>
+  return <form className={`${styles.page} ${styles.configuration}`} onSubmit={event => {
+    event.preventDefault();
+    if (!busy && !needsConfirmation) void onSave(draft, original, confirmedAddress?.confirmation);
+  }}>
     <h2>{isNew ? "Crea una sede" : section === "catalog" ? "Menu e personalizzazioni" : section === "inventory" ? "Magazzino ingredienti" : "Configurazione della sede"}</h2><p>Le modifiche vengono applicate quando salvi. Le risorse già impegnate dagli ordini devono restare disponibili.</p>
     {(isNew || section === "profile") && <fieldset disabled={busy}><legend>Identità e contatti</legend><div className={styles.formGrid}>
-      <label>Identificativo sede<input required value={draft.id} disabled={!isNew} pattern="[a-zA-Z0-9_-]+" onChange={event => update("id", event.target.value)} /></label>
+      <label>Identificativo sede<input required value={draft.id} disabled={!isNew} pattern="[a-zA-Z0-9_-]+" onChange={event => {
+        update("id", event.target.value);
+        setConfirmedAddress(null);
+      }} /></label>
       <label>Nome sede<input required maxLength={150} value={draft.name} onChange={event => update("name", event.target.value)} /></label>
       <label>Fuso orario della sede<input required maxLength={100} value={draft.timeZone ?? "Europe/Rome"} placeholder="Europe/Rome" onChange={event => update("timeZone", event.target.value)} /><span>Usato per le date delle statistiche.</span></label>
       <label>Email del ristorante<input type="email" value={draft.contactEmail ?? ""} onChange={event => update("contactEmail", event.target.value)} /></label>
       <label>WhatsApp del ristorante<input type="tel" placeholder="+39…" value={draft.contactPhone ?? ""} onChange={event => update("contactPhone", event.target.value)} /></label>
-      <label>Latitudine della sede<input required type="number" min="-90" max="90" step="any" value={draft.latitude} onChange={event => update("latitude", Number(event.target.value))} /></label>
-      <label>Longitudine della sede<input required type="number" min="-180" max="180" step="any" value={draft.longitude} onChange={event => update("longitude", Number(event.target.value))} /></label>
-    </div><label className={styles.check}><input type="checkbox" checked={draft.acceptingOrders} onChange={event => update("acceptingOrders", event.target.checked)} />Accetta nuovi ordini</label></fieldset>}
+    </div>
+    <StoreAddressField key={draft.id} storeId={draft.id} address={address} savedAddress={original.address}
+      needsConfirmation={needsConfirmation} confirmed={Boolean(confirmedAddress)} onSearch={onSearchAddress}
+      onEdit={value => { setAddress(value); setConfirmedAddress(null); }}
+      onConfirm={candidate => { setAddress(candidate.address); setConfirmedAddress(candidate); }} />
+    <label className={styles.check}><input type="checkbox" checked={draft.acceptingOrders} onChange={event => update("acceptingOrders", event.target.checked)} />Accetta nuovi ordini</label></fieldset>}
 
     {(isNew || section === "inventory") && <fieldset disabled={busy}><legend>Magazzino ingredienti</legend><p>Le quantità sono espresse nelle stesse unità delle ricette. La disponibilità per nuovi ordini tiene conto delle riserve.</p>
       {draft.ingredients.map((ingredient, index) => <div className={styles.repeatRow} key={ingredient.id}>
@@ -84,6 +98,6 @@ export function StoreConfiguration({ store, isNew, section, busy, onSave }: {
         <button className={styles.secondary} type="button" onClick={() => update("deliveryBands", draft.deliveryBands.filter((_, i) => i !== index))}>Rimuovi zona</button>
       </div>)}<button className={styles.secondary} type="button" onClick={() => update("deliveryBands", [...draft.deliveryBands, { upToKm: (draft.deliveryBands.at(-1)?.upToKm ?? 0) + 1, feeCents: 0, minimumCents: 0 }])}>Aggiungi zona di consegna</button>
     </fieldset>}
-    <button type="submit" disabled={busy}>{busy ? "Salvataggio…" : isNew ? "Crea sede" : "Salva configurazione"}</button>
+    <button type="submit" disabled={busy || needsConfirmation}>{busy ? "Salvataggio…" : isNew ? "Crea sede" : "Salva configurazione"}</button>
   </form>;
 }

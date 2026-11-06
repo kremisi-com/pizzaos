@@ -21,7 +21,7 @@ function orderingPort(): OrderingService {
     checkout: vi.fn(unexpected), additionQuote: vi.fn(unexpected), additions: vi.fn(unexpected),
     orders: vi.fn(async (actor) => { if (!actor) throw Object.assign(new Error("Accesso richiesto"), { code: "unauthorized", statusCode: 401 }); return []; }),
     reconcile: vi.fn(unexpected), action: vi.fn(unexpected), notes: vi.fn(unexpected),
-    saveStore: vi.fn(unexpected), invite: vi.fn(unexpected), events: vi.fn(unexpected), tick: vi.fn(unexpected),
+    searchStoreAddresses: vi.fn(unexpected), saveStore: vi.fn(unexpected), invite: vi.fn(unexpected), events: vi.fn(unexpected), tick: vi.fn(unexpected),
   };
 }
 

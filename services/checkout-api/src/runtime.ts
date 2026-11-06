@@ -10,6 +10,7 @@ import { registerGroupOrderingRoutes } from "./group/group-http";
 import { registerPromotionRoutes } from "./promotions";
 import { createOperationalEmailServices, readOperationalEmailConfiguration, registerOperationalEmailRoutes } from "./operational-emails";
 import { readRuntimeConfiguration } from "./runtime-config";
+import { createOpenCageStoreGeocoder } from "./store-address";
 
 /** Construct one runtime. Entry points own listening, workers and process signals. */
 export async function createOrderingRuntime(env: Record<string, string | undefined> = process.env) {
@@ -21,7 +22,8 @@ export async function createOrderingRuntime(env: Record<string, string | undefin
     const stripe = new Stripe(config.stripeSecretKey);
     const email = readOperationalEmailConfiguration(env);
     const operational = createOperationalEmailServices({ repository: createPostgresOrderingRepository(pool), payments: createStripeOrderingPayments(stripe),
-      superadminEmails: config.superadminEmails, reservationMs: config.reservationMs, email });
+      superadminEmails: config.superadminEmails, reservationMs: config.reservationMs, email,
+      storeGeocoding: config.openCageApiKey ? createOpenCageStoreGeocoder(config.openCageApiKey, config.authSecret) : undefined });
     const { service } = operational;
     const groups = createGroupOrderingService({ repository: operational.repository, ordering: service });
     const auth = createOrderingAuth({ pool, secret: config.authSecret, proxySecret: config.proxySecret, origins: config.origins,

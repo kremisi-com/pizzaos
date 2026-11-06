@@ -14,7 +14,7 @@ afterEach(async () => { await Promise.all(apps.splice(0).map((app) => app.close(
 
 function setup() {
   const unexpected = async (): Promise<never> => { throw new Error("Canonical service must not be called by route adapter test"); };
-  const service: OrderingService = { session: unexpected, stores: unexpected, catalog: unexpected, quote: unexpected, checkout: unexpected, orders: unexpected, reconcile: unexpected, action: unexpected, notes: unexpected, additionQuote: unexpected, additions: unexpected, saveStore: unexpected, invite: unexpected, events: unexpected, tick: unexpected };
+  const service: OrderingService = { session: unexpected, stores: unexpected, catalog: unexpected, quote: unexpected, checkout: unexpected, orders: unexpected, reconcile: unexpected, action: unexpected, notes: unexpected, additionQuote: unexpected, additions: unexpected, searchStoreAddresses: unexpected, saveStore: unexpected, invite: unexpected, events: unexpected, tick: unexpected };
   const groups: GroupOrderingService = {
     create: vi.fn(async () => ({ ...snapshot, role: "host" as const, inviteToken: "invitation-secret" })),
     read: vi.fn(async () => snapshot),

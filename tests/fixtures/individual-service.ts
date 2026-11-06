@@ -29,7 +29,16 @@ const repository: OrderingRepository = {
 };
 const intents = new Map<string, ProviderPayment>();
 const emailFailures = new Set<string>();
-const operational = createOperationalEmailServices({ repository, superadminEmails: ["superadmin@example.test"], email: {
+const operational = createOperationalEmailServices({ repository, superadminEmails: ["superadmin@example.test"], storeGeocoding: {
+  signingSecret: "browser-test-only-store-address-signing-secret",
+  async search(query) {
+    const first = { address: "Via Verdi 10, Torino", latitude: 45.068, longitude: 7.689 };
+    const second = { address: "Via Verdi 20, Torino", latitude: 45.067, longitude: 7.691 };
+    if (query === "Via Verdi, Torino") return [first, second];
+    if (query === "Via Verdi 20, Torino") return [second];
+    return [];
+  },
+}, email: {
   from: "ordini@example.test", testRecipients: ["alice@example.test"], retryBaseMs: 5000, maxRetryMs: 5000,
   sender: { async send(message) {
     if (message.text.includes("email-e2e-failure") && !emailFailures.has(message.messageId)) { emailFailures.add(message.messageId); throw new Error("Errore email del test"); }

@@ -1,10 +1,10 @@
-import type { IndividualApi } from "@pizzaos/domain";
+import type { IndividualApi, StoreAddressApi } from "@pizzaos/domain";
 
 export class IndividualApiError extends Error {
   constructor(readonly code: string, message: string) { super(message); this.name = "IndividualApiError"; }
 }
 
-export function createIndividualApi(): IndividualApi {
+export function createIndividualApi(): IndividualApi & StoreAddressApi {
   const base = "/api/pilot/v1/pilot";
   async function request<T>(path: string, method = "GET", body?: unknown): Promise<T> {
     const response = await fetch(`${base}${path}`, {
@@ -34,7 +34,8 @@ export function createIndividualApi(): IndividualApi {
     notes: (orderId, notes) => request(`/orders/${id(orderId)}/notes`, "PATCH", { notes }),
     additionQuote: (orderId, lines) => request(`/orders/${id(orderId)}/additions/quote`, "POST", { lines }),
     additions: (orderId, input) => request(`/orders/${id(orderId)}/additions`, "POST", input),
-    saveStore: store => request(`/stores/${id(store.id)}`, "PUT", store),
+    searchStoreAddresses: (storeId, query) => request(`/stores/${id(storeId)}/address-search`, "POST", { query }),
+    saveStore: (store, addressConfirmation) => request(`/stores/${id(store.id)}`, "PUT", { ...store, addressConfirmation }),
     invite: (storeId, email) => request(`/stores/${id(storeId)}/invitations`, "POST", { email }),
     events: (cursor, storeId) => request(`/events?cursor=${cursor}${storeId ? `&storeId=${id(storeId)}` : ""}`)
   };

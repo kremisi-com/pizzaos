@@ -3,6 +3,7 @@ import type { IndividualActor, IndividualAction, IndividualAdditionRequest, Indi
 import type { OrderingService } from "./ordering-contract";
 import { OrderingError } from "./ordering-service";
 import { normalizePromotionSelection } from "./promotions/selection";
+import { storeAddressLimit } from "./store-address";
 
 export interface OrderingHttpOptions {
   service: OrderingService;
@@ -30,6 +31,8 @@ const cart = { type: "object", additionalProperties: false, required: ["storeId"
   } }
 } };
 const store = { type: "object", additionalProperties: false, required: ["id", "name", "latitude", "longitude", "acceptingOrders", "deliveryBands", "ingredients", "products", "slots"], properties: {
+  address: { type: "string", minLength: 1, maxLength: storeAddressLimit },
+  addressConfirmation: { type: "string", minLength: 1, maxLength: 4044 },
   timeZone: { type: "string", minLength: 1, maxLength: 100 },
   id: text, name: text, contactEmail: { anyOf: [{ type: "string", format: "email", maxLength: 254 }, { const: "" }] }, contactPhone: { type: "string", maxLength: 100 }, latitude: { type: "number", minimum: -90, maximum: 90 }, longitude: { type: "number", minimum: -180, maximum: 180 }, acceptingOrders: { type: "boolean" },
   deliveryBands: { type: "array", maxItems: 100, items: { type: "object", additionalProperties: false, required: ["upToKm", "feeCents", "minimumCents"], properties: { upToKm: { type: "number", minimum: 0, maximum: 1000 }, feeCents: cents, minimumCents: cents } } },
@@ -101,9 +104,18 @@ export function buildOrderingApp(options: OrderingHttpOptions) {
   app.post<{ Params: { id: string }; Body: IndividualAdditionRequest }>("/v1/pilot/orders/:id/additions", { schema: { body: { type: "object", required: ["lines", "fingerprint", "idempotencyKey"], additionalProperties: false, properties: { lines: { type: "array", minItems: 1, maxItems: 100, items: line }, fingerprint: text, idempotencyKey: text } } } }, async request => service.additions(await options.authenticate(request), request.params.id, request.body));
   app.post<{ Params: { id: string }; Body: IndividualAction }>("/v1/pilot/orders/:id/actions", { schema: { body: { type: "object", additionalProperties: false, required: ["action"], properties: { action: { enum: ["accept", "wait_for_customer", "cancel", "prepare", "ready", "dispatch", "complete", "retry_refund"] }, unavailableProductIds: { type: "array", uniqueItems: true, maxItems: 100, items: text } } } } }, async request => service.action(await options.authenticate(request), request.params.id, request.body));
   app.patch<{ Params: { id: string }; Body: { notes: string } }>("/v1/pilot/orders/:id/notes", { schema: { body: { type: "object", required: ["notes"], additionalProperties: false, properties: { notes } } } }, async request => service.notes(await options.authenticate(request), request.params.id, request.body.notes));
-  app.put<{ Params: { id: string }; Body: IndividualStore }>("/v1/pilot/stores/:id", { schema: { body: store } }, async (request, reply) => {
+  app.post<{ Params: { id: string }; Body: { query: string } }>("/v1/pilot/stores/:id/address-search", {
+    schema: { body: { type: "object", additionalProperties: false, required: ["query"], properties: {
+      query: { type: "string", minLength: 5, maxLength: storeAddressLimit }
+    } } }
+  }, async (request, reply) => {
+    reply.header("cache-control", "no-store");
+    return service.searchStoreAddresses(await options.authenticate(request), request.params.id, request.body.query);
+  });
+  app.put<{ Params: { id: string }; Body: IndividualStore & { addressConfirmation?: string } }>("/v1/pilot/stores/:id", { schema: { body: store } }, async (request, reply) => {
     if (request.params.id !== request.body.id) return reply.code(400).send({ code: "invalid_input", message: "La sede non corrisponde." });
-    return service.saveStore(await options.authenticate(request), request.body);
+    const { addressConfirmation, ...configuration } = request.body;
+    return service.saveStore(await options.authenticate(request), configuration, addressConfirmation);
   });
   app.post<{ Params: { id: string }; Body: { email: string } }>("/v1/pilot/stores/:id/invitations", { schema: { body: { type: "object", additionalProperties: false, required: ["email"], properties: { email: { type: "string", format: "email", maxLength: 254 } } } } }, async (request, reply) => {
     await service.invite(await options.authenticate(request), request.params.id, request.body.email);

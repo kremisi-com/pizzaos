@@ -20,7 +20,8 @@ Public domain shapes are `Individual*` and `IndividualApi` from `@pizzaos/domain
 - `PATCH /v1/pilot/orders/:id/notes`: customer notes before preparation.
 - `POST /v1/pilot/orders/:id/additions/quote`: quote customer-added lines before acceptance.
 - `POST /v1/pilot/orders/:id/additions`: confirm an increase, settled separately with the original method; no original line removal/repricing.
-- `PUT /v1/pilot/stores/:id`: superadmin creates, assigned operator/superadmin updates configuration.
+- `POST /v1/pilot/stores/:id/address-search`: an assigned operator or superadmin searches for the store address. Returns formatted choices with short-lived confirmations bound to the actor, store, and previous position. A new store ID requires superadmin access.
+- `PUT /v1/pilot/stores/:id`: superadmin creates, assigned operator/superadmin updates configuration. An optional `addressConfirmation` applies the confirmed address and coordinates together. The operator catalog includes the confirmed address when available.
 - `POST /v1/pilot/stores/:id/invitations`: superadmin authorizes an email for a store; the operator signs in via Google/magic link. Invitations are access grants; automatic invitation emails are outside this increment.
 - `GET /v1/pilot/events?cursor=&storeId=` and `/stream`: matching JSON/SSE event envelopes, filtered by customer/store authorization.
 - `/api/pilot/auth/*`: Auth.js endpoints proxied by both apps; Google and Nodemailer magic link, PostgreSQL sessions.
@@ -41,13 +42,15 @@ A pending/uncertain payment blocks duplicate checkout. Provider idempotency keys
 
 Run `src/schema.sql` against a dedicated PostgreSQL database. Existing POC tables are retained; new runtime uses `individual_ordering_state` and official Auth.js adapter tables. The pilot state is a JSON snapshot under a database row lock, serializing inventory/capacity decisions across service instances. Remote Stripe operations occur outside the lock after a durable intent is saved. This intentionally favors atomicity and reviewability for a low-volume pilot; normalization/sharding is a future service-internal change, with no app contract change.
 
-Ingredient quantities/recipe consumption are positive integer units; choose a consistent smallest unit per ingredient. Stock updates cannot undercut current reservations. Delivery uses geodetic distance from configured store coordinates to the customer-confirmed delivery point and the first inclusive distance band. Address geocoding is not included; the UI supports coordinates and geolocation. Slots are explicit dated capacity entries configured through admin, and acceptingOrders suspends new orders.
+Ingredient quantities/recipe consumption are positive integer units; choose a consistent smallest unit per ingredient. Stock updates cannot undercut current reservations. Delivery uses geodetic distance from configured store coordinates to the customer-confirmed delivery point and the first inclusive distance band. Store addresses are confirmed from the operator search and saved with the corresponding coordinates in the existing JSON state. Legacy stores retain their saved coordinates. Customer delivery points still use coordinates or geolocation. Slots are explicit dated capacity entries configured through admin, and acceptingOrders suspends new orders.
 
 ## Environment and local setup
 
 Use `.env.example` as a template for a **local** `.env`. No credentials belong in committed files. Both app proxies share `PIZZAOS_PROXY_SECRET` with this service; `PIZZAOS_ALLOWED_ORIGINS` lists their exact public origins. Server rejects direct proxy routes without that credential. Browser mutations require matching Origin. Production origins must be HTTPS; run behind a TLS reverse proxy. Stripe webhook is the only remote write endpoint without proxy auth and has its own provider signature.
 
 Required: `DATABASE_URL`, `AUTH_SECRET` (32+ characters), `PIZZAOS_PROXY_SECRET` (different 32+ characters), `PIZZAOS_ALLOWED_ORIGINS`, `PIZZAOS_SUPERADMIN_EMAILS`, `AUTH_GOOGLE_ID`, `AUTH_GOOGLE_SECRET`, `SMTP_URL`, `AUTH_EMAIL_FROM`, `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`. Optional: `PIZZAOS_ENVIRONMENT` (`test` or `production`, default `production`; test rejects live Stripe keys), `PAYMENT_RESERVATION_MINUTES` (default 10), `PORT` (3004), `HOST` (127.0.0.1).
+
+Set `OPENCAGE_API_KEY` in the checkout service to enable store address search. Each explicit search sends the address query to [OpenCage](https://opencagedata.com/api) with query retention disabled. Existing store settings and ordering still work when the key is absent. Deploy the updated service before releasing the admin that uses the search.
 
 From this service directory, using Node with env-file support:
 

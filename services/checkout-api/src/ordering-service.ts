@@ -5,6 +5,7 @@ import type {
 } from "@pizzaos/domain";
 import type { RiderOrderingService, OrderingServiceOptions, OrderingState, ProviderPayment, ProviderRefund } from "./ordering-contract";
 import { normalizePromotionSelection } from "./promotions/selection";
+import { addressConfirmation, readAddressConfirmation, storeAddressLimit, storeLocationKey } from "./store-address";
 
 interface Reservation { ingredients: Record<string, number>; slotId: string; }
 interface State extends OrderingState {
@@ -72,6 +73,7 @@ function recipeValid(recipe: unknown, ingredientIds: Set<string>): asserts recip
 function validStore(store: IndividualStore): void {
   if (!record(store)) fail("invalid_input", "Configurazione sede non valida.");
   identifier(store.id); text(store.name); coordinate(store.latitude, 90); coordinate(store.longitude, 180);
+  if (store.address !== undefined) text(store.address, storeAddressLimit);
   if (store.timeZone !== undefined) {
     text(store.timeZone, 100);
     try { new Intl.DateTimeFormat("it-IT", { timeZone: store.timeZone }).format(); }
@@ -494,6 +496,7 @@ export function createOrderingService(options: OrderingServiceOptions): RiderOrd
     if (member(state, actor, store.id)) return copy(store);
     const reserved = ingredientsReserved(state, store.id);
     const publicStore = copy(store);
+    delete publicStore.address;
     publicStore.ingredients = [];
     publicStore.products = publicStore.products.map(product => ({ ...product,
       available: product.available && Object.entries(product.ingredients).every(([ingredientId, quantity]) =>
@@ -699,7 +702,33 @@ export function createOrderingService(options: OrderingServiceOptions): RiderOrd
       if (additionId === null) { await expireOrder(orderId); fail("invalid_transition", "L'ordine è scaduto ed è stato annullato."); }
       return additionPayment(orderId, additionId);
     },
-    async saveStore(actor, input) {
+    async searchStoreAddresses(actor, storeId, query) {
+      const user = authenticated(actor);
+      identifier(storeId);
+      text(query, storeAddressLimit);
+      const normalized = query.trim();
+      if (normalized.length < 5) fail("invalid_input", "Inserisci via, civico e città.");
+      const previous = await transact(state => {
+        const existing = Object.hasOwn(state.stores, storeId) ? state.stores[storeId] : undefined;
+        if (!isSuper(user) && (!existing || !member(state, user, storeId))) {
+          fail("forbidden", "Non hai accesso a questa sede.");
+        }
+        return storeLocationKey(existing);
+      });
+      const geocoding = options.storeGeocoding;
+      if (!geocoding) fail("service_unavailable", "Ricerca indirizzi non configurata.");
+      try {
+        const matches = await geocoding.search(normalized);
+        const searchedAt = now().getTime();
+        return matches.slice(0, 5).map(location => ({
+          address: location.address,
+          confirmation: addressConfirmation(location, user.id, storeId, previous, searchedAt, geocoding.signingSecret)
+        }));
+      } catch {
+        return fail("service_unavailable", "Ricerca indirizzi non disponibile.");
+      }
+    },
+    async saveStore(actor, input, confirmation) {
       const user = authenticated(actor);
       if (!record(input)) fail("invalid_input", "Configurazione sede non valida.");
       text(input.id);
@@ -707,6 +736,25 @@ export function createOrderingService(options: OrderingServiceOptions): RiderOrd
         const existing = Object.hasOwn(state.stores, input.id) ? state.stores[input.id] : undefined;
         if (!existing && !isSuper(user)) fail("forbidden", "Solo il superadmin può creare una sede.");
         if (existing) operator(state, user, input.id);
+        let next = input;
+        if (confirmation !== undefined) {
+          const geocoding = options.storeGeocoding;
+          const confirmed = geocoding && readAddressConfirmation(confirmation, user.id, input.id, now().getTime(), geocoding.signingSecret);
+          if (!confirmed) fail("invalid_input", "La conferma dell’indirizzo non è valida o è scaduta. Cerca di nuovo l’indirizzo.");
+          const currentLocation = storeLocationKey(existing);
+          if (currentLocation !== confirmed.previous && currentLocation !== storeLocationKey(confirmed.location)) {
+            fail("revision_conflict", "L’indirizzo della sede è cambiato. Ricarica la sede e cerca di nuovo l’indirizzo.");
+          }
+          next = { ...input, ...confirmed.location };
+        } else if (existing?.address) {
+          if ((input.address !== undefined && input.address !== existing.address) ||
+            input.latitude !== existing.latitude || input.longitude !== existing.longitude) {
+            fail("invalid_input", "Cerca e conferma l’indirizzo prima di modificare la posizione.");
+          }
+          next = { ...input, address: existing.address };
+        } else if (input.address !== undefined) {
+          fail("invalid_input", "Cerca e conferma l’indirizzo prima di salvarlo.");
+        }
         if (!Array.isArray(input.ingredients) || !Array.isArray(input.slots)) fail("invalid_input", "Configurazione sede incompleta.");
         const reserved = ingredientsReserved(state, input.id);
         for (const [ingredientId, quantity] of Object.entries(reserved)) {
@@ -720,8 +768,8 @@ export function createOrderingService(options: OrderingServiceOptions): RiderOrd
           if (!slot && active) fail("slot_unavailable", "Non puoi eliminare una fascia con ordini attivi.");
           if (slot && (slot.capacity < slotCount(state, input.id, slot.id) || (active && Date.parse(slot.startsAt) !== Date.parse(order.quote.slotStartsAt)))) fail("slot_unavailable", "La nuova fascia non copre gli ordini già ricevuti.");
         }
-        validStore(input);
-        const saved = copy(input); state.stores[input.id] = saved;
+        validStore(next);
+        const saved = copy(next); state.stores[input.id] = saved;
         state.cursor += 1; state.events.push({ cursor: state.cursor, storeId: input.id, orderId: "", revision: state.cursor });
         return copy(saved);
       });

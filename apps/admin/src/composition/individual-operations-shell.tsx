@@ -186,13 +186,13 @@ export function IndividualOperationsShell({ riderHref }: { riderHref?: string })
     }
   }
 
-  async function save(draft: IndividualStore, original: IndividualStore) {
+  async function save(draft: IndividualStore, original: IndividualStore, addressConfirmation?: string) {
     setBusy(true);
     setError("");
     setNotice("");
     try {
       const next = creating ? draft : mergeStoreChanges(await api.catalog(original.id), original, draft);
-      const saved = await api.saveStore(next);
+      const saved = await api.saveStore(next, addressConfirmation);
       if (storeId !== saved.id) selectStore(saved.id);
       setCreating(false);
       setCatalog(saved);
@@ -261,7 +261,8 @@ export function IndividualOperationsShell({ riderHref }: { riderHref?: string })
       {tab === "profile" && session.superadmin && !creating &&
         <Button type="button" variant="secondary" disabled={busy} onClick={() => { setCreating(true); setError(""); setNotice(""); }}>Nuova sede</Button>}
       {creating || store ? <StoreConfiguration key={creating ? "new" : `${storeId}:${tab}:${configurationVersion}`}
-        store={creating ? emptyStore : store ?? emptyStore} isNew={creating} section={tab} busy={busy} onSave={save} />
+        store={creating ? emptyStore : store ?? emptyStore} isNew={creating} section={tab} busy={busy}
+        onSearchAddress={api.searchStoreAddresses} onSave={save} />
         : storeId && !catalogError && <p role="status">Caricamento configurazione…</p>}
       {tab === "profile" && creating && <Button type="button" variant="secondary" disabled={busy} onClick={() => setCreating(false)}>Annulla creazione</Button>}
       {tab === "profile" && session.superadmin && storeId && !creating &&

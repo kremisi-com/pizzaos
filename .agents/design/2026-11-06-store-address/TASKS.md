@@ -1,0 +1,1 @@
+- [x] **address-confirmation**: cercare, confermare e salvare la posizione della sede nel Profilo operativo.

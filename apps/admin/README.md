@@ -106,7 +106,7 @@ Verifica dei due host: `pnpm exec vitest run tests/operational-domains.test.ts` 
 
 Il flusso operativo `/operazioni` usa il contratto pubblico `IndividualApi` di `@pizzaos/domain`, fornito dalla composizione attraverso un adapter HTTP same-origin. Le superfici operative sono l'esperienza predefinita della home. Il POC si apre solo con la sessione demo verificata dal servizio; `PIZZAOS_MODE` non seleziona più la modalità.
 
-L'admin operativo condivide con il POC la sidebar, il selettore sede e la struttura della dashboard. **Ordini** mostra la coda persistente della sede con elenco e dettaglio. **Menu** e **Magazzino** gestiscono prodotti e scorte. **Profilo** raccoglie contatti, apertura ordini, fasce orarie e zone di consegna. Il superadmin trova in Profilo anche la creazione sede e l'invito operatore.
+L'admin operativo condivide con il POC la sidebar, il selettore sede e la struttura della dashboard. **Ordini** mostra la coda persistente della sede con elenco e dettaglio. **Menu** e **Magazzino** gestiscono prodotti e scorte. **Profilo** raccoglie indirizzo, contatti, apertura ordini, fasce orarie e zone di consegna. L'operatore cerca e conferma l'indirizzo, poi salva la configurazione. Il superadmin trova in Profilo anche la creazione sede e l'invito operatore.
 
 Il proxy `/api/pilot/*` raggiunge `services/checkout-api` tramite `PIZZAOS_SERVICE_URL`, `PIZZAOS_PROXY_SECRET` e `PIZZAOS_APP_ORIGIN` server-only. Le credenziali devono corrispondere alla configurazione del servizio. `/accesso` fornisce accesso italiano Google/magic link e logout protetto da CSRF; Auth.js e la persistenza appartengono al servizio. Nessuna identità o integrazione di pagamento simulata è attivabile dal browser nel runtime reale.
 

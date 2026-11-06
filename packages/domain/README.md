@@ -23,6 +23,7 @@ Entry point: `@pizzaos/domain`
 Current exports from `src/index.ts`:
 
 - durable pilot boundary: `IndividualApi` and `Individual*` shapes for store configuration, recipes, cart/quote, checkout, order lifecycle, additional-payment/refund ledger, session, and resumable events. This narrower live contract deliberately excludes unresolved demo capabilities from `ClientApiContract`; apps inject its HTTP implementation through their own composition. It contains no database/provider implementation and no persisted payment secrets.
+- `StoreAddressApi` offre la ricerca di indirizzi della sede nel pannello operativo. `IndividualApi.saveStore` accetta la conferma del risultato scelto e il catalogo operatore restituisce l'indirizzo salvato.
 - `GroupOrderingApi`, `GroupSnapshot`, `GroupParticipant`, `GroupFulfillment`, `GroupQuote` e `GroupCheckout`: port live per raccolta condivisa, revisioni, chiusura e checkout canonico dell'organizzatore. Il riepilogo ospite espone nomi e scelte, senza contatti o capability personali; il trasporto custodisce queste ultime in cookie HttpOnly.
 
 - app shell primitives: `APP_SURFACES`, `AppSurface`, `AppShellSeed`

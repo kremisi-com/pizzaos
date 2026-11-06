@@ -142,3 +142,92 @@ test("the live admin sidebar switches tools and restricts store management to su
     await superadmin.close();
   }
 });
+
+test("admin creates a store only after explicitly confirming a candidate and reloads the chosen address", async ({ context, page }) => {
+  await context.addCookies([{ name: "pizzaos-e2e-actor", value: "superadmin", url: adminOrigin, httpOnly: true, sameSite: "Lax" }]);
+  await page.goto(`${adminOrigin}/operazioni`);
+  const profile = page.getByRole("navigation", { name: "Navigazione admin" }).getByRole("button", { name: "Profilo", exact: true });
+  await profile.click();
+  await page.getByRole("button", { name: "Nuova sede", exact: true }).click();
+  const storeId = `torino-indirizzo-${Date.now()}`;
+  await page.getByLabel("Identificativo sede", { exact: true }).fill(storeId);
+  await page.getByLabel("Nome sede", { exact: true }).fill("Torino Via Verdi");
+  await expect(page.getByLabel("Latitudine della sede", { exact: true })).toHaveCount(0);
+  await expect(page.getByLabel("Longitudine della sede", { exact: true })).toHaveCount(0);
+
+  const address = page.getByRole("textbox", { name: "Indirizzo della sede", exact: true });
+  const search = page.getByRole("button", { name: "Cerca indirizzo", exact: true });
+  const create = page.getByRole("button", { name: "Crea sede", exact: true });
+  const first = page.getByRole("button", { name: "Conferma Via Verdi 10, Torino", exact: true });
+  const second = page.getByRole("button", { name: "Conferma Via Verdi 20, Torino", exact: true });
+  await expect(create).toBeDisabled();
+  await address.fill("Via Verdi, Torino");
+  await search.click();
+  await expect(first).toBeVisible();
+  await expect(second).toBeVisible();
+  await expect(create).toBeDisabled();
+  await first.click();
+  await expect(create).toBeEnabled();
+
+  await address.fill("Via Verdi 20, Torino");
+  await expect(create).toBeDisabled();
+  await search.click();
+  await expect(second).toBeVisible();
+  await expect(first).toHaveCount(0);
+  await expect(create).toBeDisabled();
+  await second.click();
+  const write = page.waitForResponse(response => response.url().endsWith(`/v1/pilot/stores/${storeId}`) && response.request().method() === "PUT");
+  await create.click();
+  expect((await write).ok()).toBe(true);
+  await expect(page.getByText("Configurazione salvata.", { exact: true })).toBeVisible();
+
+  await page.reload();
+  await page.getByLabel("Negozio Attivo", { exact: true }).selectOption(storeId);
+  await profile.click();
+  await expect(address).toHaveValue("Via Verdi 20, Torino");
+});
+
+test("admin discards address results for an edited search and can still save a legacy profile", async ({ context, page }) => {
+  await context.addCookies([{ name: "pizzaos-e2e-actor", value: "operator", url: adminOrigin, httpOnly: true, sameSite: "Lax" }]);
+  await page.goto(`${adminOrigin}/operazioni`);
+  await page.getByLabel("Negozio Attivo", { exact: true }).selectOption("roma");
+  await page.getByRole("navigation", { name: "Navigazione admin" }).getByRole("button", { name: "Profilo", exact: true }).click();
+  const address = page.getByRole("textbox", { name: "Indirizzo della sede", exact: true });
+  const search = page.getByRole("button", { name: "Cerca indirizzo", exact: true });
+  const save = page.getByRole("button", { name: "Salva configurazione", exact: true });
+  const endpoint = "**/v1/pilot/stores/roma/address-search";
+  await expect(address).toHaveValue("");
+  await expect(save).toBeEnabled();
+
+  let releaseResponse = () => {};
+  const waitForEdit = new Promise<void>(resolve => { releaseResponse = resolve; });
+  await page.route(endpoint, async route => {
+    const response = await route.fetch();
+    await waitForEdit;
+    await route.fulfill({ response });
+  }, { times: 1 });
+  const request = page.waitForRequest(endpoint);
+  try {
+    await address.fill("Via Verdi, Torino");
+    await search.click();
+    await request;
+    await address.fill("Località inesistente");
+    await expect(save).toBeDisabled();
+  } finally {
+    releaseResponse();
+  }
+
+  const noMatches = page.waitForResponse(response => response.url().endsWith("/roma/address-search") && response.request().postData()?.includes("Località inesistente") === true);
+  await search.click();
+  expect(await (await noMatches).json()).toEqual([]);
+  await expect(page.getByRole("button", { name: /^Conferma Via Verdi/ })).toHaveCount(0);
+  await expect(save).toBeDisabled();
+
+  await address.clear();
+  await expect(save).toBeEnabled();
+  await save.click();
+  await expect(page.getByText("Configurazione salvata.", { exact: true })).toBeVisible();
+  const saved = await context.request.get(`${adminOrigin}/api/pilot/v1/pilot/stores/roma`);
+  expect(saved.ok()).toBe(true);
+  expect(await saved.json()).toMatchObject({ latitude: 41.9, longitude: 12.5 });
+});
