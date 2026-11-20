@@ -33,7 +33,7 @@ Stati ammessi: `DECISO`, `APERTO`, `DA VALIDARE`, `RINVIATO`, `NON APPLICABILE`.
 | D11 | Punti loyalty accreditati a ordine completato; promozioni cumulabili; programma configurabile per singolo ristorante. | DECISO | Risposta utente 2026-09-29 |
 | D12 | Ordine di gruppo autorizzato come incremento successivo all’ordine individuale completato e verificato; regole D21/D61-D63. | DECISO | Conferma utente 2026-11-05 in chat sequenza gruppo/fedeltà/notifiche |
 | D13 | Gli insight AI sono rinviati a versioni successive. | DECISO | Risposta utente 2026-09-29 |
-| D14 | Prima versione con analitiche semplici; BI e MLOps sono prospettiva futura, non da costruire ora. Metriche e definizioni puntuali ancora da decidere con D22. | DECISO (perimetro), APERTO (metriche) | Risposta utente 2026-09-29 |
+| D14 | Prima versione con analitiche semplici; BI e MLOps sono prospettiva futura, non da costruire ora. Metriche e definizioni confermate successivamente in D22/D59/D60. | DECISO | Risposta utente 2026-09-29; conferma metriche 2026-11-05 |
 | D15 | Non modificare ora la strategia commerciale di PizzaOS e i relativi contenuti landing. | RINVIATO | Risposta utente 2026-09-29 |
 | D16 | Non sono ancora state svolte analisi privacy/normative/operative; saranno affrontate più avanti. Il lavoro che le rende necessarie resta bloccato fino alla decisione. | RINVIATO | Risposta utente 2026-09-29 |
 | D33 | Pagamento carta: incasso al momento dell'invio dell'ordine; se il ristorante annulla/rifiuta, avvio del rimborso. Lo stato del rimborso deve essere tracciato e comunicato senza promettere accredito immediato. | DECISO | Risposta utente 2026-09-29 |
@@ -57,6 +57,8 @@ Stati ammessi: `DECISO`, `APERTO`, `DA VALIDARE`, `RINVIATO`, `NON APPLICABILE`.
 | D28 | Operatori con stessi permessi nella propria sede; tassonomia dettagliata ruoli rinviata e non blocca primo incremento (D55). | DECISO (primo incremento) | Conferma utente 2026-11-05 |
 | D29 | Superadmin crea sede e invita operatori per email; ristoratore configura menu, ingredienti/scorte, orari e consegna tramite admin (D55). | DECISO | Conferma utente 2026-11-05 |
 | D30 | Primo incremento con contatti manuali D54; successivo incremento email operative automatiche autorizzato dopo coupon/fedeltà verificati, secondo D68/D69. WhatsApp resta manuale. | DECISO | Conferma utente 2026-11-05 |
+| D21 | Gruppo con organizzatore autenticato, invitati via link e nome senza account, contributi personali, chiusura e pagamento unico; dettagli D61-D63. | DECISO | Conferma utente 2026-11-05 |
+| D25 | Coupon e fedeltà autorizzati dopo il gruppo verificato; configurazione admin, regole economiche D64-D67. Non cambiano il primo incremento a prezzi ordinari D53. | DECISO | Conferma utente 2026-11-05 |
 | D42 | Carrello conservato 7 giorni dall’ultima modifica. Prezzi cambiati richiedono conferma; indisponibilità/slot persi richiedono correzione prima dell’invio (D50). | DECISO | Conferma utente 2026-11-05 |
 | D43 | Mantenere riservate le risorse disponibili e la capacità dello slot mentre si attende senza scadenza la risposta del cliente via email o WhatsApp, finché il ristoratore non accetta o annulla l'ordine. Se si crea il nuovo ordine con l'alternativa, rilasciare la riserva dell'originale e convalidare nuovamente disponibilità e capacità del carrello nuovo. | DECISO | Risposta utente 2026-09-29 |
 | D44 | Il cliente può annullare autonomamente mentre l'ordine è in attesa di accettazione; dopo l'accettazione contatta il ristorante via email o WhatsApp per chiedere l'annullamento. | DECISO | Risposta utente 2026-09-29 |
@@ -69,8 +71,6 @@ Stati ammessi: `DECISO`, `APERTO`, `DA VALIDARE`, `RINVIATO`, `NON APPLICABILE`.
 
 | ID | Decisione necessaria | Stato | Blocca almeno |
 |---|---|---|---|
-| D21 | Gruppo con organizzatore autenticato, invitati via link e nome senza account, contributi personali, chiusura e pagamento unico; dettagli D61-D63. | DECISO | Conferma utente 2026-11-05 |
-| D25 | Coupon e fedeltà autorizzati dopo il gruppo verificato; configurazione admin, regole economiche D64-D67. Non cambiano il primo incremento a prezzi ordinari D53. | DECISO | Conferma utente 2026-11-05 |
 | D26 | Abbonamenti restano nel perimetro del prodotto; regole e collegamento checkout rinviati a incremento successivo (D53). | RINVIATO | Incrementi successivi promozioni/abbonamenti; non blocca ordine individuale a prezzi ordinari (D53) |
 
 
@@ -129,7 +129,7 @@ Piano di coordinamento e verifiche: [sequenza incrementi](sequential-increments.
 |---|---|---|---|
 | D71 | `admin.pizzaos.app` e `rider.pizzaos.app` sono gli ingressi operativi distinti della stessa applicazione `apps/admin`, serviti dallo stesso progetto e deploy frontend per ambiente. Restano tre applicazioni e tre deploy frontend, con accesso, navigazione e permessi distinti per operatori e rider; le autorizzazioni sono verificate lato servizio. Cliente, admin e rider condividono il database del servizio nello stesso ambiente; test e produzione hanno database e credenziali separati. | DECISO | Conferma esplicita utente 2026-11-05 in chat sui sottodomini admin/rider |
 
-Dettagli e attività di configurazione ancora necessarie: [architettura del deploy pilota](architecture/pilot-deployment.md). La scelta dei due sottodomini non attesta un deploy o una configurazione DNS già eseguiti; gli indirizzi degli altri frontend e dell'ambiente di test restano da definire.
+Configurazione e separazione degli ambienti: [architettura del deploy pilota](architecture/pilot-deployment.md). D71 registra la scelta di prodotto; la pubblicazione effettiva di client, admin/rider e backend sul test è attestata separatamente dal [verbale online del 5 novembre 2026](../../services/checkout-api/online-client-verification.md). Non equivale all'apertura commerciale o alla verifica di tutti gli scenari su dispositivi fisici distinti.
 
 ## Conferma del 2026-11-05: POC autenticato nello stesso prodotto
 

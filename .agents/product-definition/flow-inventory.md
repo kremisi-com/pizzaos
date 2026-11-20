@@ -1,51 +1,57 @@
-# Inventario iniziale dei flussi da definire
+# Inventario corrente dei flussi
 
-## Scopo e lettura corretta
+Allineamento documentale del 2026-11-20 alle fonti presenti nel repository. Gli ID F01-F24 sono conservati dalla ricognizione iniziale. Questo indice descrive copertura e lacune; lo stato degli incrementi e delle prove è nella [roadmap](roadmap.md). La data di allineamento non attesta nuove esecuzioni di test o nuovi deploy.
 
-La pianificazione in `.agents/planning/PizzaOS_POC/` definisce un prodotto dimostrativo: stati locali, dati seedati, accesso presunto, integrazioni simulate e nessun collegamento runtime tra landing, client e admin. Questa ricognizione avvia il passaggio a una specifica per il prodotto definitivo; non presume che ogni funzionalità POC debba diventare una funzionalità di produzione.
+## Come leggere l'inventario
 
-Legenda: **presente** = requisito o contratto già esiste; **parziale** = esiste una base ma mancano regole o implementazione completa; **da decidere** = richiede una decisione di prodotto prima di specificare il comportamento.
+- **Pilota**: il flusso ha un'implementazione persistente nel perimetro indicato; non implica copertura completa del prodotto commerciale o verifica online di tutti gli scenari.
+- **Parziale**: esiste una capacità persistente, ma una parte del flusso resta demo, non specificata o da verificare.
+- **Demo / da definire**: le schermate o i contratti del POC non attestano una capacità operativa completa.
+- Le fonti SDD sono ancora proprietarie di alcuni requisiti: non tutti i flussi hanno un documento autonomo in `flows/`. I link alle suite indicano dove cercare la verifica, non certificano che tutti i casi del flusso siano coperti.
 
-## Basi già presenti nel repository
+Le scelte approvate e le loro dipendenze sono nel [registro delle decisioni](decisions.md). Per mantenere l'indice usare il [workflow di manutenzione](README.md#manutenzione-nella-stessa-modifica).
 
-- `@pizzaos/domain` espone un `ClientApiContract` per sessione, catalogo, carrello, checkout, stato checkout, ordini, riordino, loyalty, premi, coupon, gruppo, tracking e aggiornamenti live.
-- `services/checkout-api` è un servizio Fastify con PostgreSQL e Stripe per creazione idempotente del checkout, lettura e riconciliazione di tentativi di pagamento. Non è un backend completo degli ordini/catalogo: al momento accetta importi e payload d'ordine dal client, non espone webhook, autenticazione, API catalogo/admin o transizioni operative.
-- Il client include Stripe.js e stati pagamento separati dagli stati ordine; la logica di checkout reale va verificata contro le regole economiche e operative finali.
-- Il dominio include transizioni d'ordine, conflitti di disponibilità server-authoritative e buste eventi versionate come contratti; ciò non prova che esista un trasporto o un servizio live implementato.
-- Admin e client hanno flussi POC locali. La strategia di allineamento documentata usa riferimenti narrativi condivisi, non sincronizzazione dati.
+## Mappa delle fonti
 
-## Flussi da specificare
-
-| ID | Flusso | Stato rispetto al POC | Lacuna da chiudere |
+| ID | Flusso e copertura corrente | Fonte proprietaria e owner | Casi limite, verifiche e lacune |
 |---|---|---|---|
-| F01 | Identità cliente, registrazione/accesso, profilo e sessione | Accesso presunto; contratto sessione presente | Identità, metodi di accesso, verifica, recupero, consensi, account ospite, sicurezza |
-| F02 | Identità operatore, ruoli e accesso ai punti vendita | Accesso presunto; selettore multi-store mock | Inviti, ruoli/permessi, autenticazione forte, appartenenza a tenant/store e audit |
-| F03 | Onboarding ristorante/tenant e configurazione negozio | Quasi assente | Creazione tenant, sedi, orari, zone, contatti, fuso, valuta, configurazione iniziale |
-| F04 | Catalogo: creazione, revisione, pubblicazione e versioni | CRUD mock admin; lettura catalogo nel contratto client | Owner, stati bozza/pubblicato, approvazione, orari, propagazione, rollback e versionamento |
-| F05 | Prezzi, varianti, ingredienti, allergeni e informazioni al cliente | Modelli e form parziali | Prezzo autorevole, storico, derivazione allergeni, avvertenze, responsabilità e localizzazione |
-| F06 | Disponibilità, scorte e prenotazione stock | Simulazione locale; contratto conflitti presente | Ricette/consumo, soglie, aggiornamento stock, riserva/rilascio, concorrenza e riconciliazione |
-| F07 | Scoperta del negozio, indirizzo e idoneità delivery/pickup | Percorso demo basato su store predefinito | Selezione sede, copertura, costi/minimi, indirizzo, geocodifica e fallback pickup |
-| F08 | Fasce orarie/capacità e orari limite | Slot visibili nel client | Chi configura capacità, cutoff, ritardi, chiusure, timezone, saturazione e riprenotazione |
-| F09 | Carrello e ricalcolo prezzi | Flusso guest-to-auth senza stacco; recupero reload con dati selezionati in localStorage, senza sync multi-device | Scadenza draft e comportamento su conflitti prezzo/stock/slot (D37/D42/D48) |
-| F10 | Coupon, promozioni, loyalty e premi | Flussi/contratti client; marketing mock admin | Regole di cumulabilità, budget, limiti, riserva, consumo, accredito/reversal punti, abuso e scadenze |
-| F11 | Checkout, pagamento, conferma ordine e rifiuti | Servizio checkout/Stripe parziale già presente; incasso al checkout e rimborso su rifiuto decisi | Prezzo server-authoritative, idempotenza, 3DS, esiti asincroni, contanti, stato/fallimento rimborsi (D18/D33) |
-| F12 | Coda ordini admin, accettazione/rifiuto e preparazione | Timeout automatico definito; dashboard solo admin con aggiornamento live richiesto; risorse/capacità riservate durante attesa risposta via email/WhatsApp | Trasporto/fallback live, motivi di rifiuto e casi programmati (D17/D34/D40) |
-| F13 | Modifiche, annullamento, rimborso e contestazione | Solo cliente modifica; annullamento autonomo prima dell'accettazione; dopo, richiesta via email/WhatsApp; alternativa concordata → annullamento + nuovo carrello senza prodotto mancante; attesa senza limite con riserva | Contatti/template, processo annullamento post-accettazione e stati di rimborso (D20/D35/D36/D38/D39/D44/D45/D47) |
-| F14 | Fulfillment: ritiro, consegna, rider e prova di consegna | Simulazione admin/client | Assegnazione, dispatch, riassegnazione, tracking, ritardi, mancata consegna e chiusura |
-| F15 | Aggiornamenti live e notifiche | Contratto eventi; mock locali | Trasporto, ordinamento, retry/cursor, canali, preferenze, deduplica e fallback offline |
-| F16 | Storico, riordino e feedback | Definiti a livello UI/contratto | Visibilità ordini, eleggibilità feedback, una recensione?, riordino con catalogo/prezzi correnti |
-| F17 | Ordine di gruppo | Carrello locale condiviso simulato | Link/accesso reale, ruoli, chiusura, modifiche concorrenti, pagante e ripartizione |
-| F18 | Marketing automation | Flussi statici/mock | Eventi di ingresso, segmenti, consenso, regole, invio, soppressione, test e misurazione |
-| F19 | Analytics e insight AI | Dashboard simulata | Fonti/eventi, definizioni metriche, latenze, privacy, spiegabilità, azioni e limiti AI |
-| F20 | Abbonamenti e fatturazione PizzaOS | Profilo admin simulato | Piani commerciali, metrica di fatturazione, ciclo, pagamenti, downgrade, insolvenza e fatture |
-| F21 | Landing, acquisizione lead e avvio prova/demo | Moduli dimostrativi | Lead owner, CRM/consenso, onboarding, trial, separazione messaggi disponibili vs roadmap |
-| F22 | Integrazioni POS, delivery, contabilità e piattaforme | Alcune solo placeholder | Quali si lanciano, direzione dati, fonte autorevole, mapping, errori e supporto operativo |
-| F23 | Errori, indisponibilità e ripetizione sicura | Categorie generiche POC; checkout idempotente | Esperienza per timeout, rete, duplicati, coda offline, payment pending e recupero |
-| F24 | Sicurezza, privacy, conservazione ed esercizio | Quasi assenti dalle specifiche POC | Dati personali/pagamento, GDPR, retention/cancellazione, log, backup, incidenti e supporto |
+| F01 | Identità cliente e sessione — pilota Google/magic link; demo separata per sessione | [Requisiti identità](../design/2026-11-05-individual-ordering/identity-and-runtime/REQUIREMENTS.md), [sessione demo](../design/2026-11-05-session-demo/session-demo/REQUIREMENTS.md); servizio, composizione client | [Test Auth.js](../../services/checkout-api/src/auth-runtime.test.ts), [isolamento demo](../../tests/e2e/session-demo.spec.ts). Profilo completo e consensi restano da definire; D16/D31 aperte per esercizio |
+| F02 | Operatori, rider e accesso alle sedi — pilota | [Requisiti identità](../design/2026-11-05-individual-ordering/identity-and-runtime/REQUIREMENTS.md), [host operativi](../design/2026-11-05-operational-domains/operational-hosts/REQUIREMENTS.md); servizio, composizione admin | [Test domini e permessi](../../tests/operational-domains.test.ts). Rider separati, controlli per sede; ruoli operatore granulari fuori dal perimetro D55 |
+| F03 | Creazione e configurazione sede — pilota tramite superadmin/admin | [Superfici operative](../design/2026-11-05-individual-ordering/ordering-surfaces/REQUIREMENTS.md), [indirizzo sede](../design/2026-11-06-store-address/address-confirmation/REQUIREMENTS.md); admin e servizio | [Conferme indirizzo](../../services/checkout-api/src/store-address-http.test.ts): conferma alterata/scaduta, sede o identità errata, provider indisponibile. Onboarding self-service non incluso |
+| F04 | Catalogo — parziale: salvataggio persistente, senza workflow editoriale | [Requisiti servizio](../design/2026-11-05-individual-ordering/ordering-service/REQUIREMENTS.md), [configurazione admin](../../apps/admin/src/features/individual-ordering/README.md); servizio e admin | [Test servizio](../../services/checkout-api/src/ordering-service.test.ts). Bozze editoriali, pubblicazione versionata e rollback da definire; rischio configurazioni obsolete nella roadmap |
+| F05 | Prezzi, opzioni, ingredienti e allergeni — pilota per configurazione e ricalcolo server | [Requisiti servizio](../design/2026-11-05-individual-ordering/ordering-service/REQUIREMENTS.md); servizio | [Test servizio](../../services/checkout-api/src/ordering-service.test.ts). Non equivale a validazione degli obblighi informativi/alimentari D31 |
+| F06 | Scorte e riserve — pilota, con decisioni atomiche nel servizio | [Requisiti servizio](../design/2026-11-05-individual-ordering/ordering-service/REQUIREMENTS.md), [persistenza](../../services/checkout-api/README.md); servizio | [Test repository PostgreSQL](../../services/checkout-api/src/postgres-repository.test.ts). Riserve concorrenti, rilascio dopo esito certo; suite DB richiede ambiente dedicato |
+| F07 | Sede, indirizzo cliente, delivery/ritiro — pilota con punto confermato e fasce di distanza | [Ordinazione](flows/customer-ordering-and-payment.md), [servizio](../../services/checkout-api/README.md); client, admin e servizio | [Test servizio](../../services/checkout-api/src/ordering-service.test.ts). Ricerca indirizzo sede implementata; geocodifica testuale indirizzo cliente distinta e non inclusa |
+| F08 | Slot e capacità — pilota con fasce datate configurabili | [Ordinazione](flows/customer-ordering-and-payment.md), [requisiti servizio](../design/2026-11-05-individual-ordering/ordering-service/REQUIREMENTS.md); servizio e admin | [Test servizio](../../services/checkout-api/src/ordering-service.test.ts). Saturazione, riserva temporanea e attesa alternativa; non dedurre una gestione completa di calendari ricorrenti |
+| F09 | Carrello e ricalcolo — pilota, draft sul dispositivo | [Ordinazione](flows/customer-ordering-and-payment.md), [recupero e catalogo](../design/2026-11-05-individual-recovery/recovery-and-catalog/REQUIREMENTS.md); client e servizio | [Draft](../../apps/client/src/test/individual-draft.test.ts), [recupero](../../apps/client/src/test/individual-recovery.test.tsx). Nessun merge multi-device; limiti storage e vecchi tentativi documentati nella feature client |
+| F10 | Coupon, punti e premi — pilota; abbonamenti esclusi | [Coupon e fedeltà](flows/promotions-and-loyalty.md); servizio promozioni, client e admin | [Concorrenza e persistenza](../../services/checkout-api/src/promotions/promotions-postgres.test.ts), [browser](../../tests/e2e/promotions-loyalty.spec.ts). Accrediti/ripristini senza duplicati, totale zero, benefici del solo host |
+| F11 | Checkout, carta/contanti e rifiuti — pilota | [Ordinazione](flows/customer-ordering-and-payment.md); servizio e client | [Browser individuale](../../tests/e2e/individual-ordering.spec.ts), [Stripe](../../services/checkout-api/src/stripe-payments.test.ts). Doppio invio, risposta persa, esito incerto e 3DS; prove esterne nel verbale online |
+| F12 | Coda ordini e preparazione — pilota | [Ordinazione](flows/customer-ordering-and-payment.md), [layout operativo](../design/2026-11-06-admin-operational-layout/admin-layout/REQUIREMENTS.md); admin e servizio | [Browser individuale](../../tests/e2e/individual-ordering.spec.ts). Timeout, attesa cliente con risorse riservate e aggiornamenti autorevoli |
+| F13 | Modifiche, annullamento e rimborso — pilota; contestazioni non definite integralmente | [Ordinazione](flows/customer-ordering-and-payment.md); servizio, client e admin | [Test servizio](../../services/checkout-api/src/ordering-service.test.ts). Aggiunte con delta, annullamento prima/dopo accettazione, rimborso fallito e retry; nessun flusso completo dispute provider documentato |
+| F14 | Ritiro, consegna e rider — pilota, senza GPS | [Requisiti consegne](../design/2026-11-05-rider-deliveries/delivery-service/REQUIREMENTS.md), [vista rider](../design/2026-11-05-rider-deliveries/rider-interface/REQUIREMENTS.md); servizio consegne e admin/rider | [Browser estensioni](../../tests/e2e/pilot-extensions.spec.ts). Mancata consegna, riassegnazione e nuovo tentativo; GPS/ottimizzazione esclusi D57 |
+| F15 | Aggiornamenti e notifiche — pilota SSE/polling ed email operative | [Ordinazione](flows/customer-ordering-and-payment.md), [email operative](flows/operational-emails.md); servizio e composizioni app | [Browser email](../../tests/e2e/operational-emails.spec.ts). Guasto SMTP isolato, retry e possibili duplicati esterni; WhatsApp manuale, push/SMS fuori perimetro |
+| F16 | Storico e riordino — parziale; feedback solo demo | [Ordinazione](flows/customer-ordering-and-payment.md), [feature individuale](../../apps/client/src/features/individual-ordering/README.md); client e servizio | [Recupero client](../../apps/client/src/test/individual-recovery.test.tsx). Riordino da rivalidare sul catalogo corrente; regole e persistenza feedback da definire |
+| F17 | Raccolta e ordine di gruppo — pilota persistente | [Gruppo](flows/group-ordering.md); servizio gruppo e client | [Browser multi-identità](../../tests/e2e/persistent-group.spec.ts), [test servizio gruppo](../../services/checkout-api/src/group/group-service.test.ts). Contributi personali, deadline senza invio, conflitti, pagamento unico |
+| F18 | Marketing automation — demo / da definire | [Roadmap](roadmap.md), D02/D30/D68; owner target da specificare | Coupon operativi F10 ed email transazionali F15 non attestano campagne, segmenti o invii marketing |
+| F19 | Analytics e AI — parziale: cinque metriche persistenti, AI/BI avanzata escluse | [Requisiti analytics](../design/2026-11-05-pilot-analytics/analytics-service/REQUIREMENTS.md), [servizio analytics](../../services/checkout-api/src/analytics/README.md); servizio analytics e admin | [Test analytics](../../services/checkout-api/src/analytics/analytics.test.ts), [browser estensioni](../../tests/e2e/pilot-extensions.spec.ts). Fuso/DST, autorizzazioni, ordini storici senza journal; export escluso D60 |
+| F20 | Abbonamenti e fatturazione PizzaOS — demo / da definire | [Roadmap](roadmap.md), D26/D53; owner target da specificare | Regole commerciali, ciclo fatturazione e insolvenza non coperti dal checkout ordini |
+| F21 | Landing, lead e trial — demo / da definire per acquisizione persistente | [README landing](../../apps/landing/README.md), [roadmap](roadmap.md), D15; landing | Il POC autenticato D72 non equivale a CRM, trial commerciale o onboarding automatico |
+| F22 | Integrazioni POS/contabilità/piattaforme — demo / da definire | [Roadmap](roadmap.md); owner di ogni futura integrazione da specificare nel servizio | Stripe, Auth e SMTP operativi non attestano integrazioni POS o sincronizzazioni contabili |
+| F23 | Errori e ripetizione sicura — pilota nei flussi implementati | [Ordinazione](flows/customer-ordering-and-payment.md), [recupero](../design/2026-11-05-individual-recovery/recovery-and-catalog/REQUIREMENTS.md); servizio e app coinvolta | [Recupero client](../../apps/client/src/test/individual-recovery.test.tsx), [test servizio](../../services/checkout-api/src/ordering-service.test.ts). Non è una coda ordini offline; un esito incerto blocca nuovi invii |
+| F24 | Sicurezza, privacy ed esercizio — parziale | [Vincoli runtime](../../services/checkout-api/README.md), [roadmap](roadmap.md), D16/D31; servizio e composizioni per sicurezza applicativa | [Test HTTP](../../services/checkout-api/src/http-app.test.ts), [isolamento demo](../../services/checkout-api/src/demo-access.test.ts). Privacy, retention, backup/ripristino, monitoraggio e supporto non risolti dalle prove del pilota |
 
-## Riscontro comparativo: pratiche osservate
+## Lacune documentali ancora aperte
 
-Questi esempi descrivono strumenti specifici consultati il 29 settembre 2026 e non sono una rilevazione esaustiva di tutti i concorrenti né decisioni già approvate per PizzaOS.
+- Identità/accessi, configurazione/catalogo, operazioni, rider e analytics rimandano ancora ai rispettivi requisiti SDD e README. Quando questi flussi cambiano, consolidare la specifica corrente pertinente e aggiornare qui il link, conservando i riesami datati come evidenza storica.
+- I quattro documenti in `flows/` coprono ordinazione, gruppo, coupon/fedeltà ed email; non esiste ancora una specifica autonoma completa per ognuno dei 24 ID.
+- I collegamenti alle suite non costituiscono una matrice esaustiva requisito → singolo test. Per ogni modifica associare i nuovi casi limite a test pertinenti e dichiarare quelli non verificati.
+- Le capacità demo o rinviate richiedono decisioni e specifiche prima dell'implementazione; questo allineamento non ne cambia il perimetro.
+
+L'archivio [POC](../planning/PizzaOS_POC/summary.md) descrive la demo storica. Gli SDD e i riesami datati attestano i singoli incrementi. Le prove locali e online restano distinte: consultare [sequenza completata](sequential-increments.md) e [verbale online](../../services/checkout-api/online-client-verification.md).
+
+## Ricerca storica del 29 settembre 2026
+
+Materiale conservato dalla ricognizione iniziale, non aggiornato né rivalidato in questo allineamento. Le domande e proposte seguenti descrivono il contesto di allora; non indicano decisioni ancora aperte. Per le policy correnti valgono le specifiche collegate sopra e il registro delle decisioni, in particolare D18/D49 per incasso e rimborsi. Non usare queste fonti come prova delle funzionalità attuali dei concorrenti.
 
 - **Ordine non accettato / approvazione:** Toast documenta una coda “Needs Approval”; l'ordine può scadere se il ristorante non approva entro il timeout configurato. Per PizzaOS va deciso un timeout chiaro, avviso persistente e cosa vede/paga il cliente. [Toast: Pending Orders Mode](https://support.toasttab.com/en/article/Pending-Orders-Mode?lang=en_US) e [errori di approvazione](https://support.toasttab.com/en/article/Get-Help-Troubleshoot-Online-Ordering-Error-Messages).
 - **Modifiche:** Toast blocca le modifiche a certi ordini marketplace e indica annullamento/ricreazione o contatto con la piattaforma. In un canale diretto PizzaOS può offrire un flusso controllato dal ristorante, ma ogni aumento di prezzo deve avere importo e consenso espliciti del cliente; riduzioni e rimozioni richiedono regole di rimborso. [Toast: modifiche agli ordini](https://support.toasttab.com/en/article/Get-Help-With-Third-Party-Order-Changes).
@@ -65,46 +71,4 @@ Esempi da trasformare in motivazioni codificate e comunicazione chiara (D17/D18)
 6. Informazioni ordine incoerenti o rischio di duplicato: sospendere l'accettazione e verificare prima di addebitare due volte.
 
 Domanda aperta collegata: preferire autorizzazione carta al checkout e cattura solo dopo accettazione, oppure addebito immediato con rimborso automatico in caso di rifiuto? La prima opzione riduce rimborsi ma dipende da capacità/provider e va validata con il flusso pagamenti.
-
-## Documenti POC da trattare come storia, non specifica attuale
-
-- `.agents/planning/PizzaOS_POC/rough-idea.md`: perimetro esplicito di demo mock e lista aspirazionale, include anche funzioni teaser.
-- `.agents/planning/PizzaOS_POC/requirements/`: requisiti vincolati a frontend-only, localStorage e assenza di comunicazione reale tra app.
-- `.agents/planning/PizzaOS_POC/design/` e `implementation/`: piani e scelte di implementazione della demo, non una specifica di produzione.
-- `.agents/planning/PizzaOS_POC/admin-alignment-plan.md`: decisioni valide per allineare i due POC, in particolare pseudo-correlazione, non sincronizzazione runtime.
-- `.agents/design/2026-09-17-progressive-disclosure/`: refactor architetturale già eseguito e relativo stato; mantenere come documento storico del cambiamento.
-
-## Struttura di destinazione proposta
-
-```text
-.agents/
-  product-definition/
-    README.md
-    decisions.md
-    flow-inventory.md
-    glossary.md
-    roadmap.md
-    flows/
-      identity-and-access.md
-      tenant-and-store-setup.md
-      catalog-and-availability.md
-      customer-ordering-and-payment.md
-      restaurant-operations.md
-      fulfillment-and-notifications.md
-      promotions-and-loyalty.md
-      group-ordering.md
-      analytics-and-automation.md
-      billing-and-integrations.md
-      privacy-and-reliability.md
-    architecture/
-      system-context.md
-      ownership-and-data-boundaries.md
-      service-contracts.md
-      operational-requirements.md
-  planning/PizzaOS_POC/       # archivio storico, marcato come sostituito
-  design/<data>-<intervento>/ # design SDD implementativi completati o pianificati
-  skills/                     # workflow e competenze agent
-```
-
-La suddivisione definitiva dipende dalle risposte seguenti: non apriremo specifiche granulari prima di sapere quali capacità fanno parte della prima versione commerciale.
 

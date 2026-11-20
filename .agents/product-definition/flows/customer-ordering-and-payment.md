@@ -2,7 +2,18 @@
 
 ## Stato della specifica
 
-Specifica del primo incremento individuale a prezzi ordinari, aggiornata con le conferme del 2026-11-05 (D49-D55). Le decisioni approvate sono nel registro [`../decisions.md`](../decisions.md). Le parti dipendenti da decisioni aperte sono bloccate come indicato sotto.
+Specifica del flusso individuale persistente, basata sul primo incremento D49-D55 e integrata dagli incrementi successivi sotto indicati. Allineamento documentale del 2026-11-20; le prove conservano la data delle rispettive evidenze. Le decisioni approvate sono nel [registro](../decisions.md).
+
+## Incrementi integrati e responsabilità
+
+Il servizio `services/checkout-api` possiede prezzi, riserve, ordini, pagamenti e transizioni; client e admin possiedono presentazione e interazioni tramite contratti pubblici. Il percorso di base sotto resta valido e si combina con:
+
+- [Ordine di gruppo](group-ordering.md): raccolta persistente e un solo checkout dell'organizzatore, D61-D63.
+- [Coupon e fedeltà](promotions-and-loyalty.md): benefici applicabili sia all'individuale sia al gruppo, D64-D67; sostituiscono l'esclusione iniziale del primo incremento a prezzi ordinari, senza modificarne il contesto storico.
+- [Email operative](operational-emails.md): notifiche automatiche del lifecycle, D68-D69. Il contatto per concordare alternative via email/WhatsApp resta manuale.
+- [Consegne rider](../../design/2026-11-05-rider-deliveries/delivery-service/REQUIREMENTS.md): assegnazione, avanzamento e problemi di consegna D57-D58 sullo stesso ordine canonico.
+
+Gli abbonamenti non sono integrati. Lo stato delle prove e i limiti residui sono nella [roadmap](../roadmap.md).
 
 ## Obiettivo
 
@@ -44,7 +55,7 @@ Consentire al cliente di comporre un ordine come ospite, autenticarsi al termine
 
 ## Aggiornamenti admin
 
-La dashboard admin è il canale operativo per nuovi ordini e scadenze; deve aggiornarsi senza reload quando possibile tramite stream/socket. Il trasporto è SSE con polling di recupero (D40/D54). I contatti email/WhatsApp sono avviati manualmente; invii automatici rinviati.
+La dashboard admin è il canale operativo per nuovi ordini e scadenze; si aggiorna tramite SSE con polling di recupero (D40/D54). I contatti per concordare alternative via email/WhatsApp sono avviati manualmente. Le email automatiche del lifecycle sono descritte nella [specifica email operative](operational-emails.md).
 
 ## Conferme che sbloccano il primo incremento
 
@@ -56,9 +67,11 @@ La dashboard admin è il canale operativo per nuovi ordini e scadenze; deve aggi
 - D17/D30/D40/D54: dashboard con countdown/attese, SSE più polling, comunicazioni manuali email/WhatsApp.
 - D28/D29/D55: superadmin crea sedi/invita operatori, ristoratore configura sede dal pannello, permessi operatori equivalenti.
 
-Nessuna decisione ancora aperta blocca questo perimetro. D16/D31 continuano a riguardare l'avvio in esercizio; questa task sviluppa e verifica localmente l'incremento senza pubblicazione o dati reali. Design e piano implementativo: [`../../design/2026-11-05-individual-ordering/design.md`](../../design/2026-11-05-individual-ordering/design.md).
+Nessuna decisione ancora aperta blocca questo perimetro del pilota. D16/D31 continuano a riguardare l'avvio in esercizio. Il primo incremento è stato verificato localmente e successivamente provato online su ambiente test: il [verbale](../../../services/checkout-api/online-client-verification.md) delimita gli scenari effettivamente eseguiti, senza attestare apertura commerciale. Design e piano implementativo: [SDD individuale](../../design/2026-11-05-individual-ordering/design.md).
 
-## Casi da verificare con SDD
+## Casi limite e verifiche
+
+Questi scenari restano requisiti di regressione; l'elenco non certifica che ogni variante sia verificata online.
 
 - Login completato in una nuova scheda o su dispositivo diverso da quello del carrello.
 - Prezzo, ingrediente o slot cambiato durante il login.
@@ -67,6 +80,8 @@ Nessuna decisione ancora aperta blocca questo perimetro. D16/D31 continuano a ri
 - Carta rifiutata, 3DS abbandonato, servizio pagamenti non raggiungibile, pagamento riuscito ma risposta persa.
 - Rifiuto esplicito e annullamento automatico allo scadere del timeout.
 - Ordine in attesa di alternativa, sostituzione concordata via email/WhatsApp e ricreazione del carrello da ordine annullato.
+
+Verifiche pertinenti: [servizio ordini](../../../services/checkout-api/src/ordering-service.test.ts), [recupero client](../../../apps/client/src/test/individual-recovery.test.tsx), [draft](../../../apps/client/src/test/individual-draft.test.ts) e [browser individuale](../../../tests/e2e/individual-ordering.spec.ts). [Strategia e prerequisiti dei test](../../../docs/testing/strategy.md). La prova su dispositivi fisici distinti resta aperta nel verbale online.
 
 
 ## Dettagli confermati di checkout

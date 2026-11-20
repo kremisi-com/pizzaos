@@ -1,6 +1,6 @@
 # Versione pilota: avanzamento e perimetro da confermare
 
-Aggiornato il 2026-11-05. Una specifica approvata o una schermata demo non equivale a una funzionalità completata.
+Allineamento documentale del 2026-11-20; le evidenze di verifica e deploy conservano le proprie date. Una specifica approvata o una schermata demo non equivale a una funzionalità completata. La mappa dei 24 flussi e delle relative fonti è nell'[inventario corrente](flow-inventory.md).
 
 ## Incrementi autorizzati
 
@@ -13,6 +13,9 @@ Aggiornato il 2026-11-05. Una specifica approvata o una schermata demo non equiv
 | Gruppo D61-D63 | Completato e verificato localmente, gate 2 chiuso | 67 test, PostgreSQL reale, browser con quattro contesti, build e verifiche; [riesame](../design/2026-11-05-group-ordering/REVIEW.md) |
 | Coupon e fedeltà D64-D67 | Completati e verificati localmente; gate 3 chiuso | Configurazione admin e benefici persistenti, prezzi/limiti/saldo autorevoli, concorrenza e lifecycle individuale/gruppo verificati |
 | Email operative D68-D69 | Gate 4 chiuso; ricevuta, accettazione e avvio consegna verificati anche online, tutti Delivered verso account di prova | Invii durevoli, retry/deduplica, errori admin e destinatari test; WhatsApp resta manuale |
+| Demo per sessione D72 | Implementata; [riesame locale](../design/2026-11-05-session-demo/REVIEW.md). Non attestata una nuova prova online da questo allineamento | POC locale dietro accesso dedicato, sessioni verificate dal servizio, API reali interdette e pagamenti simulati |
+| Layout operativo admin | Implementato; [requisiti e task completata](../design/2026-11-06-admin-operational-layout/TASKS.md) | Sidebar per sede e sezioni operative collegate; il completamento della task non sostituisce un verbale di verifica online |
+| Ricerca e conferma indirizzo sede | Implementata; [requisiti](../design/2026-11-06-store-address/address-confirmation/REQUIREMENTS.md) e [task completata](../design/2026-11-06-store-address/TASKS.md) | Ricerca dal servizio, scelta esplicita e conferma vincolata alla sede; [test HTTP](../../services/checkout-api/src/store-address-http.test.ts). Configurazione provider e rilascio sono distinti dalla presenza del codice |
 
 Gli incrementi condividono il servizio canonico e sono stati integrati dopo i rispettivi gate. I [riesami della sequenza](sequential-increments.md) registrano evidenze e limiti locali; lo stato dell’ambiente online è distinto.
 
@@ -33,7 +36,7 @@ Questa è una proposta di priorità da sottoporre all'utente, non una modifica a
 | Fatturazione commerciale PizzaOS e self-service | Profilo e piani simulati | Rinviare |
 | Feedback/recensioni | UI/contratto demo; regole da definire | Rinviare |
 | Aggiunte a ordine inviato con pagamento del delta | D36 implementata nel flusso individuale dalla chat originaria, con test ed evidenze propri | Inclusa nel lavoro corrente; non è una capacità secondaria da riapprovare |
-| Geocodifica automatica indirizzi | Flusso corrente proposto con coordinate confermate | Valutare dopo prova utente: incide sull'usabilità del pilota |
+| Ricerca testuale indirizzo cliente | Il cliente usa un punto con coordinate confermate; la ricerca indirizzo sede è già implementata separatamente | Valutare dopo prova utente: non confondere geocodifica della sede e indirizzo di consegna |
 | Workflow editoriale catalogo con versioni/rollback | Non incluso nel semplice salvataggio configurazioni | Rinviare |
 | Landing → lead persistenti/CRM | Moduli dimostrativi; D15 rinvia modifiche commerciali | Rinviare |
 
@@ -41,7 +44,7 @@ Questa è una proposta di priorità da sottoporre all'utente, non una modifica a
 
 Privacy, obblighi operativi/fiscali, conservazione dati, backup/ripristino, monitoraggio e supporto non sono classificati come semplici abbellimenti. Le relative decisioni non risultano risolte da un test online con dati fittizi (D16/D31). Il loro completamento va pianificato prima dell'apertura reale.
 
-Riferimenti: [decisioni](decisions.md), [inventario iniziale](flow-inventory.md), [architettura del deploy pilota](architecture/pilot-deployment.md).
+Riferimenti: [decisioni](decisions.md), [inventario corrente](flow-inventory.md), [architettura del deploy pilota](architecture/pilot-deployment.md).
 
 ## Sequenza approvata successivamente
 

@@ -15,7 +15,9 @@ This app owns:
 
 This app does not own shared package internals or other app surfaces.
 
-## Feature Map
+## Feature Map POC
+
+La mappa seguente riguarda le feature della demo autenticata. Le superfici operative predefinite sono descritte nelle sezioni pilota di questo README; il [README della composizione](src/composition/README.md) ne descrive l'ownership. Specifiche e casi limite sono nell'[inventario corrente](../../.agents/product-definition/flow-inventory.md).
 
 - `app/layout.tsx`: root metadata and layout shell
 - `app/page.tsx`: admin route entry
@@ -58,7 +60,7 @@ Verifica browser: `pnpm exec playwright test --config playwright.promotions-loya
 
 In Integrazioni, «Email operative» mostra invii in attesa, in corso, riusciti, bloccati o in retry, con destinatario, tentativi, date ed errori sanitizzati. Il pannello si aggiorna automaticamente e offre «Aggiorna invii» per riprendere una lettura. La configurazione SMTP resta server-only e i retry sono gestiti dal servizio; il guasto email non blocca la gestione dell'ordine. [Feature e port](src/features/operational-emails/README.md).
 
-I messaggi riguardano ricevuta dopo invio, accettazione, pronto al ritiro/in consegna, annullamento ed esiti reali del rimborso. Nel gruppo riceve soltanto l'host pagante. Lo stato aggiornato resta sempre nell'app; WhatsApp rimane manuale. Le prove usano solo provider iniettati nei test e sink SMTP locale con destinatari `.test`.
+I messaggi riguardano ricevuta dopo invio, accettazione, pronto al ritiro/in consegna, annullamento ed esiti reali del rimborso. Nel gruppo riceve soltanto l'host pagante. Lo stato aggiornato resta sempre nell'app; WhatsApp rimane manuale. Le suite locali usano provider iniettati e sink SMTP con destinatari `.test`; le tre consegne email riuscite nel pilota online test sono registrate separatamente nel [verbale online](../../services/checkout-api/online-client-verification.md).
 
 Verifica browser: `pnpm exec playwright test --config playwright.operational-emails.config.ts`, porte 3701/3702/3704, directory Next `.next-emails-e2e`, output `test-results/operational-emails`.
 
@@ -110,7 +112,7 @@ L'admin operativo condivide con il POC la sidebar, il selettore sede e la strutt
 
 Il proxy `/api/pilot/*` raggiunge `services/checkout-api` tramite `PIZZAOS_SERVICE_URL`, `PIZZAOS_PROXY_SECRET` e `PIZZAOS_APP_ORIGIN` server-only. Le credenziali devono corrispondere alla configurazione del servizio. `/accesso` fornisce accesso italiano Google/magic link e logout protetto da CSRF; Auth.js e la persistenza appartengono al servizio. Nessuna identità o integrazione di pagamento simulata è attivabile dal browser nel runtime reale.
 
-La feature `src/features/individual-ordering` espone configurazione tramite form di menu, ricette, ingredienti/scorte, opzioni, allergeni, fasce/capacità e bande di consegna. Il superadmin crea sedi e autorizza email operatori; gli operatori agiscono solo sulla propria sede. La coda gestisce accettazione, attesa cliente, annullamento, preparazione, ritiro/consegna, incasso contanti e ritentativo rimborsi. I contatti email/WhatsApp sono manuali.
+La feature `src/features/individual-ordering` espone configurazione tramite form di menu, ricette, ingredienti/scorte, opzioni, allergeni, fasce/capacità e bande di consegna. Il superadmin crea sedi e autorizza email operatori; gli operatori agiscono solo sulla propria sede. La coda gestisce accettazione, attesa cliente, annullamento, preparazione, ritiro/consegna, incasso contanti e ritentativo rimborsi. I contatti per concordare alternative via email/WhatsApp sono manuali; le email del lifecycle sono automatiche come descritto sopra.
 
 La composizione riceve eventi SSE con cursore e usa polling di recupero; i messaggi heartbeat non ricaricano dati né modificano i form. Configurazione completa, migrazioni e dipendenze esterne sono documentate nel README del servizio.
 

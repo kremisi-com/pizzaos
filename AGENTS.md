@@ -72,6 +72,10 @@ Prefer public package entry points and avoid deep imports into package or servic
 8. Update documentation when public behavior, ownership, structure, or commands change.
 9. Review the final diff and repository status.
 
+### Documentation alignment
+
+For changes to user or operational behavior, follow the [documentation maintenance workflow](.agents/product-definition/README.md#manutenzione-nella-stessa-modifica). Update the owning flow and its edge cases with the implementation and relevant tests; update the flow inventory or roadmap only when coverage, status, or remaining gaps change. Keep approved behavior, implementation, local verification, and online evidence distinct. Dated SDD reviews remain evidence for their recorded version, not current product indexes.
+
 ## Definition of done
 
 A change is complete when:

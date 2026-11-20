@@ -34,6 +34,8 @@ docs/
 
 Start from the nearest README for the module being changed and read its local `AGENTS.md` when present. Load child documentation only when directly relevant. The root [`AGENTS.md`](AGENTS.md) is the global context router; [`docs/`](docs/) contains cross-cutting guidance.
 
+Flussi, casi d'uso e casi limite sono indicizzati nella [definizione di prodotto](.agents/product-definition/README.md) e nell'[inventario corrente](.agents/product-definition/flow-inventory.md). La [roadmap](.agents/product-definition/roadmap.md) distingue implementazione, verifiche e capacità ancora da definire.
+
 ## Commands
 
 - `pnpm dev`: run all workspace apps in parallel with Turborepo

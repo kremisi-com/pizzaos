@@ -15,10 +15,9 @@ This app owns:
 
 This app does not own shared package APIs or admin and landing code paths.
 
-The frontend boundary for catalog, cart, checkout, orders, loyalty, and tracking is defined in
-`@pizzaos/domain` through `ClientApiContract`. `src/composition/api/local-client-api.ts` is the current deterministic repository:
-it adapts the existing mock seeds and local persistence to the contract. A future HTTP repository can replace the
-provider implementation without changing feature-facing API calls.
+Il flusso operativo predefinito usa i contratti pubblici di `@pizzaos/domain` (`IndividualApi` e le estensioni gruppo/promozioni) tramite adapter HTTP same-origin della composizione. Catalogo, ordini e pagamenti persistenti appartengono al servizio checkout.
+
+Il POC autenticato usa separatamente `ClientApiContract`: `src/composition/api/local-client-api.ts` adatta seed e persistenza locale alla demo deterministica. Non è il repository del flusso operativo. Fonti funzionali e casi limite sono nell'[inventario corrente](../../.agents/product-definition/flow-inventory.md).
 
 ## Aggiornamenti operativi
 
