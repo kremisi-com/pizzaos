@@ -22,7 +22,7 @@ export async function createOrderingRuntime(env: Record<string, string | undefin
   const pool = new Pool({ connectionString: config.databaseUrl, max: 5 });
   pool.on("error", error => { reporting.report(error, { operation: "database_connection", provider: "postgresql", code: "database_connection_lost", category: "dependency" }); });
   try {
-    await pool.query("SELECT id FROM individual_ordering_state LIMIT 1");
+    await pool.query("SELECT snapshot_version FROM individual_ordering_state LIMIT 1");
     const stripe = new Stripe(config.stripeSecretKey);
     const email = readOperationalEmailConfiguration(env);
     const operational = createOperationalEmailServices({ repository: createPostgresOrderingRepository(pool), payments: createStripeOrderingPayments(stripe, reporting),

@@ -3,6 +3,21 @@ create table if not exists individual_ordering_state (
   id integer primary key check (id = 1), snapshot jsonb not null,
   updated_at timestamptz not null default now()
 );
+alter table individual_ordering_state
+  add column if not exists snapshot_version uuid not null default gen_random_uuid();
+
+-- Old writers still update snapshot directly, so the database owns the version.
+create or replace function refresh_ordering_snapshot_version() returns trigger
+language plpgsql as $$
+begin
+  new.snapshot_version := gen_random_uuid();
+  return new;
+end;
+$$;
+create or replace trigger ordering_snapshot_version
+  before update of snapshot on individual_ordering_state
+  for each row execute function refresh_ordering_snapshot_version();
+
 -- Auth.js PostgreSQL adapter; identity persistence belongs to this service.
 create table if not exists users (
   id serial primary key, name varchar(255), email varchar(255) unique,
