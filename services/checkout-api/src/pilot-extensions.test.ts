@@ -201,7 +201,7 @@ describe("operational pilot integration", () => {
     expect(missing.statusCode).toBe(404); expect(missing.json()).toMatchObject({ code: "not_found" });
     vi.spyOn(f.analytics, "report").mockRejectedValueOnce(new Error("postgres password INTERNAL-SECRET stacktrace"));
     const unexpected = await f.app.inject({ method: "GET", url: "/v1/pilot/stores/roma/analytics?period=today", headers: headers("operator") });
-    expect(unexpected.statusCode).toBe(503);
+    expect(unexpected.statusCode).toBe(500);
     expect(unexpected.body).not.toMatch(/postgres|password|INTERNAL-SECRET|stacktrace/);
     expect(unexpected.json()).toMatchObject({ code: expect.any(String), message: expect.any(String) });
   });

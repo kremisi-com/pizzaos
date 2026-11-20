@@ -1,5 +1,7 @@
 # Email operative
 
+Il runtime inietta la [diagnostica backend](../../observability.md): dopo la finalizzazione di un invio fallito viene emesso `email_delivery_failed` con emailId/orderId/storeId/attempts. Destinatario, contenuto e dettagli SMTP grezzi restano esclusi; stati pubblici, retry e transazioni non cambiano.
+
 Il modulo possiede l'outbox persistente degli aggiornamenti transazionali all'acquirente. `createOperationalEmailServices` compone promozioni, analytics, ordinazione e rider attraverso un unico repository decorato; il gruppo usa quel repository e il servizio canonico. Transizione ordine e snapshot email vengono salvati nella stessa transazione, senza nuove tabelle SQL. Non vengono ricostruiti eventi storici.
 
 Ricevuto segue la submission effettiva, accettato l'accettazione, pronto soltanto il ritiro, in consegna soltanto la consegna, anche da rider, e annullato l'annullamento. Gli esiti rimborso distinguono addebito base e aggiunte, tentativo ed esito; richiedono importo positivo e intento provider reale. Nessuna email a ospiti del gruppo o per pagamenti pending, quote o marketing.

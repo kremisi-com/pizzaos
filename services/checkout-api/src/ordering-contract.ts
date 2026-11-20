@@ -1,5 +1,6 @@
 import type { IndividualActor, IndividualApi, IndividualCart, IndividualCheckout, IndividualCheckoutResult, IndividualOrder, IndividualStore, IndividualSession, IndividualAction, IndividualQuote, IndividualEvent, IndividualAdditionQuote, IndividualAdditionRequest, IndividualLine, StoreAddressCandidate } from "@pizzaos/domain";
 import type { StoreAddressGeocoder } from "./store-address";
+import type { Diagnostics } from "./diagnostics";
 
 export interface OrderingState {
   stores: Record<string, IndividualStore>;
@@ -50,6 +51,7 @@ export interface RiderOrderingService extends OrderingService {
   riderProgress(actor: IndividualActor | null, orderId: string, action: "dispatch" | "complete"): Promise<IndividualOrder>;
 }
 export interface OrderingServiceOptions {
+  diagnostics?: Diagnostics;
   repository: OrderingRepository;
   payments: OrderingPayments;
   superadminEmails: string[];

@@ -1,5 +1,6 @@
 import Stripe from "stripe";
 import type { OrderingPayments, ProviderPayment, ProviderRefund } from "./ordering-contract";
+import type { Diagnostics } from "./diagnostics";
 
 function payment(intent: Stripe.PaymentIntent): ProviderPayment {
   const status: ProviderPayment["status"] = intent.status === "succeeded" ? "paid" : intent.status === "canceled" ? "cancelled" : intent.status === "requires_payment_method" && intent.last_payment_error ? "failed" : ["requires_payment_method", "requires_confirmation", "requires_action"].includes(intent.status) ? "requires_action" : "processing";
@@ -9,14 +10,14 @@ function refund(value: Stripe.Refund): ProviderRefund {
   return { id: value.id, status: value.status === "succeeded" ? "succeeded" : ["failed", "canceled"].includes(value.status ?? "") ? "failed" : "pending" };
 }
 
-export function createStripeOrderingPayments(stripe: Stripe): OrderingPayments {
+export function createStripeOrderingPayments(stripe: Stripe, diagnostics?: Diagnostics): OrderingPayments {
   return {
     async create(input) {
       try {
         return payment(await stripe.paymentIntents.create({ amount: input.totalCents, currency: "eur", payment_method_types: ["card"], metadata: { individualOrderId: input.orderId } }, { idempotencyKey: input.key }));
       } catch (error) {
         if (error instanceof Stripe.errors.StripeInvalidRequestError || error instanceof Stripe.errors.StripeCardError) {
-          throw Object.assign(new Error("Pagamento rifiutato dal provider."), { definitive: true });
+          throw Object.assign(new Error("Pagamento rifiutato dal provider.", { cause: error }), { definitive: true });
         }
         throw error;
       }
@@ -24,7 +25,11 @@ export function createStripeOrderingPayments(stripe: Stripe): OrderingPayments {
     async read(id) { return payment(await stripe.paymentIntents.retrieve(id)); },
     async cancel(id) {
       try { return payment(await stripe.paymentIntents.cancel(id, {}, { idempotencyKey: `cancel:${id}` })); }
-      catch { return payment(await stripe.paymentIntents.retrieve(id)); }
+      catch (error) {
+        const recovered = payment(await stripe.paymentIntents.retrieve(id));
+        diagnostics?.report(error, { operation: "cancel_payment", code: "payment_uncertain", provider: "stripe", category: "dependency" });
+        return recovered;
+      }
     },
     async refund(input) {
       // Recover an acknowledged operation even after the provider's idempotency
@@ -35,7 +40,7 @@ export function createStripeOrderingPayments(stripe: Stripe): OrderingPayments {
       try { return refund(await stripe.refunds.create({ payment_intent: input.intentId, metadata: { pizzaosOperationKey: input.key } }, { idempotencyKey: input.key })); }
       catch (error) {
         if (error instanceof Stripe.errors.StripeInvalidRequestError || error instanceof Stripe.errors.StripeCardError) {
-          throw Object.assign(new Error("Rimborso rifiutato dal provider."), { definitive: true });
+          throw Object.assign(new Error("Rimborso rifiutato dal provider.", { cause: error }), { definitive: true });
         }
         throw error;
       }

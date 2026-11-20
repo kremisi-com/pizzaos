@@ -1,4 +1,6 @@
-import Fastify, { type FastifyRequest } from "fastify";
+import Fastify, { LogController, type FastifyRequest, type FastifyBaseLogger } from "fastify";
+import { randomUUID } from "node:crypto";
+import { classifyFailure, createDiagnostics, type Diagnostics } from "./diagnostics";
 import type { IndividualActor, IndividualAction, IndividualAdditionRequest, IndividualLine, IndividualCart, IndividualCheckout, IndividualStore } from "@pizzaos/domain";
 import type { OrderingService } from "./ordering-contract";
 import { OrderingError } from "./ordering-service";
@@ -12,6 +14,7 @@ export interface OrderingHttpOptions {
   authHandler?: (request: FastifyRequest) => Promise<Response>;
   isDemoRequest?: (request: FastifyRequest) => boolean;
   webhook?: (body: Buffer, signature: string) => Promise<void>;
+  diagnostics?: Diagnostics;
 }
 
 const text = { type: "string", minLength: 1, maxLength: 500 };
@@ -47,15 +50,30 @@ const store = { type: "object", additionalProperties: false, required: ["id", "n
 
 /** HTTP boundary: injectable identity/providers are server wiring, never request-selected. */
 export function buildOrderingApp(options: OrderingHttpOptions) {
-  const app = Fastify({ logger: false, bodyLimit: 1024 * 1024 });
+  const diagnostics = options.diagnostics ?? createDiagnostics();
+  const app = Fastify({ loggerInstance: diagnostics.logger as FastifyBaseLogger, logController: new LogController({ disableRequestLogging: true }), requestIdHeader: false, genReqId: () => randomUUID(), bodyLimit: 1024 * 1024 });
   const service = options.service;
+  const starts = new WeakMap<FastifyRequest, number>();
+  app.addHook("onRequest", (request, reply, done) => {
+    starts.set(request, performance.now());
+    reply.header("x-request-id", request.id);
+    diagnostics.run({ operation: "http_request", requestId: request.id, method: request.method, route: request.routeOptions.url ?? "/unknown" }, done);
+  });
+  app.addHook("onResponse", async (request, reply) => {
+    diagnostics.record("http_completed", { operation: "http_request", requestId: request.id, method: request.method,
+      route: request.routeOptions.url ?? "/unknown", statusCode: reply.statusCode, durationMs: Math.max(0, performance.now() - (starts.get(request) ?? performance.now())) });
+  });
+  // Covers explicit 4xx replies as well as exceptions, without changing success DTOs.
+  app.addHook("preSerialization", async (request, reply, payload) => {
+    if (reply.statusCode >= 400 && payload && typeof payload === "object" && "code" in payload && "message" in payload) return { ...payload, requestId: request.id };
+    return payload;
+  });
   app.setNotFoundHandler((_request, reply) => reply.code(404).send({ code: "not_found", message: "Percorso non disponibile." }));
-  app.setErrorHandler((error, _request, reply) => {
-    const failure = error as Error & { code?: string; statusCode?: number; validation?: unknown };
-    const known = failure.statusCode && failure.statusCode >= 400 && failure.statusCode < 500;
-    const invalid = failure.validation || failure.code?.startsWith("FST_ERR_");
-    const status = invalid ? 400 : known ? failure.statusCode! : 503;
-    return reply.code(status).send({ code: invalid ? "invalid_input" : known ? failure.code ?? "invalid_input" : "service_unavailable", message: invalid ? "Controlla i dati inseriti." : known ? failure.message : "Servizio temporaneamente non disponibile." });
+  app.setErrorHandler((error, request, reply) => {
+    const failure = classifyFailure(error);
+    diagnostics.report(error, { operation: "http_request", requestId: request.id, method: request.method,
+      route: request.routeOptions.url ?? "/unknown", statusCode: failure.statusCode });
+    return reply.code(failure.statusCode).send({ code: failure.code, message: failure.message, requestId: request.id });
   });
   app.addHook("onRequest", async (request, reply) => {
     if (request.routeOptions.url === "/v1/stripe/webhook" || request.routeOptions.url === "/health") return;
@@ -129,7 +147,7 @@ export function buildOrderingApp(options: OrderingHttpOptions) {
     let actor = await options.authenticate(request);
     const initial = await service.events(actor, cursor, request.query.storeId);
     reply.hijack();
-    reply.raw.writeHead(200, { "Content-Type": "text/event-stream", "Cache-Control": "no-store", Connection: "keep-alive", "X-Accel-Buffering": "no" });
+    reply.raw.writeHead(200, { "Content-Type": "text/event-stream", "Cache-Control": "no-store", Connection: "keep-alive", "X-Accel-Buffering": "no", "X-Request-Id": request.id });
     const emit = (payload: typeof initial) => { cursor = payload.cursor; reply.raw.write(`id: ${cursor}\ndata: ${JSON.stringify(payload)}\n\n`); };
     emit(initial);
     let busy = false;
@@ -139,7 +157,10 @@ export function buildOrderingApp(options: OrderingHttpOptions) {
       try {
         actor = await options.authenticate(request);
         emit(await service.events(actor, cursor, request.query.storeId));
-      } catch { reply.raw.end(); } finally { busy = false; }
+      } catch (error) {
+        diagnostics.report(error, { operation: "event_stream", requestId: request.id, route: request.routeOptions.url, method: request.method });
+        reply.raw.end();
+      } finally { busy = false; }
     }, 2000);
     reply.raw.on("close", () => clearInterval(timer));
   });
@@ -158,8 +179,7 @@ export function buildOrderingApp(options: OrderingHttpOptions) {
     webhookApp.post<{ Body: Buffer }>("/v1/stripe/webhook", async (request, reply) => {
       const signature = request.headers["stripe-signature"];
       if (!options.webhook || typeof signature !== "string") return reply.code(400).send({ code: "invalid_input", message: "Firma webhook mancante." });
-      try { await options.webhook(request.body, signature); }
-      catch { return reply.code(400).send({ code: "invalid_input", message: "Webhook non valido o non elaborato; riprovare." }); }
+      await options.webhook(request.body, signature);
       return { received: true };
     });
   });

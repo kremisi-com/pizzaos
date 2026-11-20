@@ -16,13 +16,14 @@ await mkdir(path.join(output, "api"), { recursive: true });
 await mkdir(path.join(output, "worker"), { recursive: true });
 for (const [entry, target] of [["vercel-api.ts", "api/index.mjs"], ["worker.ts", "worker/index.mjs"]]) {
   await build({ entryPoints: [path.join(serviceRoot, "src", entry)], outfile: path.join(output, target),
-    bundle: true, platform: "node", format: "esm", target: "node24", packages: "external", sourcemap: false });
+    bundle: true, platform: "node", format: "esm", target: "node24", packages: "external", sourcemap: "inline", sourcesContent: false });
 }
 await writeFile(path.join(output, "package.json"), JSON.stringify(packageJson, null, 2) + "\n");
 await writeFile(path.join(output, "worker/package.json"), JSON.stringify(packageJson, null, 2) + "\n");
+await writeFile(path.join(output, ".vercelignore"), "node_modules/\n.vercel/\n.env*\n*.log\n");
 await writeFile(path.join(output, "worker/Dockerfile"), [
   "FROM node:24-slim", "WORKDIR /app", "COPY package.json package-lock.json ./",
-  "RUN npm ci --omit=dev --ignore-scripts", "COPY index.mjs ./index.mjs", 'CMD ["node", "index.mjs"]', ""
+  "RUN npm ci --omit=dev --ignore-scripts", "COPY index.mjs ./index.mjs", 'CMD ["node", "--enable-source-maps", "index.mjs"]', ""
 ].join("\n"));
 await writeFile(path.join(output, "vercel.json"), JSON.stringify({
   $schema: "https://openapi.vercel.sh/vercel.json", version: 2, regions: ["fra1"],

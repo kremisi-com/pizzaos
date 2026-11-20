@@ -1,0 +1,1 @@
+- [x] **backend-diagnostics**: Specificare, verificare prima dell'implementazione e integrare classificazione HTTP, correlazione, log sicuri, errori recuperati, worker e Sentry opzionale; allineare le fonti correnti e registrare verifiche e limiti. Implementazione locale completata; attivazione DSN/alert e verifica online restano esplicitamente separate nel riesame.

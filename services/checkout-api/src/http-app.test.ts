@@ -106,7 +106,7 @@ describe("individual ordering HTTP boundary", () => {
 
   it("maps signature verification failures to a public client error", async () => {
     const service = fakeService();
-    const app = buildOrderingApp({ service, authenticate: async () => null, webhook: async () => { throw new Error("Invalid signature"); } }); openApps.push(app);
+    const app = buildOrderingApp({ service, authenticate: async () => null, webhook: async () => { throw Object.assign(new Error("Firma webhook non valida."), { code: "invalid_input", statusCode: 400 }); } }); openApps.push(app);
     const response = await app.inject({ method: "POST", url: "/v1/stripe/webhook", headers: { "content-type": "application/json", "stripe-signature": "bad" }, payload: "{}" });
     expect(response.statusCode).toBe(400);
     expect(response.json()).toMatchObject({ code: "invalid_input", message: expect.any(String) });

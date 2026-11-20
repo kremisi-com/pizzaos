@@ -20,6 +20,8 @@ Entry point: `@pizzaos/domain`
 
 `src/index.ts` is the stable public entry. The entity and status model lives in `src/model.ts`; client API contracts import that model directly, so the entry point has no internal dependency cycle.
 
+`IndividualErrorCode` include `internal_error` per HTTP 500; `service_unavailable` resta per indisponibilità temporanea (503). Le risposte HTTP possono aggiungere `requestId`, senza modificare oggetti di dominio o stati di recupero dei pagamenti.
+
 Current exports from `src/index.ts`:
 
 - durable pilot boundary: `IndividualApi` and `Individual*` shapes for store configuration, recipes, cart/quote, checkout, order lifecycle, additional-payment/refund ledger, session, and resumable events. This narrower live contract deliberately excludes unresolved demo capabilities from `ClientApiContract`; apps inject its HTTP implementation through their own composition. It contains no database/provider implementation and no persisted payment secrets.

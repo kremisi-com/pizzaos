@@ -11,28 +11,39 @@ import { registerPromotionRoutes } from "./promotions";
 import { createOperationalEmailServices, readOperationalEmailConfiguration, registerOperationalEmailRoutes } from "./operational-emails";
 import { readRuntimeConfiguration } from "./runtime-config";
 import { createOpenCageStoreGeocoder } from "./store-address";
+import { createRuntimeDiagnostics } from "./sentry-reporter";
+import type { Diagnostics } from "./diagnostics";
+import { OrderingError } from "./ordering-service";
 
 /** Construct one runtime. Entry points own listening, workers and process signals. */
-export async function createOrderingRuntime(env: Record<string, string | undefined> = process.env) {
+export async function createOrderingRuntime(env: Record<string, string | undefined> = process.env, diagnostics?: Diagnostics) {
+  const reporting = diagnostics ?? await createRuntimeDiagnostics(env);
   const config = readRuntimeConfiguration(env);
   const pool = new Pool({ connectionString: config.databaseUrl, max: 5 });
-  pool.on("error", () => { process.stderr.write("Connessione PostgreSQL inattiva interrotta; verrà ricreata.\n"); });
+  pool.on("error", error => { reporting.report(error, { operation: "database_connection", provider: "postgresql", code: "database_connection_lost", category: "dependency" }); });
   try {
     await pool.query("SELECT id FROM individual_ordering_state LIMIT 1");
     const stripe = new Stripe(config.stripeSecretKey);
     const email = readOperationalEmailConfiguration(env);
-    const operational = createOperationalEmailServices({ repository: createPostgresOrderingRepository(pool), payments: createStripeOrderingPayments(stripe),
-      superadminEmails: config.superadminEmails, reservationMs: config.reservationMs, email,
+    const operational = createOperationalEmailServices({ repository: createPostgresOrderingRepository(pool), payments: createStripeOrderingPayments(stripe, reporting),
+      superadminEmails: config.superadminEmails, reservationMs: config.reservationMs, email, diagnostics: reporting,
       storeGeocoding: config.openCageApiKey ? createOpenCageStoreGeocoder(config.openCageApiKey, config.authSecret) : undefined });
     const { service } = operational;
     const groups = createGroupOrderingService({ repository: operational.repository, ordering: service });
     const auth = createOrderingAuth({ pool, secret: config.authSecret, proxySecret: config.proxySecret, origins: config.origins,
       googleClientId: config.googleClientId, googleClientSecret: config.googleClientSecret,
-      smtpUrl: config.smtpUrl, emailFrom: config.emailFrom, demoPassword: config.demoPassword });
+      smtpUrl: config.smtpUrl, emailFrom: config.emailFrom, demoPassword: config.demoPassword, diagnostics: reporting });
     const reconcileOrders = async () => { await groups.tick(); await service.tick(); };
     const dispatchEmails = () => operational.emails.dispatch();
-    const app = buildOrderingApp({ service, ...auth,
-      async webhook(body, signature) { stripe.webhooks.constructEvent(body, signature, config.stripeWebhookSecret); await reconcileOrders(); }
+    const app = buildOrderingApp({ service, ...auth, diagnostics: reporting,
+      async webhook(body, signature) {
+        try { stripe.webhooks.constructEvent(body, signature, config.stripeWebhookSecret); }
+        catch (error) {
+          if (error instanceof Stripe.errors.StripeSignatureVerificationError) throw new OrderingError("invalid_input", "Firma webhook non valida.");
+          throw error;
+        }
+        await reconcileOrders();
+      }
     });
     registerPilotExtensionRoutes(app, { analytics: operational.analytics, delivery: operational.delivery, authenticate: auth.authenticate });
     registerPromotionRoutes(app, { promotions: operational.promotions, authenticate: auth.authenticate });
@@ -40,6 +51,7 @@ export async function createOrderingRuntime(env: Record<string, string | undefin
     registerOperationalEmailRoutes(app, { emails: operational.emails, authenticate: auth.authenticate });
     app.addHook("onClose", async () => { try { await email.sender?.close?.(); } finally { await pool.end(); } });
     await app.ready();
-    return { app, reconcile: reconcileOrders, reconcileOrders, dispatchEmails, close: () => app.close() };
+    return { app, diagnostics: reporting, reconcile: reconcileOrders, reconcileOrders, dispatchEmails,
+      async close() { try { await app.close(); } finally { await reporting.flush(); } } };
   } catch (error) { await pool.end(); throw error; }
 }

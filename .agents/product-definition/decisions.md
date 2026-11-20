@@ -139,6 +139,18 @@ Configurazione e separazione degli ambienti: [architettura del deploy pilota](ar
 
 Design e verifiche: [POC per sessione](../design/2026-11-05-session-demo/design.md).
 
+## Conferma del 2026-11-20: errori e osservabilità backend
+
+| ID | Decisione | Stato | Fonte |
+|---|---|---|---|
+| D73 | Gestione sistematica degli errori backend con classificazione HTTP, correlazione richiesta, log JSON sanitizzati comuni ad API/worker e Sentry opzionale per diagnostica tecnica. Problemi operativi e retry restano negli stati canonici visibili nell'admin. Implementazione con SDD e test indipendenti; nessun nuovo servizio a pagamento o deploy implicito. Attivazione del provider, alert, retention e prova online sono distinti dalla verifica locale; D16/D31 restano aperte. | DECISO | Approvazione utente 2026-11-20 in chat: «procedi con tutto quello che hai scritto usando sdd» |
+
+Fonte corrente: [errori ed esercizio](flows/backend-observability.md); specifica tecnica: [SDD](../design/2026-11-20-backend-observability/design.md).
+
+Nelle successive conferme dell'handoff Sentry del 20 novembre 2026 l'utente ha autorizzato la creazione di `pizzaos-backend` (Node.js/Fastify) nell'organizzazione/team `kremisi`, la verifica del collegamento, il login Vercel dedicato, la diagnosi del guasto corrente e il rilascio di backend/worker sul pilota test, l'alert email per nuovi errori/regressioni (team Kremisi, massimo ogni 30 minuti) e la risoluzione dell'issue di prova. Stato ed evidenze sono nel [verbale Sentry](../design/2026-11-20-backend-observability/SENTRY_VERIFICATION.md), senza upgrade automatici.
+
+Dopo accesso corretto e diagnosi della quota rete Neon, l'utente ha scelto esplicitamente «Resta gratis: sospendi il worker e prepara il ripristino». Il worker è stato portato a zero istanze; variabili e pacchetto sono predisposti, senza nuovo deploy o upgrade. Il prossimo passo concordato è il [ripristino manuale gratuito](../../services/checkout-api/restore-test-after-quota.md) dopo verifica del reset e del traffico; il rinnovo del periodo Neon è atteso il 1 dicembre 2026 alle 01:00 italiane.
+
 ## Decisioni che richiedono una ricerca o conferma esterna
 
 - D31 — Obblighi legali/fiscali e gestione privacy per il mercato iniziale. RINVIATO con D16; non progettare come risolti.

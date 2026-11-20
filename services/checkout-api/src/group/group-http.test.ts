@@ -105,7 +105,7 @@ describe("group HTTP strict boundary", () => {
     const { app, groups } = setup();
     vi.mocked(groups.close).mockRejectedValueOnce(Object.assign(new Error("Ricarica il gruppo"), { code: "revision_conflict", statusCode: 409 }));
     const response = await app.inject({ method: "POST", url: "/v1/pilot/groups/group-one/close", headers: { ...headers, "x-test-account": "alice" }, payload: { revision: 1 } });
-    expect(response.statusCode).toBe(409); expect(response.json()).toEqual({ code: "revision_conflict", message: "Ricarica il gruppo" });
+    expect(response.statusCode).toBe(409); expect(response.json()).toEqual({ code: "revision_conflict", message: "Ricarica il gruppo", requestId: response.headers["x-request-id"] });
     expect(groups.close).toHaveBeenCalledWith({ actor }, "group-one", { revision: 1 });
   });
 });

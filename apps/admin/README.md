@@ -2,6 +2,8 @@
 
 ## Purpose
 
+Il proxy pilota conserva `x-request-id` generato dal backend, anche su errori 500/503. I payload errore possono includere `requestId`; i problemi operativi restano negli stati ordine/rimborso/email esistenti, mentre i dettagli tecnici si consultano nei log e in Sentry. [Diagnostica backend](../../services/checkout-api/observability.md).
+
 Admin app for PizzaOS operations and insight-oriented workflows.
 
 ## Ownership

@@ -41,6 +41,14 @@ Il [verbale del 5 novembre](online-client-verification.md) documenta il percorso
 
 ## Limiti e gestione successiva
 
+### Ispezione del 20 novembre 2026
+
+Prima di qualsiasi deploy dell'osservabilità, `/health` ha risposto HTTP 500 con `FUNCTION_INVOCATION_FAILED`. Dopo il login corretto, i log del deployment `dpl_74ZKgDk81HKFv7oUtnggxiTdiWQP` hanno mostrato PostgreSQL 53000: quota superata. Neon conferma 5.533.768.020 byte di egress nel periodo novembre, oltre i 5 GB Free, ed endpoint test sospeso dal 9 novembre. Il nuovo periodo inizia il 1 dicembre alle 01:00 italiane. Le prove del 5 novembre sopra restano evidenze per quella versione/data e non attestano disponibilità corrente.
+
+L'utente ha scelto di restare sul gratuito: worker `reconciliation` sospeso con override fra1=0, verificati desired/total/ready=0. Nessun nuovo deploy. Sul progetto corretto sono predisposti SENTRY_DSN Secret, PIZZAOS_RELEASE/NODE_OPTIONS Config e Node24.x; nessuna altra credenziale modificata. Sentry è collegato, alert dedicato attivo e prova risolta; il vero errore quota è registrato in PIZZAOS-BACKEND-2. [Verbale Sentry](../../.agents/design/2026-11-20-backend-observability/SENTRY_VERIFICATION.md), [pacchetto e procedura di ripristino](restore-test-after-quota.md). Il reset e la riduzione/verifica del traffico sono precondizioni del ripristino; nessun upgrade o riavvio automatico eseguito.
+
+### Limiti registrati nel pilota del 5 novembre
+
 La quota gratuita Daemon Hobby è condivisa dal team: 420 GB-ore di memoria al mese permettono al massimo 17,5 giorni a 1 GiB; la quota CPU o altri Daemon possono ridurre tale durata. Al raggiungimento del limite Vercel arresta i Daemon. Non è un servizio continuo mensile illimitato. [Limiti ufficiali](https://vercel.com/docs/daemons/limits).
 
 Anche Neon Free ha una quota: 100 CU-ore mensili per progetto. Con il compute fissato a 0,25 CU e il worker che interroga il database ogni 5 secondi, equivale a circa 400 ore (16,7 giorni) di database attivo, prima di altri utilizzi. La durata effettiva del pilota gratuito dipende quindi da entrambe le quote, senza upgrade automatici. [Piano Neon](https://neon.com/pricing).

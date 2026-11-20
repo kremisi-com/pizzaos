@@ -68,7 +68,7 @@ export interface StoreAddressApi {
   searchStoreAddresses(storeId: string, query: string): Promise<StoreAddressCandidate[]>;
 }
 /** Public error payload, shared by HTTP and direct service callers. */
-export type IndividualErrorCode = "unauthorized" | "forbidden" | "not_found" | "invalid_input" | "product_unavailable" | "inventory_changed" | "slot_unavailable" | "price_changed" | "outside_delivery_area" | "minimum_not_met" | "idempotency_conflict" | "payment_unresolved" | "invalid_transition" | "service_unavailable" | "revision_conflict" | "coupon_unavailable" | "coupon_limit_reached" | "loyalty_insufficient" | "loyalty_unavailable";
+export type IndividualErrorCode = "unauthorized" | "forbidden" | "not_found" | "invalid_input" | "product_unavailable" | "inventory_changed" | "slot_unavailable" | "price_changed" | "outside_delivery_area" | "minimum_not_met" | "idempotency_conflict" | "payment_unresolved" | "invalid_transition" | "service_unavailable" | "internal_error" | "revision_conflict" | "coupon_unavailable" | "coupon_limit_reached" | "loyalty_insufficient" | "loyalty_unavailable";
 export interface IndividualApi {
   session(): Promise<IndividualSession>;
   stores(): Promise<IndividualStore[]>;

@@ -15,8 +15,8 @@ interface State extends OrderingState {
 
 export class OrderingError extends Error {
   readonly statusCode: number;
-  constructor(readonly code: IndividualErrorCode, message: string) {
-    super(message);
+  constructor(readonly code: IndividualErrorCode, message: string, options?: ErrorOptions) {
+    super(message, options);
     this.name = "OrderingError";
     this.statusCode = code === "unauthorized" ? 401 : code === "forbidden" ? 403 : code === "not_found" ? 404
       : code === "invalid_input" ? 400 : code === "service_unavailable" ? 503 : 409;
@@ -309,6 +309,7 @@ export function createOrderingService(options: OrderingServiceOptions): RiderOrd
         remote = original.refundId ? await options.payments.readRefund(original.refundId)
           : await options.payments.refund({ intentId: original.providerIntentId, key: `refund-addition:${original.id}:${original.refundAttempt}` });
       } catch (error) {
+        options.diagnostics?.report(error, { operation: "addition_refund", orderId, additionId, provider: "stripe", code: "refund_failed", category: record(error) && error.definitive === true ? "operational" : "dependency" });
         if (!original.refundId && record(error) && error.definitive === true) {
           await transact(state => {
             const order = getOrder(state, orderId); const addition = getAddition(order, additionId);
@@ -325,6 +326,7 @@ export function createOrderingService(options: OrderingServiceOptions): RiderOrd
         const status = remote.status === "succeeded" ? "refunded" : remote.status === "failed" ? "refund_failed" : "refund_pending";
         if (addition.refundId !== remote.id || addition.payment !== status) { addition.refundId = remote.id; addition.payment = status; changed(state, order); }
       });
+      if (remote.status === "failed") options.diagnostics?.report(new Error(), { operation: "addition_refund", orderId, additionId, provider: "stripe", code: "refund_failed", category: "operational" });
     })();
     additionRefundInFlight.set(additionId, task);
     try { await task; } finally { if (additionRefundInFlight.get(additionId) === task) additionRefundInFlight.delete(additionId); }
@@ -346,6 +348,7 @@ export function createOrderingService(options: OrderingServiceOptions): RiderOrd
           : await options.payments.create({ orderId: original.order.id, totalCents: addition.deltaCents, key: `addition:${addition.id}` });
         if ((original.order.status === "cancelled" || (addition.reservationExpiresAt && Date.parse(addition.reservationExpiresAt) <= now().getTime())) && ["processing", "requires_action"].includes(remote.status)) remote = await options.payments.cancel(remote.id);
       } catch (error) {
+        options.diagnostics?.report(error, { operation: "addition_payment", orderId, additionId, storeId: original.order.storeId, provider: "stripe", code: record(error) && error.definitive === true ? "payment_declined" : "payment_uncertain", category: record(error) && error.definitive === true ? "expected" : "dependency" });
         if (!addition.providerIntentId && record(error) && error.definitive === true) {
           await transact(state => {
             const order = getOrder(state, orderId); const current = getAddition(order, additionId);
@@ -421,6 +424,7 @@ export function createOrderingService(options: OrderingServiceOptions): RiderOrd
         result = original.refundId ? await options.payments.readRefund(original.refundId)
           : await options.payments.refund({ intentId: original.providerIntentId, key: `refund:${original.id}:${original.refundAttempt}` });
       } catch (error) {
+        options.diagnostics?.report(error, { operation: "refund", orderId, storeId: original.storeId, provider: "stripe", code: "refund_failed", category: record(error) && error.definitive === true ? "operational" : "dependency" });
         if (!original.refundId && record(error) && error.definitive === true) {
           await transact(state => {
             const order = getOrder(state, orderId);
@@ -437,6 +441,7 @@ export function createOrderingService(options: OrderingServiceOptions): RiderOrd
         const payment = result.status === "succeeded" ? "refunded" : result.status === "failed" ? "refund_failed" : "refund_pending";
         if (order.refundId !== result.id || order.payment !== payment) { order.refundId = result.id; order.payment = payment; changed(state, order); }
       });
+      if (result.status === "failed") options.diagnostics?.report(new Error(), { operation: "refund", orderId, provider: "stripe", code: "refund_failed", category: "operational" });
     })();
     refundInFlight.set(orderId, task);
     try { await task; } finally { if (refundInFlight.get(orderId) === task) refundInFlight.delete(orderId); }
@@ -454,6 +459,7 @@ export function createOrderingService(options: OrderingServiceOptions): RiderOrd
         remote = original.providerIntentId ? await options.payments.read(original.providerIntentId)
           : await options.payments.create({ orderId: original.id, totalCents: original.quote.totalCents, key: `payment:${original.id}` });
       } catch (error) {
+        options.diagnostics?.report(error, { operation: "payment", orderId, storeId: original.storeId, provider: "stripe", code: record(error) && error.definitive === true ? "payment_declined" : "payment_uncertain", category: record(error) && error.definitive === true ? "expected" : "dependency" });
         if (!original.providerIntentId && record(error) && error.definitive === true) {
           return transact(state => {
             const order = getOrder(state, orderId);
@@ -489,7 +495,10 @@ export function createOrderingService(options: OrderingServiceOptions): RiderOrd
         const remote = await options.payments.cancel(reconciled.order.providerIntentId);
         const result = await applyPayment(orderId, remote);
         if (result.order.payment === "refund_pending") await refundOrder(orderId);
-      } catch { /* Uncertain cancel: keep reservation and recover on the next tick. */ }
+      } catch (error) {
+        options.diagnostics?.report(error, { operation: "cancel_payment", orderId, provider: "stripe", code: "payment_uncertain", category: "dependency" });
+        // Keep reservation and recover on the next tick.
+      }
     }
   }
   function visibleStore(state: State, store: IndividualStore, actor?: IndividualActor | null): IndividualStore {
@@ -724,8 +733,8 @@ export function createOrderingService(options: OrderingServiceOptions): RiderOrd
           address: location.address,
           confirmation: addressConfirmation(location, user.id, storeId, previous, searchedAt, geocoding.signingSecret)
         }));
-      } catch {
-        return fail("service_unavailable", "Ricerca indirizzi non disponibile.");
+      } catch (error) {
+        throw new OrderingError("service_unavailable", "Ricerca indirizzi non disponibile.", { cause: error });
       }
     },
     async saveStore(actor, input, confirmation) {
@@ -796,7 +805,8 @@ export function createOrderingService(options: OrderingServiceOptions): RiderOrd
         || (order.status === "cancelled" && order.method === "card" && order.payment === "failed" && order.providerIntentId !== null)
         || order.additions?.some(addition => unresolvedAddition(addition) || addition.payment === "refund_pending" || (order.status === "cancelled" && addition.payment === "failed" && addition.providerIntentId !== null))).map(order => order.id));
       for (const orderId of ids) {
-        try { await paymentOrder(orderId); await expireOrder(orderId); await settleAdditions(orderId); } catch { /* Persisted operations are retried by the next worker tick. */ }
+        try { await paymentOrder(orderId); await expireOrder(orderId); await settleAdditions(orderId); }
+        catch (error) { options.diagnostics?.report(error, { operation: "order_tick", orderId }); }
       }
     }
   };

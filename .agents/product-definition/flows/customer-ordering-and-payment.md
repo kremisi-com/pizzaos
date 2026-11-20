@@ -71,6 +71,8 @@ Nessuna decisione ancora aperta blocca questo perimetro del pilota. D16/D31 cont
 
 ## Casi limite e verifiche
 
+La [diagnostica backend D73](backend-observability.md) aggiunge correlazione `requestId`, 500 `internal_error` e 503 per dipendenze temporanee. Un errore tecnico durante checkout non autorizza un nuovo tentativo di pagamento: recuperare sempre l'ordine/idempotency key esistente. Le verifiche HTTP distinguono firma webhook errata da guasto dopo verifica; la diagnostica dei pagamenti incerti conserva stato pending e unicità dell'ordine. [Test operativi indipendenti](../../../services/checkout-api/src/diagnostics-operational.acceptance.test.ts).
+
 Questi scenari restano requisiti di regressione; l'elenco non certifica che ogni variante sia verificata online.
 
 - Login completato in una nuova scheda o su dispositivo diverso da quello del carrello.

@@ -10,6 +10,8 @@ Il servizio email possiede outbox e dispatch; il lifecycle canonico produce gli 
 
 ## Casi limite e verifiche
 
+Con D73 il dispatch registra errori tecnici sanitizzati correlati a email/ordine/sede, senza destinatario o contenuto e senza cambiare retry o stato pubblico. I guasti del reporter non bloccano il dispatch. [Regole diagnostiche](backend-observability.md), [test SMTP e worker indipendenti](../../../services/checkout-api/src/diagnostics-operational.acceptance.test.ts).
+
 - SMTP non raggiungibile o lento: ordine e pagamento continuano, il worker riprova e l'admin espone stato/errore sanitizzato.
 - Un invio fallisce: conserva l'ordine degli eventi di quell'ordine, senza bloccare ordini diversi.
 - ACK SMTP perso dopo l'invio: un retry può duplicare la consegna esterna; non si promette exactly-once.

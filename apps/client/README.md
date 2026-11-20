@@ -4,6 +4,8 @@
 
 Client app for the PizzaOS mobile-first ordering experience.
 
+Il proxy pilota conserva `x-request-id` generato dal backend, anche su errori 500/503. I payload errore possono includere `requestId` oltre a codice e messaggio; il recupero del tentativo esistente rimane invariato. [Diagnostica backend](../../services/checkout-api/observability.md).
+
 ## Ownership
 
 This app owns:

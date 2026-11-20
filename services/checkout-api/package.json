@@ -17,9 +17,11 @@
     "@auth/pg-adapter": "1.11.3",
     "@fastify/cors": "^11.0.1",
     "@pizzaos/domain": "workspace:*",
-    "fastify": "^5.2.1",
+    "@sentry/node": "^11.15.0",
+    "fastify": "^5.12.4",
     "nodemailer": "10.3.1",
     "pg": "^8.13.3",
+    "pino": "^10.4.0",
     "stripe": "^17.5.0"
   },
   "devDependencies": {

@@ -8,11 +8,13 @@ import type { FastifyRequest } from "fastify";
 import type { Pool } from "pg";
 import type { IndividualActor } from "@pizzaos/domain";
 import { createDemoAccess, DEMO_EMAIL } from "./demo-access";
+import type { Diagnostics } from "./diagnostics";
 
 export interface OrderingAuthOptions {
   pool: Pool; secret: string; proxySecret: string; origins: string[];
   googleClientId: string; googleClientSecret: string; smtpUrl: string; emailFrom: string;
   demoPassword?: string;
+  diagnostics?: Diagnostics;
 }
 function equalSecret(actual: unknown, expected: string): boolean {
   if (typeof actual !== "string") return false;
@@ -50,7 +52,10 @@ export function createOrderingAuth(options: OrderingAuthOptions) {
         async redirect({ url }) { const target = new URL(url, origin); return target.origin === origin ? target.href : origin; },
         async session({ session, user }) { return { ...session, user: { ...session.user, id: String(user.id) } }; }
       },
-      logger: { error(error) { process.stderr.write(`Auth.js: ${error.name}\n`); }, warn(code) { process.stderr.write(`Auth.js: ${code}\n`); } }
+      logger: {
+        error(error) { options.diagnostics?.report(error, { operation: "authentication", provider: "authjs" }); },
+        warn() { options.diagnostics?.record("authentication_warning", { operation: "authentication", provider: "authjs" }); }
+      }
     };
   }
   return {

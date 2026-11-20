@@ -27,7 +27,7 @@ async function proxy(request: NextRequest, context: Context): Promise<Response> 
   try {
     const response = await fetch(target, { method: request.method, headers, body: request.method === "GET" ? undefined : await request.arrayBuffer(), redirect: "manual", cache: "no-store", signal: request.signal });
     const output = new Headers();
-    for (const name of ["content-type", "location", "x-accel-buffering"]) { const value = response.headers.get(name); if (value) output.set(name, value); }
+    for (const name of ["content-type", "location", "x-accel-buffering", "x-request-id"]) { const value = response.headers.get(name); if (value) output.set(name, value); }
     for (const cookie of response.headers.getSetCookie()) output.append("set-cookie", cookie);
     output.set("cache-control", "no-store");
     return new Response(response.body, { status: response.status, headers: output });

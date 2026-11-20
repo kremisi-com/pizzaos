@@ -103,12 +103,13 @@ export function createOperationalEmailServices(options: OrderingServiceOptions &
         });
         if (!record) break; attempted.add(record.id);
         let error: OperationalEmailErrorCode | null = null;
+        let failure: unknown;
         const recipients = new Set((email.testRecipients ?? []).map(value => value.trim().toLowerCase()).filter(value => validRecipient(value) && !value.includes("*")));
         if (!email.sender || !email.from || !validFrom(email.from)) error = "not_configured";
         else if (!validRecipient(record.recipient) || ((email.mode ?? "test") === "test" && !recipients.has(record.recipient))) error = "recipient_not_allowed";
         else {
           try { await email.sender.send({ to: record.recipient, from: email.from, messageId: record.messageId, subject: record.subject, text: record.text }); }
-          catch { error = "smtp_unavailable"; }
+          catch (cause) { error = "smtp_unavailable"; failure = cause; }
         }
         const finalized = await repository.transact(state => {
           const current = data(state).messages.find(item => item.id === record.id);
@@ -121,7 +122,11 @@ export function createOperationalEmailServices(options: OrderingServiceOptions &
           } else { current.status = "sent"; current.sentAt = date; current.lastError = null; current.nextAttemptAt = null; }
           changed(state, current, date); return true;
         });
-        if (finalized) { if (!error) counts.sent++; else if (error === "smtp_unavailable") counts.failed++; else counts.blocked++; }
+        if (finalized) {
+          if (!error) counts.sent++; else if (error === "smtp_unavailable") counts.failed++; else counts.blocked++;
+          if (error) options.diagnostics?.report(failure ?? new Error(), { operation: "email_dispatch", code: "email_delivery_failed",
+            category: error === "smtp_unavailable" ? "dependency" : "operational", provider: "smtp", emailId: record.id, orderId: record.orderId, storeId: record.storeId, attempts: record.attempts });
+        }
       }
       return counts;
     }
