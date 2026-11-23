@@ -10,6 +10,12 @@ Build and evolve PizzaOS as a maintainable monorepo composed of three independen
 
 The three surfaces belong to one ecosystem while retaining distinct responsibilities, navigation, and visual expression.
 
+## Development stage
+
+PizzaOS is in active development and has no active customers or restaurant operators. The deployed pilot and demos are test environments.
+
+Within the requested scope, evolve APIs, schemas, and workflows directly when it simplifies the product. Add compatibility layers, deprecation periods, or staged rollouts only when an actual dependency or explicit requirement calls for them. Update affected callers, tests, and documentation in the same change.
+
 ## Context loading
 
 Use progressive disclosure.
@@ -54,7 +60,7 @@ Do not reference the restaurant brand from the UX foundation source document in 
 
 ## Engineering principles
 
-Implement the smallest complete increment that respects current public behavior and architecture.
+Implement the smallest complete increment that keeps affected callers consistent and respects the repository's ownership boundaries.
 
 Keep TypeScript, tests, and linting clean. Do not suppress errors using `any`, `@ts-ignore`, disabled lint rules, or equivalent shortcuts.
 
