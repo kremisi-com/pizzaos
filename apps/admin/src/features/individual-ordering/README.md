@@ -4,4 +4,6 @@ Questa feature espone il modulo di configurazione persistente della sede per Men
 
 In Profilo l'operatore cerca l'indirizzo con `StoreAddressApi`, conferma una corrispondenza e salva. Il servizio registra le coordinate della corrispondenza. Le sedi precedenti possono salvare le altre impostazioni conservando le coordinate già registrate.
 
+Il Profilo mostra anche la settimana tipo, le capacità per fascia e le date protette. Il servizio genera le disponibilità del checkout nel fuso della sede. Le modifiche del calendario vengono salvate con la configurazione della sede.
+
 La modalità demo precedente è separata. Requisiti e contratti sono in `.agents/design/2026-11-05-individual-ordering/ordering-surfaces/`. Verificare lint, typecheck, test e build dell'app, controllo architettura ed E2E individuale.

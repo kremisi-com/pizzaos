@@ -1,5 +1,6 @@
 "use client";
 
+import { formatOrderWindow } from "@pizzaos/domain";
 import type { IndividualAction, IndividualOrder, IndividualOrderAction } from "@pizzaos/domain";
 import { useEffect, useState } from "react";
 import styles from "./operational-order-details.module.css";
@@ -49,7 +50,7 @@ export function OperationalOrderDetails({ order, timeZone, busy, action }: {
       <div><p className={styles.small}>Ordine {order.id}</p><h3>{statusLabels[order.status]}</h3></div>
       <strong>{money(order.quote.totalCents)}</strong>
     </div>
-    <p><strong>{order.contact.name}</strong> · {order.cart.mode === "delivery" ? "Consegna" : "Ritiro"} · {new Date(order.quote.slotStartsAt).toLocaleString("it-IT", { dateStyle: "short", timeStyle: "short", timeZone })}</p>
+    <p><strong>{order.contact.name}</strong> · {order.cart.mode === "delivery" ? "Consegna" : "Ritiro"} · {formatOrderWindow(order.quote.slotStartsAt, order.quote.slotEndsAt, order.quote.slotTimeZone ?? timeZone)}</p>
     {order.cart.address && <p>{order.cart.address.text}</p>}<p className={order.payment === "refund_failed" ? styles.refundError : styles.small}>{paymentLabels[order.payment]}</p>
     {order.additions?.map(addition => <p key={addition.id} className={addition.payment === "refund_failed" ? styles.refundError : styles.small}>Aggiunta {money(addition.deltaCents)} · {addition.applied ? "Applicata" : "Non applicata"} · {paymentLabels[addition.payment]}</p>)}
     {isNew && seconds !== null && <p className={styles.countdown} role="timer">{seconds > 0 ? `Accetta entro ${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, "0")}` : "Tempo scaduto: annullamento in verifica"}</p>}

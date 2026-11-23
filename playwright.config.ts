@@ -7,6 +7,7 @@ export default defineConfig({
   // Durable pilot uses its own service and proxy configuration.
   testIgnore: [
     "**/individual-ordering.spec.ts",
+    "**/order-calendar.spec.ts",
     "**/pilot-extensions.spec.ts",
     "**/operational-domains.spec.ts",
     "**/session-demo.spec.ts",

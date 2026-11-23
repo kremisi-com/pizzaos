@@ -29,7 +29,8 @@ const repository: OrderingRepository = {
 };
 const intents = new Map<string, ProviderPayment>();
 const emailFailures = new Set<string>();
-const operational = createOperationalEmailServices({ repository, superadminEmails: ["superadmin@example.test"], storeGeocoding: {
+const operational = createOperationalEmailServices({
+  repository, superadminEmails: ["superadmin@example.test"], activateOrderCalendar: process.env.PIZZAOS_E2E_ORDER_CALENDAR === "1", storeGeocoding: {
   signingSecret: "browser-test-only-store-address-signing-secret",
   async search(query) {
     const first = { address: "Via Verdi 10, Torino", latitude: 45.068, longitude: 7.689 };

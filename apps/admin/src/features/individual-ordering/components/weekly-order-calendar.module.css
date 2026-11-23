@@ -1,0 +1,153 @@
+.scroll {
+  max-height: 40rem;
+  overflow: auto;
+  border: 1px solid #dce3ef;
+  border-radius: 0.75rem;
+  background: #f6f8fc;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 4rem repeat(7, minmax(9rem, 1fr));
+  min-width: 67rem;
+  column-gap: 0.25rem;
+}
+
+.day {
+  display: contents;
+}
+
+.heading {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  display: grid;
+  align-content: center;
+  gap: 0.25rem;
+  padding: 0.5rem;
+  background: #f6f8fc;
+}
+
+.grid .heading button,
+.controls button,
+.grid .windowActions button {
+  cursor: pointer;
+  border: 1px solid #becbdd;
+  color: #182840;
+  background: #fff;
+  border-radius: 0.4rem;
+}
+
+.grid .heading button,
+.controls button {
+  padding: 0.35rem 0.65rem;
+}
+
+.hour {
+  padding: 0.1rem 0.35rem;
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
+  color: #43536d;
+}
+
+.window {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.3rem;
+  margin: 1px 0;
+  padding: 0.25rem 0.4rem;
+  background: #edf4ff;
+  border-inline: 1px solid #b7ccee;
+  color: #182840;
+}
+
+.grid .window label {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 0.25rem;
+  margin: 0;
+  font-size: 0.72rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.grid .window input {
+  width: 3rem;
+  padding: 0.2rem;
+}
+
+.windowActions {
+  display: grid;
+  gap: 0.15rem;
+}
+
+.grid .windowActions button {
+  width: 1.25rem;
+  height: 1.2rem;
+  min-height: 0;
+  padding: 0;
+  line-height: 1;
+}
+
+.grid .separator {
+  position: relative;
+  z-index: 2;
+  align-self: start;
+  height: 10px;
+  min-height: 0;
+  padding: 0;
+  transform: translateY(-50%);
+  cursor: pointer;
+  border: 0;
+  background: linear-gradient(to bottom, transparent 4px, #7193c4 4px, #7193c4 6px, transparent 6px);
+}
+
+.grid .separator:hover,
+.grid .separator:focus-visible {
+  background: #274f91;
+}
+
+.separator:focus-visible,
+.controls button:focus-visible,
+.windowActions button:focus-visible {
+  outline: 2px solid #214c9a;
+  outline-offset: 2px;
+}
+
+.controls,
+.editorFields {
+  display: flex;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.controls select {
+  margin-inline-start: 0.3rem;
+}
+
+.editor {
+  display: grid;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  border: 1px solid #becbdd;
+  border-radius: 0.5rem;
+}
+
+.editor label {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.error {
+  color: #a02020;
+}
+
+.visuallyHidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}

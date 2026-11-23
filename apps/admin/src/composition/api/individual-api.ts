@@ -35,7 +35,9 @@ export function createIndividualApi(): IndividualApi & StoreAddressApi {
     additionQuote: (orderId, lines) => request(`/orders/${id(orderId)}/additions/quote`, "POST", { lines }),
     additions: (orderId, input) => request(`/orders/${id(orderId)}/additions`, "POST", input),
     searchStoreAddresses: (storeId, query) => request(`/stores/${id(storeId)}/address-search`, "POST", { query }),
-    saveStore: (store, addressConfirmation) => request(`/stores/${id(store.id)}`, "PUT", { ...store, addressConfirmation }),
+    saveStore: (store, addressConfirmation) => request(`/stores/${id(store.id)}`, "PUT", {
+      ...store, addressConfirmation, protectedOrderDates: undefined, slots: store.orderSchedule ? [] : store.slots
+    }),
     invite: (storeId, email) => request(`/stores/${id(storeId)}/invitations`, "POST", { email }),
     events: (cursor, storeId) => request(`/events?cursor=${cursor}${storeId ? `&storeId=${id(storeId)}` : ""}`)
   };

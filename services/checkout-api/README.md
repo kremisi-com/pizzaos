@@ -8,7 +8,7 @@ Owns durable individual ordering for the pilot: Auth.js identity, store configur
 
 Public domain shapes are `Individual*` and `IndividualApi` from `@pizzaos/domain`. Through the same-origin app proxy `/api/pilot`, service routes are:
 
-- `GET /v1/pilot/session`, `/stores`, `/stores/:id`: session and store/catalog discovery; guests receive catalog with stock redacted.
+- `GET /v1/pilot/session`, `/stores`, `/stores/:id`: session and store/catalog discovery. The catalog includes the open windows and their remaining capacity. The weekly template and protected dates are visible to store operators.
 - `POST /v1/pilot/quote`: `{cart}` produces an authoritative EUR quote/fingerprint; optional `cart.benefits` selects coupon codes and one reward, with authenticated identity from the session. No browser totals or customer IDs accepted.
 - `/v1/pilot/stores/:id/promotions`, `/promotions/program`, `/promotions/coupons`, `/loyalty`: persistent operator configuration and own customer wallet; see [`src/promotions/README.md`](src/promotions/README.md).
 - `GET /v1/pilot/stores/:id/emails`: stato completo degli aggiornamenti email all'acquirente, riservato a operatori della sede e superadmin; dettagli in [`src/operational-emails/README.md`](src/operational-emails/README.md).
@@ -21,7 +21,7 @@ Public domain shapes are `Individual*` and `IndividualApi` from `@pizzaos/domain
 - `POST /v1/pilot/orders/:id/additions/quote`: quote customer-added lines before acceptance.
 - `POST /v1/pilot/orders/:id/additions`: confirm an increase, settled separately with the original method; no original line removal/repricing.
 - `POST /v1/pilot/stores/:id/address-search`: an assigned operator or superadmin searches for the store address. Returns formatted choices with short-lived confirmations bound to the actor, store, and previous position. A new store ID requires superadmin access.
-- `PUT /v1/pilot/stores/:id`: superadmin creates, assigned operator/superadmin updates configuration. An optional `addressConfirmation` applies the confirmed address and coordinates together. The operator catalog includes the confirmed address when available.
+- `PUT /v1/pilot/stores/:id`: superadmin creates, assigned operator/superadmin updates configuration. An optional `addressConfirmation` applies the confirmed address and coordinates together. To change the weekly order schedule, send its current revision. Omission preserves the saved schedule.
 - `POST /v1/pilot/stores/:id/invitations`: superadmin authorizes an email for a store; the operator signs in via Google/magic link. Invitations are access grants; automatic invitation emails are outside this increment.
 - `GET /v1/pilot/events?cursor=&storeId=` and `/stream`: matching JSON/SSE event envelopes, filtered by customer/store authorization.
 - `/api/pilot/auth/*`: Auth.js endpoints proxied by both apps; Google and Nodemailer magic link, PostgreSQL sessions.
@@ -54,7 +54,9 @@ Eseguire `pnpm migrate` sul PostgreSQL dedicato prima di avviare API e worker ag
 
 Ogni transazione verifica sotto lock la versione dello snapshot in `individual_ordering_state`. Quando coincide, il repository riusa la propria copia e PostgreSQL restituisce solo i metadati. Lo snapshot viene riscritto solo quando cambia il JSON. Il lock continua a serializzare scorte, capacità e transizioni tra istanze. Le operazioni Stripe restano fuori dal lock, dopo il salvataggio di un intento durevole. Il primo accesso di un processo a una versione può richiedere il documento intero, così come una scrittura effettiva. [Benchmark e verifica del traffico](../../.agents/design/2026-11-20-snapshot-traffic/REVIEW.md).
 
-Ingredient quantities/recipe consumption are positive integer units; choose a consistent smallest unit per ingredient. Stock updates cannot undercut current reservations. Delivery uses geodetic distance from configured store coordinates to the customer-confirmed delivery point and the first inclusive distance band. Store addresses are confirmed from the operator search and saved with the corresponding coordinates in the existing JSON state. Legacy stores retain their saved coordinates. Customer delivery points still use coordinates or geolocation. Slots are explicit dated capacity entries configured through admin, and acceptingOrders suspends new orders.
+Ingredient quantities/recipe consumption are positive integer units. Stock updates cannot undercut current reservations. Delivery uses geodetic distance from configured store coordinates to the customer-confirmed delivery point and the first inclusive distance band. Store addresses are confirmed from the operator search and saved with the corresponding coordinates in the existing JSON state. Legacy stores retain their saved coordinates. Customer delivery points still use coordinates or geolocation.
+
+The runtime activates the recurring order calendar for existing stores on first access and preserves dates with reservations in the same state document. The calendar covers today and the next 13 local dates. A window closes to new orders at its end and `acceptingOrders` still suspends new orders. Individual and group checkout share the same capacity. Local browser verification uses `pnpm exec playwright test --config playwright.order-calendar.config.ts`.
 
 ## Environment and local setup
 
@@ -71,7 +73,7 @@ pnpm exec tsx --env-file=.env src/migrate.ts
 pnpm exec tsx watch --env-file=.env src/server.ts
 ```
 
-For already-exported environment variables: `pnpm migrate`, `pnpm dev`. Start client and admin separately with their README commands. Set their local `.env.local` values from app `.env.example`; durable surfaces are the default home pages. Sign in as configured superadmin at admin `/operazioni`, create store, add ingredients/products/recipes, dated future slots and delivery bands, then invite operator email. Customer entry `/ordina`. Nothing is automatically seeded in production.
+For already-exported environment variables: `pnpm migrate`, `pnpm dev`. Start client and admin separately with their README commands. Set their local `.env.local` values from app `.env.example`. Sign in as configured superadmin at admin `/operazioni`, create a store, add ingredients, products, recipes and delivery bands, review the default weekly schedule, then invite the operator email. Customer entry `/ordina`. Store and catalog data are created by the operator.
 
 ## Accesso POC per sessione
 

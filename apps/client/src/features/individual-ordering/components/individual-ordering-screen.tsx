@@ -1,11 +1,13 @@
 "use client";
 
+import { formatOrderWindow } from "@pizzaos/domain";
 import type { IndividualApi, IndividualCart, IndividualCheckout, IndividualOrder, IndividualProduct, IndividualQuote, IndividualSession, IndividualStore, PromotionsApi } from "@pizzaos/domain";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { readIndividualDraft, writeIndividualDraft } from "../draft";
 import { createCheckoutAttempt, readCheckoutAttempt, removeCheckoutAttempt, writeCheckoutAttempt, type IndividualCheckoutAttempt } from "../checkout-attempt";
 import { IndividualStripeFields, type ConfirmIndividualPayment } from "./individual-stripe-fields";
 import { IndividualAdditions } from "./individual-additions";
+import { OrderSlotSelect } from "./order-slot-select";
 import { SignOutButton } from "../../identity/components/sign-in-screen";
 import { PromotionSelectionPanel, PromotionSummary } from "../../promotions";
 import { OrderingCover } from "../../menu/components/ordering-cover";
@@ -15,7 +17,6 @@ const EMPTY_CART: IndividualCart = { storeId: "", lines: [], mode: "pickup", slo
 const catalogTerms = (store: IndividualStore) => JSON.stringify({ id: store.id, acceptingOrders: store.acceptingOrders,
   products: store.products, ingredients: store.ingredients, slots: store.slots, deliveryBands: store.deliveryBands });
 const money = (cents: number) => new Intl.NumberFormat("it-IT", { style: "currency", currency: "EUR" }).format(cents / 100);
-const date = (iso: string) => new Date(iso).toLocaleString("it-IT", { dateStyle: "short", timeStyle: "short" });
 const statusLabels: Record<IndividualOrder["status"], string> = {
   pending_payment: "Pagamento da completare", awaiting_acceptance: "In attesa del ristorante", awaiting_customer: "Il ristorante attende una tua risposta",
   accepted: "Accettato", preparing: "In preparazione", ready: "Pronto", out_for_delivery: "In consegna", completed: "Completato", cancelled: "Annullato"
@@ -189,6 +190,7 @@ export function IndividualOrderingScreen({ api, promotionsApi, refreshVersion = 
       const settled = result.order.method === "card" ? await api.reconcile(result.order.id) : result;
       clearSubmittedCart(settled.order, known);
       await reloadOrders();
+      setCatalogReload(current => current + 1);
       setNotice(settled.order.status === "pending_payment" ? "Il tentativo è stato salvato. Verifica il pagamento qui sotto." : "Ordine inviato. Il ristorante deve ancora accettarlo.");
     } catch (failure) {
       setError(errorText(failure));
@@ -266,13 +268,14 @@ export function IndividualOrderingScreen({ api, promotionsApi, refreshVersion = 
             <label>Longitudine<input type="number" step="any" min="-180" max="180" value={cart.address?.longitude ?? ""} onChange={event => changeCart({ ...cart, address: { text: cart.address?.text ?? "", latitude: cart.address?.latitude ?? 0, longitude: Number(event.target.value) } })} /></label></div>
           <button type="button" className={styles.secondary} onClick={() => { if (!navigator.geolocation) { setError("Il browser non supporta la posizione."); return; } navigator.geolocation.getCurrentPosition(position => changeCart({ ...cart, address: { text: cart.address?.text ?? "", latitude: position.coords.latitude, longitude: position.coords.longitude } }), () => setError("Posizione non disponibile. Inserisci il punto di consegna.")); }}>Usa la mia posizione</button>
         </fieldset>}
-        <label>Quando?<select aria-label="Quando?" value={cart.slotId ?? ""} onChange={event => changeCart({ ...cart, slotId: event.target.value || null })}><option value="">Appena possibile</option>{store?.slots.filter(slot => Date.parse(slot.startsAt) > Date.now()).map(slot => <option key={slot.id} value={slot.id}>{date(slot.startsAt)}</option>)}</select></label>
+        <OrderSlotSelect store={store} value={cart.slotId} onChange={slotId => changeCart({ ...cart, slotId })}
+          onFocus={() => setCatalogReload(current => current + 1)} />
         <label>Note per l&apos;ordine<textarea maxLength={1000} value={cart.notes} onChange={event => changeCart({ ...cart, notes: event.target.value })} /></label>
         {promotionsApi && session?.actor && <PromotionSelectionPanel api={promotionsApi} storeId={cart.storeId} selection={cart.benefits} disabled={busy || unresolved || !!attempt} refreshVersion={refreshVersion + benefitsRefresh} onChange={benefits => changeCart({ ...cart, benefits })} onTermsChange={invalidatePromotionQuote} />}
         <button type="button" disabled={busy || !cart.lines.length || !store?.acceptingOrders || unresolved} onClick={() => void verifyQuote()}>Verifica disponibilità e totale</button>
         {quote && <div className={styles.summary}><h3>Riepilogo da confermare</h3>{quote.lines.map((line, index) => <p key={`${line.productId}-${index}`}><span>{line.quantity} × {line.name}</span><strong>{money(line.unitCents * line.quantity)}</strong></p>)}
           <PromotionSummary quote={quote} />
-          {!quote.promotions && <><p><span>Consegna</span><strong>{money(quote.deliveryCents)}</strong></p><p className={styles.total}><span>Totale</span><strong>{money(quote.totalCents)}</strong></p></>}<p>Orario: {date(quote.slotStartsAt)}</p></div>}
+          {!quote.promotions && <><p><span>Consegna</span><strong>{money(quote.deliveryCents)}</strong></p><p className={styles.total}><span>Totale</span><strong>{money(quote.totalCents)}</strong></p></>}<p>Orario: {formatOrderWindow(quote.slotStartsAt, quote.slotEndsAt, quote.slotTimeZone)}</p></div>}
         {session?.actor ? <><p className={styles.small}>Ordine di {session.actor.name} · {session.actor.email}</p><label>Telefono per l&apos;ordine<input type="tel" required autoComplete="tel" value={phone} onChange={event => setPhone(event.target.value)} /></label>
           <label>Come paghi?<select aria-label="Come paghi?" value={method} onChange={event => setMethod(event.target.value === "card" ? "card" : "cash")}><option value="cash">Contanti al ritiro o alla consegna</option><option value="card">Carta</option></select></label>
           {method === "card" && quote?.totalCents !== 0 && <div className={styles.stripe}><IndividualStripeFields onReady={onCardReady} /></div>}
@@ -286,7 +289,7 @@ export function IndividualOrderingScreen({ api, promotionsApi, refreshVersion = 
     {session?.actor && <section className={styles.history} id="i-tuoi-ordini"><div className={styles.headingRow}><h2>I tuoi ordini</h2><button type="button" className={styles.secondary} disabled={busy} onClick={() => void reloadOrders().catch(failure => setError(errorText(failure)))}>Aggiorna ordini</button></div>
       {orders.length === 0 && <p>Non hai ancora inviato ordini.</p>}
       {orders.map(order => <article key={order.id} className={`${styles.order} ${order.status === "awaiting_customer" ? styles.waiting : ""}`}><div className={styles.headingRow}><div><p className={styles.small}>Ordine {order.id}</p><h3>{statusLabels[order.status]}</h3></div><strong>{money(order.quote.totalCents)}</strong></div>
-        <p>{paymentLabels[order.payment]}</p>{order.additions?.filter(item => item.payment === "refund_pending" || item.payment === "refund_failed").map(item => <p key={item.id} className={styles.notice}>Rimborso aggiunta {money(item.deltaCents)}: {paymentLabels[item.payment]}</p>)}<p className={styles.small}>{order.cart.mode === "delivery" ? "Consegna" : "Ritiro"} · {date(order.quote.slotStartsAt)}</p>
+        <p>{paymentLabels[order.payment]}</p>{order.additions?.filter(item => item.payment === "refund_pending" || item.payment === "refund_failed").map(item => <p key={item.id} className={styles.notice}>Rimborso aggiunta {money(item.deltaCents)}: {paymentLabels[item.payment]}</p>)}<p className={styles.small}>{order.cart.mode === "delivery" ? "Consegna" : "Ritiro"} · {formatOrderWindow(order.quote.slotStartsAt, order.quote.slotEndsAt, order.quote.slotTimeZone)}</p>
         {order.acceptanceDeadline && order.status === "awaiting_acceptance" && <p>Risposta del ristorante entro le {new Date(order.acceptanceDeadline).toLocaleTimeString("it-IT", { hour: "2-digit", minute: "2-digit" })}</p>}
         <ul>{order.quote.lines.map((line, index) => <li key={`${line.productId}-${index}`}>{line.quantity} × {line.name}{line.notes ? ` — ${line.notes}` : ""}</li>)}</ul>
         {order.status === "awaiting_customer" && <p className={styles.notice}>Il ristorante ti contatta via email o WhatsApp per un prodotto indisponibile. L&apos;ordine resta in attesa della tua risposta.</p>}

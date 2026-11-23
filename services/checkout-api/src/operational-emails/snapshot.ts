@@ -1,11 +1,14 @@
+import { formatOrderWindow } from "@pizzaos/domain";
 import type { IndividualOrder } from "@pizzaos/domain";
 const money = (cents: number) => new Intl.NumberFormat("it-IT", { style: "currency", currency: "EUR" }).format(cents / 100);
 export interface RefundSnapshot { amountCents: number; scope: "Pagamento iniziale" | "Aggiunta"; }
 export function emailText(order: IndividualOrder, title: string, date: string, timeZone: string, refund?: RefundSnapshot): string {
   const gross = order.quote.promotions?.originalSubtotalCents ?? order.quote.subtotalCents;
   const localDate = (value: string) => `${new Intl.DateTimeFormat("it-IT", { timeZone, dateStyle: "long", timeStyle: "short" }).format(new Date(value))} (${timeZone})`;
+  const slotZone = order.quote.slotTimeZone ?? timeZone;
+  const slot = `${formatOrderWindow(order.quote.slotStartsAt, order.quote.slotEndsAt, slotZone, "long")} (${slotZone})`;
   const lines = [title, `Ordine ${order.id}`, `Data evento: ${localDate(date)}`, `Cliente: ${order.contact.name}`,
-    `Modalità: ${order.cart.mode === "pickup" ? "Ritiro in sede" : "Consegna a domicilio"}`, `Orario: ${localDate(order.quote.slotStartsAt)}`,
+    `Modalità: ${order.cart.mode === "pickup" ? "Ritiro in sede" : "Consegna a domicilio"}`, `Orario: ${slot}`,
     ...order.quote.lines.map(line => `${line.quantity} × ${line.name} — ${money(line.unitCents * line.quantity)}${line.notes ? `\nNote prodotto / partecipante: ${line.notes}` : ""}`),
     `Subtotale lordo prodotti: ${money(gross)}`];
   if (order.quote.promotions) {

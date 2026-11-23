@@ -1,11 +1,13 @@
 import { createHash, randomUUID } from "node:crypto";
+import { createDefaultWeeklyOrderSchedule } from "@pizzaos/domain";
 import type {
   IndividualActor, IndividualCart, IndividualCheckoutResult, IndividualErrorCode,
-  IndividualOrder, IndividualQuote, IndividualStore, IndividualAction, IndividualAddition, IndividualAdditionQuote, IndividualLine
+  IndividualOrder, IndividualQuote, IndividualSlot, IndividualStore, IndividualAction, IndividualAddition, IndividualAdditionQuote, IndividualLine
 } from "@pizzaos/domain";
 import type { RiderOrderingService, OrderingServiceOptions, OrderingState, ProviderPayment, ProviderRefund } from "./ordering-contract";
 import { normalizePromotionSelection } from "./promotions/selection";
 import { addressConfirmation, readAddressConfirmation, storeAddressLimit, storeLocationKey } from "./store-address";
+import { activateOrderCalendar, normalizeOrderSchedule, protectCalendarChanges, protectedOrderDates, upcomingOrderSlots } from "./order-calendar";
 
 interface Reservation { ingredients: Record<string, number>; slotId: string; }
 interface State extends OrderingState {
@@ -193,7 +195,24 @@ export function createOrderingService(options: OrderingServiceOptions): RiderOrd
     const user = authenticated(actor);
     if (order.customerId !== user.id && !member(state, user, order.storeId)) fail("forbidden", "Non hai accesso a questo ordine.");
   }
-  function quoteIn(state: State, cart: IndividualCart, reservedSlot?: { id: string; startsAt: string }): { quote: IndividualQuote; recipe: Record<string, number> } {
+  function occupiedOrders(state: State, storeId: string) {
+    return Object.values(state.orders).filter(order => order.storeId === storeId && slotOccupied(order));
+  }
+  function ensureCalendar(state: State, store: IndividualStore, instant: number) {
+    if (options.activateOrderCalendar && !store.orderSchedule) {
+      activateOrderCalendar(state, store, instant, occupiedOrders(state, store.id));
+    }
+  }
+  function remainingSlots(state: State, store: IndividualStore, instant: number) {
+    const occupied = new Map<string, number>();
+    for (const order of occupiedOrders(state, store.id)) {
+      occupied.set(order.quote.slotId, (occupied.get(order.quote.slotId) ?? 0) + 1);
+    }
+    return upcomingOrderSlots(state, store, instant).map(slot => ({
+      ...slot, capacity: Math.max(0, slot.capacity - (occupied.get(slot.id) ?? 0))
+    }));
+  }
+  function quoteIn(state: State, cart: IndividualCart, reservedSlot?: Omit<IndividualSlot, "capacity">): { quote: IndividualQuote; recipe: Record<string, number> } {
     validCart(cart);
     const store = getStore(state, cart.storeId);
     if (!store.acceptingOrders) fail("slot_unavailable", "La sede non accetta ordini in questo momento.");
@@ -225,9 +244,9 @@ export function createOrderingService(options: OrderingServiceOptions): RiderOrd
       const available = store.ingredients.find(item => item.id === ingredientId)?.stock ?? 0;
       if (quantity > available - (reserved[ingredientId] ?? 0)) fail("inventory_changed", "Ingredienti non sufficienti: correggi il carrello.");
     }
-    const availableSlots = store.slots.filter(slot => Date.parse(slot.startsAt) > now().getTime() && slotCount(state, store.id, slot.id) < slot.capacity)
-      .sort((a, b) => Date.parse(a.startsAt) - Date.parse(b.startsAt));
-    const slot = reservedSlot ?? (cart.slotId === null ? availableSlots[0] : availableSlots.find(item => item.id === cart.slotId));
+    const instant = now().getTime();
+    ensureCalendar(state, store, instant);
+    const slot = reservedSlot ?? remainingSlots(state, store, instant).find(item => item.capacity > 0 && (cart.slotId === null || item.id === cart.slotId));
     if (!slot) fail("slot_unavailable", "La fascia non è più disponibile: scegli un nuovo orario.");
     let deliveryCents = 0;
     if (cart.mode === "delivery" && cart.address) {
@@ -239,7 +258,8 @@ export function createOrderingService(options: OrderingServiceOptions): RiderOrd
     }
     const totalCents = subtotalCents + deliveryCents;
     if (!Number.isSafeInteger(totalCents)) fail("invalid_input", "Totale non valido.");
-    const details = { subtotalCents, deliveryCents, totalCents, slotId: slot.id, slotStartsAt: slot.startsAt, lines };
+    const details = { subtotalCents, deliveryCents, totalCents, slotId: slot.id, slotStartsAt: slot.startsAt,
+      ...(slot.endsAt ? { slotEndsAt: slot.endsAt, slotTimeZone: slot.timeZone } : {}), lines };
     return { quote: { ...details, fingerprint: hash({ cart: cleanCart(cart), details, recipe }) }, recipe };
   }
   function submitted(order: IndividualOrder) {
@@ -271,7 +291,9 @@ export function createOrderingService(options: OrderingServiceOptions): RiderOrd
   }
   function additionQuoteIn(state: State, order: IndividualOrder, lines: IndividualLine[]): { result: IndividualAdditionQuote; recipe: Record<string, number> } {
     const deltaCart: IndividualCart = { storeId: order.storeId, lines, mode: "pickup", slotId: order.quote.slotId, notes: "" };
-    const { quote: delta, recipe } = quoteIn(state, deltaCart, { id: order.quote.slotId, startsAt: order.quote.slotStartsAt });
+    const { quote: delta, recipe } = quoteIn(state, deltaCart, {
+      id: order.quote.slotId, startsAt: order.quote.slotStartsAt, endsAt: order.quote.slotEndsAt, timeZone: order.quote.slotTimeZone
+    });
     const subtotalCents = order.quote.subtotalCents + delta.subtotalCents;
     const totalCents = order.quote.totalCents + delta.subtotalCents;
     if (!Number.isSafeInteger(totalCents) || !Number.isSafeInteger(subtotalCents)) fail("invalid_input", "Totale non valido.");
@@ -502,17 +524,24 @@ export function createOrderingService(options: OrderingServiceOptions): RiderOrd
     }
   }
   function visibleStore(state: State, store: IndividualStore, actor?: IndividualActor | null): IndividualStore {
-    if (member(state, actor, store.id)) return copy(store);
+    const instant = now().getTime();
+    ensureCalendar(state, store, instant);
+    const operatorView = member(state, actor, store.id);
+    if (operatorView) return store.orderSchedule ? {
+      ...copy(store), slots: remainingSlots(state, store, instant), protectedOrderDates: protectedOrderDates(state, store, instant)
+    } : copy(store);
     const reserved = ingredientsReserved(state, store.id);
     const publicStore = copy(store);
     delete publicStore.address;
+    delete publicStore.orderSchedule;
+    delete publicStore.protectedOrderDates;
     publicStore.ingredients = [];
     publicStore.products = publicStore.products.map(product => ({ ...product,
       available: product.available && Object.entries(product.ingredients).every(([ingredientId, quantity]) =>
         (store.ingredients.find(item => item.id === ingredientId)?.stock ?? 0) - (reserved[ingredientId] ?? 0) >= quantity),
       ingredients: {}, options: product.options.map(option => ({ ...option, ingredients: {} }))
     }));
-    publicStore.slots = publicStore.slots.filter(slot => Date.parse(slot.startsAt) > now().getTime()).map(slot => ({ ...slot, capacity: Math.max(0, slot.capacity - slotCount(state, store.id, slot.id)) }));
+    publicStore.slots = remainingSlots(state, store, instant);
     return publicStore;
   }
   async function performAction(actor: IndividualActor | null, orderId: string, input: IndividualAction, riderOnly = false): Promise<IndividualOrder> {
@@ -770,17 +799,35 @@ export function createOrderingService(options: OrderingServiceOptions): RiderOrd
           const ingredient = input.ingredients.find(item => item.id === ingredientId);
           if (!ingredient || ingredient.stock < quantity) fail("inventory_changed", "Le nuove scorte non coprono gli ordini riservati.");
         }
-        const occupied = Object.values(state.orders).filter(order => order.storeId === input.id && slotOccupied(order));
-        for (const order of occupied) {
-          const slot = input.slots.find(item => item.id === order.quote.slotId);
-          const active = activeReservation(order);
-          if (!slot && active) fail("slot_unavailable", "Non puoi eliminare una fascia con ordini attivi.");
-          if (slot && (slot.capacity < slotCount(state, input.id, slot.id) || (active && Date.parse(slot.startsAt) !== Date.parse(order.quote.slotStartsAt)))) fail("slot_unavailable", "La nuova fascia non copre gli ordini già ricevuti.");
+        const instant = now().getTime();
+        const occupied = occupiedOrders(state, input.id);
+        if (existing) ensureCalendar(state, existing, instant);
+        const currentSchedule = existing?.orderSchedule;
+        if (input.orderSchedule !== undefined || currentSchedule || options.activateOrderCalendar) {
+          const submittedSchedule = input.orderSchedule === undefined ? undefined : normalizeOrderSchedule(input.orderSchedule);
+          if (input.orderSchedule !== undefined && !submittedSchedule) fail("invalid_input", "Orari settimanali non validi o sovrapposti.");
+          let schedule = currentSchedule ?? createDefaultWeeklyOrderSchedule();
+          if (submittedSchedule && JSON.stringify(submittedSchedule.days) !== JSON.stringify(schedule.days)) {
+            if (submittedSchedule.revision !== schedule.revision) fail("revision_conflict", "Il calendario è cambiato. Ricarica la sede e ripeti la modifica.");
+            schedule = { ...submittedSchedule, revision: schedule.revision + 1 };
+          }
+          if (existing && !currentSchedule) activateOrderCalendar(state, existing, instant, occupied);
+          next = { ...next, orderSchedule: schedule, slots: existing?.slots ?? [] };
+        } else {
+          for (const order of occupied) {
+            const slot = input.slots.find(item => item.id === order.quote.slotId);
+            const active = activeReservation(order);
+            if (!slot && active) fail("slot_unavailable", "Non puoi eliminare una fascia con ordini attivi.");
+            if (slot && (slot.capacity < slotCount(state, input.id, slot.id) || (active && Date.parse(slot.startsAt) !== Date.parse(order.quote.slotStartsAt)))) fail("slot_unavailable", "La nuova fascia non copre gli ordini già ricevuti.");
+          }
         }
         validStore(next);
-        const saved = copy(next); state.stores[input.id] = saved;
+        if (existing) protectCalendarChanges(state, existing, next, instant, occupied);
+        const saved = copy(next);
+        delete saved.protectedOrderDates;
+        state.stores[input.id] = saved;
         state.cursor += 1; state.events.push({ cursor: state.cursor, storeId: input.id, orderId: "", revision: state.cursor });
-        return copy(saved);
+        return visibleStore(state, saved, user);
       });
     },
     async invite(actor, storeId, invitedEmail) {

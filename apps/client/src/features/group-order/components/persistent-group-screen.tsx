@@ -1,11 +1,12 @@
 "use client";
 
+import { formatOrderWindow } from "@pizzaos/domain";
 import type {
   GroupCheckout, GroupFulfillment, GroupOrderingApi, GroupQuote, GroupSnapshot,
   IndividualApi, IndividualCheckoutResult, IndividualLine, IndividualProduct, IndividualSession, IndividualStore, PromotionsApi
 } from "@pizzaos/domain";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { IndividualStripeFields, type ConfirmIndividualPayment } from "../../individual-ordering";
+import { IndividualStripeFields, OrderSlotSelect, type ConfirmIndividualPayment } from "../../individual-ordering";
 import { PromotionSelectionPanel, PromotionSummary } from "../../promotions";
 import styles from "./persistent-group-screen.module.css";
 
@@ -264,13 +265,13 @@ export function PersistentGroupScreen({ api, individualApi, promotionsApi, group
             <label>Latitudine<input type="number" step="any" min={-90} max={90} value={fulfillment.address?.latitude ?? ""} onChange={event => changeFulfillment({ ...fulfillment, address: { text: fulfillment.address?.text ?? "", latitude: Number(event.target.value), longitude: fulfillment.address?.longitude ?? 0 } })} /></label>
             <label>Longitudine<input type="number" step="any" min={-180} max={180} value={fulfillment.address?.longitude ?? ""} onChange={event => changeFulfillment({ ...fulfillment, address: { text: fulfillment.address?.text ?? "", latitude: fulfillment.address?.latitude ?? 0, longitude: Number(event.target.value) } })} /></label>
           </div></>}
-        <label>Quando?<select aria-label="Quando?" value={fulfillment.slotId ?? ""} onChange={event => changeFulfillment({ ...fulfillment, slotId: event.target.value || null })}><option value="">Appena possibile</option>{store?.slots.filter(slot => Date.parse(slot.startsAt) > Date.now()).map(slot => <option key={slot.id} value={slot.id}>{date(slot.startsAt)}</option>)}</select></label>
+        <OrderSlotSelect store={store} value={fulfillment.slotId} onChange={slotId => changeFulfillment({ ...fulfillment, slotId })} />
         <label>Note per l&apos;ordine<textarea maxLength={1000} value={fulfillment.notes} onChange={event => changeFulfillment({ ...fulfillment, notes: event.target.value })} /></label>
         {promotionsApi && <PromotionSelectionPanel api={promotionsApi} storeId={group.storeId} selection={fulfillment.benefits} disabled={busy || pending} onChange={benefits => changeFulfillment({ ...fulfillment, benefits })} onTermsChange={invalidateQuote} />}
         <button type="button" disabled={!canCheckout || dirty || !group.participants.some(person => person.lines.length)} onClick={() => void run(verify)}>Verifica totale gruppo</button>
         {validQuote && <section aria-label="Riepilogo da confermare"><h3>Riepilogo da confermare</h3>{quote.quote.lines.map((line, index) => <p key={`${line.productId}-${index}`}>{line.quantity} × {line.name} · {money(line.quantity * line.unitCents)}<br /><span className={styles.small}>{line.notes}</span></p>)}
           <PromotionSummary quote={quote.quote} />
-          {!quote.quote.promotions && <><p>Consegna: {money(quote.quote.deliveryCents)}</p><p className={styles.total}>Totale: <strong>{money(quote.quote.totalCents)}</strong></p></>}<p>Orario: {date(quote.quote.slotStartsAt)}</p></section>}
+          {!quote.quote.promotions && <><p>Consegna: {money(quote.quote.deliveryCents)}</p><p className={styles.total}>Totale: <strong>{money(quote.quote.totalCents)}</strong></p></>}<p>Orario: {formatOrderWindow(quote.quote.slotStartsAt, quote.quote.slotEndsAt, quote.quote.slotTimeZone)}</p></section>}
         <label>Telefono per l&apos;ordine<input type="tel" autoComplete="tel" value={phone} onChange={event => setPhone(event.target.value)} /></label>
         <label>Come paghi?<select aria-label="Come paghi?" value={method} onChange={event => setMethod(event.target.value === "card" ? "card" : "cash")}><option value="cash">Contanti al ritiro o alla consegna</option><option value="card">Carta</option></select></label>
         {method === "card" && quote?.quote.totalCents !== 0 && <div className={styles.stripe}><IndividualStripeFields onReady={onCardReady} /></div>}

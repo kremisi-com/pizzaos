@@ -8,6 +8,8 @@ Il ristorante riceve un solo ordine con articoli attribuiti ai partecipanti. Dop
 
 Il servizio gruppo possiede raccolta, accessi e revisioni persistenti; il servizio ordini possiede il checkout canonico. Il client gestisce le interazioni attraverso i contratti pubblici.
 
+L'organizzatore sceglie tra le [stesse finestre e disponibilità del checkout individuale](customer-ordering-and-payment.md#calendario-e-capacità). L'intero gruppo occupa un posto e un conflitto di capacità conserva la raccolta.
+
 ## Casi limite e verifiche
 
 - Un invitato tenta di cambiare le scelte altrui: il servizio nega l'azione; i contributi restano personali.

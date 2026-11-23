@@ -57,6 +57,16 @@ Consentire al cliente di comporre un ordine come ospite, autenticarsi al termine
 
 La dashboard admin è il canale operativo per nuovi ordini e scadenze; si aggiorna tramite SSE con polling di recupero (D40/D54). I contatti per concordare alternative via email/WhatsApp sono avviati manualmente. Le email automatiche del lifecycle sono descritte nella [specifica email operative](operational-emails.md).
 
+## Calendario e capacità
+
+D75 estende D24 con una settimana tipo per sede, nel fuso della sede. Da **Profilo → Fasce orarie e capacità** il ristoratore imposta il massimo ordini di ogni finestra, modifica i bordi, unisce o divide fasce e copia un giorno sugli altri. Le otto fasce iniziali coprono 11:00–15:00 e 18:00–22:00 con 5 posti ciascuna. Un ordine individuale o di gruppo occupa un posto. Le finestre coprono ritiro e consegna. La gestione manuale delle eccezioni per data è un incremento separato.
+
+- Il servizio propone oggi e i 13 giorni successivi. Una finestra in corso rimane selezionabile fino alla sua fine. Quando termina, esce dall'elenco. Quando si esaurisce, rimane visibile come **Al completo** e la selezione è disabilitata.
+- **Appena possibile** prende la prima finestra ancora aperta con posti. Un conflitto sull'ultimo posto aggiorna le opzioni, conserva il carrello e richiede una nuova scelta. L'ordine conserva gli estremi della finestra verificata.
+- All'attivazione, e quando si modifica la settimana tipo, le date interessate che hanno ordini assegnati o riserve in pagamento conservano gli orari e le capacità precedenti fino a fine giornata. Il pannello elenca quelle date. Ordini già assegnati a un orario puntuale conservano quell'orario nello storico.
+
+[Requisiti del calendario](../../design/2026-11-23-order-calendar/calendar/REQUIREMENTS.md) · [Prove del servizio](../../../services/checkout-api/src/order-calendar.test.ts) · [Percorso browser](../../../tests/e2e/order-calendar.spec.ts).
+
 ## Conferme che sbloccano il primo incremento
 
 - D18/D49: carta rifiutata mantiene carrello e permette nuovo tentativo o contanti; esito incerto resta in verifica e impedisce doppio pagamento; rimborso fallito resta visibile e ritentabile.

@@ -8,16 +8,31 @@ export interface IndividualProduct {
   id: string; name: string; description: string; priceCents: number; available: boolean;
   allergens: string[]; ingredients: Record<string, number>; options: IndividualOption[];
 }
-export interface IndividualSlot { id: string; startsAt: string; capacity: number; }
+export interface IndividualSlot { id: string; startsAt: string; capacity: number; endsAt?: string; timeZone?: string; }
+export interface WeeklyOrderWindow { startMinute: number; endMinute: number; capacity: number; }
+export interface WeeklyOrderDay { weekday: number; windows: WeeklyOrderWindow[]; }
+export interface WeeklyOrderSchedule { revision: number; days: WeeklyOrderDay[]; }
+
+export function createDefaultWeeklyOrderSchedule(): WeeklyOrderSchedule {
+  const startHours = [11, 12, 13, 14, 18, 19, 20, 21];
+  return { revision: 0, days: Array.from({ length: 7 }, (_, index) => ({
+    weekday: index + 1,
+    windows: startHours.map(hour => ({ startMinute: hour * 60, endMinute: (hour + 1) * 60, capacity: 5 }))
+  })) };
+}
 export interface IndividualStore {
   id: string; name: string; latitude: number; longitude: number; acceptingOrders: boolean;
   /** Confirmed store address, present only in the operator catalog. */
   address?: string;
-  /** IANA zone for store-local reporting; legacy pilot stores use Europe/Rome. */
+  /** IANA zone for store-local reporting and ordering; legacy pilot stores use Europe/Rome. */
   timeZone?: string;
   contactEmail?: string; contactPhone?: string;
   deliveryBands: { upToKm: number; feeCents: number; minimumCents: number }[];
   ingredients: IndividualIngredient[]; products: IndividualProduct[]; slots: IndividualSlot[];
+  /** Operator-only settings. Omit when updating other settings. */
+  orderSchedule?: WeeklyOrderSchedule;
+  /** Operator-only list of protected local dates, read-only. */
+  protectedOrderDates?: string[];
 }
 export interface IndividualLine { productId: string; quantity: number; optionIds: string[]; notes: string; }
 export interface IndividualCart {
@@ -28,7 +43,7 @@ export interface IndividualCart {
 export interface IndividualDraft { version: 1; updatedAt: string; cart: IndividualCart; }
 export interface IndividualQuote {
   fingerprint: string; subtotalCents: number; deliveryCents: number; totalCents: number;
-  slotId: string; slotStartsAt: string;
+  slotId: string; slotStartsAt: string; slotEndsAt?: string; slotTimeZone?: string;
   lines: { productId: string; name: string; quantity: number; unitCents: number; optionIds: string[]; notes: string }[];
   promotions?: PromotionBreakdown;
 }

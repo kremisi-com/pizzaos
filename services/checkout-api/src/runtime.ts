@@ -26,7 +26,7 @@ export async function createOrderingRuntime(env: Record<string, string | undefin
     const stripe = new Stripe(config.stripeSecretKey);
     const email = readOperationalEmailConfiguration(env);
     const operational = createOperationalEmailServices({ repository: createPostgresOrderingRepository(pool), payments: createStripeOrderingPayments(stripe, reporting),
-      superadminEmails: config.superadminEmails, reservationMs: config.reservationMs, email, diagnostics: reporting,
+      superadminEmails: config.superadminEmails, reservationMs: config.reservationMs, email, diagnostics: reporting, activateOrderCalendar: true,
       storeGeocoding: config.openCageApiKey ? createOpenCageStoreGeocoder(config.openCageApiKey, config.authSecret) : undefined });
     const { service } = operational;
     const groups = createGroupOrderingService({ repository: operational.repository, ordering: service });

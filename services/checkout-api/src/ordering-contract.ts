@@ -1,4 +1,4 @@
-import type { IndividualActor, IndividualApi, IndividualCart, IndividualCheckout, IndividualCheckoutResult, IndividualOrder, IndividualStore, IndividualSession, IndividualAction, IndividualQuote, IndividualEvent, IndividualAdditionQuote, IndividualAdditionRequest, IndividualLine, StoreAddressCandidate } from "@pizzaos/domain";
+import type { IndividualActor, IndividualApi, IndividualCart, IndividualCheckout, IndividualCheckoutResult, IndividualOrder, IndividualSlot, IndividualStore, IndividualSession, IndividualAction, IndividualQuote, IndividualEvent, IndividualAdditionQuote, IndividualAdditionRequest, IndividualLine, StoreAddressCandidate } from "@pizzaos/domain";
 import type { StoreAddressGeocoder } from "./store-address";
 import type { Diagnostics } from "./diagnostics";
 
@@ -9,6 +9,7 @@ export interface OrderingState {
   idempotency: Record<string, { hash: string; orderId: string }>;
   events: IndividualEvent[];
   cursor: number;
+  protectedOrderCalendars?: Record<string, Record<string, IndividualSlot[]>>;
 }
 /** Transactions serialize all reads/writes; a thrown callback rolls back changes. */
 export interface OrderingRepository {
@@ -59,6 +60,8 @@ export interface OrderingServiceOptions {
   id?: () => string;
   reservationMs?: number;
   storeGeocoding?: StoreAddressGeocoder;
+  /** Activates the weekly calendar for existing stores when serving operational traffic. */
+  activateOrderCalendar?: boolean;
   /** Economic extension, evaluated within the canonical quote/checkout transaction. */
   priceQuote?: (state: OrderingState, cart: IndividualCart, quote: IndividualQuote, actor?: IndividualActor | null) => IndividualQuote;
   /** Evaluated under the canonical order write lock; absent means deny. */
