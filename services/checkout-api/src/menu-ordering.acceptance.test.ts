@@ -298,7 +298,9 @@ describe("menu publication and access", () => {
 
   it("serves draft photos only to the assigned operator until publication", async () => {
     const f = fixture();
-    const png = Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jJ1sAAAAASUVORK5CYII=", "base64");
+    const invalidPng = Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jJ1sAAAAASUVORK5CYII=", "base64");
+    const png = Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAADElEQVR4nGOY5qYMAAJ1AQAHRHR7AAAAAElFTkSuQmCC", "base64");
+    expect((await f.request("POST", images, "operator", invalidPng, "image/png")).statusCode).toBe(400);
     expect((await f.request("POST", images, "outsider", png, "image/png")).statusCode).toBe(403);
     const { id } = json<{ id: string }>(await f.request("POST", images, "operator", png, "image/png"));
     const saved = await f.save((await f.workspace()).revision, draft("foto", product("focaccia", { imageId: id })));
