@@ -2,6 +2,13 @@
 
 Stato verificato il 23 novembre 2026: ambiente **test** nuovamente raggiungibile dopo l'upgrade Neon. Il [collaudo del 23 novembre](#ripristino-e-collaudo-del-23-novembre-2026) conferma il percorso cliente → admin → rider. Client e admin offrono `/poc` con accesso manuale e [accesso automatico dalla landing](#accesso-dalla-landing-del-23-novembre-2026). Rider appartiene ad admin. `pizzaos-api` è il servizio condiviso per identità, permessi, ordini, pagamenti e persistenza.
 
+## Apertura delle email operative del pilota del 23 novembre 2026
+
+- Su richiesta dell'utente, `OPERATIONAL_EMAIL_MODE=test_open` è attivo solo sul pilota. Le email operative seguono l'indirizzo dell'account che effettua l'ordine. Per ripristinare la lista di prova, impostare `OPERATIONAL_EMAIL_MODE=test` e ripubblicare API e worker.
+- Backend da `a612d89`, deployment `dpl_9UgPUXaVmpjgnXi75QdRTdHdULYM` Ready su `api.pizzaos.app`. Worker `reconciliation` con una istanza pronta e attiva in `fra1`. Health, sessione anonima e provider di accesso del client rispondono 200. L'accesso via email è disponibile.
+- Verifica locale: test di un ordine al ritiro con destinatario fuori lista, recupero della ricevuta bloccata e invio di accettazione e «Ordine pronto». Suite backend con 525 test passati e 22 PostgreSQL saltati, typecheck, build e lint passati.
+- Prima del rilascio la coda del pilota non conteneva invii in sospeso. La verifica online del rilascio ha coperto configurazione e disponibilità del servizio. Il recapito a un nuovo destinatario resta da verificare con un ordine del pilota.
+
 ## Ricerca della sede con Geoapify del 23 novembre 2026
 
 - D78 pubblicata nel pilota test dal commit `88be963`. Backend `dpl_8kqhZrtpHL4wpF2585BmxgsxUz4H` e admin/rider `dpl_DVMHmpwXwR4YPKczWBqpgw44btxW` sono Ready sui domini canonici. Il servizio riusa la variabile Secret `GEOAPIFY_API_KEY`; il worker resta pronto in una sola istanza `fra1`.
@@ -20,9 +27,9 @@ Stato verificato il 23 novembre 2026: ambiente **test** nuovamente raggiungibile
 - Landing: [www.pizzaos.app](https://www.pizzaos.app/), progetto `pizzaos-landing` (`prj_yyR1GmNDbfdtbR6ssqOgqUB15Te8`), deployment `dpl_4QWPXgyvGo32WkGRfgPoHspspMHr`.
 - Frontend operativo: [admin.pizzaos.app](https://admin.pizzaos.app) e [rider.pizzaos.app](https://rider.pizzaos.app), progetto Vercel `pizzaos-admin` (`prj_KzbNoKFKlPO2c8VhzHi5pfDCxDuO`), deployment `dpl_DVMHmpwXwR4YPKczWBqpgw44btxW`.
 - Client: [client.pizzaos.app](https://client.pizzaos.app), progetto `pizzaos-client` (`prj_0qkFSagSHGAOMNrtRIRdRlQb1GmE`), deployment `dpl_GXuFnzn9839udrFjm3JrGKVdcPTc` con wildcard `*.pizzaos.app`, collegato allo stesso backend test.
-- Backend: [api.pizzaos.app](https://api.pizzaos.app/health), progetto `pizzaos-api` (`prj_01XINfSPgNT78cwfwq34z62SyDbg`), deployment `dpl_8kqhZrtpHL4wpF2585BmxgsxUz4H`. API Node 24 e daemon `reconciliation` separati. Il daemon da 1 GiB è pronto con una istanza in `fra1`.
+- Backend: [api.pizzaos.app](https://api.pizzaos.app/health), progetto `pizzaos-api` (`prj_01XINfSPgNT78cwfwq34z62SyDbg`), deployment `dpl_9UgPUXaVmpjgnXi75QdRTdHdULYM`. API Node 24 e daemon `reconciliation` separati. Il daemon da 1 GiB è pronto con una istanza in `fra1`.
 - Team Vercel `kremisis-projects`, piano Hobby. Il nome dell'ambiente Vercel Production identifica gli alias pubblici del pilota, con `PIZZAOS_ENVIRONMENT=test`, database test e chiavi Stripe test. L'organizzazione Neon è passata a Launch il 23 novembre.
-- La configurazione Secret del backend include la allowlist dei destinatari email test. Client e admin usano il backend HTTPS e il relativo segreto proxy server-only; le origini canoniche di admin/rider sono configurate nello stesso progetto. Landing e backend condividono la chiave Secret dei pass demo. Nessun segreto nei sorgenti o nel pacchetto caricato.
+- Il backend usa `test_open` per le email operative. La configurazione Secret conserva la lista dei destinatari per la modalità `test`. Client e admin usano il backend HTTPS e il relativo segreto proxy server-only; le origini canoniche di admin/rider sono configurate nello stesso progetto. Landing e backend condividono la chiave Secret dei pass demo. Nessun segreto nei sorgenti o nel pacchetto caricato.
 - Neon, account Andrea: progetto `pizzaos` (`dawn-base-64314765`), PostgreSQL 17, `aws-eu-central-1`. Branch test `br-tiny-art-baqa23dy`, database `pizzaos_test`, migrazione idempotente. Ruolo `pizzaos_test_app` con lettura/scrittura, senza superuser o CREATE nello schema pubblico.
 - Produzione isolata: branch `br-sweet-recipe-baucjxbe`, database `pizzaos_production`, vuoto e non migrato. Nessuna credenziale applicativa di produzione pubblicata. La copia iniziale di questo database nel branch test è inutilizzata.
 
