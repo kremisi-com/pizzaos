@@ -71,6 +71,11 @@ Prefer public package entry points and avoid deep imports into package or servic
 7. Run the relevant checks.
 8. Update documentation when public behavior, ownership, structure, or commands change.
 9. Review the final diff and repository status.
+10. Commit and push the completed change as described below.
+
+### Commit and push during development
+
+During development, automatically commit and push every completed repository change, including code, tests, documentation, and configuration. Include only the changes made for the current task. Push to the working branch's remote counterpart unless the user specifies a different destination. Verify that the commit reached the remote before reporting completion.
 
 ### Documentation alignment
 
