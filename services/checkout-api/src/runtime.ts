@@ -32,7 +32,7 @@ export async function createOrderingRuntime(env: Record<string, string | undefin
     const groups = createGroupOrderingService({ repository: operational.repository, ordering: service });
     const auth = createOrderingAuth({ pool, secret: config.authSecret, proxySecret: config.proxySecret, origins: config.origins,
       googleClientId: config.googleClientId, googleClientSecret: config.googleClientSecret,
-      smtpUrl: config.smtpUrl, emailFrom: config.emailFrom, demoPassword: config.demoPassword, diagnostics: reporting });
+      smtpUrl: config.smtpUrl, emailFrom: config.emailFrom, demoPassword: config.demoPassword, demoHandoff: config.demoHandoff, diagnostics: reporting });
     const reconcileOrders = async () => { await groups.tick(); await service.tick(); };
     const dispatchEmails = () => operational.emails.dispatch();
     const app = buildOrderingApp({ service, ...auth, diagnostics: reporting,

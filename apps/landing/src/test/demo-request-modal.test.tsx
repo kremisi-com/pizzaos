@@ -54,8 +54,8 @@ describe("demo request modal", () => {
         adminHref: "https://admin.example.test",
       }),
     ).toEqual([
-      { label: "Demo Web-App Cliente", href: "https://client.example.test" },
-      { label: "Demo Dashboard Admin", href: "https://admin.example.test" },
+      { label: "Demo Web-App Cliente", href: "https://client.example.test/poc" },
+      { label: "Demo Dashboard Admin", href: "https://admin.example.test/poc" },
     ]);
   });
 
@@ -71,5 +71,21 @@ describe("demo request modal", () => {
 
     expect(markup).toContain('target="_blank"');
     expect(markup).toContain('rel="noopener noreferrer"');
+  });
+
+  it("posts each demo pass to its own origin without putting it in a hyperlink", () => {
+    const markup = renderToString(
+      createElement(DemoSuccessActions, {
+        demoLinks: createDemoSuccessLinks(),
+        demoAccess: {
+          client: { action: "https://client.pizzaos.app/api/pilot/auth/demo/handoff", pass: "client-pass" },
+          admin: { action: "https://admin.pizzaos.app/api/pilot/auth/demo/handoff", pass: "admin-pass" },
+        },
+      }),
+    );
+    expect(markup.match(/method="post"/g)).toHaveLength(2);
+    expect(markup).toContain('action="https://client.pizzaos.app/api/pilot/auth/demo/handoff"');
+    expect(markup).toContain('action="https://admin.pizzaos.app/api/pilot/auth/demo/handoff"');
+    expect(markup).not.toContain("?pass=");
   });
 });

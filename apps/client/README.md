@@ -128,7 +128,11 @@ Verifica: `pnpm exec playwright test --config playwright.promotions-loyalty.conf
 
 ## Demo autenticata
 
-Su `/accesso`, inserire `poc@pizzaos.app`: compare il campo password demo. La password viene configurata solo nel servizio con `PIZZAOS_DEMO_PASSWORD`; senza configurazione l'accesso demo è disabilitato. Google e magic link restano i metodi di accesso reale. Dopo login demo si apre il POC con barra identificativa ed `Esci`, dati locali resettabili e carta interamente simulata. Nessun dato carta o chiamata Stripe nel checkout POC.
+Aprire `/poc` e inserire la password demo. Lo stesso accesso resta disponibile da `/accesso` inserendo `poc@pizzaos.app`. La password è configurata solo nel servizio con `PIZZAOS_DEMO_PASSWORD`. Senza configurazione l'accesso demo è disabilitato. Google e magic link restano i metodi di accesso operativo. La demo mostra la barra identificativa ed `Esci`, con dati locali resettabili e carta interamente simulata senza Stripe.
+
+Il pulsante ricevuto dopo il form della landing apre `/poc` senza chiedere la password. Il proxy inoltra il solo POST di accesso al servizio, che verifica origine e pass prima di rilasciare la sessione demo. [Flusso POC](../../.agents/product-definition/flows/poc-and-interface.md).
+
+La [copertina del menu](src/features/menu/components/ordering-cover.tsx) è condivisa tra POC e ordinazione operativa. Su `/` e `/ordina` sono mostrati il nome e lo stato di apertura della sede restituiti dal servizio, con accesso al menu e al gruppo persistente.
 
 `src/composition/session-mode.ts` verifica la modalità con il servizio usando cookie e credenziali server; errori o cookie falsi non attivano il POC. Il middleware limita i vecchi URL POC alla demo e reindirizza gli altri utenti a `/ordina`. Una sessione demo che apre `/ordina` torna alla home POC. Il servizio blocca ogni API operativa per le sessioni demo. Cookie e carrelli POC restano distinti dal draft reale; logout non cancella il carrello reale.
 

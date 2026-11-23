@@ -8,18 +8,6 @@
 }
 
 
-.headerBanner
-{
-  position: relative;
-  height: 240px;
-  width: 100%;
-  background-image: url('https://images.unsplash.com/photo-1513104890138-7c749659a591?q=80&w=2070&auto=format&fit=crop');
-  background-size: cover;
-  background-position: center;
-}
-
-
-
 .hero
 {
   position: relative;

@@ -144,6 +144,7 @@ Design e verifiche: [POC per sessione](../design/2026-11-05-session-demo/design.
 | ID | Decisione | Stato | Fonte |
 |---|---|---|---|
 | D73 | Gestione sistematica degli errori backend con classificazione HTTP, correlazione richiesta, log JSON sanitizzati comuni ad API/worker e Sentry opzionale per diagnostica tecnica. Problemi operativi e retry restano negli stati canonici visibili nell'admin. Implementazione con SDD e test indipendenti; nessun nuovo servizio a pagamento o deploy implicito. Attivazione del provider, alert, retention e prova online sono distinti dalla verifica locale; D16/D31 restano aperte. | DECISO | Approvazione utente 2026-11-20 in chat: «procedi con tutto quello che hai scritto usando sdd» |
+| D74 | Dopo un invio demo o prova gratuita riuscito dalla landing, aprire cliente e admin su `/poc` senza chiedere una password. La sessione rimane quella demo isolata di D72. Il pass è temporaneo, specifico per host e privo di dati del lead. Il form di contatto conserva il comportamento esistente. | DECISO | Richiesta utente del 2026-11-23. [Flusso](flows/poc-and-interface.md) |
 
 Fonte corrente: [errori ed esercizio](flows/backend-observability.md); specifica tecnica: [SDD](../design/2026-11-20-backend-observability/design.md).
 

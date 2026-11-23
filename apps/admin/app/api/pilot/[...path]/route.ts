@@ -14,8 +14,9 @@ async function proxy(request: NextRequest, context: Context): Promise<Response> 
   if (!host) return Response.json({ code: "forbidden", message: "Origine richiesta non consentita." }, { status: 403 });
   const publicOrigin = host.origin;
   const suppliedOrigin = request.headers.get("origin");
-  if (request.method !== "GET" && suppliedOrigin !== publicOrigin) return Response.json({ code: "forbidden", message: "Origine richiesta non consentita." }, { status: 403 });
   const { path } = await context.params;
+  const demoHandoff = request.method === "POST" && path.join("/") === "auth/demo/handoff";
+  if (request.method !== "GET" && !demoHandoff && suppliedOrigin !== publicOrigin) return Response.json({ code: "forbidden", message: "Origine richiesta non consentita." }, { status: 403 });
   if (!path.length || path.some(part => !part || part === "." || part === ".." || part.includes("/") || part.includes("\\")) || !(path[0] === "auth" || (path[0] === "v1" && path[1] === "pilot"))) return Response.json({ code: "not_found", message: "Percorso non disponibile." }, { status: 404 });
   if (host.surface === "rider" && ((path[0] === "auth" && path[1] === "demo") || (path[0] !== "auth" && path[2] !== "rider"))) return Response.json({ code: "forbidden", message: "Questa funzione non è disponibile nell'area rider." }, { status: 403 });
   const targetPath = (path[0] === "auth" ? "/api/pilot/" : "/") + path.map(encodeURIComponent).join("/");

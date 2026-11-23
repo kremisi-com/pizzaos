@@ -32,7 +32,7 @@ Errors: `{code,message,requestId}`, with 400 invalid input, 401 login required, 
 
 ## Errori e osservabilità
 
-Il 20 novembre il pilota è stato trovato indisponibile per quota di traffico Neon esaurita. Su scelta dell'utente il worker è sospeso a zero istanze; Sentry e variabili Vercel sono predisposti ma il nuovo codice non è stato pubblicato. [Stato e ripristino gratuito](restore-test-after-quota.md).
+Il 23 novembre il pilota è tornato operativo dopo l'upgrade Neon a Launch. La migrazione dello snapshot e il nuovo backend sono pubblicati sul test. Il worker è stato attivato per il collaudo completo e riportato a zero istanze. [Stato e riscontri online](online-deployment.md#ripristino-e-collaudo-del-23-novembre-2026).
 
 `diagnostics.ts` possiede classificazione, log JSON Pino, contesto asincrono e deduplica limitata a 1000 chiavi/processo (finestra 60 secondi, conteggio delle ripetizioni soppresse). API, Auth.js, PostgreSQL, pagamenti, email e worker condividono l'istanza runtime. I log usano solo campi ammessi, tipi/codici e frame file/riga/colonna; body, query, header, contatti e messaggi grezzi delle eccezioni sono esclusi anche dai logger derivati. Fastify usa `LogController` dalla versione minima dichiarata, senza log automatici duplicati.
 
@@ -75,9 +75,13 @@ For already-exported environment variables: `pnpm migrate`, `pnpm dev`. Start cl
 
 ## Accesso POC per sessione
 
-Configurare facoltativamente `PIZZAOS_DEMO_PASSWORD` **solo nel servizio** per abilitare l'accesso demo con `poc@pizzaos.app` su `/accesso` di client e admin. Scegliere una password dedicata e robusta; nessuna credenziale è predefinita. Senza la variabile la demo è disabilitata. Riavviare il servizio dopo la configurazione. L'email è riservata e non può diventare un'identità reale tramite Google o magic link.
+Configurare facoltativamente `PIZZAOS_DEMO_PASSWORD` **solo nel servizio** per abilitare `/poc` su client e admin e l'accesso con `poc@pizzaos.app` su `/accesso`. Scegliere una password dedicata e robusta. Senza la variabile la demo è disabilitata. Riavviare o ripubblicare il servizio dopo la configurazione. L'email è riservata e non può diventare un'identità reale tramite Google o magic link.
 
 Il servizio espone `GET /api/pilot/auth/mode` (`live`/`demo`), `GET /api/pilot/auth/demo` (disponibilità, stato e CSRF), `POST /api/pilot/auth/demo` (email/password/CSRF) e `POST /api/pilot/auth/demo/signout` (CSRF), attraverso il proxy autorizzato. Login e logout richiedono Origin canonico. Le risposte non sono cacheabili. Cookie HttpOnly, SameSite=Lax, Secure con prefisso `__Host-` in HTTPS, senza Domain, limitati a otto ore e vincolati all'origine. La rotazione di password o AUTH_SECRET invalida le sessioni demo.
+
+Il login da `/poc` invia `callbackUrl=/poc`. Il servizio riconosce solo questo valore esatto: ritorna a `/poc` dopo il successo o a `/poc?errore=demo` in caso di credenziali errate o demo disabilitata. Gli accessi esistenti da `/accesso` conservano le proprie destinazioni.
+
+Per l'accesso automatico, configurare `PIZZAOS_DEMO_HANDOFF_SECRET` (almeno 32 caratteri) sul servizio e sulla landing e `PIZZAOS_DEMO_LANDING_ORIGIN` sul servizio. Il POST `/api/pilot/auth/demo/handoff` transita attraverso il proxy della destinazione. Il servizio verifica l'origine del POST e il pass di quella destinazione, valido dieci minuti. Il successo crea la stessa sessione demo e reindirizza a `/poc`; i pass invalidi o scaduti da origine consentita tornano a `/poc?errore=invito`. L'accesso manuale e il rinnovo delle sessioni mantengono la propria configurazione.
 
 La demo non crea utenti o sessioni Auth.js nel database. Tutte le richieste demo a `/v1/pilot/*`, inclusi catalogo, preventivi, analytics, rider e stream, ricevono 403 `demo_session` prima dell'esecuzione del servizio. Anche `authenticate` rifiuta la sessione demo. Login e logout demo eliminano cookie di sessione reale residui; un login reale completato elimina il cookie demo. Ogni host mantiene la propria sessione: non c'è passaggio automatico tra client e admin.
 

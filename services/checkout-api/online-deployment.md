@@ -1,14 +1,15 @@
 # Backend pilota online
 
-Stato verificato il 5 novembre 2026: client, backend e ingressi admin/rider pubblicati e verificati sull'ambiente **test**. Il percorso cliente → admin → rider con Stripe Elements, challenge 3DS e tre email operative Delivered è riuscito; dettagli e limiti nel [verbale della verifica client](online-client-verification.md). Le tre applicazioni frontend restano landing, client e admin; rider appartiene ad admin. `pizzaos-api` è il servizio condiviso per identità, permessi, ordini, pagamenti e persistenza.
+Stato verificato il 23 novembre 2026: ambiente **test** nuovamente raggiungibile dopo l'upgrade Neon. Il [collaudo del 23 novembre](#ripristino-e-collaudo-del-23-novembre-2026) conferma il percorso cliente → admin → rider. Client e admin offrono `/poc` con accesso manuale e [accesso automatico dalla landing](#accesso-dalla-landing-del-23-novembre-2026). Rider appartiene ad admin. `pizzaos-api` è il servizio condiviso per identità, permessi, ordini, pagamenti e persistenza.
 
 ## Risorse attive
 
-- Frontend operativo: [admin.pizzaos.app](https://admin.pizzaos.app) e [rider.pizzaos.app](https://rider.pizzaos.app), stesso progetto Vercel `pizzaos-admin` (`prj_KzbNoKFKlPO2c8VhzHi5pfDCxDuO`), deployment `dpl_51w6s39E8WCzX8uyd95Tdk45EKxz`.
-- Client: [client.pizzaos.app](https://client.pizzaos.app), progetto `pizzaos-client` (`prj_0qkFSagSHGAOMNrtRIRdRlQb1GmE`), deployment `dpl_CiDb5zmoSTrPnebTdhq3zsGEJmcm`, collegato allo stesso backend test.
-- Backend: [api.pizzaos.app](https://api.pizzaos.app/health), progetto `pizzaos-api` (`prj_01XINfSPgNT78cwfwq34z62SyDbg`), deployment corrente `dpl_74ZKgDk81HKFv7oUtnggxiTdiWQP` (sostituisce `dpl_2j3cHhiq2jcXBwrBqg7FTg3eXkYv` per applicare la allowlist email). API Node 24 e Daemon `reconciliation` separati, una istanza da 1 GiB a Francoforte (`fra1`), stato Alive/Ready verificato.
-- Team Vercel `kremisis-projects`, piano Hobby. Il nome ambiente Vercel Production identifica gli alias pubblici: il servizio usa `PIZZAOS_ENVIRONMENT=test`, database test e chiavi Stripe test. Nessun upgrade a pagamento.
-- Backend configurato con 14 variabili Secret, inclusa la allowlist dei destinatari email test. Client e admin usano il backend HTTPS e il relativo segreto proxy server-only; le origini canoniche di admin/rider sono configurate nello stesso progetto. Nessun segreto nei sorgenti o nel pacchetto caricato.
+- Landing: [www.pizzaos.app](https://www.pizzaos.app/), progetto `pizzaos-landing` (`prj_yyR1GmNDbfdtbR6ssqOgqUB15Te8`), deployment `dpl_4QWPXgyvGo32WkGRfgPoHspspMHr`.
+- Frontend operativo: [admin.pizzaos.app](https://admin.pizzaos.app) e [rider.pizzaos.app](https://rider.pizzaos.app), progetto Vercel `pizzaos-admin` (`prj_KzbNoKFKlPO2c8VhzHi5pfDCxDuO`), deployment `dpl_9wqczzw7j4vvB7zu3sXoc9v8qUQF`.
+- Client: [client.pizzaos.app](https://client.pizzaos.app), progetto `pizzaos-client` (`prj_0qkFSagSHGAOMNrtRIRdRlQb1GmE`), deployment `dpl_8dPNGbwBPhLt4yXQA263WU6vnwZ9`, collegato allo stesso backend test.
+- Backend: [api.pizzaos.app](https://api.pizzaos.app/health), progetto `pizzaos-api` (`prj_01XINfSPgNT78cwfwq34z62SyDbg`), deployment `dpl_43keg1rtqQs6dMRW649NygwVXgwA`. API Node 24 e daemon `reconciliation` separati. Durante il rilascio POC il daemon da 1 GiB risultava Ready con una istanza in `fra1`, riattivata dall'utente dopo il collaudo precedente.
+- Team Vercel `kremisis-projects`, piano Hobby. Il nome dell'ambiente Vercel Production identifica gli alias pubblici del pilota, con `PIZZAOS_ENVIRONMENT=test`, database test e chiavi Stripe test. L'organizzazione Neon è passata a Launch il 23 novembre.
+- La configurazione Secret del backend include la allowlist dei destinatari email test. Client e admin usano il backend HTTPS e il relativo segreto proxy server-only; le origini canoniche di admin/rider sono configurate nello stesso progetto. Landing e backend condividono la chiave Secret dei pass demo. Nessun segreto nei sorgenti o nel pacchetto caricato.
 - Neon, account Andrea: progetto `pizzaos` (`dawn-base-64314765`), PostgreSQL 17, `aws-eu-central-1`. Branch test `br-tiny-art-baqa23dy`, database `pizzaos_test`, migrazione idempotente. Ruolo `pizzaos_test_app` con lettura/scrittura, senza superuser o CREATE nello schema pubblico.
 - Produzione isolata: branch `br-sweet-recipe-baucjxbe`, database `pizzaos_production`, vuoto e non migrato. Nessuna credenziale applicativa di produzione pubblicata. La copia iniziale di questo database nel branch test è inutilizzata.
 
@@ -38,6 +39,28 @@ Verifiche repository: 425 test backend inclusi PostgreSQL reale e SMTP locale, 9
 ## Verifica successiva con il client pubblicato
 
 Il [verbale del 5 novembre](online-client-verification.md) documenta il percorso completo dal browser cliente con login Google reale, ordine `30d3f817-4f14-44fb-82ac-d0b67a67530d` da 1,00 €, Stripe Elements e challenge 3DS autenticata, accettazione/preparazione admin, assegnazione/partenza/completamento rider e tre email operative Delivered. Stato finale `completed/paid`, scorta 9 → 8 e punti 1 → 2; sede richiusa. Client lint/typecheck, 116 test e build rieseguiti con successo. Restano prova da dispositivi fisici distinti e gli altri scenari online elencati nel verbale, incluso il limite delle bozze di configurazione obsolete.
+
+## Ripristino e collaudo del 23 novembre 2026
+
+- Connessione diretta a `pizzaos_test` su Neon verificata. La migrazione additiva dello snapshot è stata applicata sul branch test con il ruolo proprietario. Il ruolo applicativo ha letto la versione dopo la migrazione e il trigger risulta abilitato. Typecheck e build superati. Riesecuzione locale del backend con 477 test passati e 22 saltati per indisponibilità del PostgreSQL locale. Le prove PostgreSQL del 20 novembre restano documentate nel [benchmark](../../.agents/design/2026-11-20-snapshot-traffic/REVIEW.md).
+- Artefatto API/worker ricostruito da `24d2360` e pubblicato su `api.pizzaos.app` come `dpl_FCG6eQss3GTSH1HwR6d4GQ8xJZqG`. Deploy Ready, build 36 secondi. Health, sessione anonima, sedi e catalogo rispondono 200. La chiamata diretta senza credenziale proxy risponde 403, con `x-request-id` coerente con il payload. Il proxy client usato in quel collaudo non esponeva lo stesso header.
+- Il worker del nuovo deploy è stato verificato con una sola istanza Ready in `fra1`. Con le tre sessioni esistenti nel browser desktop, la sede fittizia è stata aperta per una fascia con capacità 1. L'ordine `8948014a-c682-480a-9c10-ba66f77e89a1` da 1,00 € è stato accettato, preparato, assegnato e completato dalla vista rider. Client dopo ricarica e admin hanno mostrato il completamento. Stripe ha confermato `livemode=false`, `succeeded` e challenge 3DS autenticata sul PaymentIntent `pi_3UetvgAPiFV6wt8h34TQaUqA`.
+- Ricevuta, accettazione e avvio consegna risultano inviati al primo tentativo nel servizio e ricevuti nella casella Gmail di prova. La sede fittizia è stata richiusa e il worker riportato a `fra1=0`, con zero istanze desiderate, pronte o presenti.
+- Durante gli ultimi 152 secondi con worker attivo, `updated_at` dello snapshot è rimasto invariato. La pagina del piano Launch mostrava 0,00 USD e le metriche di consumo erano ancora a zero con ritardo dichiarato fino a un'ora. Resta la misura del traffico fatturabile Neon con finestre comparabili. Nei log Vercel sono comparsi avvisi SSL di node-postgres su stderr e due timeout di `/v1/pilot/stream` al limite di 300 secondi. La prova ha usato un unico dispositivo fisico. Recapito dell'alert tecnico e retention del provider richiedono ancora una verifica dedicata.
+
+## Ingressi POC del 23 novembre 2026
+
+Configurata una password demo Secret sul backend dell'ambiente test. Pubblicati i tre artefatti dagli aggiornamenti locali su `24d2360`. Su [client](https://client.pizzaos.app/poc) e [admin](https://admin.pizzaos.app/poc) sono stati verificati online form, password errata, sessione valida, rendering della demo e rifiuto 403 delle API operative con quella sessione. Su rider, `/poc` restituisce 404 e l'ingresso ordinario 200.
+
+Il client ordinario mostra la copertina del POC e le azioni verso menu e gruppo. Catalogo e health rispondono 200. Il proxy client inoltra ora `x-request-id` nella lettura del catalogo e i due proxy lo inoltrano nel rifiuto demo verificato. Per le schermate e i servizi ancora da collegare vedere [accesso POC e interfaccia operativa](../../.agents/product-definition/flows/poc-and-interface.md).
+
+Verifiche locali: 6 scenari browser demo e 6 scenari browser ordinazione individuale/gruppo passati, 116 test client, 97 admin, 478 servizio con 22 skip PostgreSQL locale. Lint, typecheck, build e confini architetturali verificati. Le prove online di questo rilascio coprono accesso, isolamento e letture pubbliche.
+
+## Accesso dalla landing del 23 novembre 2026
+
+I form demo e prova gratuita mostrano dopo l'invio due pulsanti verso `https://client.pizzaos.app/poc` e `https://admin.pizzaos.app/poc`. Ogni pulsante invia un pass firmato per la sua destinazione tramite POST. Il backend accetta l'origine canonica `https://www.pizzaos.app`; il pass scade dopo dieci minuti. Vercel conserva la chiave di firma come Secret su landing e API.
+
+Playwright ha verificato l'invio con il servizio email simulato e l'apertura di entrambi i POC da browser. Online sono stati verificati i link canonici, il rifiuto di un form incompleto e i POST con pass firmati sulle due destinazioni. Entrambe mostrano la demo, rifiutano l'accesso alle API operative e respingono pass invalidi, scaduti o per l'altro dominio. Su rider `/poc` risponde 404 e il POST è rifiutato. La verifica online non ha inviato email.
 
 ## Limiti e gestione successiva
 

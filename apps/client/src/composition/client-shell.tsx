@@ -8,6 +8,7 @@ import type { ClientSeed } from "@pizzaos/mock-data";
 import { clearCartState, saveCartState } from "../features/cart/cart-model";
 import { clearGroupOrderState } from "../features/group-order/group-order-model";
 import { clearClientFeedbackState } from "../features/feedback/feedback-model";
+import { OrderingCover } from "../features/menu/components/ordering-cover";
 import {
   loadClientDemoState,
   resetClientDemoState,
@@ -77,7 +78,7 @@ export function ClientShell(): ReactElement {
   const latestOrder = deriveLastReorderOrder(seed.orderHistory) ?? activeOrder;
   return (
     <main className={`${getThemeClass(seed.surface)} ${styles.shell}`}>
-      <div className={styles.headerBanner}></div>
+      <OrderingCover />
 
       <section className={styles.hero} aria-labelledby="client-home-title">
         <a

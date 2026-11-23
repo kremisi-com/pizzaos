@@ -75,10 +75,10 @@ async function challenge(app: FastifyInstance, appOrigin = origin, cookies = new
   const body: { enabled: boolean; active: boolean; csrfToken: string } = response.json();
   return { cookies, body, response };
 }
-async function login(app: FastifyInstance, options: { email?: string; password?: string; appOrigin?: string; cookies?: CookieJar } = {}) {
+async function login(app: FastifyInstance, options: { email?: string; password?: string; appOrigin?: string; cookies?: CookieJar; callbackUrl?: string } = {}) {
   const appOrigin = options.appOrigin ?? origin;
   const csrf = await challenge(app, appOrigin, options.cookies);
-  const response = await app.inject({ method: "POST", url: "/api/pilot/auth/demo", headers: { ...trusted(appOrigin), cookie: csrf.cookies.header, "content-type": "application/x-www-form-urlencoded" }, payload: new URLSearchParams({ email: options.email ?? "poc@pizzaos.app", password: options.password ?? password, csrfToken: csrf.body.csrfToken }).toString() });
+  const response = await app.inject({ method: "POST", url: "/api/pilot/auth/demo", headers: { ...trusted(appOrigin), cookie: csrf.cookies.header, "content-type": "application/x-www-form-urlencoded" }, payload: new URLSearchParams({ email: options.email ?? "poc@pizzaos.app", password: options.password ?? password, csrfToken: csrf.body.csrfToken, callbackUrl: options.callbackUrl ?? "" }).toString() });
   csrf.cookies.absorb(response.headers["set-cookie"]);
   return { response, cookies: csrf.cookies };
 }
@@ -90,6 +90,15 @@ async function mode(app: FastifyInstance, cookie = "", appOrigin = origin) {
 }
 
 describe("demo session public authentication boundary", () => {
+  it("returns to the dedicated POC entry only when requested explicitly", async () => {
+    const { app } = fixture();
+    expect((await login(app, { callbackUrl: "/poc" })).response.headers.location).toBe("/poc");
+    expect((await login(app, { callbackUrl: "/poc", password: "incorrect" })).response.headers.location).toBe("/poc?errore=demo");
+    expect((await login(app, { callbackUrl: "//example.com/poc" })).response.headers.location).toBe("/");
+    const disabled = fixture("");
+    expect((await login(disabled.app, { callbackUrl: "/poc" })).response.headers.location).toBe("/poc?errore=demo");
+  });
+
   it("defaults to live, advertises enabled demo and never returns private credentials", async () => {
     const { app } = fixture();
     expect(await mode(app)).toEqual({ mode: "live" });

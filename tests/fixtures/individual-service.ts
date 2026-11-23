@@ -58,7 +58,12 @@ const actors: Record<string, IndividualActor> = {
   rider: { id: "rider", name: "Rider", email: "rider@example.test" },
   superadmin: { id: "superadmin", name: "Superadmin", email: "superadmin@example.test" }
 };
-const demo = createDemoAccess({ secret: "browser-test-only-demo-signing-secret", password: process.env.PIZZAOS_E2E_DEMO_PASSWORD });
+const landingOrigin = process.env.PIZZAOS_E2E_DEMO_LANDING_ORIGIN;
+const demo = createDemoAccess({
+  secret: "browser-test-only-demo-signing-secret",
+  password: process.env.PIZZAOS_E2E_DEMO_PASSWORD,
+  handoff: landingOrigin ? { origin: landingOrigin, secret: "browser-test-only-landing-handoff-secret" } : undefined
+});
 const authenticate: OrderingHttpOptions["authenticate"] = async request => {
   const match = request.headers.cookie?.match(/(?:^|;\s*)pizzaos-e2e-actor=([^;]+)/);
   return match ? actors[match[1]] ?? null : null;
@@ -75,8 +80,13 @@ const app = buildOrderingApp({ service,
     // Only the isolated browser harness supplies a fake CSRF for its fake live identity.
     return request.url === "/api/pilot/auth/csrf" ? Response.json({ csrfToken: "browser-test-only-live-csrf" }) : new Response(null, { status: 404 });
   },
-  authorizeProxy(request) { return request.headers["x-pizzaos-proxy-secret"] === "individual-e2e-proxy-secret-32-characters"; },
+  authorizeProxy(request) { return Boolean(landingOrigin && request.routeOptions.url === "/_test/demo-mail") || request.headers["x-pizzaos-proxy-secret"] === "individual-e2e-proxy-secret-32-characters"; },
   authenticate
+});
+if (landingOrigin) app.post<{ Body: string }>("/_test/demo-mail", async (request, reply) => {
+  const email = new URLSearchParams(request.body).get("email") ?? "";
+  if (!email.endsWith("@example.test")) return reply.code(400).send({ success: false, error: "Email di prova non valida." });
+  return { success: true };
 });
 registerPilotExtensionRoutes(app, { analytics: operational.analytics, delivery: operational.delivery, authenticate });
 registerPromotionRoutes(app, { promotions: operational.promotions, authenticate });

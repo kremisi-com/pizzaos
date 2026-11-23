@@ -14,6 +14,7 @@ export interface OrderingAuthOptions {
   pool: Pool; secret: string; proxySecret: string; origins: string[];
   googleClientId: string; googleClientSecret: string; smtpUrl: string; emailFrom: string;
   demoPassword?: string;
+  demoHandoff?: { secret: string; origin: string };
   diagnostics?: Diagnostics;
 }
 function equalSecret(actual: unknown, expected: string): boolean {
@@ -24,7 +25,7 @@ function equalSecret(actual: unknown, expected: string): boolean {
 /** Auth.js owns identity in this service, independently of the application UIs. */
 export function createOrderingAuth(options: OrderingAuthOptions) {
   const adapter = PostgresAdapter(options.pool);
-  const demo = createDemoAccess({ secret: options.secret, password: options.demoPassword });
+  const demo = createDemoAccess({ secret: options.secret, password: options.demoPassword, handoff: options.demoHandoff });
   function originOf(request: FastifyRequest): string {
     const origin = request.headers["x-pizzaos-origin"];
     if (typeof origin !== "string" || !options.origins.includes(origin)) throw new Error("Origine non consentita.");

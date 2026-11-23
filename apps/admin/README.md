@@ -120,7 +120,9 @@ La composizione riceve eventi SSE con cursore e usa polling di recupero; i messa
 
 ## Demo autenticata
 
-Su `/accesso`, l'email riservata `poc@pizzaos.app` mostra il campo password demo. Abilitare `PIZZAOS_DEMO_PASSWORD` solo nel servizio; nessuna password è predefinita. Dopo accesso la home monta `AdminShell` con dati fittizi, simulazioni e reset, accompagnata da una barra `Modalità demo` con `Esci`. Gli accessi ordinari mantengono Google/magic link e ruoli operativi reali.
+Aprire `/poc` sul dominio admin e inserire la password demo. L'accesso da `/accesso` con l'email riservata `poc@pizzaos.app` resta disponibile. Configurare `PIZZAOS_DEMO_PASSWORD` solo nel servizio. Dopo accesso `AdminShell` mostra dati fittizi, simulazioni e reset, con la barra `Modalità demo` e `Esci`. Gli accessi operativi usano Google o magic link e i ruoli della sede. Il dominio rider restituisce 404 su `/poc`.
+
+Il pulsante ricevuto dopo il form della landing apre `/poc` senza chiedere la password. Il proxy admin inoltra il POST al servizio, che verifica origine e pass. Il proxy rider rifiuta il percorso di accesso demo. [Flusso POC](../../.agents/product-definition/flows/poc-and-interface.md).
 
 `src/composition/session-mode.ts` verifica la sessione con il servizio; il middleware riporta alla home demo chi apre `/operazioni` o `/rider` con quella sessione. Tutte le API operative rifiutano le sessioni demo, anche con URL diretti. Client e admin richiedono login distinti sui rispettivi host. `PIZZAOS_MODE` non abilita il POC.
 

@@ -45,8 +45,9 @@ From repository root:
 ## Environment
 
 - `KREMISI_MAIL_ENDPOINT`: optional server-only endpoint for demo request and contact form submissions. Defaults to `https://api.kremisi.com/pizzaos-mail.php`.
-- `LINK_CLIENT`: optional client demo URL shown after the demo request form succeeds. Defaults to `/client`.
-- `LINK_ADMIN`: optional admin demo URL shown after the demo request form succeeds. Defaults to `/admin`.
+- `LINK_CLIENT`: optional HTTPS demo client origin. The manual access path is `/poc`. Default: `https://client.pizzaos.app/poc`.
+- `LINK_ADMIN`: optional HTTPS demo admin origin. The manual access path is `/poc`. Default: `https://admin.pizzaos.app/poc`.
+- `PIZZAOS_DEMO_HANDOFF_SECRET`: optional server-only key of at least 32 characters shared with checkout-api, separate from its manual demo password. After the demo form succeeds, this key signs a short-lived pass for each destination.
 - `NEXT_PUBLIC_SITE_URL`: optional canonical public URL used for SEO metadata, social sharing, sitemap, and robots. Defaults to `https://www.pizzaos.app`.
 - `NEXT_PUBLIC_CLARITY_PROJECT_ID`: optional Microsoft Clarity project ID. When unset, the Clarity tracking script is not rendered.
 - Google tag measurement ID is currently configured as `G-6SN8XE5KY1` in `app/google-tag.tsx`.

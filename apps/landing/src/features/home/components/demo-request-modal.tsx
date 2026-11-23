@@ -16,6 +16,7 @@ import {
   DEFAULT_DEMO_SUCCESS_LINKS,
   type DemoSuccessLinks,
 } from "../demo-links";
+import type { DemoAccess } from "../demo-handoff";
 import {
   createDemoRequestMessage,
   type DemoRequestIntent,
@@ -50,6 +51,7 @@ interface DemoRequestSubmitResponse {
   readonly message?: string;
   readonly error?: string;
   readonly errors?: readonly string[];
+  readonly demoAccess?: DemoAccess;
 }
 
 const EMPTY_FORM: FormData = {
@@ -94,6 +96,7 @@ export function DemoRequestModal({
   const [formData, setFormData] = useState<FormData>(EMPTY_FORM);
   const [errors, setErrors] = useState<FormErrors>({});
   const [submitted, setSubmitted] = useState(false);
+  const [demoAccess, setDemoAccess] = useState<DemoAccess>();
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const backdropRef = useRef<HTMLDivElement>(null);
@@ -111,22 +114,23 @@ export function DemoRequestModal({
 
   /* Focus trap: focus first input when modal opens */
   useEffect(() => {
-    if (isOpen) {
-      setTimeout(() => firstInputRef.current?.focus(), 50);
-    }
+    if (!isOpen) return;
+    const timer = setTimeout(() => firstInputRef.current?.focus(), 50);
+    return () => clearTimeout(timer);
   }, [isOpen]);
 
   /* Reset on close */
   useEffect(() => {
-    if (!isOpen) {
-      setTimeout(() => {
-        setFormData(EMPTY_FORM);
-        setErrors({});
-        setSubmitted(false);
-        setSubmitting(false);
-        setSubmitError(null);
-      }, 400);
-    }
+    if (isOpen) return;
+    const timer = setTimeout(() => {
+      setFormData(EMPTY_FORM);
+      setErrors({});
+      setSubmitted(false);
+      setDemoAccess(undefined);
+      setSubmitting(false);
+      setSubmitError(null);
+    }, 400);
+    return () => clearTimeout(timer);
   }, [isOpen]);
 
   if (!isOpen) {
@@ -194,6 +198,7 @@ export function DemoRequestModal({
         return;
       }
 
+      setDemoAccess(result.demoAccess);
       setSubmitted(true);
     } catch {
       setSubmitError("Impossibile inviare il form. Riprova tra poco.");
@@ -231,7 +236,7 @@ export function DemoRequestModal({
             <div className={styles.successIcon} aria-hidden="true">
               ✓
             </div>
-            <h2 className={styles.successTitle}>Dati inviati!</h2>
+            <h2 className={styles.successTitle} id="demo-modal-title">Dati inviati!</h2>
             <p className={styles.successDescription}>
               {requestIntent === "free-trial" ? (
                 <>
@@ -246,7 +251,7 @@ export function DemoRequestModal({
                 </>
               )}
             </p>
-            <DemoSuccessActions demoLinks={demoLinks} />
+            <DemoSuccessActions demoLinks={demoLinks} demoAccess={demoAccess} />
           </div>
         ) : (
           /* Form */
@@ -443,27 +448,28 @@ export function DemoRequestModal({
 
 export function DemoSuccessActions({
   demoLinks,
+  demoAccess,
 }: {
   readonly demoLinks: DemoSuccessLinks;
+  readonly demoAccess?: DemoAccess;
 }): ReactElement {
   return (
     <div className={styles.successActions}>
-      {demoLinks.map((link, index) => (
-        <Link
-          href={link.href}
-          target="_blank"
-          rel="noopener noreferrer"
-          className={
-            index === 0
-              ? styles.successPrimaryLink
-              : styles.successSecondaryLink
-          }
-          id={index === 0 ? "demo-modal-client-link" : "demo-modal-admin-link"}
-          key={link.href}
-        >
-          {link.label}
-        </Link>
-      ))}
+      {demoLinks.map((link, index) => {
+        const handoff = index === 0 ? demoAccess?.client : demoAccess?.admin;
+        const id = index === 0 ? "demo-modal-client-link" : "demo-modal-admin-link";
+        const className = index === 0 ? styles.successPrimaryLink : styles.successSecondaryLink;
+        return handoff ? (
+          <form key={id} method="post" action={handoff.action} target="_blank" rel="noopener">
+            <input type="hidden" name="pass" value={handoff.pass} />
+            <button type="submit" id={id} className={className}>{link.label}</button>
+          </form>
+        ) : (
+          <Link key={id} href={link.href} target="_blank" rel="noopener noreferrer" id={id} className={className}>
+            {link.label}
+          </Link>
+        );
+      })}
     </div>
   );
 }

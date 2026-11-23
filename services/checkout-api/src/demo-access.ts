@@ -1,6 +1,7 @@
 import { createHash, createHmac, randomBytes, timingSafeEqual } from "node:crypto";
 
 const SESSION_SECONDS = 8 * 60 * 60;
+const HANDOFF_MILLISECONDS = 10 * 60 * 1000;
 export const DEMO_EMAIL = "poc@pizzaos.app";
 type Purpose = "session" | "csrf";
 interface Token { purpose: Purpose; origin: string; expires: number; nonce: string; }
@@ -15,8 +16,26 @@ function cookieValues(header: string): Map<string, string> {
   }));
 }
 
+function validHandoff(pass: string, origin: string, secret: string): boolean {
+  if (pass.length > 2048) return false;
+  const [payload, signature, extra] = pass.split(".");
+  if (!payload || !signature || extra !== undefined) return false;
+  const expected = createHmac("sha256", secret).update(payload).digest("base64url");
+  if (!equal(signature, expected)) return false;
+  try {
+    const grant = JSON.parse(Buffer.from(payload, "base64url").toString()) as Partial<{
+      purpose: string;
+      origin: string;
+      expires: number;
+    }>;
+    const now = Date.now();
+    return grant.purpose === "landing-demo" && grant.origin === origin && typeof grant.expires === "number"
+      && grant.expires > now && grant.expires <= now + HANDOFF_MILLISECONDS;
+  } catch { return false; }
+}
+
 /** Separate, origin-bound demo identity. It never creates a production actor or queries persistence. */
-export function createDemoAccess(options: { secret: string; password?: string }) {
+export function createDemoAccess(options: { secret: string; password?: string; handoff?: { secret: string; origin: string } }) {
   const key = createHash("sha256").update(`${options.secret}\0demo\0${options.password ?? ""}`).digest();
   const enabled = Boolean(options.password);
   const name = (purpose: Purpose, origin: string) => `${origin.startsWith("https:") ? "__Host-" : ""}pizzaos.demo-${purpose}`;
@@ -50,6 +69,22 @@ export function createDemoAccess(options: { secret: string; password?: string })
     const origin = url.origin;
     const header = request.headers.get("cookie") ?? "";
     const headers = new Headers({ "cache-control": "no-store" });
+    const redirect = (location: string) => { headers.set("location", location); return new Response(null, { status: 303, headers }); };
+    function startSession(location: string): Response {
+      headers.append("set-cookie", cookie("session", token("session", origin), origin));
+      for (const value of clearRealSessions(header, origin)) headers.append("set-cookie", value);
+      return redirect(location);
+    }
+    if (url.pathname === "/api/pilot/auth/demo/handoff") {
+      if (request.method !== "POST") return Response.json({ code: "invalid_input", message: "Metodo non consentito." }, { status: 405, headers });
+      const handoff = options.handoff;
+      if (!handoff || request.headers.get("origin") !== handoff.origin) {
+        return Response.json({ code: "forbidden", message: "Origine richiesta non consentita." }, { status: 403, headers });
+      }
+      const form = new URLSearchParams(await request.text());
+      return enabled && validHandoff(form.get("pass") ?? "", origin, handoff.secret)
+        ? startSession("/poc") : redirect("/poc?errore=invito");
+    }
     if (url.pathname === "/api/pilot/auth/mode" && request.method === "GET") {
       return Response.json({ mode: isActive(header, origin) ? "demo" : "live" }, { headers });
     }
@@ -60,16 +95,16 @@ export function createDemoAccess(options: { secret: string; password?: string })
     }
     if (!["/api/pilot/auth/demo", "/api/pilot/auth/demo/signout"].includes(url.pathname)) return null;
     if (request.method !== "POST") return Response.json({ code: "invalid_input", message: "Metodo non consentito." }, { status: 405, headers });
-    if (!enabled && url.pathname === "/api/pilot/auth/demo" && request.headers.get("origin") === origin) {
-      headers.set("location", "/accesso?errore=demo");
-      return new Response(null, { status: 303, headers });
-    }
     const form = new URLSearchParams(await request.text());
+    const pocEntry = form.get("callbackUrl") === "/poc";
+    const signInError = pocEntry ? "/poc?errore=demo" : "/accesso?errore=demo";
+    if (!enabled && url.pathname === "/api/pilot/auth/demo" && request.headers.get("origin") === origin) {
+      return redirect(signInError);
+    }
     const csrf = form.get("csrfToken") ?? "";
     if (request.headers.get("origin") !== origin || !valid(csrf, "csrf", origin) || !equal(csrf, cookieValues(header).get(name("csrf", origin)) ?? "")) {
       return Response.json({ code: "forbidden", message: "Accesso non consentito. Ricarica la pagina e riprova." }, { status: 403, headers });
     }
-    const redirect = (location: string) => { headers.set("location", location); return new Response(null, { status: 303, headers }); };
     if (url.pathname.endsWith("/signout")) {
       headers.append("set-cookie", clearSession(origin));
       headers.append("set-cookie", cookie("csrf", "", origin, 0));
@@ -77,11 +112,9 @@ export function createDemoAccess(options: { secret: string; password?: string })
       return redirect("/accesso");
     }
     if (!enabled || (form.get("email") ?? "").trim().toLowerCase() !== DEMO_EMAIL || !equal(form.get("password") ?? "", options.password ?? "")) {
-      return redirect("/accesso?errore=demo");
+      return redirect(signInError);
     }
-    headers.append("set-cookie", cookie("session", token("session", origin), origin));
-    for (const value of clearRealSessions(header, origin)) headers.append("set-cookie", value);
-    return redirect("/");
+    return startSession(pocEntry ? "/poc" : "/");
   }
   return { handle, isActive, clearSession };
 }

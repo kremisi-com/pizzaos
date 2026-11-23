@@ -50,7 +50,7 @@ Flussi, casi d'uso e casi limite sono indicizzati nella [definizione di prodotto
 
 ## Durable pilot
 
-Customer `/ordina` and restaurant `/operazioni` use the same authoritative checkout service and are the default experience. The POC remains available only after signing in at `/accesso` with `poc@pizzaos.app` and the server-configured `PIZZAOS_DEMO_PASSWORD`; `PIZZAOS_MODE` no longer selects the experience. Demo sessions use local fictional data and simulated payments, and cannot call operational APIs. Service, Auth.js, Stripe, PostgreSQL and app-proxy setup are documented in [`services/checkout-api/README.md`](services/checkout-api/README.md); environment templates are provided in the service and both apps. No stores or operators are automatically seeded in the live runtime: the configured superadmin creates the pilot store and grants operator access through admin.
+Customer `/ordina` and restaurant `/operazioni` use the same authoritative checkout service and are the default experience. Both apps expose `/poc` for password-protected demo access; `/accesso` also accepts the dedicated demo account `poc@pizzaos.app`. Demo sessions use local fictional data and simulated payments, and cannot call operational APIs. See [demo access and the operational interfaces](.agents/product-definition/flows/poc-and-interface.md) and [service setup](services/checkout-api/README.md). No stores or operators are automatically seeded in the live runtime: the configured superadmin creates the pilot store and grants operator access through admin.
 
 ## Deployment
 

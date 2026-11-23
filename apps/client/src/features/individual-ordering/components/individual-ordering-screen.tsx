@@ -8,6 +8,7 @@ import { IndividualStripeFields, type ConfirmIndividualPayment } from "./individ
 import { IndividualAdditions } from "./individual-additions";
 import { SignOutButton } from "../../identity/components/sign-in-screen";
 import { PromotionSelectionPanel, PromotionSummary } from "../../promotions";
+import { OrderingCover } from "../../menu/components/ordering-cover";
 import styles from "./individual-ordering.module.css";
 
 const EMPTY_CART: IndividualCart = { storeId: "", lines: [], mode: "pickup", slotId: null, notes: "" };
@@ -225,11 +226,17 @@ export function IndividualOrderingScreen({ api, promotionsApi, refreshVersion = 
   }
   const unresolved = orders.some(order => (order.status === "pending_payment" && (order.payment === "requires_action" || order.payment === "processing")) || order.additions?.some(item => !item.applied && ["requires_action", "processing"].includes(item.payment)));
 
-  return <div className={styles.page}>
-    <header className={styles.header}><div><span className={styles.eyebrow}>PizzaOS · Ordina direttamente</span><h1>La tua prossima pizza.</h1><p>Scegli, personalizza e segui il tuo ordine.</p></div>
+  return <>
+    <OrderingCover />
+    <div className={styles.page}>
+    <header className={styles.header}>
+      <div><h1>La tua prossima pizza.</h1>{store && <p>{store.name} · {store.acceptingOrders ? "Ordini aperti" : "Ordini sospesi"}</p>}</div>
       {session?.actor ? <div className={styles.account}><span>{session.actor.name || session.actor.email}</span><SignOutButton /></div> : <a href="/accesso">Accedi</a>}
     </header>
-    <p><a href="/ordina/gruppo">Ordine di gruppo</a> · Invita gli amici e conferma un solo ordine.</p>
+    <nav className={styles.heroActions} aria-label="Inizia a ordinare">
+      {stores.length > 0 && <a className={styles.linkButton} href="#il-menu">Sfoglia il menu</a>}
+      <a className={styles.groupLink} href="/ordina/gruppo">Ordine di gruppo</a>
+    </nav>
     {connection && <p className={styles.connection} role="status">{connection}</p>}
     {error && <div className={styles.error} role="alert">{error}<div><button type="button" className={styles.secondary} disabled={busy} onClick={() => void load()}>Riprova caricamento</button></div></div>}
     {notice && <div className={styles.notice} role="status">{notice}</div>}
@@ -241,7 +248,7 @@ export function IndividualOrderingScreen({ api, promotionsApi, refreshVersion = 
     {loaded && stores.length === 0 && <section className={styles.card}><h2>Menu non ancora disponibile</h2><p>Non ci sono sedi disponibili per ordinare.</p><button type="button" onClick={() => void load()}>Riprova</button></section>}
     {stores.length > 0 && <>
       <div className={styles.storeSelector}><label>Scegli la sede<select aria-label="Scegli la sede" value={cart.storeId} disabled={busy || unresolved} onChange={event => changeCart({ ...EMPTY_CART, storeId: event.target.value })}>{stores.map(item => <option key={item.id} value={item.id}>{item.name}</option>)}</select></label></div>
-      <fieldset className={styles.layout} disabled={busy} aria-label="Composizione dell'ordine"><section><h2>Il menu</h2>{!store && <p>Caricamento della sede…</p>}{store && !store.acceptingOrders && <p className={styles.error}>Gli ordini sono temporaneamente sospesi.</p>}
+      <fieldset className={styles.layout} disabled={busy} aria-label="Composizione dell'ordine"><section id="il-menu" tabIndex={-1}><h2>Il menu</h2>{!store && <p>Caricamento della sede…</p>}{store && !store.acceptingOrders && <p className={styles.error}>Gli ordini sono temporaneamente sospesi.</p>}
         <div className={styles.products}>{store?.products.map(product => <MenuProduct key={`${store.id}-${product.id}`} product={product} onAdd={add} />)}</div>
       </section><section className={styles.card} id="il-tuo-ordine" aria-labelledby="cart-title"><h2 id="cart-title">Il tuo ordine</h2>
         {cart.lines.length === 0 ? <p>Il carrello è vuoto. Scegli dal menu.</p> : <ul className={styles.cartLines}>{cart.lines.map((line, index) => {
@@ -296,5 +303,6 @@ export function IndividualOrderingScreen({ api, promotionsApi, refreshVersion = 
         </p>}
       </article>)}
     </section>}
-  </div>;
+    </div>
+  </>;
 }

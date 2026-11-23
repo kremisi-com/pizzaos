@@ -1,5 +1,7 @@
 # Ripristino gratuito del pilota dopo la quota Neon
 
+Il piano qui sotto registra la preparazione del 20 novembre. Il pilota è stato ripristinato il 23 novembre dopo l'upgrade a Launch eseguito dall'utente. Migrazione, deploy e collaudo sono nel [registro online](online-deployment.md#ripristino-e-collaudo-del-23-novembre-2026). Le misure Neon in finestre comparabili restano da completare.
+
 ## Stato verificato il 20 novembre 2026
 
 - Neon progetto `dawn-base-64314765` (`pizzaos`), piano Free: **5.533.768.020 byte** di traffico pubblico nel periodo 1 novembre → 1 dicembre. Il limite Free documentato è 5 GB/progetto/mese; le connessioni rifiutate con SQLSTATE `53000` confermano il blocco. Il periodo termina il **1 dicembre 2026 alle 01:00 Europe/Rome**. Il compute misurato è 80.330 CU-secondi (circa 22,31 CU-ore): il limite raggiunto è quello del traffico, non un esaurimento dimostrato delle CU-ore.
@@ -36,4 +38,4 @@ Archivio preparato: `.codex/uploads/pizzaos-api-observability-20261120-145104.zi
    Verificare desired/ready/alive=1 a fra1 e stato stabile; niente crash_looping. Il worker riprenderà scadenze, riconciliazioni e outbox già persistite: controllare gli esiti test e la allowlist email prima di riaprire la sede.
 7. **Misurare il consumo dopo il ripristino.** Rilevare i byte di traffico pubblico nell'Overview del progetto Neon e le CU-ore all'inizio e alla fine di due finestre di uguale durata, una con worker attivo e browser chiusi e una con attività controllata. Registrare il numero di istanze, le richieste e le scritture di prova; se il dato è aggregato a livello di progetto, annotare altre attività nella stessa finestra. Verificare recapito alert e stato operativo admin, poi aggiornare il registro con deployment, data, ambiente e limiti della prova. Risolvere l'issue quota dopo il recupero reale. [Misura del traffico pubblico su Neon](https://neon.com/docs/introduction/network-transfer#how-to-monitor-network-transfer).
 
-Non è stato pianificato un riavvio automatico. La scelta approvata è mantenere il piano gratuito e preparare la procedura, conservando il worker fermo finché le precondizioni non sono soddisfatte.
+Il 20 novembre la scelta approvata era mantenere il piano gratuito e conservare il worker fermo fino al ripristino. Il collaudo del 23 novembre con Launch ha usato una riattivazione manuale e il worker è stato fermato a fine prova.

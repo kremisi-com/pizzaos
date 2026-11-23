@@ -1,0 +1,5 @@
+.cover {
+  height: clamp(180px, 34vw, 240px);
+  background: var(--pizzaos-color-surface-muted, #ead9cb)
+    url('https://images.unsplash.com/photo-1513104890138-7c749659a591?q=80&w=2070&auto=format&fit=crop') center / cover;
+}

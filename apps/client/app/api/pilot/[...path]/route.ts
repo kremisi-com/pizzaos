@@ -11,8 +11,9 @@ async function proxy(request: NextRequest, context: Context): Promise<Response> 
   const publicOrigin = process.env.PIZZAOS_APP_ORIGIN ?? (process.env.NODE_ENV === "development" ? new URL(request.url).origin : "");
   if (!publicOrigin) return Response.json({ code: "service_unavailable", message: "Origine applicazione non configurata." }, { status: 503 });
   const suppliedOrigin = request.headers.get("origin");
-  if (request.method !== "GET" && suppliedOrigin !== publicOrigin) return Response.json({ code: "forbidden", message: "Origine richiesta non consentita." }, { status: 403 });
   const { path } = await context.params;
+  const demoHandoff = request.method === "POST" && path.join("/") === "auth/demo/handoff";
+  if (request.method !== "GET" && !demoHandoff && suppliedOrigin !== publicOrigin) return Response.json({ code: "forbidden", message: "Origine richiesta non consentita." }, { status: 403 });
   if (!path.length || path.some(part => !part || part === "." || part === ".." || part.includes("/") || part.includes("\\")) || !(path[0] === "auth" || (path[0] === "v1" && path[1] === "pilot"))) return Response.json({ code: "not_found", message: "Percorso non disponibile." }, { status: 404 });
   const targetPath = (path[0] === "auth" ? "/api/pilot/" : "/") + path.map(encodeURIComponent).join("/");
   const target = new URL(targetPath, endpoint);

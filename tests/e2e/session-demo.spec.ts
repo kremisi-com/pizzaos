@@ -7,18 +7,15 @@ const demoPassword = "session-demo-browser-password";
 const surfaces = [{ name: "client", origin: clientOrigin }, { name: "admin", origin: adminOrigin }];
 
 async function signInDemo(page: Page, origin: string) {
-  await page.goto(`${origin}/accesso`);
-  await expect(page.getByText(/Google/).first()).toBeVisible();
-  const email = page.getByLabel(/e-?mail/i);
+  await page.goto(`${origin}/poc`);
+  await expect(page.getByRole("heading", { name: "Accedi alla demo PizzaOS" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Continua con Google" })).toHaveCount(0);
   const password = page.getByLabel(/password/i);
-  await expect(email).toBeVisible();
-  await expect(password).toHaveCount(0);
-  await email.fill("poc@pizzaos.app");
   await expect(password).toBeVisible();
   await password.fill(demoPassword);
-  await page.locator("form").filter({ has: password }).locator('button[type="submit"]').click();
-  await expect(page).toHaveURL(`${origin}/`);
-  await expect(page.getByText(/demo/i).first()).toBeVisible();
+  await page.getByRole("button", { name: "Entra nella demo" }).click();
+  await expect(page).toHaveURL(`${origin}/poc`);
+  await expect(page.getByRole("complementary", { name: "Modalità demo" })).toBeVisible();
   await expect(page.getByRole("button", { name: "Esci", exact: true })).toBeVisible();
   const mode = await page.request.get(`${origin}/api/pilot/auth/mode`);
   expect(mode.status()).toBe(200);
@@ -26,6 +23,15 @@ async function signInDemo(page: Page, origin: string) {
 }
 
 for (const surface of surfaces) {
+  test(`${surface.name}: invalid credentials return to the POC entry`, async ({ page }) => {
+    await page.goto(`${surface.origin}/poc`);
+    await page.getByLabel(/password/i).fill("wrong-password");
+    await page.getByRole("button", { name: "Entra nella demo" }).click();
+    await expect(page).toHaveURL(`${surface.origin}/poc?errore=demo`);
+    await expect(page.getByRole("alert").filter({ hasText: "Credenziali demo non valide" })).toBeVisible();
+    await expect(page.getByRole("complementary", { name: "Modalità demo" })).toHaveCount(0);
+  });
+
   test(`${surface.name}: login verifies mode, persistent routes are isolated and logout revokes access`, async ({ page }) => {
     await signInDemo(page, surface.origin);
     if (surface.name === "admin") {
@@ -68,6 +74,9 @@ test("client: guest and forged browser state cannot open any protected POC route
     window.localStorage.setItem("PIZZAOS_MODE", "demo");
     window.localStorage.setItem("pizzaos:mode", "demo");
   });
+  await page.goto(`${clientOrigin}/poc`);
+  await expect(page.getByRole("heading", { name: "Accedi alla demo PizzaOS" })).toBeVisible();
+  await expect(page.getByRole("complementary", { name: "Modalità demo" })).toHaveCount(0);
   for (const path of ["/menu", "/products", "/product/product-margherita", "/cart", "/checkout", "/orders", "/group-order", "/rewards", "/profile"]) {
     await page.goto(`${clientOrigin}${path}`);
     await expect(page).toHaveURL(`${clientOrigin}/ordina`);
