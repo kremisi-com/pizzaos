@@ -51,10 +51,11 @@ export function createSmtpOperationalEmailSender(options: { smtpUrl: string; fro
 }
 export function readOperationalEmailConfiguration(env: Record<string, string | undefined>): OperationalEmailOptions {
   const mode = env.OPERATIONAL_EMAIL_MODE ?? "test";
-  if (mode !== "test" && mode !== "live") throw new Error("Configurazione email non valida: OPERATIONAL_EMAIL_MODE");
+  if (mode !== "test" && mode !== "test_open" && mode !== "live") throw new Error("Configurazione email non valida: OPERATIONAL_EMAIL_MODE");
   const environment = env.PIZZAOS_ENVIRONMENT ?? "production";
   if (environment !== "production" && environment !== "test") throw new Error("Configurazione email non valida: PIZZAOS_ENVIRONMENT");
   if (mode === "live" && env.PIZZAOS_ENVIRONMENT !== "production") throw new Error("Configurazione email non valida: OPERATIONAL_EMAIL_MODE");
+  if (mode === "test_open" && env.PIZZAOS_ENVIRONMENT !== "test") throw new Error("Configurazione email non valida: OPERATIONAL_EMAIL_MODE");
   const testRecipients = (env.OPERATIONAL_EMAIL_TEST_RECIPIENTS ?? "").split(",").map(value => value.trim().toLowerCase()).filter(Boolean);
   if (testRecipients.some(value => !validRecipient(value) || value.includes("*"))) throw new Error("Configurazione email non valida: OPERATIONAL_EMAIL_TEST_RECIPIENTS");
   const from = env.OPERATIONAL_EMAIL_FROM || env.AUTH_EMAIL_FROM;

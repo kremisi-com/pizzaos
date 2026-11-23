@@ -122,6 +122,36 @@ describe('email operative: policy e configurazione', () => {
   it.each([{ testRecipients: [] }, { testRecipients: ['*@pizzaos.test'] }, { testRecipients: ['buyer+tag@pizzaos.test'] }, { testRecipients: ['other@pizzaos.test'] }])('blocca destinatari non autorizzati con allowlist $testRecipients', async ({ testRecipients }) => {
     const f = await fixture({ testRecipients }); await f.checkout(); await f.emails.dispatch(); expect(f.messages).toHaveLength(0); expect((await f.emails.list(root, store.id)).messages[0]).toMatchObject({ status: 'blocked', lastError: { code: 'recipient_not_allowed' } });
   });
+  it.each([undefined, 'production'] as const)('rifiuta test_open senza ambiente test esplicito (%s)', async (environment) => {
+    expect(() => readOperationalEmailConfiguration({
+      OPERATIONAL_EMAIL_MODE: 'test_open', PIZZAOS_ENVIRONMENT: environment
+    })).toThrow('OPERATIONAL_EMAIL_MODE');
+    await expect(fixture({ mode: 'test_open', environment })).rejects.toThrow('environment');
+  });
+  it('in test_open recupera la ricevuta bloccata e invia accettazione e pronto al ritiro', async () => {
+    const f = await fixture({ testRecipients: [] });
+    const { order } = await f.checkout();
+    await f.emails.dispatch();
+    expect(f.messages).toHaveLength(0);
+    expect((await f.emails.list(root, store.id)).messages[0]).toMatchObject({ status: 'blocked' });
+    await progress(f, order.id, ['accept', 'prepare', 'ready']);
+
+    const policy = readOperationalEmailConfiguration({ OPERATIONAL_EMAIL_MODE: 'test_open', PIZZAOS_ENVIRONMENT: 'test' });
+    const opened = createOperationalEmailServices({
+      ...f.options,
+      email: { ...policy, from: f.options.email.from, sender: f.options.email.sender }
+    });
+    await opened.emails.dispatch();
+    expect(f.messages).toHaveLength(0);
+    f.advance(5000);
+    await opened.emails.dispatch();
+    expect(f.messages.map(({ to, subject }) => [to, subject])).toEqual([
+      [buyer.email, `Ordine ricevuto · ${order.id}`],
+      [buyer.email, `Ordine accettato · ${order.id}`],
+      [buyer.email, `Ordine pronto · ${order.id}`]
+    ]);
+    expect((await opened.emails.list(root, store.id)).messages.map(({ status }) => status)).toEqual(['sent', 'sent', 'sent']);
+  });
   it('normalizza allowlist esatta e recupera configurazione al restart', async () => {
     const f = await fixture({ sender: undefined }); await f.checkout(); await f.emails.dispatch(); expect((await f.emails.list(root, store.id)).messages[0]).toMatchObject({ status: 'blocked', lastError: { code: 'not_configured' } });
     const retryAt = (await f.emails.list(root, store.id)).messages[0]!.nextAttemptAt; expect(retryAt).toBeTruthy(); const sent: OperationalEmailMessage[] = []; const restart = createOperationalEmailServices({ ...f.options, email: { from: 'orders@pizzaos.test', testRecipients: ['  BUYER@PIZZAOS.TEST  '], sender: { async send(message) { sent.push(message); } } } }); await restart.emails.dispatch(); expect(sent).toHaveLength(0); f.advance(Date.parse(retryAt!) - f.options.now().getTime()); await restart.emails.dispatch(); expect(sent).toHaveLength(1); expect((await restart.emails.list(root, store.id)).messages[0]!.status).toBe('sent');
