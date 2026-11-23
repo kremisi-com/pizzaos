@@ -2,6 +2,12 @@
 
 Stato verificato il 23 novembre 2026: ambiente **test** nuovamente raggiungibile dopo l'upgrade Neon. Il [collaudo del 23 novembre](#ripristino-e-collaudo-del-23-novembre-2026) conferma il percorso cliente → admin → rider. Client e admin offrono `/poc` con accesso manuale e [accesso automatico dalla landing](#accesso-dalla-landing-del-23-novembre-2026). Rider appartiene ad admin. `pizzaos-api` è il servizio condiviso per identità, permessi, ordini, pagamenti e persistenza.
 
+## Menu operativo del 23 novembre 2026
+
+- D79 pubblicata sul pilota test dal sorgente `d29be4d`. Backend `dpl_8tUisMi9HQ8MB1zRgADkWb8z5vhP`, admin/rider `dpl_CUUsUrQHLbGBdSCJzmcvi5f15cL1`, client `dpl_94LPMRvFEQro4UkUZUBiMtLieVUQ`. Sul database `pizzaos_test` il ruolo proprietario ha creato `ordering_menu_images` e assegnato SELECT e INSERT al ruolo applicativo esistente.
+- Verificati health del nuovo backend e accesso alle app. Dal pannello autenticato è stata compilata e riletta la bozza della sede pilota con cinque sezioni e quattordici voci. Sul sottodominio pubblico il catalogo continua a servire il menu precedente. La validazione da parte del gestore precede la pubblicazione della bozza.
+- I totali e la conferma end-to-end di un ordine configurato sono stati provati nel fixture browser locale. [Verifiche](../../.agents/design/2026-11-23-menu-ordering/REVIEW.md).
+
 ## Apertura delle email operative del pilota del 23 novembre 2026
 
 - Su richiesta dell'utente, `OPERATIONAL_EMAIL_MODE=test_open` è attivo solo sul pilota. Le email operative seguono l'indirizzo dell'account che effettua l'ordine. Per ripristinare la lista di prova, impostare `OPERATIONAL_EMAIL_MODE=test` e ripubblicare API e worker.
