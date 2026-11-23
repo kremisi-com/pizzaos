@@ -1,0 +1,31 @@
+.timeline {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 14px;
+  padding: 13px 0;
+  margin: 12px 0;
+  border-block: 1px solid #e9e1d6;
+  list-style: none;
+}
+
+.timeline li {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #6c635b;
+  font-size: .82rem;
+}
+
+.dot {
+  display: grid;
+  place-items: center;
+  min-width: 18px;
+  min-height: 18px;
+  border-radius: 50%;
+  background: #eee6db;
+  font-size: .75rem;
+}
+
+.timeline [aria-current] { color: #984021; font-weight: 750; }
+.timeline [aria-current] .dot { background: #a64529; color: white; }
+.timeline [data-complete] .dot { background: #e1ecd8; color: #345326; }

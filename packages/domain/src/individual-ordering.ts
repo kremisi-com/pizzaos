@@ -1,13 +1,43 @@
+import type {
+  MenuComposition, MenuExtraOffer, MenuFoodInformation, MenuFoodIngredient, MenuOptionGroup, MenuSelection, PublishedMenu
+} from "./menu-ordering";
 import type { PromotionBreakdown, PromotionSelection } from "./promotions-loyalty";
 
 /** Durable pilot contracts. EUR amounts are integer cents, dates are UTC ISO strings. */
 export interface IndividualActor { id: string; email: string; name: string; }
-export interface IndividualIngredient { id: string; name: string; stock: number; }
-export interface IndividualOption { id: string; name: string; priceCents: number; ingredients: Record<string, number>; }
+export interface IndividualIngredient { id: string; name: string; stock: number; food?: MenuFoodInformation; }
+export interface IndividualOption {
+  id: string; name: string; priceCents: number; ingredients: Record<string, number>;
+  description?: string; food?: MenuFoodInformation; removesIngredientIds?: string[];
+  /** Public projection of recipe references and current availability. */
+  ingredientIds?: string[]; available?: boolean;
+}
 export interface IndividualProduct {
   id: string; name: string; description: string; priceCents: number; available: boolean;
   allergens: string[]; ingredients: Record<string, number>; options: IndividualOption[];
+  groups?: MenuOptionGroup[]; extraOffer?: MenuExtraOffer; pairingProductIds?: string[]; imageId?: string;
+  food?: MenuFoodInformation;
+  /** Public projection for menu presentation. Stock quantities and recipe units stay server-side. */
+  foodIngredients?: MenuFoodIngredient[]; baseIngredientIds?: string[]; maxAvailable?: number;
 }
+export interface MenuDraft extends PublishedMenu {
+  products: IndividualProduct[];
+}
+
+export interface MenuWorkspace {
+  revision: number;
+  published: MenuDraft;
+  drafts: MenuDraft[];
+}
+
+export interface MenuAdminApi {
+  workspace(storeId: string): Promise<MenuWorkspace>;
+  saveDraft(storeId: string, revision: number, draft: MenuDraft): Promise<MenuWorkspace>;
+  removeDraft(storeId: string, revision: number, draftId: string): Promise<MenuWorkspace>;
+  publish(storeId: string, revision: number, draftId: string): Promise<MenuWorkspace>;
+  uploadImage(storeId: string, image: File): Promise<{ id: string }>;
+}
+
 export interface IndividualSlot { id: string; startsAt: string; capacity: number; endsAt?: string; timeZone?: string; }
 export interface WeeklyOrderWindow { startMinute: number; endMinute: number; capacity: number; }
 export interface WeeklyOrderDay { weekday: number; windows: WeeklyOrderWindow[]; }
@@ -22,6 +52,7 @@ export function createDefaultWeeklyOrderSchedule(): WeeklyOrderSchedule {
 }
 export interface IndividualStore {
   orderingSubdomain?: string;
+  menu?: PublishedMenu;
   id: string; name: string; latitude: number; longitude: number; acceptingOrders: boolean;
   /** Confirmed store address, present only in the operator catalog. */
   address?: string;
@@ -35,7 +66,7 @@ export interface IndividualStore {
   /** Operator-only list of protected local dates, read-only. */
   protectedOrderDates?: string[];
 }
-export interface IndividualLine { productId: string; quantity: number; optionIds: string[]; notes: string; }
+export interface IndividualLine { productId: string; quantity: number; optionIds: string[]; notes: string; selections?: MenuSelection[]; }
 export interface IndividualDeliveryAddress { text: string; latitude: number; longitude: number; }
 export const DELIVERY_ADDRESS_QUERY_MIN_LENGTH = 3;
 export const DELIVERY_ADDRESS_QUERY_MAX_LENGTH = 200;
@@ -51,7 +82,7 @@ export interface IndividualDraft { version: 1; updatedAt: string; cart: Individu
 export interface IndividualQuote {
   fingerprint: string; subtotalCents: number; deliveryCents: number; totalCents: number;
   slotId: string; slotStartsAt: string; slotEndsAt?: string; slotTimeZone?: string;
-  lines: { productId: string; name: string; quantity: number; unitCents: number; optionIds: string[]; notes: string }[];
+  lines: { productId: string; name: string; quantity: number; unitCents: number; optionIds: string[]; notes: string; composition?: MenuComposition }[];
   promotions?: PromotionBreakdown;
 }
 export type IndividualOrderStatus = "pending_payment" | "awaiting_acceptance" | "awaiting_customer" | "accepted" | "preparing" | "ready" | "out_for_delivery" | "completed" | "cancelled";
@@ -90,7 +121,7 @@ export interface StoreAddressApi {
   searchStoreAddresses(storeId: string, query: string): Promise<StoreAddressCandidate[]>;
 }
 /** Public error payload, shared by HTTP and direct service callers. */
-export type IndividualErrorCode = "unauthorized" | "forbidden" | "not_found" | "invalid_input" | "product_unavailable" | "inventory_changed" | "slot_unavailable" | "price_changed" | "outside_delivery_area" | "minimum_not_met" | "idempotency_conflict" | "payment_unresolved" | "invalid_transition" | "service_unavailable" | "internal_error" | "revision_conflict" | "coupon_unavailable" | "coupon_limit_reached" | "loyalty_insufficient" | "loyalty_unavailable";
+export type IndividualErrorCode = "unauthorized" | "forbidden" | "not_found" | "invalid_input" | "product_unavailable" | "customization_changed" | "inventory_changed" | "slot_unavailable" | "price_changed" | "outside_delivery_area" | "minimum_not_met" | "idempotency_conflict" | "payment_unresolved" | "invalid_transition" | "service_unavailable" | "internal_error" | "revision_conflict" | "coupon_unavailable" | "coupon_limit_reached" | "loyalty_insufficient" | "loyalty_unavailable";
 export interface IndividualApi {
   session(): Promise<IndividualSession>;
   stores(): Promise<IndividualStore[]>;

@@ -25,8 +25,5 @@
 .productEditor h3 { margin-top: 0; }
 .page .check { display: flex; align-items: center; font-weight: 400; }
 .check input { width: 18px; height: 18px; accent-color: var(--pizzaos-color-primary); }
-.recipe { display: flex; flex-wrap: wrap; gap: 12px; border: 1px solid var(--pizzaos-color-border); padding: 12px; margin: 18px 0; border-radius: 8px; }
-.recipe label { min-width: 150px; flex: 1; }
-.recipe legend { font-size: .84rem; }
 .optionEditor { border: 1px dashed var(--pizzaos-color-border); border-radius: 8px; padding: 15px; margin: 18px 0; }
 @media (max-width: 650px) { .formGrid { grid-template-columns: 1fr; } .configuration { padding: 18px; } }

@@ -9,7 +9,14 @@ export function emailText(order: IndividualOrder, title: string, date: string, t
   const slot = `${formatOrderWindow(order.quote.slotStartsAt, order.quote.slotEndsAt, slotZone, "long")} (${slotZone})`;
   const lines = [title, `Ordine ${order.id}`, `Data evento: ${localDate(date)}`, `Cliente: ${order.contact.name}`,
     `Modalità: ${order.cart.mode === "pickup" ? "Ritiro in sede" : "Consegna a domicilio"}`, `Orario: ${slot}`,
-    ...order.quote.lines.map(line => `${line.quantity} × ${line.name} — ${money(line.unitCents * line.quantity)}${line.notes ? `\nNote prodotto / partecipante: ${line.notes}` : ""}`),
+    ...order.quote.lines.map(line => {
+      const choices = line.composition?.choices.map(choice => choice.quantity > 1 ? `${choice.quantity} × ${choice.name}` : choice.name);
+      return [
+        `${line.quantity} × ${line.name} — ${money(line.unitCents * line.quantity)}`,
+        choices?.length ? choices.join(" · ") : "",
+        line.notes ? `Note prodotto / partecipante: ${line.notes}` : ""
+      ].filter(Boolean).join("\n");
+    }),
     `Subtotale lordo prodotti: ${money(gross)}`];
   if (order.quote.promotions) {
     for (const coupon of order.quote.promotions.coupons) lines.push(`Coupon ${coupon.code}: −${money(coupon.discountCents)}`);

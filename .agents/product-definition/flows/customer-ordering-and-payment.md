@@ -13,6 +13,8 @@ Il servizio `services/checkout-api` possiede prezzi, riserve, ordini, pagamenti 
 - [Email operative](operational-emails.md): notifiche automatiche del lifecycle, D68-D69. Il contatto per concordare alternative via email/WhatsApp resta manuale.
 - [Consegne rider](../../design/2026-11-05-rider-deliveries/delivery-service/REQUIREMENTS.md): assegnazione, avanzamento e problemi di consegna D57-D58 sullo stesso ordine canonico.
 
+Il [menu operativo D79](menu-ordering.md) descrive consultazione, configuratore, scorte, allergeni e sconti sugli extra. Lo stesso preventivo si usa nel percorso individuale, di gruppo e nelle aggiunte.
+
 Gli abbonamenti non sono integrati. Lo stato delle prove e i limiti residui sono nella [roadmap](../roadmap.md).
 
 ## Obiettivo

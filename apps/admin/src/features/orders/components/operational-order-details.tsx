@@ -55,7 +55,20 @@ export function OperationalOrderDetails({ order, timeZone, busy, action }: {
     {order.additions?.map(addition => <p key={addition.id} className={addition.payment === "refund_failed" ? styles.refundError : styles.small}>Aggiunta {money(addition.deltaCents)} · {addition.applied ? "Applicata" : "Non applicata"} · {paymentLabels[addition.payment]}</p>)}
     {isNew && seconds !== null && <p className={styles.countdown} role="timer">{seconds > 0 ? `Accetta entro ${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, "0")}` : "Tempo scaduto: annullamento in verifica"}</p>}
     {isWaiting && <p className={styles.notice}>Attesa senza scadenza. Scorte e fascia restano riservate fino alla risoluzione manuale.</p>}
-    <ul>{order.quote.lines.map((line, index) => <li key={`${line.productId}-${index}`}><strong>{line.quantity} × {line.name}</strong>{line.notes && <p>{line.notes}</p>}</li>)}</ul>
+    <ul>{order.quote.lines.map((line, index) => <li key={`${line.productId}-${index}`}>
+      <strong>{line.quantity} × {line.name}</strong>
+      {line.composition && <>
+        {line.composition.choices.length > 0 && <p>{line.composition.choices.map(choice => (
+          choice.quantity > 1 ? `${choice.quantity} × ${choice.name}` : choice.name
+        )).join(" · ")}</p>}
+        {line.composition.ingredients.length > 0 && <p className={styles.small}>Ingredienti · {line.composition.ingredients.join(", ")}</p>}
+        {line.composition.contains.length > 0 && <p className={styles.small}>Contiene {line.composition.contains.join(", ")}</p>}
+        {line.composition.mayContain.length > 0 && <p className={styles.small}>Può contenere {line.composition.mayContain.join(", ")}</p>}
+        {!line.composition.foodComplete && <p className={styles.small}>Informazioni allergeni da verificare</p>}
+        {line.composition.extraDiscountCents > 0 && <p className={styles.small}>Sconto extra per prodotto · −{money(line.composition.extraDiscountCents)}</p>}
+      </>}
+      {line.notes && <p>{line.notes}</p>}
+    </li>)}</ul>
     {order.quote.promotions && <div className={styles.notice} aria-label="Benefici applicati all'ordine"><p>Prodotti lordi: {money(order.quote.promotions.originalSubtotalCents)} · Prodotti netti: {money(order.quote.subtotalCents)}</p>
       {order.quote.promotions.coupons.map(coupon => <p key={coupon.id}>Coupon {coupon.code}: −{money(coupon.discountCents)}</p>)}
       <p>Premio fedeltà: −{money(order.quote.promotions.rewardDiscountCents)} ({order.quote.promotions.redeemedPoints} {order.quote.promotions.redeemedPoints === 1 ? "punto" : "punti"}) · Consegna: {money(order.quote.deliveryCents)}</p><strong>Totale netto ordine: {money(order.quote.totalCents)}</strong></div>}

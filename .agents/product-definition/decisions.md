@@ -171,6 +171,12 @@ Dopo accesso corretto e diagnosi della quota rete Neon, l'utente ha scelto espli
 |---|---|---|---|
 | D78 | PizzaOS usa Geoapify per la ricerca dell'indirizzo della sede e per i suggerimenti degli indirizzi di consegna. Il gestore conferma la sede prima di salvare le coordinate. | DECISO | Conferma utente del 2026-11-23. [Requisiti sede](../design/2026-11-06-store-address/address-confirmation/REQUIREMENTS.md) |
 
+## Menu operativo e percorso cliente
+
+| ID | Decisione | Stato | Fonte |
+|---|---|---|---|
+| D79 | Il gestore configura bozze per sede e pubblica manualmente un menu. Il cliente usa la composizione e gli sconti sugli extra del PoC con foto statiche, allergeni e preferenze salvabili, incluso il flusso di gruppo e il post-ordine. La mancia è rinviata. Nel pilota, il menu da screenshot viene salvato in bozza prima della validazione del gestore. | DECISO | Conferme utente in chat del 2026-11-23. [Flusso](flows/menu-ordering.md) |
+
 ## Decisioni che richiedono una ricerca o conferma esterna
 
 - D31 — Obblighi legali/fiscali e gestione privacy per il mercato iniziale. RINVIATO con D16; non progettare come risolti.

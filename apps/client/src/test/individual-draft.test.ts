@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { IndividualCart } from "@pizzaos/domain";
+import { createCheckoutAttempt, readCheckoutAttempt, writeCheckoutAttempt } from "../features/individual-ordering/checkout-attempt";
 import { readIndividualDraft, writeIndividualDraft } from "../features/individual-ordering/draft";
 
 const key = "pizzaos.individual-cart.v1";
@@ -21,6 +22,18 @@ describe("individual draft persistence", () => {
     writeIndividualDraft(storage, cart, created);
     expect(JSON.parse(storage.values.get(key)!)).toEqual({ version: 1, updatedAt: created.toISOString(), cart });
     expect(readIndividualDraft(storage, new Date(created.getTime() + 1000))).toEqual(cart);
+  });
+  it("preserves configured choices and repeated quantities in the draft and original retry request", () => {
+    const storage = new StorageFake();
+    const configured: IndividualCart = { ...cart, lines: [{
+      productId: "box", quantity: 2, optionIds: [], notes: "",
+      selections: [{ optionId: "pils", quantity: 2 }, { optionId: "bionda", quantity: 1 }]
+    }] };
+    writeIndividualDraft(storage, configured, created);
+    expect(readIndividualDraft(storage, created)).toEqual(configured);
+    const input = { cart: configured, fingerprint: "totale", method: "cash" as const, phone: "3331234567", idempotencyKey: "tentativo" };
+    writeCheckoutAttempt(storage, createCheckoutAttempt("cliente", input));
+    expect(readCheckoutAttempt(storage)?.input).toEqual(input);
   });
   it("reading does not extend expiration; expires inclusively at seven days", () => {
     const storage = new StorageFake(); writeIndividualDraft(storage, cart, created);

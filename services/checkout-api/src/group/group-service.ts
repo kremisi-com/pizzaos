@@ -1,3 +1,4 @@
+import { validateMenuSelections } from "../menu-catalog";
 import { createHash, randomBytes, randomUUID, timingSafeEqual } from "node:crypto";
 import type { GroupCheckout, GroupFulfillment, GroupOrderingApi, GroupParticipant, GroupQuote, GroupSnapshot, IndividualActor, IndividualCart, IndividualCheckout, IndividualCheckoutResult, IndividualLine } from "@pizzaos/domain";
 import { normalizePromotionSelection } from "../promotions/selection";
@@ -51,9 +52,13 @@ function revision(value: unknown): asserts value is number { if (typeof value !=
 function lines(value: unknown): asserts value is IndividualLine[] {
   if (!Array.isArray(value) || value.length > 100) invalid();
   for (const line of value) {
-    shape(line, ["productId", "quantity", "optionIds", "notes"]); identifier(line.productId); text(line.notes, 800, true, true);
+    shape(line, ["productId", "quantity", "optionIds", "notes"], ["selections"]); identifier(line.productId); text(line.notes, 800, true, true);
     if (typeof line.quantity !== "number" || !Number.isSafeInteger(line.quantity) || line.quantity < 1 || line.quantity > 100 || !Array.isArray(line.optionIds) || line.optionIds.length > 50 || new Set(line.optionIds).size !== line.optionIds.length) invalid();
     for (const option of line.optionIds) identifier(option);
+    if (line.selections !== undefined) {
+      if (line.optionIds.length) invalid();
+      validateMenuSelections(line.selections, invalid);
+    }
   }
 }
 function fulfillment(value: unknown): asserts value is GroupFulfillment {

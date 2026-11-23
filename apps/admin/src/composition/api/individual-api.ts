@@ -1,16 +1,17 @@
-import type { IndividualApi, StoreAddressApi } from "@pizzaos/domain";
+import type { IndividualApi, MenuAdminApi, StoreAddressApi } from "@pizzaos/domain";
 
 export class IndividualApiError extends Error {
   constructor(readonly code: string, message: string) { super(message); this.name = "IndividualApiError"; }
 }
 
-export function createIndividualApi(): IndividualApi & StoreAddressApi {
+export function createIndividualApi(): IndividualApi & StoreAddressApi & MenuAdminApi {
   const base = "/api/pilot/v1/pilot";
   async function request<T>(path: string, method = "GET", body?: unknown): Promise<T> {
+    const upload = body instanceof File;
     const response = await fetch(`${base}${path}`, {
       method, cache: "no-store", credentials: "same-origin",
-      headers: body === undefined ? undefined : { "Content-Type": "application/json" },
-      body: body === undefined ? undefined : JSON.stringify(body)
+      headers: body === undefined ? undefined : { "Content-Type": upload ? body.type : "application/json" },
+      body: upload ? body : body === undefined ? undefined : JSON.stringify(body)
     });
     if (!response.ok) {
       const error: unknown = await response.json().catch(() => null);
@@ -22,10 +23,16 @@ export function createIndividualApi(): IndividualApi & StoreAddressApi {
     return response.json() as Promise<T>;
   }
   const id = encodeURIComponent;
+  const menu = (storeId: string) => `/stores/${id(storeId)}/menu-admin`;
   return {
     session: () => request("/session"),
     stores: () => request("/stores"),
     catalog: storeId => request(`/stores/${id(storeId)}`),
+    workspace: storeId => request(menu(storeId)),
+    saveDraft: (storeId, revision, draft) => request(`${menu(storeId)}/drafts`, "PUT", { revision, draft }),
+    removeDraft: (storeId, revision, draftId) => request(`${menu(storeId)}/drafts/${id(draftId)}`, "DELETE", { revision }),
+    publish: (storeId, revision, draftId) => request(`${menu(storeId)}/publish`, "POST", { revision, draftId }),
+    uploadImage: (storeId, image) => request(`/stores/${id(storeId)}/menu-images`, "POST", image),
     quote: cart => request("/quote", "POST", { cart }),
     checkout: input => request("/checkouts", "POST", input),
     orders: storeId => request(`/orders${storeId ? `?storeId=${id(storeId)}` : ""}`),
@@ -36,7 +43,7 @@ export function createIndividualApi(): IndividualApi & StoreAddressApi {
     additions: (orderId, input) => request(`/orders/${id(orderId)}/additions`, "POST", input),
     searchStoreAddresses: (storeId, query) => request(`/stores/${id(storeId)}/address-search`, "POST", { query }),
     saveStore: (store, addressConfirmation) => request(`/stores/${id(store.id)}`, "PUT", {
-      ...store, addressConfirmation, protectedOrderDates: undefined, slots: store.orderSchedule ? [] : store.slots
+      ...store, addressConfirmation, menu: undefined, protectedOrderDates: undefined, slots: store.orderSchedule ? [] : store.slots
     }),
     invite: (storeId, email) => request(`/stores/${id(storeId)}/invitations`, "POST", { email }),
     events: (cursor, storeId) => request(`/events?cursor=${cursor}${storeId ? `&storeId=${id(storeId)}` : ""}`)

@@ -8,3 +8,6 @@ export * from "./rider-deliveries";
 export * from "./group-ordering";
 export * from "./promotions-loyalty";
 export * from "./operational-emails";
+
+export * from "./menu-ordering";
+export * from "./menu-composition";

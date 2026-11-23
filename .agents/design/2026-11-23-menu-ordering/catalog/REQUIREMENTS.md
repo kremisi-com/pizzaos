@@ -1,0 +1,7 @@
+# Requisiti osservabili
+
+- Una sede già configurata continua a vendere i suoi prodotti. Il gestore vede il catalogo attuale nel workspace e può salvare più bozze, private fino alla pubblicazione. Salvataggi e pubblicazione con revisione obsoleta restituiscono 409. Pubblicare una bozza rende vendibili solo le relative voci e rende recuperabile come bozza il menu sostituito.
+- Gli operatori gestiscono soltanto le sedi assegnate. Le preferenze appartengono al cliente autenticato e nessun payload di gruppo le contiene. Salvare una lista vuota le elimina. Le immagini della bozza sono visibili agli operatori della sede e diventano pubbliche con il menu.
+- Le scelte obbligatorie, le quantità e le scorte si verificano al preventivo e alla conferma. Un impasto a 250 centesimi con ricetta scelta a 1300 costa 1550. Una scelta appartenente a un altro prodotto è rifiutata. Una box può richiedere esattamente tre unità, anche due dello stesso tipo se il gruppo consente ripetizioni.
+- Simple, Wild e Savage scontano rispettivamente i 3/5/7 extra più costosi del 20%/40%/50%. Su 500 centesimi di base e extra da 220, 210, 190 e 110 Simple costa 1106 centesimi. Gli sconti non toccano altre scelte. Il costo scontato per extra si arrotonda al centesimo prima di sommare.
+- La rimozione dell'ultimo ingrediente che contiene un allergene elimina quella presenza, conservando eventuali avvertenze. Una classificazione assente è mostrata come incompleta. Il preventivo congela riepilogo ed etichette usate da cliente e cucina nell'ordine. I tentativi esistenti restano recuperabili.

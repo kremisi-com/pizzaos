@@ -125,6 +125,12 @@ Every extension inherits proxy authentication and server authorization. Rider DT
 
 No new SQL tables are needed for these extensions: the existing durable state document stores the delivery and analytics records atomically. See `.agents/design/2026-11-05-pilot-integration/` and the module READMEs. Browser acceptance: `pnpm exec playwright test --config playwright.pilot-extensions.config.ts`.
 
+## Catalogo e preferenze
+
+Il [flusso Menu](../../.agents/product-definition/flows/menu-ordering.md) usa le rotte `/v1/pilot/stores/:id/menu-admin`, `/menu-images` e `/v1/pilot/food-preferences`. Il servizio conserva le bozze con revisione e pubblica il menu nella transazione del catalogo. La migrazione additiva crea `ordering_menu_images`, tabella per foto statiche JPEG, PNG e WebP fino a 2 MB. Dopo la migrazione verificare che il ruolo applicativo possa fare SELECT e INSERT sulla tabella. I byte restano separati dallo snapshot degli ordini.
+
+Il preventivo convalida gruppi e scorte effettive, calcola gli extra e conserva le scelte nella riga confermata. Le preferenze si leggono sul solo account cliente. Le rotte usano l'autenticazione e il proxy già configurati.
+
 ## Verification commands
 
 From repository root:

@@ -1,0 +1,3 @@
+- [x] **catalog**: Menu persistente, media, configurazione economica e informazioni alimentari.
+- [x] **surfaces**: Pannello, consultazione, configuratore e ordinazione reale.
+- [ ] **pilot**: Compilazione e validazione della bozza della sede pilota dopo collaudo.

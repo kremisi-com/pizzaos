@@ -209,7 +209,10 @@ test("the live admin sidebar switches tools and restricts store management to su
   for (const section of sections.slice(2)) {
     await navigation.getByRole("button", { name: section, exact: true }).click();
     await expect(page.getByRole("heading", { name: section, exact: true })).toBeVisible();
-    if (section === "Menu") await expect(page.getByLabel("Nome prodotto 1", { exact: true })).toHaveValue("Pizza");
+    if (section === "Menu") {
+      await expect(page.getByRole("heading", { name: "Menu pubblicato", exact: true })).toBeVisible();
+      await expect(page.getByText("Pizza", { exact: true })).toBeVisible();
+    }
     if (section === "Magazzino") await expect(page.getByLabel("Nome ingrediente 1", { exact: true })).toHaveValue("Impasto");
   }
   await expect(page.getByLabel("Nome sede", { exact: true })).toHaveValue("Roma");

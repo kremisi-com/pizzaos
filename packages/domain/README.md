@@ -58,6 +58,10 @@ Current exports from `src/index.ts`:
   - `isOrderStatusTransitionAllowed`
   - `progressOrderStatus`
 
+## Menu e composizione
+
+`MenuAdminApi`, `FoodPreferencesApi`, sezioni, gruppi, scelte e composizione estendono il catalogo operativo. `resolveMenuComposition` calcola un riepilogo da una configurazione, usato come anteprima dal client e dal servizio durante il preventivo. Le scorte, la validazione della richiesta e la pubblicazione appartengono al servizio.
+
 ## Import Rules
 
 Pilot extensions are public through this package entry point: `PilotAnalyticsApi` and its calendar/report types describe the five store metrics; `RiderDeliveryApi` exposes minimized own-delivery operations; `DeliveryAdminApi` describes store-operator rider management and assignment. Rider memberships are distinct from operator `IndividualSession.storeIds`. `IndividualStore.timeZone` is optional for compatibility with existing pilot stores and is validated by the owning service.

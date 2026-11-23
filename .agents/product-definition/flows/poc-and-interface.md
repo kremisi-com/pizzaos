@@ -12,17 +12,8 @@ Un form rifiutato non emette pass. Se manca la configurazione per i pass il form
 
 Le verifiche comprendono [accesso manuale in Playwright](../../../tests/e2e/session-demo.spec.ts), [test del servizio](../../../services/checkout-api/src/demo-landing-handoff.test.ts) e [riscontri online per l'accesso dalla landing](../../../services/checkout-api/online-deployment.md#accesso-dalla-landing-del-23-novembre-2026). Il POC usa il checkout simulato. Catalogo, ordini, pagamenti e stati operativi delle viste ordinarie provengono dai contratti persistenti.
 
-## Cosa collegare per riprendere la grafica del POC
+## Interfaccia operativa
 
-| Superficie del POC | Funzioni disponibili nel prodotto | Lavoro residuo |
-| --- | --- | --- |
-| Home cliente e menu a sezioni | Sedi, apertura, prezzo, ingredienti, allergeni, disponibilità e opzioni sono serviti dal backend. Home operativa con copertina POC e azioni verso menu e gruppo. | Per ottenere il menu del POC, aggiungere categorie, ordine di esposizione e foto gestibili dall'admin, poi collegare le schede prodotto ai dati della sede. |
-| Composizione pizza, carrello, checkout | Opzioni prodotto, carrello, preventivo, fascia, ritiro/consegna, coupon, Stripe e contanti sono disponibili. | Collegare le schermate distinte del POC al flusso persistente. Composizione per passaggi, regole tra scelte, mancia e ricerca dell'indirizzo del cliente richiedono decisioni e supporto specifico. |
-| Ordini, riordino e fedeltà | Storico, riordino, aggiornamenti, punti, premi, coupon ed email sono operativi. | Collegare timeline e vista premi ai dati reali. Recensioni, abbonamenti e mappa GPS richiedono regole e contratti propri. |
-| Ordine con amici | Invito, contributi, scadenza e pagamento unico sono implementati. | Riutilizzare la presentazione del POC con le azioni e gli errori della raccolta persistente. |
-| Dashboard, ordini, menu e magazzino admin | Sidebar, selezione sede, griglia dashboard e buona parte della coda condividono la struttura POC. Catalogo, ricette, inventario, fasce e ordini sono persistenti. | Collegare gli editor visuali del POC ai form e ai salvataggi reali. Foto e categorie dipendono dal catalogo persistente. |
-| Marketing, insight e integrazioni admin | Coupon, programma fedeltà, cinque metriche, assegnazione rider ed email operative sono implementati. | Campagne automatiche, AI, analisi avanzate ed export, fatturazione e integrazioni POS/contabilità richiedono regole o servizi. La mappa non riceve posizione rider dal flusso attuale. |
+Le superfici di ordinazione e il pannello Menu seguono [il flusso D79](menu-ordering.md). Foto statiche, sezioni, menu pubblicati, personalizzazioni e sconti per gli extra provengono dal catalogo persistente. La timeline e lo storico usano gli ordini reali e l'ordine con amici usa la raccolta persistente. La demo autenticata rimane disponibile con il proprio catalogo e pagamenti simulati.
 
-Ordine di lavoro proposto: cliente **menu → prodotto → carrello → checkout**, poi storico/riordino, premi e gruppo. Per il ristorante, partire da menu e magazzino, che alimentano anche il menu pubblico. Catalogo, immagini, prezzi, categorie e regole commerciali restano gestiti dal pannello admin.
-
-Fonti: [inventario corrente](../flow-inventory.md), [ordinazione](customer-ordering-and-payment.md), [client](../../../apps/client/README.md), [admin](../../../apps/admin/README.md).
+Restano da collegare al prodotto le funzioni demo di recensione, abbonamenti, mappa GPS e le viste promozionali estese. Dashboard, magazzino, marketing e insight sono descritti nell'[inventario corrente](../flow-inventory.md).

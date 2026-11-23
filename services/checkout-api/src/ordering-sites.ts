@@ -36,7 +36,8 @@ export function findOrderingSite(sites: OrderingSites, subdomain: string): Promi
 const pilot = "/v1/pilot";
 const customerRoutes = new Set([
   `GET ${pilot}/ordering-site`, `GET ${pilot}/session`, `GET ${pilot}/stores`,
-  `GET ${pilot}/orders`, `GET ${pilot}/events`, `GET ${pilot}/stream`
+  `GET ${pilot}/orders`, `GET ${pilot}/events`, `GET ${pilot}/stream`,
+  `GET ${pilot}/food-preferences`, `PUT ${pilot}/food-preferences`
 ]);
 const orderRoutes = new Set([
   `POST ${pilot}/orders/:id/reconcile`, `POST ${pilot}/orders/:id/actions`,
@@ -61,7 +62,7 @@ export async function authorizeOrderingSiteRoute(
   }
   const { id } = (request.params ?? {}) as { id?: string };
   if (route === `GET ${pilot}/stores/:id` || route === `GET ${pilot}/stores/:id/loyalty`
-    || route === `POST ${pilot}/stores/:id/delivery-address-search`) {
+    || route === `POST ${pilot}/stores/:id/delivery-address-search` || route === `GET ${pilot}/stores/:id/menu-images/:imageId`) {
     if (id !== site.storeId) throw unavailable();
     return;
   }

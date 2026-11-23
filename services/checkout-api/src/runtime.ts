@@ -14,6 +14,7 @@ import { createGeoapifyAddressAutocomplete } from "./delivery-address-autocomple
 import { createGeoapifyStoreGeocoder } from "./store-address";
 import { createRuntimeDiagnostics } from "./sentry-reporter";
 import type { Diagnostics } from "./diagnostics";
+import { createPostgresMenuImages } from "./menu-images";
 import { OrderingError } from "./ordering-service";
 
 /** Construct one runtime. Entry points own listening, workers and process signals. */
@@ -37,7 +38,7 @@ export async function createOrderingRuntime(env: Record<string, string | undefin
       smtpUrl: config.smtpUrl, emailFrom: config.emailFrom, demoPassword: config.demoPassword, demoHandoff: config.demoHandoff, diagnostics: reporting });
     const reconcileOrders = async () => { await groups.tick(); await service.tick(); };
     const dispatchEmails = () => operational.emails.dispatch();
-    const app = buildOrderingApp({ service, ...auth, diagnostics: reporting,
+    const app = buildOrderingApp({ service, ...auth, diagnostics: reporting, menuImages: createPostgresMenuImages(pool),
       orderingSites: config.orderingDomain ? { domain: config.orderingDomain, origins: config.origins, repository: operational.repository } : undefined,
       deliveryAddressAutocomplete: config.geoapifyApiKey ? createGeoapifyAddressAutocomplete(config.geoapifyApiKey) : undefined,
       async webhook(body, signature) {

@@ -28,12 +28,13 @@ async function proxy(request: NextRequest, context: Context): Promise<Response> 
   try {
     const response = await fetch(target, { method: request.method, headers, body: request.method === "GET" ? undefined : await request.arrayBuffer(), redirect: "manual", cache: "no-store", signal: request.signal });
     const output = new Headers();
-    for (const name of ["content-type", "location", "x-accel-buffering", "x-request-id"]) { const value = response.headers.get(name); if (value) output.set(name, value); }
+    for (const name of ["content-type", "location", "x-accel-buffering", "x-request-id", "x-content-type-options"]) { const value = response.headers.get(name); if (value) output.set(name, value); }
     for (const cookie of response.headers.getSetCookie()) output.append("set-cookie", cookie);
-    output.set("cache-control", "no-store");
+    const menuImage = request.method === "GET" && response.ok && path[4] === "menu-images" && path.length === 6;
+    output.set("cache-control", menuImage ? response.headers.get("cache-control") ?? "no-store" : "no-store");
     return new Response(response.body, { status: response.status, headers: output });
   } catch {
     return Response.json({ code: "service_unavailable", message: "Connessione al servizio ordini non disponibile. Riprova." }, { status: 503 });
   }
 }
-export { proxy as GET, proxy as POST, proxy as PUT, proxy as PATCH };
+export { proxy as GET, proxy as POST, proxy as PUT, proxy as PATCH, proxy as DELETE };

@@ -2,17 +2,17 @@
 
 import type { IndividualAdditionQuote, IndividualApi, IndividualLine, IndividualOrder, IndividualStore } from "@pizzaos/domain";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { MenuLineDetails, MenuLineEditor } from "../../menu";
 import { IndividualStripeFields, type ConfirmIndividualPayment } from "./individual-stripe-fields";
 import styles from "./individual-ordering.module.css";
 
 const money = (cents: number) => new Intl.NumberFormat("it-IT", { style: "currency", currency: "EUR" }).format(cents / 100);
 
-export function IndividualAdditions({ api, order, onChanged }: { api: IndividualApi; order: IndividualOrder; onChanged: () => Promise<void> }) {
+export function IndividualAdditions({ api, order, avoid, onChanged }: { api: IndividualApi; order: IndividualOrder; avoid: string[]; onChanged: () => Promise<void> }) {
   const [store, setStore] = useState<IndividualStore | null>(null);
   const [lines, setLines] = useState<IndividualLine[]>([]);
   const [productId, setProductId] = useState("");
   const [quantity, setQuantity] = useState(1);
-  const [optionIds, setOptionIds] = useState<string[]>([]);
   const [quote, setQuote] = useState<IndividualAdditionQuote | null>(null);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
@@ -30,6 +30,10 @@ export function IndividualAdditions({ api, order, onChanged }: { api: Individual
   if (!enabled || !api.additionQuote || !api.additions) return null;
   const product = store?.products.find(item => item.id === productId);
   const keyName = `pizzaos.individual-addition.${order.id}`;
+  function addLine(line: IndividualLine) {
+    setLines(current => [...current, { ...line, quantity }]);
+    setQuote(null);
+  }
   async function verify() {
     if (!api.additionQuote) return;
     setBusy(true); setError(""); setQuote(null);
@@ -60,7 +64,7 @@ export function IndividualAdditions({ api, order, onChanged }: { api: Individual
     } catch (failure) {
       setError(failure instanceof Error ? failure.message : "Verifica lo stato del pagamento prima di riprovare.");
       const code = failure && typeof failure === "object" && "code" in failure ? String(failure.code) : "";
-      if (["price_changed", "product_unavailable", "inventory_changed", "invalid_input", "invalid_transition"].includes(code)) {
+      if (["price_changed", "product_unavailable", "customization_changed", "inventory_changed", "invalid_input", "invalid_transition"].includes(code)) {
         setQuote(null);
         try { localStorage.removeItem(keyName); } catch { /* Browser storage may be unavailable. */ }
       }
@@ -69,11 +73,19 @@ export function IndividualAdditions({ api, order, onChanged }: { api: Individual
   }
   return <details className={styles.additions}><summary>Aggiungi prodotti a questo ordine</summary><p className={styles.small}>Puoi aggiungere prodotti prima dell&apos;accettazione. L&apos;ordine originale resta invariato finché l&apos;eventuale pagamento aggiuntivo non è confermato.</p>
     {error && <p className={styles.error} role="alert">{error}</p>}{notice && <p className={styles.notice} role="status">{notice}</p>}
-    {!pending && <><label>Prodotto da aggiungere<select value={productId} onChange={event => { setProductId(event.target.value); setOptionIds([]); }}>{store?.products.filter(item => item.available).map(item => <option key={item.id} value={item.id}>{item.name} · {money(item.priceCents)}</option>)}</select></label>
+    {!pending && <><label>Prodotto da aggiungere<select value={productId} onChange={event => setProductId(event.target.value)}>{store?.products.filter(item => item.available).map(item => <option key={item.id} value={item.id}>{item.name} · {money(item.priceCents)}</option>)}</select></label>
       <label>Quantità da aggiungere<input type="number" min="1" max="99" step="1" value={quantity} onChange={event => setQuantity(Number(event.target.value))} /></label>
-      {product?.options.map(option => <label key={option.id} className={styles.check}><input type="checkbox" checked={optionIds.includes(option.id)} onChange={event => setOptionIds(current => event.target.checked ? [...current, option.id] : current.filter(id => id !== option.id))} />{option.name} (+{money(option.priceCents)})</label>)}
-      <button type="button" className={styles.secondary} disabled={busy || !product || !Number.isInteger(quantity) || quantity < 1} onClick={() => { setLines(current => [...current, { productId, quantity, optionIds: [...optionIds], notes: "" }]); setQuote(null); }}>Inserisci nell&apos;aggiunta</button>
-      {lines.length > 0 && <ul>{lines.map((line, index) => <li key={`${line.productId}-${index}`}>{line.quantity} × {store?.products.find(item => item.id === line.productId)?.name}<button type="button" className={styles.secondary} disabled={busy} onClick={() => { setLines(current => current.filter((_, i) => i !== index)); setQuote(null); }}>Rimuovi dall&apos;aggiunta</button></li>)}</ul>}
+      {store && product && product.options.length > 0 && <MenuLineEditor key={product.id} store={store} product={product} quantity={quantity} disabled={busy || !Number.isInteger(quantity) || quantity < 1 || quantity > 100}
+        avoid={avoid} onSave={addLine} />}
+      {!product?.groups?.length && <button type="button" className={styles.secondary} disabled={busy || !product || !Number.isInteger(quantity) || quantity < 1 || quantity > 100}
+        onClick={() => addLine({ productId, quantity, optionIds: [], notes: "" })}>Inserisci nell&apos;aggiunta</button>}
+      {lines.length > 0 && <ul>{lines.map((line, index) => {
+        const entry = store?.products.find(item => item.id === line.productId);
+        return <li key={`${line.productId}-${index}`}>{line.quantity} × {entry?.name ?? line.productId}
+          <MenuLineDetails product={entry} line={line} avoid={avoid} showUnknown={Boolean(store?.menu)} />
+          <button type="button" className={styles.secondary} disabled={busy} onClick={() => { setLines(current => current.filter((_, i) => i !== index)); setQuote(null); }}>Rimuovi dall&apos;aggiunta</button>
+        </li>;
+      })}</ul>}
       <button type="button" disabled={busy || !lines.length} onClick={() => void verify()}>Verifica totale aggiunta</button>
     </>}
     {quote && <div className={styles.summary}><p><span>Da aggiungere</span><strong>{money(quote.deltaCents)}</strong></p><p><span>Nuovo totale ordine</span><strong>{money(quote.quote.totalCents)}</strong></p></div>}
