@@ -16,7 +16,6 @@ export interface RuntimeConfiguration {
   reservationMs: number;
   demoPassword?: string;
   demoHandoff?: { secret: string; origin: string };
-  openCageApiKey?: string;
   geoapifyApiKey?: string;
 }
 
@@ -56,7 +55,6 @@ export function readRuntimeConfiguration(env: Record<string, string | undefined>
   if (environment === "test" && !stripeSecretKey.startsWith("sk_test_")) throw new Error("STRIPE_SECRET_KEY deve essere una chiave test.");
   const reservationMs = Number(env.PAYMENT_RESERVATION_MINUTES ?? 10) * 60_000;
   if (!Number.isFinite(reservationMs) || reservationMs <= 0) throw new Error("PAYMENT_RESERVATION_MINUTES non valido.");
-  const openCageApiKey = env.OPENCAGE_API_KEY?.trim();
   const geoapifyApiKey = env.GEOAPIFY_API_KEY?.trim();
   const handoffSecret = env.PIZZAOS_DEMO_HANDOFF_SECRET?.trim();
   const landingOrigin = env.PIZZAOS_DEMO_LANDING_ORIGIN?.trim();
@@ -67,7 +65,6 @@ export function readRuntimeConfiguration(env: Record<string, string | undefined>
     googleClientId: required("AUTH_GOOGLE_ID"), googleClientSecret: required("AUTH_GOOGLE_SECRET"),
     smtpUrl: required("SMTP_URL"), emailFrom: required("AUTH_EMAIL_FROM"), stripeSecretKey,
     stripeWebhookSecret: required("STRIPE_WEBHOOK_SECRET"),
-    ...(openCageApiKey ? { openCageApiKey } : {}),
     ...(geoapifyApiKey ? { geoapifyApiKey } : {}),
     ...(env.PIZZAOS_DEMO_PASSWORD ? { demoPassword: env.PIZZAOS_DEMO_PASSWORD } : {}),
     ...(demoHandoff ? { demoHandoff } : {})

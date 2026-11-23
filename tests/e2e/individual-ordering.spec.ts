@@ -271,6 +271,8 @@ test("admin creates a store only after explicitly confirming a candidate and rel
   await page.getByLabel("Nome sede", { exact: true }).fill("Torino Via Verdi");
   await expect(page.getByLabel("Latitudine della sede", { exact: true })).toHaveCount(0);
   await expect(page.getByLabel("Longitudine della sede", { exact: true })).toHaveCount(0);
+  await expect(page.getByRole("link", { name: "Geoapify", exact: true })).toHaveAttribute("href", "https://www.geoapify.com/");
+  await expect(page.getByRole("link", { name: "OpenStreetMap", exact: true })).toHaveAttribute("href", "https://www.openstreetmap.org/copyright");
 
   const address = page.getByRole("textbox", { name: "Indirizzo della sede", exact: true });
   const search = page.getByRole("button", { name: "Cerca indirizzo", exact: true });

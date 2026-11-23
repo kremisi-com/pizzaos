@@ -165,6 +165,12 @@ Dopo accesso corretto e diagnosi della quota rete Neon, l'utente ha scelto espli
 |---|---|---|---|
 | D77 | Il cliente inserisce l’indirizzo di consegna in un campo di testo con autocompletamento di vie e civici. Il client ricava il punto dall’indirizzo scelto. | DECISO | Richiesta utente del 2026-11-23. [Flusso](flows/customer-ordering-and-payment.md#indirizzo-di-consegna) |
 
+## Provider per la ricerca indirizzi
+
+| ID | Decisione | Stato | Fonte |
+|---|---|---|---|
+| D78 | PizzaOS usa Geoapify per la ricerca dell'indirizzo della sede e per i suggerimenti degli indirizzi di consegna. Il gestore conferma la sede prima di salvare le coordinate. | DECISO | Conferma utente del 2026-11-23. [Requisiti sede](../design/2026-11-06-store-address/address-confirmation/REQUIREMENTS.md) |
+
 ## Decisioni che richiedono una ricerca o conferma esterna
 
 - D31 — Obblighi legali/fiscali e gestione privacy per il mercato iniziale. RINVIATO con D16; non progettare come risolti.

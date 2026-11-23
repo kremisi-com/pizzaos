@@ -68,9 +68,9 @@ Le origini HTTPS dei siti di sede si abilitano con `PIZZAOS_ORDERING_DOMAIN` e v
 
 Required: `DATABASE_URL`, `AUTH_SECRET` (32+ characters), `PIZZAOS_PROXY_SECRET` (different 32+ characters), `PIZZAOS_ALLOWED_ORIGINS`, `PIZZAOS_SUPERADMIN_EMAILS`, `AUTH_GOOGLE_ID`, `AUTH_GOOGLE_SECRET`, `SMTP_URL`, `AUTH_EMAIL_FROM`, `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`. Optional: `PIZZAOS_ENVIRONMENT` (`test` or `production`, default `production`; test rejects live Stripe keys), `PAYMENT_RESERVATION_MINUTES` (default 10), `PORT` (3004), `HOST` (127.0.0.1).
 
-Set `OPENCAGE_API_KEY` in the checkout service to enable store address search. Each explicit search sends the address query to [OpenCage](https://opencagedata.com/api) with query retention disabled. Existing store settings and ordering still work when the key is absent. Deploy the updated service before releasing the admin that uses the search.
+Configurare `GEOAPIFY_API_KEY` nel servizio checkout per entrambe le ricerche. Nel Profilo, **Cerca indirizzo** invia il testo alla [Geocoding API](https://apidocs.geoapify.com/docs/geocoding/forward-geocoding/) e propone civici o edifici identificati da un nome. Il gestore sceglie il risultato prima di salvare. Nel checkout, [Address Autocomplete](https://apidocs.geoapify.com/docs/geocoding/address-autocomplete/) riceve il testo e la posizione della sede per ordinare i suggerimenti.
 
-Set `GEOAPIFY_API_KEY` in the checkout service to enable customer delivery address suggestions. Searches send the typed address and the store position for ranking to the provider. Without the key the search returns 503 and pickup remains available. Deploy the updated service with the key before publishing the matching client. [Geoapify Address Autocomplete](https://apidocs.geoapify.com/docs/geocoding/address-autocomplete/).
+Senza la chiave le ricerche rispondono 503. Il ritiro e i salvataggi delle sedi che conservano la posizione già registrata restano disponibili. Pubblicare il backend con la chiave server-side nell'ambiente corretto. Admin e client mostrano i crediti Geoapify e OpenStreetMap vicino ai campi di ricerca.
 
 From this service directory, using Node with env-file support:
 

@@ -11,7 +11,7 @@ import { registerPromotionRoutes } from "./promotions";
 import { createOperationalEmailServices, readOperationalEmailConfiguration, registerOperationalEmailRoutes } from "./operational-emails";
 import { readRuntimeConfiguration } from "./runtime-config";
 import { createGeoapifyAddressAutocomplete } from "./delivery-address-autocomplete";
-import { createOpenCageStoreGeocoder } from "./store-address";
+import { createGeoapifyStoreGeocoder } from "./store-address";
 import { createRuntimeDiagnostics } from "./sentry-reporter";
 import type { Diagnostics } from "./diagnostics";
 import { OrderingError } from "./ordering-service";
@@ -28,7 +28,7 @@ export async function createOrderingRuntime(env: Record<string, string | undefin
     const email = readOperationalEmailConfiguration(env);
     const operational = createOperationalEmailServices({ repository: createPostgresOrderingRepository(pool), payments: createStripeOrderingPayments(stripe, reporting),
       superadminEmails: config.superadminEmails, reservationMs: config.reservationMs, email, diagnostics: reporting, activateOrderCalendar: true,
-      storeGeocoding: config.openCageApiKey ? createOpenCageStoreGeocoder(config.openCageApiKey, config.authSecret) : undefined });
+      storeGeocoding: config.geoapifyApiKey ? createGeoapifyStoreGeocoder(config.geoapifyApiKey, config.authSecret) : undefined });
     const { service } = operational;
     const groups = createGroupOrderingService({ repository: operational.repository, ordering: service });
     const auth = createOrderingAuth({ pool, secret: config.authSecret, proxySecret: config.proxySecret, origins: config.origins,
