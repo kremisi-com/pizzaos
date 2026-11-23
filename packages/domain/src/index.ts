@@ -1,6 +1,7 @@
 export * from "./model";
 export * from "./client-api-contracts";
 export * from "./individual-ordering";
+export * from "./ordering-site";
 export * from "./order-window-label";
 export * from "./pilot-analytics";
 export * from "./rider-deliveries";

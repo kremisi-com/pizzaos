@@ -21,6 +21,7 @@ export function createDefaultWeeklyOrderSchedule(): WeeklyOrderSchedule {
   })) };
 }
 export interface IndividualStore {
+  orderingSubdomain?: string;
   id: string; name: string; latitude: number; longitude: number; acceptingOrders: boolean;
   /** Confirmed store address, present only in the operator catalog. */
   address?: string;
@@ -35,9 +36,15 @@ export interface IndividualStore {
   protectedOrderDates?: string[];
 }
 export interface IndividualLine { productId: string; quantity: number; optionIds: string[]; notes: string; }
+export interface IndividualDeliveryAddress { text: string; latitude: number; longitude: number; }
+export const DELIVERY_ADDRESS_QUERY_MIN_LENGTH = 3;
+export const DELIVERY_ADDRESS_QUERY_MAX_LENGTH = 200;
+export type DeliveryAddressSuggestion =
+  | { kind: "street"; text: string }
+  | ({ kind: "address" } & IndividualDeliveryAddress);
 export interface IndividualCart {
   storeId: string; lines: IndividualLine[]; mode: "pickup" | "delivery"; slotId: string | null;
-  notes: string; address?: { text: string; latitude: number; longitude: number };
+  notes: string; address?: IndividualDeliveryAddress;
   benefits?: PromotionSelection;
 }
 export interface IndividualDraft { version: 1; updatedAt: string; cart: IndividualCart; }
@@ -88,6 +95,7 @@ export interface IndividualApi {
   session(): Promise<IndividualSession>;
   stores(): Promise<IndividualStore[]>;
   catalog(storeId: string): Promise<IndividualStore>;
+  searchDeliveryAddresses?(storeId: string, query: string, signal?: AbortSignal): Promise<DeliveryAddressSuggestion[]>;
   quote(cart: IndividualCart): Promise<IndividualQuote>;
   checkout(input: IndividualCheckout): Promise<IndividualCheckoutResult>;
   orders(storeId?: string): Promise<IndividualOrder[]>;

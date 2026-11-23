@@ -24,6 +24,16 @@ Gli attuali host operativi pubblici ospitano il pilota test. L'ambiente Vercel d
 - Resend gratuito con `pizzaos.app` verificato: aggiunti soltanto il TXT DKIM e i CNAME di invio richiesti, senza cambiare nameserver o posta in ingresso. OAuth Google in test con callback esatte dei tre host applicativi e due utenti di prova.
 - Durante l'individuazione dell'account, su indicazione iniziale dell'utente era stato creato anche un progetto vuoto omonimo in `benjanapos-projects`, ID `prj_hHutfpU79G6C5fQvDtdOaGuW1AJz`, con richieste dominio non verificate. Non ha deployment e non serve i domini; non usarlo per i rilasci PizzaOS.
 
+## Sottodomini delle sedi
+
+Per D76, collegare `*.pizzaos.app` al progetto `pizzaos-client` e verificare DNS, HTTPS e la pagina per un host ancora senza sede. La zona usa già i nameserver Vercel. Gli indirizzi espliciti delle altre superfici restano associati ai rispettivi progetti.
+
+Impostare `PIZZAOS_ORDERING_DOMAIN=pizzaos.app` per servizio, client e admin nell'ambiente del pilota. Sul servizio, impostare `PIZZAOS_ORDERING_AUTH_ORIGIN=https://client.pizzaos.app`, già presente tra le origini esatte consentite e registrata come callback Google. Pubblicare nell'ordine servizio, client, collegamento wildcard, admin. Con l'admin aggiornato il superadmin può assegnare i sottodomini senza interventi DNS per sede.
+
+Il servizio rifiuta richieste a host dinamici privi di associazione e applica l'isolamento anche alle API. Le sessioni delle sedi sono specifiche del singolo host. Ogni ambiente usa il proprio dominio e la propria origine OAuth se attiva questa funzione.
+
+È possibile conservare gli indirizzi cliente già in uso in `PIZZAOS_CLIENT_LEGACY_HOSTS`. Per un alias sotto il dominio ordini il fallback al pilota vale fino all'assegnazione a una sede. Gli altri host privi di associazione mostrano il messaggio di sito non configurato.
+
 ## Identità e autorizzazioni
 
 Auth.js gestisce le identità Google/magic link secondo D04. La medesima identità può avere appartenenze diverse: gli operatori accedono alle sedi autorizzate, il rider alle proprie assegnazioni. Un login riuscito non concede automaticamente un ruolo.

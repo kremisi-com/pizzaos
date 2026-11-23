@@ -18,6 +18,8 @@ Allineamento documentale del 2026-11-20; le evidenze di verifica e deploy conser
 | Layout operativo admin | Implementato; [requisiti e task completata](../design/2026-11-06-admin-operational-layout/TASKS.md) | Sidebar per sede e sezioni operative collegate; il completamento della task non sostituisce un verbale di verifica online |
 | Ricerca e conferma indirizzo sede | Implementata; [requisiti](../design/2026-11-06-store-address/address-confirmation/REQUIREMENTS.md) e [task completata](../design/2026-11-06-store-address/TASKS.md) | Ricerca dal servizio, scelta esplicita e conferma vincolata alla sede; [test HTTP](../../services/checkout-api/src/store-address-http.test.ts). Configurazione provider e rilascio sono distinti dalla presenza del codice |
 | Calendario settimanale D75 | Implementato e [verificato localmente](../design/2026-11-23-order-calendar/REVIEW.md) per il Profilo della sede e il checkout individuale e di gruppo | [Flusso e casi limite](flows/customer-ordering-and-payment.md#calendario-e-capacità). Le eccezioni per singola data sono un incremento separato |
+| Sottodomini delle sedi D76 | Implementati, [verificati localmente](../design/2026-11-23-store-subdomains/REVIEW.md) e [pubblicati sul pilota test](../../services/checkout-api/online-deployment.md#sottodomini-delle-sedi-del-23-novembre-2026) | [Configurazione del pilota](architecture/pilot-deployment.md#sottodomini-delle-sedi). Sede e login su sottodominio da collaudare online dopo la prima associazione |
+| Autocompletamento indirizzo cliente D77 | Implementato e [verificato localmente](../design/2026-11-23-delivery-address-autocomplete/REVIEW.md) per i checkout individuale e di gruppo | Configurare Geoapify nel servizio e collaudare con vie e civici nella zona servita. [Flusso e verifiche](flows/customer-ordering-and-payment.md#indirizzo-di-consegna) |
 
 Gli incrementi condividono il servizio canonico e sono stati integrati dopo i rispettivi gate. I [riesami della sequenza](sequential-increments.md) registrano evidenze e limiti locali; lo stato dell’ambiente online è distinto.
 
@@ -38,7 +40,6 @@ Questa è una proposta di priorità da sottoporre all'utente, non una modifica a
 | Fatturazione commerciale PizzaOS e self-service | Profilo e piani simulati | Rinviare |
 | Feedback/recensioni | UI/contratto demo; regole da definire | Rinviare |
 | Aggiunte a ordine inviato con pagamento del delta | D36 implementata nel flusso individuale dalla chat originaria, con test ed evidenze propri | Inclusa nel lavoro corrente; non è una capacità secondaria da riapprovare |
-| Ricerca testuale indirizzo cliente | Il cliente usa un punto con coordinate confermate; la ricerca indirizzo sede è già implementata separatamente | Valutare dopo prova utente: non confondere geocodifica della sede e indirizzo di consegna |
 | Workflow editoriale catalogo con versioni/rollback | Non incluso nel semplice salvataggio configurazioni | Rinviare |
 | Landing → lead persistenti/CRM | Form con invio email e accesso demo D74. D15 rinvia modifiche commerciali | CRM e onboarding da definire |
 

@@ -1,5 +1,5 @@
 import { createHash, randomUUID } from "node:crypto";
-import { createDefaultWeeklyOrderSchedule } from "@pizzaos/domain";
+import { createDefaultWeeklyOrderSchedule, isOrderingSubdomain } from "@pizzaos/domain";
 import type {
   IndividualActor, IndividualCart, IndividualCheckoutResult, IndividualErrorCode,
   IndividualOrder, IndividualQuote, IndividualSlot, IndividualStore, IndividualAction, IndividualAddition, IndividualAdditionQuote, IndividualLine
@@ -544,19 +544,20 @@ export function createOrderingService(options: OrderingServiceOptions): RiderOrd
     publicStore.slots = remainingSlots(state, store, instant);
     return publicStore;
   }
-  async function performAction(actor: IndividualActor | null, orderId: string, input: IndividualAction, riderOnly = false): Promise<IndividualOrder> {
+  async function performAction(actor: IndividualActor | null, orderId: string, input: IndividualAction, surface?: "rider" | "customer"): Promise<IndividualOrder> {
       const user = authenticated(actor);
       if (!record(input)) fail("invalid_input", "Azione non valida.");
       const permittedActions = ["accept", "wait_for_customer", "cancel", "prepare", "ready", "dispatch", "complete", "retry_refund"];
       if (!permittedActions.includes(input.action)) fail("invalid_input", "Azione sconosciuta.");
       const result = await transact(state => {
         const order = getOrder(state, orderId);
-        const isOperator = member(state, user, order.storeId);
-        if (riderOnly) {
+      const isOperator = surface !== "customer" && member(state, user, order.storeId);
+      if (surface === "rider") {
           if ((input.action !== "dispatch" && input.action !== "complete") || !options.authorizeRiderProgress?.(state, user, order, input.action)) {
             fail("forbidden", "Non puoi aggiornare questa consegna.");
           }
         } else {
+        if (surface === "customer" && order.customerId !== user.id) fail("not_found", "Ordine non disponibile.");
           viewer(state, user, order);
           if (input.action !== "cancel" && !isOperator) fail("forbidden", "Questa azione è riservata agli operatori della sede.");
         }
@@ -665,11 +666,13 @@ export function createOrderingService(options: OrderingServiceOptions): RiderOrd
       });
       return order.method === "card" && order.status === "pending_payment" ? paymentOrder(order.id) : { order };
     },
-    async orders(actor, storeId) {
+    async orders(actor, storeId, customerStoreId) {
       const user = authenticated(actor);
       return transact(state => {
         if (storeId !== undefined) operator(state, user, storeId);
-        return Object.values(state.orders).filter(order => storeId === undefined ? order.customerId === user.id : order.storeId === storeId)
+        return Object.values(state.orders).filter(order => storeId === undefined
+          ? order.customerId === user.id && (customerStoreId === undefined || order.storeId === customerStoreId)
+          : order.storeId === storeId)
           .sort((a, b) => b.createdAt.localeCompare(a.createdAt)).map(copy);
       });
     },
@@ -680,8 +683,8 @@ export function createOrderingService(options: OrderingServiceOptions): RiderOrd
       const additions = await settleAdditions(orderId);
       return { order: additions.order, ...(original.clientSecret || additions.clientSecret ? { clientSecret: original.clientSecret ?? additions.clientSecret } : {}) };
     },
-    action(actor, orderId, input) { return performAction(actor, orderId, input); },
-    riderProgress(actor, orderId, action) { return performAction(actor, orderId, { action }, true); },
+    action(actor, orderId, input, customerOnly) { return performAction(actor, orderId, input, customerOnly ? "customer" : undefined); },
+    riderProgress(actor, orderId, action) { return performAction(actor, orderId, { action }, "rider"); },
     async notes(actor, orderId, notes) {
       const user = authenticated(actor); text(notes, 2000, true);
       return transact(state => {
@@ -774,6 +777,15 @@ export function createOrderingService(options: OrderingServiceOptions): RiderOrd
         const existing = Object.hasOwn(state.stores, input.id) ? state.stores[input.id] : undefined;
         if (!existing && !isSuper(user)) fail("forbidden", "Solo il superadmin può creare una sede.");
         if (existing) operator(state, user, input.id);
+        const subdomain = input.orderingSubdomain;
+        const currentSubdomain = existing?.orderingSubdomain;
+        if (subdomain !== undefined && subdomain !== currentSubdomain) {
+          if (!isSuper(user)) fail("forbidden", "Solo il superadmin può assegnare il sottodominio.");
+          if (!isOrderingSubdomain(subdomain)) fail("invalid_input", "Sottodominio non valido o riservato.");
+          if (currentSubdomain || Object.values(state.stores).some(store => store.orderingSubdomain === subdomain)) {
+            fail("revision_conflict", "Il sottodominio è già assegnato. Scegli un indirizzo disponibile per una sede senza sottodominio.");
+          }
+        }
         let next = input;
         if (confirmation !== undefined) {
           const geocoding = options.storeGeocoding;
@@ -824,6 +836,7 @@ export function createOrderingService(options: OrderingServiceOptions): RiderOrd
         validStore(next);
         if (existing) protectCalendarChanges(state, existing, next, instant, occupied);
         const saved = copy(next);
+        if (currentSubdomain) saved.orderingSubdomain = currentSubdomain;
         delete saved.protectedOrderDates;
         state.stores[input.id] = saved;
         state.cursor += 1; state.events.push({ cursor: state.cursor, storeId: input.id, orderId: "", revision: state.cursor });
@@ -838,11 +851,12 @@ export function createOrderingService(options: OrderingServiceOptions): RiderOrd
         if (!state.memberships.some(item => item.storeId === storeId && item.email === normalized)) state.memberships.push({ storeId, email: normalized });
       });
     },
-    async events(actor, cursor, storeId) {
+    async events(actor, cursor, storeId, customerStoreId) {
       const user = authenticated(actor); integer(cursor);
       return transact(state => {
         if (storeId !== undefined) operator(state, user, storeId);
-        const events = state.events.filter(event => event.cursor > cursor && (storeId !== undefined ? event.storeId === storeId
+        const events = state.events.filter(event => event.cursor > cursor && (customerStoreId === undefined || event.storeId === customerStoreId)
+          && (storeId !== undefined ? event.storeId === storeId
           : (event.orderId ? state.orders[event.orderId]?.customerId === user.id : false)));
         return { cursor: state.cursor, events: copy(events) };
       });

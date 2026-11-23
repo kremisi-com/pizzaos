@@ -8,4 +8,6 @@ Solo l'organizzatore autenticato crea, chiude e paga. Dopo la scadenza gli invit
 
 Il checkout host riceve `PromotionsApi` opzionale dal port UI, fornito sempre dalla shell live: saldo e riscatto appartengono all'organizzatore. `GroupFulfillment.benefits` porta solo codici e scelta premio al motore canonico; nessun saldo o controllo fedeltà è mostrato agli invitati. A totale zero verificato la conferma carta non richiede Stripe; la raccolta resta congelata dopo l'invio e l'annullamento individuale ripristina benefici sul servizio.
 
+Per la consegna, il checkout dell’organizzatore riusa `DeliveryAddressField` dall’entry pubblico di `individual-ordering` e cerca l’indirizzo tramite `IndividualApi`. Il civico scelto entra nel preventivo canonico del gruppo. [Flusso](../../../../../.agents/product-definition/flows/group-ordering.md).
+
 Verifica: test/lint/typecheck/build client e `pnpm architecture:check`. Browser: `pnpm exec playwright test --config playwright.group-ordering.config.ts`, con due app reali e servizio test isolato, guest distinti, riepilogo admin e regressione individuale. Specifica: `.agents/design/2026-11-05-group-ordering/`.

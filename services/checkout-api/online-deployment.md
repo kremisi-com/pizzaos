@@ -2,12 +2,19 @@
 
 Stato verificato il 23 novembre 2026: ambiente **test** nuovamente raggiungibile dopo l'upgrade Neon. Il [collaudo del 23 novembre](#ripristino-e-collaudo-del-23-novembre-2026) conferma il percorso cliente → admin → rider. Client e admin offrono `/poc` con accesso manuale e [accesso automatico dalla landing](#accesso-dalla-landing-del-23-novembre-2026). Rider appartiene ad admin. `pizzaos-api` è il servizio condiviso per identità, permessi, ordini, pagamenti e persistenza.
 
+## Sottodomini delle sedi del 23 novembre 2026
+
+- Pilota test D76 pubblicato nel team `kremisis-projects` dal sorgente `2e40052` con le modifiche dei sottodomini. Backend `dpl_7rA21YdUcULUvEacmVsjDHXaBtzu`, client `dpl_GXuFnzn9839udrFjm3JrGKVdcPTc`, admin/rider `dpl_CpW3xWZMiCYD386efzeEbkdRRe8j`. L'autocompletamento indirizzi D77 segue il proprio rilascio.
+- Il wildcard `*.pizzaos.app` è verificato sul progetto `pizzaos-client`. `lapizzaspeciale.pizzaos.app` risponde in HTTPS con la pagina di sito non configurato e il servizio risponde 404 alla ricerca della sede. `client.pizzaos.app` e `bella-napoli.pizzaos.app` restituiscono la lista pilota.
+- Health API 200, accesso diretto senza credenziale 403, sessione anonima via proxy client 200. Worker `reconciliation` pronto, una istanza in `fra1`. Il primo deploy backend era privo del pacchetto workspace `@pizzaos/domain` e ha restituito 500. Dopo il ripristino del deploy precedente, il bundle corretto è stato caricato fuori dal monorepo con Node 24 e pubblicato.
+- Assegnazione dal superadmin, menu della sede e gruppo sono stati provati localmente. Nessuna nuova sede è stata salvata nel pilota per il collaudo. Il login Google sul nuovo tipo di host ha una prova locale della callback con provider simulato.
+
 ## Risorse attive
 
 - Landing: [www.pizzaos.app](https://www.pizzaos.app/), progetto `pizzaos-landing` (`prj_yyR1GmNDbfdtbR6ssqOgqUB15Te8`), deployment `dpl_4QWPXgyvGo32WkGRfgPoHspspMHr`.
-- Frontend operativo: [admin.pizzaos.app](https://admin.pizzaos.app) e [rider.pizzaos.app](https://rider.pizzaos.app), progetto Vercel `pizzaos-admin` (`prj_KzbNoKFKlPO2c8VhzHi5pfDCxDuO`), deployment `dpl_9wqczzw7j4vvB7zu3sXoc9v8qUQF`.
-- Client: [client.pizzaos.app](https://client.pizzaos.app), progetto `pizzaos-client` (`prj_0qkFSagSHGAOMNrtRIRdRlQb1GmE`), deployment `dpl_8dPNGbwBPhLt4yXQA263WU6vnwZ9`, collegato allo stesso backend test.
-- Backend: [api.pizzaos.app](https://api.pizzaos.app/health), progetto `pizzaos-api` (`prj_01XINfSPgNT78cwfwq34z62SyDbg`), deployment `dpl_43keg1rtqQs6dMRW649NygwVXgwA`. API Node 24 e daemon `reconciliation` separati. Durante il rilascio POC il daemon da 1 GiB risultava Ready con una istanza in `fra1`, riattivata dall'utente dopo il collaudo precedente.
+- Frontend operativo: [admin.pizzaos.app](https://admin.pizzaos.app) e [rider.pizzaos.app](https://rider.pizzaos.app), progetto Vercel `pizzaos-admin` (`prj_KzbNoKFKlPO2c8VhzHi5pfDCxDuO`), deployment `dpl_CpW3xWZMiCYD386efzeEbkdRRe8j`.
+- Client: [client.pizzaos.app](https://client.pizzaos.app), progetto `pizzaos-client` (`prj_0qkFSagSHGAOMNrtRIRdRlQb1GmE`), deployment `dpl_GXuFnzn9839udrFjm3JrGKVdcPTc` con wildcard `*.pizzaos.app`, collegato allo stesso backend test.
+- Backend: [api.pizzaos.app](https://api.pizzaos.app/health), progetto `pizzaos-api` (`prj_01XINfSPgNT78cwfwq34z62SyDbg`), deployment `dpl_7rA21YdUcULUvEacmVsjDHXaBtzu`. API Node 24 e daemon `reconciliation` separati. Il daemon da 1 GiB è pronto con una istanza in `fra1`.
 - Team Vercel `kremisis-projects`, piano Hobby. Il nome dell'ambiente Vercel Production identifica gli alias pubblici del pilota, con `PIZZAOS_ENVIRONMENT=test`, database test e chiavi Stripe test. L'organizzazione Neon è passata a Launch il 23 novembre.
 - La configurazione Secret del backend include la allowlist dei destinatari email test. Client e admin usano il backend HTTPS e il relativo segreto proxy server-only; le origini canoniche di admin/rider sono configurate nello stesso progetto. Landing e backend condividono la chiave Secret dei pass demo. Nessun segreto nei sorgenti o nel pacchetto caricato.
 - Neon, account Andrea: progetto `pizzaos` (`dawn-base-64314765`), PostgreSQL 17, `aws-eu-central-1`. Branch test `br-tiny-art-baqa23dy`, database `pizzaos_test`, migrazione idempotente. Ruolo `pizzaos_test_app` con lettura/scrittura, senza superuser o CREATE nello schema pubblico.

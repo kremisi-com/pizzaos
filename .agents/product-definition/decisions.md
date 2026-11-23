@@ -153,6 +153,18 @@ Nelle successive conferme dell'handoff Sentry del 20 novembre 2026 l'utente ha a
 
 Dopo accesso corretto e diagnosi della quota rete Neon, l'utente ha scelto esplicitamente «Resta gratis: sospendi il worker e prepara il ripristino». Il worker è stato portato a zero istanze; variabili e pacchetto sono predisposti, senza nuovo deploy o upgrade. Il prossimo passo concordato è il [ripristino manuale gratuito](../../services/checkout-api/restore-test-after-quota.md) dopo verifica del reset e del traffico; il rinnovo del periodo Neon è atteso il 1 dicembre 2026 alle 01:00 italiane.
 
+## Sottodomini del sito ordini
+
+| ID | Decisione | Stato | Fonte |
+|---|---|---|---|
+| D76 | Il superadmin assegna una sola etichetta pubblica per sede nel Profilo. I sottodomini `*.pizzaos.app` usano lo stesso deploy client. Per ogni sottodominio assegnato il servizio identifica una sola sede e limita menu, ordini e gruppi. La pagina cliente della sede non mostra il selettore. | DECISO | Conferma utente del 2026-11-23. [Flusso](flows/customer-ordering-and-payment.md#sottodomini-delle-sedi) |
+
+## Indirizzo di consegna nel client
+
+| ID | Decisione | Stato | Fonte |
+|---|---|---|---|
+| D77 | Il cliente inserisce l’indirizzo di consegna in un campo di testo con autocompletamento di vie e civici. Il client ricava il punto dall’indirizzo scelto. | DECISO | Richiesta utente del 2026-11-23. [Flusso](flows/customer-ordering-and-payment.md#indirizzo-di-consegna) |
+
 ## Decisioni che richiedono una ricerca o conferma esterna
 
 - D31 — Obblighi legali/fiscali e gestione privacy per il mercato iniziale. RINVIATO con D16; non progettare come risolti.

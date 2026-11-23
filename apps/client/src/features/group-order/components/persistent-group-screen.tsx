@@ -6,7 +6,7 @@ import type {
   IndividualApi, IndividualCheckoutResult, IndividualLine, IndividualProduct, IndividualSession, IndividualStore, PromotionsApi
 } from "@pizzaos/domain";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { IndividualStripeFields, OrderSlotSelect, type ConfirmIndividualPayment } from "../../individual-ordering";
+import { DeliveryAddressField, hasDeliveryPoint, IndividualStripeFields, OrderSlotSelect, type ConfirmIndividualPayment } from "../../individual-ordering";
 import { PromotionSelectionPanel, PromotionSummary } from "../../promotions";
 import styles from "./persistent-group-screen.module.css";
 
@@ -59,7 +59,8 @@ function GroupProduct({ product, disabled, onAdd }: {
   </article>;
 }
 
-export function PersistentGroupScreen({ api, individualApi, promotionsApi, groupId, inviteToken, pollMs = 2000 }: {
+export function PersistentGroupScreen({ api, individualApi, promotionsApi, groupId, inviteToken, pollMs = 2000, storefront = false }: {
+  storefront?: boolean;
   api: GroupOrderingApi; individualApi: IndividualApi; promotionsApi?: PromotionsApi; groupId?: string; inviteToken?: string; pollMs?: number;
 }) {
   const [activeId, setActiveId] = useState(groupId);
@@ -218,7 +219,8 @@ export function PersistentGroupScreen({ api, individualApi, promotionsApi, group
     {activeId && <p role="status" className={styles.small}>{connection}</p>}
     {!activeId && <section className={`${styles.card} ${styles.create}`}><h2>Apri una raccolta</h2><p>Il link funziona anche per chi non ha un account.</p>
       {session?.actor ? <form onSubmit={event => { event.preventDefault(); void run(create); }}>
-        <label>Sede<select aria-label="Sede" value={storeId} disabled={busy} onChange={event => setStoreId(event.target.value)}>{stores.map(location => <option value={location.id} key={location.id}>{location.name}</option>)}</select></label>
+        {!storefront ? <label>Sede<select aria-label="Sede" value={storeId} disabled={busy} onChange={event => setStoreId(event.target.value)}>{stores.map(location => <option value={location.id} key={location.id}>{location.name}</option>)}</select></label>
+          : stores[0] && <p>Sede <strong>{stores[0].name}</strong></p>}
         <label>Nome<input maxLength={120} required value={name} disabled={busy} onChange={event => setName(event.target.value)} /></label>
         <label>Scadenza raccolta<input type="datetime-local" required value={deadline} disabled={busy} onChange={event => setDeadline(event.target.value)} /></label>
         <p className={styles.small}>La scadenza chiude solo le scelte: non è uno slot di consegna e non avvia pagamenti. Scorte e fasce si verificano al checkout.</p>
@@ -260,15 +262,12 @@ export function PersistentGroupScreen({ api, individualApi, promotionsApi, group
       {host && pending && <div className={styles.notice}><p>Un tentativo deve essere verificato prima di cambiare il gruppo o inviare un altro ordine.</p><button type="button" disabled={busy} onClick={() => void run(recover)}>Recupera tentativo gruppo</button></div>}
       {host && group.status === "closed" && <fieldset disabled={busy || pending}><legend>Consegna e pagamento</legend>
         <label>Modalità<select aria-label="Modalità" value={fulfillment.mode} onChange={event => changeFulfillment({ ...fulfillment, mode: event.target.value === "delivery" ? "delivery" : "pickup", address: undefined })}><option value="pickup">Ritiro in pizzeria</option><option value="delivery">Consegna a domicilio</option></select></label>
-        {fulfillment.mode === "delivery" && <><label>Indirizzo completo<input required value={fulfillment.address?.text ?? ""} onChange={event => changeFulfillment({ ...fulfillment, address: { text: event.target.value, latitude: fulfillment.address?.latitude ?? 0, longitude: fulfillment.address?.longitude ?? 0 } })} /></label>
-          <p className={styles.small}>Conferma il punto di consegna per verificare zona e costo.</p><div className={styles.columns}>
-            <label>Latitudine<input type="number" step="any" min={-90} max={90} value={fulfillment.address?.latitude ?? ""} onChange={event => changeFulfillment({ ...fulfillment, address: { text: fulfillment.address?.text ?? "", latitude: Number(event.target.value), longitude: fulfillment.address?.longitude ?? 0 } })} /></label>
-            <label>Longitudine<input type="number" step="any" min={-180} max={180} value={fulfillment.address?.longitude ?? ""} onChange={event => changeFulfillment({ ...fulfillment, address: { text: fulfillment.address?.text ?? "", latitude: fulfillment.address?.latitude ?? 0, longitude: Number(event.target.value) } })} /></label>
-          </div></>}
+        {fulfillment.mode === "delivery" && <DeliveryAddressField key={group.id} storeId={group.storeId} address={fulfillment.address}
+          search={individualApi.searchDeliveryAddresses} disabled={busy || pending} onChange={address => changeFulfillment({ ...fulfillment, address })} />}
         <OrderSlotSelect store={store} value={fulfillment.slotId} onChange={slotId => changeFulfillment({ ...fulfillment, slotId })} />
         <label>Note per l&apos;ordine<textarea maxLength={1000} value={fulfillment.notes} onChange={event => changeFulfillment({ ...fulfillment, notes: event.target.value })} /></label>
         {promotionsApi && <PromotionSelectionPanel api={promotionsApi} storeId={group.storeId} selection={fulfillment.benefits} disabled={busy || pending} onChange={benefits => changeFulfillment({ ...fulfillment, benefits })} onTermsChange={invalidateQuote} />}
-        <button type="button" disabled={!canCheckout || dirty || !group.participants.some(person => person.lines.length)} onClick={() => void run(verify)}>Verifica totale gruppo</button>
+        <button type="button" disabled={!canCheckout || dirty || !group.participants.some(person => person.lines.length) || (fulfillment.mode === "delivery" && !hasDeliveryPoint(fulfillment.address))} onClick={() => void run(verify)}>Verifica totale gruppo</button>
         {validQuote && <section aria-label="Riepilogo da confermare"><h3>Riepilogo da confermare</h3>{quote.quote.lines.map((line, index) => <p key={`${line.productId}-${index}`}>{line.quantity} × {line.name} · {money(line.quantity * line.unitCents)}<br /><span className={styles.small}>{line.notes}</span></p>)}
           <PromotionSummary quote={quote.quote} />
           {!quote.quote.promotions && <><p>Consegna: {money(quote.quote.deliveryCents)}</p><p className={styles.total}>Totale: <strong>{money(quote.quote.totalCents)}</strong></p></>}<p>Orario: {formatOrderWindow(quote.quote.slotStartsAt, quote.quote.slotEndsAt, quote.quote.slotTimeZone)}</p></section>}

@@ -11,5 +11,6 @@ export default async function AdminPage(): Promise<ReactElement>
   const host = await getRequestOperationalHost();
   if (host?.surface === "rider") return <OperationalPage surface="rider"><RiderShell /></OperationalPage>;
   if (host && await getExperienceMode((await cookies()).toString(), host.origin) === "demo") return <AdminShell />;
-  return <OperationalPage surface="admin"><IndividualOperationsShell riderHref={process.env.PIZZAOS_RIDER_ORIGIN?.trim() || "/rider"} /></OperationalPage>;
+  return <OperationalPage surface="admin"><IndividualOperationsShell riderHref={process.env.PIZZAOS_RIDER_ORIGIN?.trim() || "/rider"}
+    orderingDomain={process.env.PIZZAOS_ORDERING_DOMAIN?.trim().toLowerCase()} /></OperationalPage>;
 }

@@ -15,8 +15,18 @@ const packageJson = { name: "pizzaos-api-runtime", version: "0.1.0", private: tr
 await mkdir(path.join(output, "api"), { recursive: true });
 await mkdir(path.join(output, "worker"), { recursive: true });
 for (const [entry, target] of [["vercel-api.ts", "api/index.mjs"], ["worker.ts", "worker/index.mjs"]]) {
-  await build({ entryPoints: [path.join(serviceRoot, "src", entry)], outfile: path.join(output, target),
-    bundle: true, platform: "node", format: "esm", target: "node24", packages: "external", sourcemap: "inline", sourcesContent: false });
+  const result = await build({
+    entryPoints: [path.join(serviceRoot, "src", entry)], outfile: path.join(output, target),
+    bundle: true, platform: "node", format: "esm", target: "node24", packages: "external",
+    alias: { "@pizzaos/domain": path.join(workspaceRoot, "packages/domain/src/index.ts") },
+    metafile: true, sourcemap: "inline", sourcesContent: false
+  });
+  const unresolvedWorkspaceImport = Object.values(result.metafile.outputs)
+    .flatMap(file => file.imports)
+    .find(dependency => dependency.external && dependency.path.startsWith("@pizzaos/"));
+  if (unresolvedWorkspaceImport) {
+    throw new Error(`Il pacchetto di deploy ${target} dipende ancora da ${unresolvedWorkspaceImport.path}.`);
+  }
 }
 await writeFile(path.join(output, "package.json"), JSON.stringify(packageJson, null, 2) + "\n");
 await writeFile(path.join(output, "worker/package.json"), JSON.stringify(packageJson, null, 2) + "\n");

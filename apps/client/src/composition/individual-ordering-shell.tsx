@@ -5,7 +5,7 @@ import { IndividualOrderingScreen } from "../features/individual-ordering/compon
 import { createIndividualApi } from "./api/individual-api";
 import { createPromotionsApi } from "./api/promotions-api";
 
-export function IndividualOrderingShell() {
+export function IndividualOrderingShell({ storefront }: { storefront?: boolean }) {
   const api = useMemo(() => createIndividualApi(), []);
   const promotionsApi = useMemo(() => createPromotionsApi(), []);
   const [refreshVersion, setRefreshVersion] = useState(0);
@@ -46,5 +46,5 @@ export function IndividualOrderingShell() {
     }).catch(() => { if (alive) setConnection("Servizio non raggiungibile"); });
     return () => { alive = false; stream?.close(); if (polling) clearInterval(polling); };
   }, [api]);
-  return <IndividualOrderingScreen api={api} promotionsApi={promotionsApi} refreshVersion={refreshVersion} connection={connection} />;
+  return <IndividualOrderingScreen api={api} promotionsApi={promotionsApi} refreshVersion={refreshVersion} connection={connection} storefront={storefront} />;
 }

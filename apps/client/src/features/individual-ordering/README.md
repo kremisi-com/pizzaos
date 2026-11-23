@@ -6,6 +6,8 @@ L'entry pubblico `index.ts` esporta `IndividualStripeFields` e `ConfirmIndividua
 
 Il selettore pubblico `OrderSlotSelect` è condiviso con il checkout gruppo. Mostra le finestre del catalogo nel fuso orario della sede, incluse quelle in corso, e disabilita quelle esaurite.
 
+`DeliveryAddressField` è condiviso con il checkout gruppo. Usa `IndividualApi.searchDeliveryAddresses` per cercare vie e civici vicino alla sede. Solo la scelta di un civico aggiorna il punto nel carrello. Il backend conserva le regole di area, costo e minimo. [Flusso e casi limite](../../../../../.agents/product-definition/flows/customer-ordering-and-payment.md#indirizzo-di-consegna).
+
 La composizione live inietta anche `PromotionsApi`: la capability pubblica `features/promotions` presenta wallet e scelta codici/premio, mentre il checkout canonico calcola ogni beneficio. Il copier/validator del draft e del tentativo originale conserva solo `benefits` (codici e boolean di riscatto), mai saldo o breakdown fidati. I conflitti economici precedenti all'ordine permettono correzione e nuova quote; esiti incerti mantengono la richiesta originale. Totale zero confermato server non richiede Stripe anche col metodo carta.
 
 La modalità demo precedente è separata. Requisiti e contratti sono in `.agents/design/2026-11-05-individual-ordering/ordering-surfaces/`. Verificare lint, typecheck, test e build dell'app, controllo architettura ed E2E individuale.

@@ -1,11 +1,14 @@
 import Fastify, { LogController, type FastifyRequest, type FastifyBaseLogger } from "fastify";
 import { randomUUID } from "node:crypto";
 import { classifyFailure, createDiagnostics, type Diagnostics } from "./diagnostics";
+import { DELIVERY_ADDRESS_QUERY_MAX_LENGTH, DELIVERY_ADDRESS_QUERY_MIN_LENGTH } from "@pizzaos/domain";
 import type { IndividualActor, IndividualAction, IndividualAdditionRequest, IndividualLine, IndividualCart, IndividualCheckout, IndividualStore } from "@pizzaos/domain";
+import type { DeliveryAddressAutocomplete } from "./delivery-address-autocomplete";
 import type { OrderingService } from "./ordering-contract";
 import { OrderingError } from "./ordering-service";
 import { normalizePromotionSelection } from "./promotions/selection";
 import { storeAddressLimit } from "./store-address";
+import { authorizeOrderingSiteRoute, findOrderingSite, orderingSubdomainForOrigin, type OrderingSite, type OrderingSites } from "./ordering-sites";
 
 export interface OrderingHttpOptions {
   service: OrderingService;
@@ -15,8 +18,11 @@ export interface OrderingHttpOptions {
   isDemoRequest?: (request: FastifyRequest) => boolean;
   webhook?: (body: Buffer, signature: string) => Promise<void>;
   diagnostics?: Diagnostics;
+  orderingSites?: OrderingSites;
+  deliveryAddressAutocomplete?: DeliveryAddressAutocomplete;
 }
 
+const deliveryAddressSearch = "/v1/pilot/stores/:id/delivery-address-search";
 const text = { type: "string", minLength: 1, maxLength: 500 };
 const notes = { type: "string", maxLength: 2000 };
 const cents = { type: "integer", minimum: 0, maximum: 100000000 };
@@ -34,6 +40,7 @@ const cart = { type: "object", additionalProperties: false, required: ["storeId"
   } }
 } };
 const store = { type: "object", additionalProperties: false, required: ["id", "name", "latitude", "longitude", "acceptingOrders", "deliveryBands", "ingredients", "products", "slots"], properties: {
+  orderingSubdomain: { type: "string", minLength: 1, maxLength: 63 },
   address: { type: "string", minLength: 1, maxLength: storeAddressLimit },
   addressConfirmation: { type: "string", minLength: 1, maxLength: 4044 },
   orderSchedule: { type: "object", additionalProperties: false, required: ["revision", "days"], properties: {
@@ -64,9 +71,20 @@ export function buildOrderingApp(options: OrderingHttpOptions) {
   const app = Fastify({ loggerInstance: diagnostics.logger as FastifyBaseLogger, logController: new LogController({ disableRequestLogging: true }), requestIdHeader: false, genReqId: () => randomUUID(), bodyLimit: 1024 * 1024 });
   const service = options.service;
   const starts = new WeakMap<FastifyRequest, number>();
+  const sites = options.orderingSites;
+  const requestSites = new WeakMap<FastifyRequest, OrderingSite>();
+  const actors = new WeakMap<FastifyRequest, Promise<IndividualActor | null>>();
+  function authenticate(request: FastifyRequest) {
+    const cached = actors.get(request);
+    if (cached) return cached;
+    const actor = options.authenticate(request);
+    actors.set(request, actor);
+    return actor;
+  }
   app.addHook("onRequest", (request, reply, done) => {
     starts.set(request, performance.now());
     reply.header("x-request-id", request.id);
+    if (request.routeOptions.url === deliveryAddressSearch) reply.header("cache-control", "no-store");
     diagnostics.run({ operation: "http_request", requestId: request.id, method: request.method, route: request.routeOptions.url ?? "/unknown" }, done);
   });
   app.addHook("onResponse", async (request, reply) => {
@@ -90,15 +108,57 @@ export function buildOrderingApp(options: OrderingHttpOptions) {
     if (options.authorizeProxy && !options.authorizeProxy(request)) {
       return reply.code(403).send({ code: "forbidden", message: "Accesso non consentito." });
     }
+    const origin = request.headers["x-pizzaos-origin"];
+    if (sites && typeof origin === "string" && !sites.origins.includes(origin)) {
+      const subdomain = orderingSubdomainForOrigin(origin, sites.domain);
+      const site = subdomain && await findOrderingSite(sites, subdomain);
+      if (!site) throw new OrderingError("not_found", "Il sito ordini di questa sede non è configurato.");
+      if (request.method !== "GET" && request.headers.origin !== origin) {
+        throw new OrderingError("forbidden", "Origine richiesta non consentita.");
+      }
+      requestSites.set(request, site);
+    }
     // Deny by default outside authentication; raw URL prefixes can be percent-encoded.
     if (!request.url.startsWith("/api/pilot/auth/") && options.isDemoRequest?.(request)) {
       return reply.code(403).header("cache-control", "no-store").send({ code: "demo_session", message: "La demo non può accedere alle operazioni reali." });
     }
   });
+  app.addHook("preHandler", async request => {
+    const site = requestSites.get(request);
+    if (sites && site) await authorizeOrderingSiteRoute(request, site, sites, async () => (await authenticate(request))?.id);
+  });
   app.get("/health", async () => ({ status: "ok" }));
-  app.get("/v1/pilot/session", async request => service.session(await options.authenticate(request)));
-  app.get("/v1/pilot/stores", async request => service.stores(await options.authenticate(request)));
-  app.get<{ Params: { id: string } }>("/v1/pilot/stores/:id", async request => service.catalog(request.params.id, await options.authenticate(request)));
+  app.get("/v1/pilot/ordering-site", async request => {
+    const site = requestSites.get(request);
+    if (!site) throw new OrderingError("not_found", "Il sito ordini di questa sede non è configurato.");
+    return site;
+  });
+  app.get("/v1/pilot/session", async request => {
+    const actor = await authenticate(request);
+    return requestSites.has(request) ? { actor, superadmin: false, storeIds: [] } : service.session(actor);
+  });
+  app.get("/v1/pilot/stores", async request => {
+    const site = requestSites.get(request);
+    return site ? [await service.catalog(site.storeId)] : service.stores(await authenticate(request));
+  });
+  app.get<{ Params: { id: string } }>("/v1/pilot/stores/:id", async request => service.catalog(request.params.id,
+    requestSites.has(request) ? null : await authenticate(request)));
+  app.post<{ Params: { id: string }; Body: { query?: unknown } | null }>(deliveryAddressSearch, { bodyLimit: 4096 }, async request => {
+    const body = request.body;
+    const query = typeof body?.query === "string" && Object.keys(body).length === 1 ? body.query.trim() : "";
+    if (query.length < DELIVERY_ADDRESS_QUERY_MIN_LENGTH || query.length > DELIVERY_ADDRESS_QUERY_MAX_LENGTH) {
+      throw new OrderingError("invalid_input", "Inserisci da 3 a 200 caratteri per cercare l’indirizzo.");
+    }
+    const { id, latitude, longitude } = await service.catalog(request.params.id, null);
+    const provider = options.deliveryAddressAutocomplete;
+    const unavailable = "Ricerca indirizzi temporaneamente non disponibile.";
+    if (!provider) throw new OrderingError("service_unavailable", unavailable);
+    try {
+      return await provider.search(query, { id, latitude, longitude });
+    } catch {
+      throw new OrderingError("service_unavailable", unavailable);
+    }
+  });
   async function rawEconomicInput(request: FastifyRequest) {
     const body: unknown = request.body;
     const invalid = () => { throw new OrderingError("invalid_input", "Controlla i dati inseriti."); };
@@ -126,12 +186,16 @@ export function buildOrderingApp(options: OrderingHttpOptions) {
   }
   app.post<{ Body: { cart: IndividualCart } }>("/v1/pilot/quote", { preValidation: rawEconomicInput, schema: { body: { type: "object", required: ["cart"], additionalProperties: false, properties: { cart } } } }, async request => service.quote(request.body.cart, await options.authenticate(request)));
   app.post<{ Body: IndividualCheckout }>("/v1/pilot/checkouts", { preValidation: rawEconomicInput, schema: { body: { type: "object", required: ["cart", "fingerprint", "phone", "method", "idempotencyKey"], additionalProperties: false, properties: { cart, fingerprint: text, phone: text, method: { enum: ["card", "cash"] }, idempotencyKey: text } } } }, async request => service.checkout(await options.authenticate(request), request.body));
-  app.get<{ Querystring: { storeId?: string } }>("/v1/pilot/orders", async request => service.orders(await options.authenticate(request), request.query.storeId));
-  app.post<{ Params: { id: string } }>("/v1/pilot/orders/:id/reconcile", async request => service.reconcile(await options.authenticate(request), request.params.id));
-  app.post<{ Params: { id: string }; Body: { lines: IndividualLine[] } }>("/v1/pilot/orders/:id/additions/quote", { schema: { body: { type: "object", required: ["lines"], additionalProperties: false, properties: { lines: { type: "array", minItems: 1, maxItems: 100, items: line } } } } }, async request => service.additionQuote(await options.authenticate(request), request.params.id, request.body.lines));
-  app.post<{ Params: { id: string }; Body: IndividualAdditionRequest }>("/v1/pilot/orders/:id/additions", { schema: { body: { type: "object", required: ["lines", "fingerprint", "idempotencyKey"], additionalProperties: false, properties: { lines: { type: "array", minItems: 1, maxItems: 100, items: line }, fingerprint: text, idempotencyKey: text } } } }, async request => service.additions(await options.authenticate(request), request.params.id, request.body));
-  app.post<{ Params: { id: string }; Body: IndividualAction }>("/v1/pilot/orders/:id/actions", { schema: { body: { type: "object", additionalProperties: false, required: ["action"], properties: { action: { enum: ["accept", "wait_for_customer", "cancel", "prepare", "ready", "dispatch", "complete", "retry_refund"] }, unavailableProductIds: { type: "array", uniqueItems: true, maxItems: 100, items: text } } } } }, async request => service.action(await options.authenticate(request), request.params.id, request.body));
-  app.patch<{ Params: { id: string }; Body: { notes: string } }>("/v1/pilot/orders/:id/notes", { schema: { body: { type: "object", required: ["notes"], additionalProperties: false, properties: { notes } } } }, async request => service.notes(await options.authenticate(request), request.params.id, request.body.notes));
+  app.get<{ Querystring: { storeId?: string } }>("/v1/pilot/orders", async request => {
+    const actor = await authenticate(request);
+    const site = requestSites.get(request);
+    return site ? service.orders(actor, undefined, site.storeId) : service.orders(actor, request.query.storeId);
+  });
+  app.post<{ Params: { id: string } }>("/v1/pilot/orders/:id/reconcile", async request => service.reconcile(await authenticate(request), request.params.id));
+  app.post<{ Params: { id: string }; Body: { lines: IndividualLine[] } }>("/v1/pilot/orders/:id/additions/quote", { schema: { body: { type: "object", required: ["lines"], additionalProperties: false, properties: { lines: { type: "array", minItems: 1, maxItems: 100, items: line } } } } }, async request => service.additionQuote(await authenticate(request), request.params.id, request.body.lines));
+  app.post<{ Params: { id: string }; Body: IndividualAdditionRequest }>("/v1/pilot/orders/:id/additions", { schema: { body: { type: "object", required: ["lines", "fingerprint", "idempotencyKey"], additionalProperties: false, properties: { lines: { type: "array", minItems: 1, maxItems: 100, items: line }, fingerprint: text, idempotencyKey: text } } } }, async request => service.additions(await authenticate(request), request.params.id, request.body));
+  app.post<{ Params: { id: string }; Body: IndividualAction }>("/v1/pilot/orders/:id/actions", { schema: { body: { type: "object", additionalProperties: false, required: ["action"], properties: { action: { enum: ["accept", "wait_for_customer", "cancel", "prepare", "ready", "dispatch", "complete", "retry_refund"] }, unavailableProductIds: { type: "array", uniqueItems: true, maxItems: 100, items: text } } } } }, async request => service.action(await authenticate(request), request.params.id, request.body, requestSites.has(request)));
+  app.patch<{ Params: { id: string }; Body: { notes: string } }>("/v1/pilot/orders/:id/notes", { schema: { body: { type: "object", required: ["notes"], additionalProperties: false, properties: { notes } } } }, async request => service.notes(await authenticate(request), request.params.id, request.body.notes));
   app.post<{ Params: { id: string }; Body: { query: string } }>("/v1/pilot/stores/:id/address-search", {
     schema: { body: { type: "object", additionalProperties: false, required: ["query"], properties: {
       query: { type: "string", minLength: 5, maxLength: storeAddressLimit }
@@ -150,12 +214,13 @@ export function buildOrderingApp(options: OrderingHttpOptions) {
     return reply.code(204).send();
   });
   const eventsQuery = { type: "object", properties: { cursor: { type: "integer", minimum: 0 }, storeId: text } };
-  app.get<{ Querystring: { cursor?: number; storeId?: string } }>("/v1/pilot/events", { schema: { querystring: eventsQuery } }, async request => service.events(await options.authenticate(request), request.query.cursor ?? 0, request.query.storeId));
+  app.get<{ Querystring: { cursor?: number; storeId?: string } }>("/v1/pilot/events", { schema: { querystring: eventsQuery } }, async request => service.events(await authenticate(request), request.query.cursor ?? 0, request.query.storeId, requestSites.get(request)?.storeId));
   app.get<{ Querystring: { cursor?: number; storeId?: string } }>("/v1/pilot/stream", { schema: { querystring: eventsQuery } }, async (request, reply) => {
     let cursor = request.query.cursor ?? Number(request.headers["last-event-id"] ?? 0);
     if (!Number.isSafeInteger(cursor) || cursor < 0) return reply.code(400).send({ code: "invalid_input", message: "Cursore non valido." });
     let actor = await options.authenticate(request);
-    const initial = await service.events(actor, cursor, request.query.storeId);
+    const customerStoreId = requestSites.get(request)?.storeId;
+    const initial = await service.events(actor, cursor, request.query.storeId, customerStoreId);
     reply.hijack();
     reply.raw.writeHead(200, { "Content-Type": "text/event-stream", "Cache-Control": "no-store", Connection: "keep-alive", "X-Accel-Buffering": "no", "X-Request-Id": request.id });
     const emit = (payload: typeof initial) => { cursor = payload.cursor; reply.raw.write(`id: ${cursor}\ndata: ${JSON.stringify(payload)}\n\n`); };
@@ -166,7 +231,7 @@ export function buildOrderingApp(options: OrderingHttpOptions) {
       busy = true;
       try {
         actor = await options.authenticate(request);
-        emit(await service.events(actor, cursor, request.query.storeId));
+        emit(await service.events(actor, cursor, request.query.storeId, customerStoreId));
       } catch (error) {
         diagnostics.report(error, { operation: "event_stream", requestId: request.id, route: request.routeOptions.url, method: request.method });
         reply.raw.end();

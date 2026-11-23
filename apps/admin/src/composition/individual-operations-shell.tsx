@@ -44,7 +44,7 @@ function mergeStoreChanges(current: IndividualStore, original: IndividualStore, 
   return next;
 }
 
-export function IndividualOperationsShell({ riderHref }: { riderHref?: string }) {
+export function IndividualOperationsShell({ riderHref, orderingDomain }: { riderHref?: string; orderingDomain?: string }) {
   const api = useMemo(() => createIndividualApi(), []);
   const [tab, setTab] = useState<AdminTab>("dashboard");
   const [session, setSession] = useState<IndividualSession | null>(null);
@@ -262,6 +262,7 @@ export function IndividualOperationsShell({ riderHref }: { riderHref?: string })
         <Button type="button" variant="secondary" disabled={busy} onClick={() => { setCreating(true); setError(""); setNotice(""); }}>Nuova sede</Button>}
       {creating || store ? <StoreConfiguration key={creating ? "new" : `${storeId}:${tab}:${configurationVersion}`}
         store={creating ? emptyStore : store ?? emptyStore} isNew={creating} section={tab} busy={busy}
+        orderingDomain={orderingDomain} canPublish={session.superadmin}
         onSearchAddress={api.searchStoreAddresses} onSave={save} />
         : storeId && !catalogError && <p role="status">Caricamento configurazione…</p>}
       {tab === "profile" && creating && <Button type="button" variant="secondary" disabled={busy} onClick={() => setCreating(false)}>Annulla creazione</Button>}

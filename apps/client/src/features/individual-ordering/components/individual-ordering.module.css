@@ -29,7 +29,6 @@
 .cartLines li { border-bottom: 1px solid #e9e1d6; padding: 16px 0; }
 .quantity { display: flex; gap: 12px; align-items: center; }
 .quantity label { max-width: 150px; }
-.twoColumns { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .summary { border-top: 1px solid #e7dfd4; margin-top: 24px; padding-top: 8px; }
 .summary > p { display: flex; gap: 12px; justify-content: space-between; }
 .total { font-size: 1.2rem; padding-top: 12px; border-top: 1px solid #e7dfd4; }
@@ -51,4 +50,4 @@
 .additions li { margin: 12px 0; }
 .additions li button { margin-left: 12px; }
 @media (max-width: 850px) { .page .layout { grid-template-columns: 1fr; } .header { align-items: flex-start; } .card { padding: 20px; } }
-@media (max-width: 500px) { .page { padding: 24px 16px 40px; } .header { flex-direction: column; } .heroActions { flex-direction: column; } .product, .card, .order { border-radius: 16px; padding: 18px; } .headingRow { align-items: flex-start; flex-wrap: wrap; } .twoColumns { grid-template-columns: 1fr; } }
+@media (max-width: 500px) { .page { padding: 24px 16px 40px; } .header { flex-direction: column; } .heroActions { flex-direction: column; } .product, .card, .order { border-radius: 16px; padding: 18px; } .headingRow { align-items: flex-start; flex-wrap: wrap; } }

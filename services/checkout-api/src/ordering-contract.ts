@@ -34,16 +34,16 @@ export interface OrderingService {
   catalog(storeId: string, actor?: IndividualActor | null): Promise<IndividualStore>;
   quote(cart: IndividualCart, actor?: IndividualActor | null): Promise<IndividualQuote>;
   checkout(actor: IndividualActor | null, input: IndividualCheckout): Promise<IndividualCheckoutResult>;
-  orders(actor: IndividualActor | null, storeId?: string): Promise<IndividualOrder[]>;
+  orders(actor: IndividualActor | null, storeId?: string, customerStoreId?: string): Promise<IndividualOrder[]>;
   reconcile(actor: IndividualActor | null, orderId: string): Promise<IndividualCheckoutResult>;
-  action(actor: IndividualActor | null, orderId: string, input: IndividualAction): Promise<IndividualOrder>;
+  action(actor: IndividualActor | null, orderId: string, input: IndividualAction, customerOnly?: boolean): Promise<IndividualOrder>;
   notes(actor: IndividualActor | null, orderId: string, notes: string): Promise<IndividualOrder>;
   additionQuote(actor: IndividualActor | null, orderId: string, lines: IndividualLine[]): Promise<IndividualAdditionQuote>;
   additions(actor: IndividualActor | null, orderId: string, input: IndividualAdditionRequest): Promise<IndividualCheckoutResult>;
   searchStoreAddresses(actor: IndividualActor | null, storeId: string, query: string): Promise<StoreAddressCandidate[]>;
   saveStore(actor: IndividualActor | null, store: IndividualStore, addressConfirmation?: string): Promise<IndividualStore>;
   invite(actor: IndividualActor | null, storeId: string, email: string): Promise<void>;
-  events(actor: IndividualActor | null, cursor: number, storeId?: string): Promise<{ cursor: number; events: IndividualEvent[] }>;
+  events(actor: IndividualActor | null, cursor: number, storeId?: string, customerStoreId?: string): Promise<{ cursor: number; events: IndividualEvent[] }>;
   /** Reconcile remote operations and acceptance/reservation deadlines, safe across restarts. */
   tick(): Promise<void>;
 }

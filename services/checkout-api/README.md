@@ -21,9 +21,11 @@ Public domain shapes are `Individual*` and `IndividualApi` from `@pizzaos/domain
 - `POST /v1/pilot/orders/:id/additions/quote`: quote customer-added lines before acceptance.
 - `POST /v1/pilot/orders/:id/additions`: confirm an increase, settled separately with the original method; no original line removal/repricing.
 - `POST /v1/pilot/stores/:id/address-search`: an assigned operator or superadmin searches for the store address. Returns formatted choices with short-lived confirmations bound to the actor, store, and previous position. A new store ID requires superadmin access.
+- `POST /v1/pilot/stores/:id/delivery-address-search` accepts guest and signed-in requests with `{query}` and returns delivery street or address suggestions ranked near the storefront. Only the address results contain a delivery point.
 - `PUT /v1/pilot/stores/:id`: superadmin creates, assigned operator/superadmin updates configuration. An optional `addressConfirmation` applies the confirmed address and coordinates together. To change the weekly order schedule, send its current revision. Omission preserves the saved schedule.
 - `POST /v1/pilot/stores/:id/invitations`: superadmin authorizes an email for a store; the operator signs in via Google/magic link. Invitations are access grants; automatic invitation emails are outside this increment.
 - `GET /v1/pilot/events?cursor=&storeId=` and `/stream`: matching JSON/SSE event envelopes, filtered by customer/store authorization.
+- `GET /v1/pilot/ordering-site`: resolves the assigned storefront for the authenticated proxy origin. Storefront API access is limited to its store and the customer surface. `PUT /v1/pilot/stores/:id` accepts the optional, unique and immutable `orderingSubdomain` assigned by a superadmin.
 - `/api/pilot/auth/*`: Auth.js endpoints proxied by both apps; Google and Nodemailer magic link, PostgreSQL sessions.
 - `POST /v1/stripe/webhook`: direct Stripe endpoint, verifies signature on original bytes then reconciles provider state.
 - `GET /health`: service liveness.
@@ -54,7 +56,7 @@ Eseguire `pnpm migrate` sul PostgreSQL dedicato prima di avviare API e worker ag
 
 Ogni transazione verifica sotto lock la versione dello snapshot in `individual_ordering_state`. Quando coincide, il repository riusa la propria copia e PostgreSQL restituisce solo i metadati. Lo snapshot viene riscritto solo quando cambia il JSON. Il lock continua a serializzare scorte, capacità e transizioni tra istanze. Le operazioni Stripe restano fuori dal lock, dopo il salvataggio di un intento durevole. Il primo accesso di un processo a una versione può richiedere il documento intero, così come una scrittura effettiva. [Benchmark e verifica del traffico](../../.agents/design/2026-11-20-snapshot-traffic/REVIEW.md).
 
-Ingredient quantities/recipe consumption are positive integer units. Stock updates cannot undercut current reservations. Delivery uses geodetic distance from configured store coordinates to the customer-confirmed delivery point and the first inclusive distance band. Store addresses are confirmed from the operator search and saved with the corresponding coordinates in the existing JSON state. Legacy stores retain their saved coordinates. Customer delivery points still use coordinates or geolocation.
+Ingredient quantities/recipe consumption are positive integer units. Stock updates cannot undercut current reservations. Delivery uses geodetic distance from configured store coordinates to the customer-confirmed delivery point and the first inclusive distance band. Store addresses are confirmed from the operator search and saved with the corresponding coordinates in the existing JSON state. Legacy stores retain their saved coordinates. In the client checkout the customer selects a suggested address for their delivery point.
 
 The runtime activates the recurring order calendar for existing stores on first access and preserves dates with reservations in the same state document. The calendar covers today and the next 13 local dates. A window closes to new orders at its end and `acceptingOrders` still suspends new orders. Individual and group checkout share the same capacity. Local browser verification uses `pnpm exec playwright test --config playwright.order-calendar.config.ts`.
 
@@ -62,9 +64,13 @@ The runtime activates the recurring order calendar for existing stores on first 
 
 Use `.env.example` as a template for a **local** `.env`. No credentials belong in committed files. Both app proxies share `PIZZAOS_PROXY_SECRET` with this service; `PIZZAOS_ALLOWED_ORIGINS` lists their exact public origins. Server rejects direct proxy routes without that credential. Browser mutations require matching Origin. Production origins must be HTTPS; run behind a TLS reverse proxy. Stripe webhook is the only remote write endpoint without proxy auth and has its own provider signature.
 
+Le origini HTTPS dei siti di sede si abilitano con `PIZZAOS_ORDERING_DOMAIN` e valgono soltanto dopo aver assegnato la sede. Usare `PIZZAOS_ORDERING_AUTH_ORIGIN` per l'origine client canonica, già presente in `PIZZAOS_ALLOWED_ORIGINS` e in Google. [Procedura deploy](../../.agents/product-definition/architecture/pilot-deployment.md#sottodomini-delle-sedi).
+
 Required: `DATABASE_URL`, `AUTH_SECRET` (32+ characters), `PIZZAOS_PROXY_SECRET` (different 32+ characters), `PIZZAOS_ALLOWED_ORIGINS`, `PIZZAOS_SUPERADMIN_EMAILS`, `AUTH_GOOGLE_ID`, `AUTH_GOOGLE_SECRET`, `SMTP_URL`, `AUTH_EMAIL_FROM`, `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`. Optional: `PIZZAOS_ENVIRONMENT` (`test` or `production`, default `production`; test rejects live Stripe keys), `PAYMENT_RESERVATION_MINUTES` (default 10), `PORT` (3004), `HOST` (127.0.0.1).
 
 Set `OPENCAGE_API_KEY` in the checkout service to enable store address search. Each explicit search sends the address query to [OpenCage](https://opencagedata.com/api) with query retention disabled. Existing store settings and ordering still work when the key is absent. Deploy the updated service before releasing the admin that uses the search.
+
+Set `GEOAPIFY_API_KEY` in the checkout service to enable customer delivery address suggestions. Searches send the typed address and the store position for ranking to the provider. Without the key the search returns 503 and pickup remains available. Deploy the updated service with the key before publishing the matching client. [Geoapify Address Autocomplete](https://apidocs.geoapify.com/docs/geocoding/address-autocomplete/).
 
 From this service directory, using Node with env-file support:
 

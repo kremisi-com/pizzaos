@@ -96,6 +96,8 @@ From repository root:
 - Use `GET /api/deploy-probe` on any assigned domain to confirm that a request reaches the client app. A Vercel-level
   403 before this route responds points to project/domain protection or DNS routing outside the app code.
 
+Impostare `PIZZAOS_ORDERING_DOMAIN` sul progetto con il wildcard configurato. La composizione risolve il sito tramite il servizio e usa l'origine del dominio assegnato. Menu, ordine individuale e gruppo operano nella sede risolta. Percorsi demo e selezione multisede restano disponibili sull'origine pilota. Gli alias cliente precedenti in `PIZZAOS_CLIENT_LEGACY_HOSTS` usano le regole storiche fino a un'eventuale associazione. [Configurazione per ambiente](../../.agents/product-definition/architecture/pilot-deployment.md#sottodomini-delle-sedi).
+
 ## Primo flusso individuale persistente
 
 Pubblicato il 5 novembre 2026 su `https://client.pizzaos.app`, deployment `dpl_CiDb5zmoSTrPnebTdhq3zsGEJmcm`, collegato al backend e database test. Verificati online accesso Google, Stripe Elements con challenge 3DS, ordine fino al completamento rider e tre email operative Delivered. Versioni, evidenze e limiti sono nel [verbale del servizio](../../services/checkout-api/online-client-verification.md); non è ancora un'apertura commerciale e la sede fittizia è richiusa ai nuovi ordini.

@@ -27,6 +27,11 @@ interface RecordGroup {
   frozen?: Frozen; orderId?: string; checkoutCompleted?: boolean;
 }
 interface GroupState extends OrderingState { groups?: Record<string, RecordGroup>; }
+
+export function groupStoreId(state: OrderingState, groupId: string): string | undefined {
+  const groups = (state as GroupState).groups;
+  return groups && Object.hasOwn(groups, groupId) ? groups[groupId].storeId : undefined;
+}
 export class GroupOrderingError extends Error {
   constructor(public code: string, public statusCode: number, message: string) { super(message); }
 }

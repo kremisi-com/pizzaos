@@ -1,4 +1,5 @@
 import { expect, test, type Browser, type BrowserContext, type Page } from "@playwright/test";
+import type { GroupFulfillment } from "@pizzaos/domain";
 
 const clientOrigin = process.env.PIZZAOS_E2E_CLIENT_URL ?? "http://127.0.0.1:3501";
 const adminOrigin = process.env.PIZZAOS_E2E_ADMIN_URL ?? "http://127.0.0.1:3502";
@@ -93,6 +94,49 @@ test("Alice, Marco and Giulia share durable collection; only host submits one at
       await testInfo.attach(name, { path, contentType: "image/png" });
     }
   } finally { await Promise.all(resources.map((context) => context.close())); }
+});
+
+test("the group organizer verifies delivery using the selected address", async ({ browser }) => {
+  const { context, page } = await account(browser, "alice");
+  try {
+    const chosenAddress = { text: "Via Verdi 10, Roma", latitude: 41.91, longitude: 12.51 };
+    await page.route("**/v1/pilot/stores/roma/delivery-address-search", async route => {
+      expect(route.request().method()).toBe("POST");
+      expect(route.request().postDataJSON()).toEqual({ query: "Via Verdi 10" });
+      await route.fulfill({ json: [{ kind: "address", ...chosenAddress }] });
+    });
+    await page.goto(`${clientOrigin}/ordina/gruppo`);
+    await page.getByLabel("Nome", { exact: true }).fill("Alice");
+    await page.getByLabel("Scadenza raccolta", { exact: true }).fill(localDeadline(new Date(Date.now() + 60 * 60 * 1000)));
+    await page.getByRole("button", { name: "Crea gruppo", exact: true }).click();
+    await addFirst(page);
+    await page.getByRole("button", { name: "Chiudi raccolta", exact: true }).click();
+    await page.getByLabel("Modalità", { exact: true }).selectOption("delivery");
+    const address = page.getByLabel("Indirizzo completo", { exact: true });
+    const verify = page.getByRole("button", { name: "Verifica totale gruppo", exact: true });
+    await expect(address).toHaveCount(1);
+    await expect(page.getByLabel(/^(Latitudine|Longitudine)$/i)).toHaveCount(0);
+    await expect(verify).toBeDisabled();
+
+    await address.fill("Via Verdi 10");
+    const option = page.getByRole("option", { name: chosenAddress.text, exact: true });
+    await expect(option).toBeVisible();
+    await expect(verify).toBeDisabled();
+    await option.click();
+    await expect(address).toHaveValue(chosenAddress.text);
+    await expect(verify).toBeEnabled();
+    const pendingQuote = page.waitForResponse(response => /\/v1\/pilot\/groups\/[^/]+\/quote$/.test(response.url()) && response.request().method() === "POST");
+    await verify.click();
+    const quote = await pendingQuote;
+    const { fulfillment } = quote.request().postDataJSON() as { fulfillment: GroupFulfillment };
+    expect(fulfillment.mode).toBe("delivery");
+    expect(fulfillment.address).toEqual(chosenAddress);
+    expect(quote.ok()).toBe(true);
+    expect(await quote.json()).toMatchObject({ quote: { deliveryCents: 200, totalCents: 1000 } });
+    await expect(page.getByRole("heading", { name: "Riepilogo da confermare" })).toBeVisible();
+  } finally {
+    await context.close();
+  }
 });
 
 test("deadline closes collection without a browser timer and hostile guest writes fail", async ({ browser }) => {

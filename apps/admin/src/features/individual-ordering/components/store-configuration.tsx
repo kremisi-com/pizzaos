@@ -17,11 +17,13 @@ function Recipe({ label, ingredients, recipe, onChange }: {
 
 export type StoreConfigurationSection = "catalog" | "inventory" | "profile";
 
-export function StoreConfiguration({ store, isNew, section, busy, onSearchAddress, onSave }: {
+export function StoreConfiguration({ store, isNew, section, busy, orderingDomain, canPublish, onSearchAddress, onSave }: {
   store: IndividualStore;
   isNew: boolean;
   section: StoreConfigurationSection;
   busy: boolean;
+  orderingDomain?: string;
+  canPublish?: boolean;
   onSearchAddress: StoreAddressApi["searchStoreAddresses"];
   onSave: (draft: IndividualStore, original: IndividualStore, addressConfirmation?: string) => Promise<void>;
 }) {
@@ -43,6 +45,15 @@ export function StoreConfiguration({ store, isNew, section, busy, onSearchAddres
         setConfirmedAddress(null);
       }} /></label>
       <label>Nome sede<input required maxLength={150} value={draft.name} onChange={event => update("name", event.target.value)} /></label>
+      {orderingDomain && (original.orderingSubdomain ? <div>
+        <p>Sito ordini</p>
+        <a href={`https://${original.orderingSubdomain}.${orderingDomain}`}>{original.orderingSubdomain}.{orderingDomain}</a>
+      </div> : canPublish && <label>Sottodominio ordini
+        <input value={draft.orderingSubdomain ?? ""} maxLength={63} placeholder="lapizzaspeciale"
+          pattern={String.raw`[a-z0-9](?:[a-z0-9\-]{0,61}[a-z0-9])?`}
+          autoCapitalize="none" spellCheck={false} onChange={event => update("orderingSubdomain", event.target.value.toLowerCase() || undefined)} />
+        <span>{draft.orderingSubdomain && `${draft.orderingSubdomain}.`}{orderingDomain}. L’indirizzo resta fisso dopo il salvataggio.</span>
+      </label>)}
       <label>Fuso orario della sede<input required maxLength={100} value={draft.timeZone ?? "Europe/Rome"} placeholder="Europe/Rome" onChange={event => update("timeZone", event.target.value)} /><span>Usato per il calendario degli ordini e le statistiche.</span></label>
       <label>Email del ristorante<input type="email" value={draft.contactEmail ?? ""} onChange={event => update("contactEmail", event.target.value)} /></label>
       <label>WhatsApp del ristorante<input type="tel" placeholder="+39…" value={draft.contactPhone ?? ""} onChange={event => update("contactPhone", event.target.value)} /></label>

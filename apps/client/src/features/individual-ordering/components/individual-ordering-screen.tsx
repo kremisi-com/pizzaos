@@ -8,6 +8,7 @@ import { createCheckoutAttempt, readCheckoutAttempt, removeCheckoutAttempt, writ
 import { IndividualStripeFields, type ConfirmIndividualPayment } from "./individual-stripe-fields";
 import { IndividualAdditions } from "./individual-additions";
 import { OrderSlotSelect } from "./order-slot-select";
+import { DeliveryAddressField, hasDeliveryPoint } from "./delivery-address-field";
 import { SignOutButton } from "../../identity/components/sign-in-screen";
 import { PromotionSelectionPanel, PromotionSummary } from "../../promotions";
 import { OrderingCover } from "../../menu/components/ordering-cover";
@@ -62,7 +63,7 @@ function MenuProduct({ product, onAdd }: { product: IndividualProduct; onAdd: (p
   </article>;
 }
 
-export function IndividualOrderingScreen({ api, promotionsApi, refreshVersion = 0, connection = "" }: { api: IndividualApi; promotionsApi?: PromotionsApi; refreshVersion?: number; connection?: string }) {
+export function IndividualOrderingScreen({ api, promotionsApi, refreshVersion = 0, connection = "", storefront = false }: { api: IndividualApi; promotionsApi?: PromotionsApi; refreshVersion?: number; connection?: string; storefront?: boolean }) {
   const [session, setSession] = useState<IndividualSession | null>(null);
   const [stores, setStores] = useState<IndividualStore[]>([]);
   const [store, setStore] = useState<IndividualStore | null>(null);
@@ -249,7 +250,7 @@ export function IndividualOrderingScreen({ api, promotionsApi, refreshVersion = 
     {!loaded && <p role="status">Caricamento del menu…</p>}
     {loaded && stores.length === 0 && <section className={styles.card}><h2>Menu non ancora disponibile</h2><p>Non ci sono sedi disponibili per ordinare.</p><button type="button" onClick={() => void load()}>Riprova</button></section>}
     {stores.length > 0 && <>
-      <div className={styles.storeSelector}><label>Scegli la sede<select aria-label="Scegli la sede" value={cart.storeId} disabled={busy || unresolved} onChange={event => changeCart({ ...EMPTY_CART, storeId: event.target.value })}>{stores.map(item => <option key={item.id} value={item.id}>{item.name}</option>)}</select></label></div>
+      {!storefront && <div className={styles.storeSelector}><label>Scegli la sede<select aria-label="Scegli la sede" value={cart.storeId} disabled={busy || unresolved} onChange={event => changeCart({ ...EMPTY_CART, storeId: event.target.value })}>{stores.map(item => <option key={item.id} value={item.id}>{item.name}</option>)}</select></label></div>}
       <fieldset className={styles.layout} disabled={busy} aria-label="Composizione dell'ordine"><section id="il-menu" tabIndex={-1}><h2>Il menu</h2>{!store && <p>Caricamento della sede…</p>}{store && !store.acceptingOrders && <p className={styles.error}>Gli ordini sono temporaneamente sospesi.</p>}
         <div className={styles.products}>{store?.products.map(product => <MenuProduct key={`${store.id}-${product.id}`} product={product} onAdd={add} />)}</div>
       </section><section className={styles.card} id="il-tuo-ordine" aria-labelledby="cart-title"><h2 id="cart-title">Il tuo ordine</h2>
@@ -262,17 +263,15 @@ export function IndividualOrderingScreen({ api, promotionsApi, refreshVersion = 
             <label>Note per {product?.name}<input maxLength={500} value={line.notes} onChange={event => changeCart({ ...cart, lines: cart.lines.map((item, i) => i === index ? { ...item, notes: event.target.value } : item) })} /></label></li>;
         })}</ul>}
         <label>Modalità<select aria-label="Modalità" value={cart.mode} onChange={event => changeCart({ ...cart, mode: event.target.value === "delivery" ? "delivery" : "pickup", address: undefined })}><option value="pickup">Ritiro in pizzeria</option><option value="delivery">Consegna a domicilio</option></select></label>
-        {cart.mode === "delivery" && <fieldset><legend>Dove consegniamo?</legend><label>Indirizzo completo<input required value={cart.address?.text ?? ""} onChange={event => changeCart({ ...cart, address: { text: event.target.value, latitude: cart.address?.latitude ?? 0, longitude: cart.address?.longitude ?? 0 } })} /></label>
-          <p className={styles.small}>Conferma il punto di consegna per verificare zona e costo.</p><div className={styles.twoColumns}>
-            <label>Latitudine<input type="number" step="any" min="-90" max="90" value={cart.address?.latitude ?? ""} onChange={event => changeCart({ ...cart, address: { text: cart.address?.text ?? "", latitude: Number(event.target.value), longitude: cart.address?.longitude ?? 0 } })} /></label>
-            <label>Longitudine<input type="number" step="any" min="-180" max="180" value={cart.address?.longitude ?? ""} onChange={event => changeCart({ ...cart, address: { text: cart.address?.text ?? "", latitude: cart.address?.latitude ?? 0, longitude: Number(event.target.value) } })} /></label></div>
-          <button type="button" className={styles.secondary} onClick={() => { if (!navigator.geolocation) { setError("Il browser non supporta la posizione."); return; } navigator.geolocation.getCurrentPosition(position => changeCart({ ...cart, address: { text: cart.address?.text ?? "", latitude: position.coords.latitude, longitude: position.coords.longitude } }), () => setError("Posizione non disponibile. Inserisci il punto di consegna.")); }}>Usa la mia posizione</button>
+        {cart.mode === "delivery" && <fieldset><legend>Dove consegniamo?</legend>
+          <DeliveryAddressField key={cart.storeId} storeId={cart.storeId} address={cart.address} search={api.searchDeliveryAddresses}
+            disabled={busy} onChange={address => changeCart({ ...cart, address })} />
         </fieldset>}
         <OrderSlotSelect store={store} value={cart.slotId} onChange={slotId => changeCart({ ...cart, slotId })}
           onFocus={() => setCatalogReload(current => current + 1)} />
         <label>Note per l&apos;ordine<textarea maxLength={1000} value={cart.notes} onChange={event => changeCart({ ...cart, notes: event.target.value })} /></label>
         {promotionsApi && session?.actor && <PromotionSelectionPanel api={promotionsApi} storeId={cart.storeId} selection={cart.benefits} disabled={busy || unresolved || !!attempt} refreshVersion={refreshVersion + benefitsRefresh} onChange={benefits => changeCart({ ...cart, benefits })} onTermsChange={invalidatePromotionQuote} />}
-        <button type="button" disabled={busy || !cart.lines.length || !store?.acceptingOrders || unresolved} onClick={() => void verifyQuote()}>Verifica disponibilità e totale</button>
+        <button type="button" disabled={busy || !cart.lines.length || !store?.acceptingOrders || unresolved || (cart.mode === "delivery" && !hasDeliveryPoint(cart.address))} onClick={() => void verifyQuote()}>Verifica disponibilità e totale</button>
         {quote && <div className={styles.summary}><h3>Riepilogo da confermare</h3>{quote.lines.map((line, index) => <p key={`${line.productId}-${index}`}><span>{line.quantity} × {line.name}</span><strong>{money(line.unitCents * line.quantity)}</strong></p>)}
           <PromotionSummary quote={quote} />
           {!quote.promotions && <><p><span>Consegna</span><strong>{money(quote.deliveryCents)}</strong></p><p className={styles.total}><span>Totale</span><strong>{money(quote.totalCents)}</strong></p></>}<p>Orario: {formatOrderWindow(quote.slotStartsAt, quote.slotEndsAt, quote.slotTimeZone)}</p></div>}

@@ -6,9 +6,9 @@ export class IndividualApiError extends Error {
 
 export function createIndividualApi(): IndividualApi {
   const base = "/api/pilot/v1/pilot";
-  async function request<T>(path: string, method = "GET", body?: unknown): Promise<T> {
+  async function request<T>(path: string, method = "GET", body?: unknown, signal?: AbortSignal): Promise<T> {
     const response = await fetch(`${base}${path}`, {
-      method, cache: "no-store", credentials: "same-origin",
+      method, cache: "no-store", credentials: "same-origin", signal,
       headers: body === undefined ? undefined : { "Content-Type": "application/json" },
       body: body === undefined ? undefined : JSON.stringify(body)
     });
@@ -26,6 +26,7 @@ export function createIndividualApi(): IndividualApi {
     session: () => request("/session"),
     stores: () => request("/stores"),
     catalog: storeId => request(`/stores/${id(storeId)}`),
+    searchDeliveryAddresses: (storeId, query, signal) => request(`/stores/${id(storeId)}/delivery-address-search`, "POST", { query }, signal),
     quote: cart => request("/quote", "POST", { cart }),
     checkout: input => request("/checkouts", "POST", input),
     orders: storeId => request(`/orders${storeId ? `?storeId=${id(storeId)}` : ""}`),

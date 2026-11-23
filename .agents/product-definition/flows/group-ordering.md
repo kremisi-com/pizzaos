@@ -8,7 +8,11 @@ Il ristorante riceve un solo ordine con articoli attribuiti ai partecipanti. Dop
 
 Il servizio gruppo possiede raccolta, accessi e revisioni persistenti; il servizio ordini possiede il checkout canonico. Il client gestisce le interazioni attraverso i contratti pubblici.
 
+Sul [sito pubblico di una sede](customer-ordering-and-payment.md#sottodomini-delle-sedi) la raccolta usa la sede dell'indirizzo. L'invito resta sullo stesso host. L'API rifiuta la creazione per una sede diversa e gli inviti a raccolte di altre sedi.
+
 L'organizzatore sceglie tra le [stesse finestre e disponibilità del checkout individuale](customer-ordering-and-payment.md#calendario-e-capacità). L'intero gruppo occupa un posto e un conflitto di capacità conserva la raccolta.
+
+Per la consegna l’organizzatore usa lo stesso [campo indirizzo con autocompletamento](customer-ordering-and-payment.md#indirizzo-di-consegna). La sola via non abilita il preventivo. Se l’organizzatore modifica l’indirizzo dopo aver visto il totale, verifica di nuovo prima dell’invio. Se la ricerca è indisponibile può ritentare o scegliere il ritiro.
 
 ## Casi limite e verifiche
 

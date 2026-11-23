@@ -21,7 +21,7 @@ Consentire al cliente di comporre un ordine come ospite, autenticarsi al termine
 
 ## Percorso approvato
 
-1. Il cliente sceglie sede, modalità (consegna o ritiro), menu, prodotti, personalizzazioni e slot. Può iniziare senza autenticarsi.
+1. Sull'indirizzo pubblico della sede il cliente trova già il menu della sede e sceglie modalità (consegna o ritiro), prodotti, personalizzazioni e slot. Può iniziare senza autenticarsi. L'origine storica del pilota conserva la scelta della sede.
 2. Il carrello e il contesto di checkout si conservano localmente quanto basta per recuperare il percorso dopo reload. La UI mantiene i dati durante il passaggio a login/signup.
 3. Prima di inviare l'ordine, il cliente accede o crea un account usando Google o magic link con Auth.js.
 4. Dopo l'accesso, il sistema verifica nuovamente prezzi, disponibilità, slot e regole dell'ordine; eventuali differenze sono mostrate e confermate prima dell'invio.
@@ -56,6 +56,24 @@ Consentire al cliente di comporre un ordine come ospite, autenticarsi al termine
 ## Aggiornamenti admin
 
 La dashboard admin è il canale operativo per nuovi ordini e scadenze; si aggiorna tramite SSE con polling di recupero (D40/D54). I contatti per concordare alternative via email/WhatsApp sono avviati manualmente. Le email automatiche del lifecycle sono descritte nella [specifica email operative](operational-emails.md).
+
+## Sottodomini delle sedi
+
+Per D76, il superadmin usa **Profilo → Sottodominio ordini** creando una sede o modificando una sede senza indirizzo pubblico. Il campo accetta una sola etichetta, per esempio `lapizzaspeciale`. Dopo il salvataggio il profilo mostra il link. L'etichetta resta fissa per mantenere validi i link condivisi. Il servizio rifiuta etichette già assegnate, riservate, irregolari o impostate da un ruolo non autorizzato. Due salvataggi concorrenti per la stessa etichetta producono una sola assegnazione.
+
+Il cliente ordina sul sottodominio della sede. Menu, disponibilità, storico cliente, eventi e wallet sono limitati alla stessa sede. Un carrello o un gruppo di un'altra sede viene rifiutato. Un host senza associazione mostra **Sito ordini non configurato**. La chiusura ordini della sede conserva il menu e mostra lo stato di sospensione. Google e link email concludono l'accesso nell'host della sede con cookie limitati a quell'host.
+
+[Requisiti](../../design/2026-11-23-store-subdomains/store-subdomains/REQUIREMENTS.md) · [Test HTTP](../../../services/checkout-api/src/store-subdomains.test.ts) · [Prova browser](../../../tests/e2e/store-subdomains.spec.ts) · [Configurazione hosting](../architecture/pilot-deployment.md#sottodomini-delle-sedi).
+
+## Indirizzo di consegna
+
+Per la consegna, D77 introduce il campo **Indirizzo completo** anche per l’ospite. Digitando via, civico e comune si ottengono suggerimenti con priorità vicino alla sede scelta. È possibile identificare prima la via e completare il numero civico. La verifica del totale si abilita dopo la scelta di un indirizzo completo. Il servizio usa il punto restituito dalla ricerca per applicare le [fasce di distanza della sede](../../../services/checkout-api/README.md#persistence-and-scaling).
+
+- Modificare il testo annulla la scelta e il preventivo precedenti. Il carrello conserva soltanto l’indirizzo selezionato. Gli indirizzi completi già salvati restano riutilizzabili.
+- Se l’indirizzo è fuori zona, il servizio chiede di correggerlo o scegliere il ritiro. Se la ricerca non restituisce risultati, il campo invita a precisare via, civico e comune. In caso di errore si può ritentare la ricerca o passare al ritiro.
+- Il servizio checkout gestisce Geoapify e la sua configurazione. La selezione non modifica la richiesta originale di un tentativo da recuperare.
+
+[Requisiti](../../design/2026-11-23-delivery-address-autocomplete/delivery-address/REQUIREMENTS.md) · [Test HTTP](../../../services/checkout-api/src/delivery-address-http.test.ts) · [Percorso browser individuale](../../../tests/e2e/individual-ordering.spec.ts).
 
 ## Calendario e capacità
 

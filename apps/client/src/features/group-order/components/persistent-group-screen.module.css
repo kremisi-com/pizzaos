@@ -26,9 +26,8 @@
 .lines li { border-top: 1px solid #e7dfd4; padding: 16px 0; }
 .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
 .row label { max-width: 130px; }
-.columns { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .price { font-weight: 750; color: #a64529; }
 .total { font-size: 1.25rem; border-top: 1px solid #e7dfd4; padding-top: 15px; }
 .stripe { padding: 18px 10px; background: white; border: 1px solid #d9d3cb; border-radius: 10px; margin: 14px 0; }
 @media (max-width: 850px) { .layout { grid-template-columns: 1fr; } }
-@media (max-width: 500px) { .page { padding: 24px 16px 45px; } .card { border-radius: 16px; padding: 18px; } .columns { grid-template-columns: 1fr; } }
+@media (max-width: 500px) { .page { padding: 24px 16px 45px; } .card { border-radius: 16px; padding: 18px; } }

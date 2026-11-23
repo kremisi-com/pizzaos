@@ -18,7 +18,10 @@ const store: IndividualStore = {
   products: [{ id: "pizza", name: "Pizza", description: "Pizza del pilota", priceCents: 800, available: true, allergens: ["Glutine"], ingredients: { dough: 1 }, options: [] }],
   slots: [{ id: "evening", startsAt: new Date(Date.now() + 20 * 60_000).toISOString(), capacity: 100 }], deliveryBands: [{ upToKm: 5, feeCents: 200, minimumCents: 500 }]
 };
-let state: OrderingState = { stores: { roma: store }, memberships: [{ storeId: "roma", email: "operator@example.test" }], orders: {}, idempotency: {}, events: [], cursor: 0 };
+const orderingDomain = process.env.PIZZAOS_E2E_ORDERING_DOMAIN;
+const stores: OrderingState["stores"] = { roma: store };
+if (orderingDomain) stores.napoli = { ...store, id: "napoli", name: "Napoli", products: [{ ...store.products[0], id: "marinara", name: "Marinara" }] };
+let state: OrderingState = { stores, memberships: [{ storeId: "roma", email: "operator@example.test" }], orders: {}, idempotency: {}, events: [], cursor: 0 };
 let tail = Promise.resolve();
 const repository: OrderingRepository = {
   transact<T>(work: (value: OrderingState) => T | Promise<T>): Promise<T> {
@@ -70,6 +73,8 @@ const authenticate: OrderingHttpOptions["authenticate"] = async request => {
   return match ? actors[match[1]] ?? null : null;
 };
 const app = buildOrderingApp({ service,
+  ...(orderingDomain ? { orderingSites: { domain: orderingDomain,
+    origins: [process.env.PIZZAOS_E2E_CLIENT_URL ?? "", process.env.PIZZAOS_E2E_ADMIN_URL ?? ""], repository: operational.repository } } : {}),
   isDemoRequest(request) { return demo.isActive(request.headers.cookie ?? "", String(request.headers["x-pizzaos-origin"])); },
   async authHandler(request) {
     const origin = String(request.headers["x-pizzaos-origin"]);
