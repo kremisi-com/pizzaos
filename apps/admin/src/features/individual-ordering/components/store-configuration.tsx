@@ -1,8 +1,10 @@
 "use client";
 
+import { createDefaultWeeklyOrderSchedule } from "@pizzaos/domain";
 import type { IndividualProduct, IndividualStore, StoreAddressApi, StoreAddressCandidate } from "@pizzaos/domain";
 import { useState } from "react";
 import { StoreAddressField } from "./store-address-field";
+import { WeeklyOrderCalendar } from "./weekly-order-calendar";
 import styles from "./individual-operations.module.css";
 
 function Recipe({ label, ingredients, recipe, onChange }: {
@@ -11,11 +13,6 @@ function Recipe({ label, ingredients, recipe, onChange }: {
   return <fieldset className={styles.recipe}><legend>{label}</legend>{ingredients.length === 0 ? <p>Aggiungi prima gli ingredienti in magazzino.</p> : ingredients.map(ingredient => <label key={ingredient.id}>Unità di {ingredient.name}<input type="number" min="0" step="1" value={recipe[ingredient.id] ?? 0} onChange={event => {
     const next = { ...recipe }; const units = Number(event.target.value); if (units > 0) next[ingredient.id] = units; else delete next[ingredient.id]; onChange(next);
   }} /></label>)}</fieldset>;
-}
-
-function localDate(iso: string) {
-  const date = new Date(iso);
-  return Number.isFinite(date.getTime()) ? new Date(date.getTime() - date.getTimezoneOffset() * 60000).toISOString().slice(0, 16) : "";
 }
 
 export type StoreConfigurationSection = "catalog" | "inventory" | "profile";
@@ -46,7 +43,7 @@ export function StoreConfiguration({ store, isNew, section, busy, onSearchAddres
         setConfirmedAddress(null);
       }} /></label>
       <label>Nome sede<input required maxLength={150} value={draft.name} onChange={event => update("name", event.target.value)} /></label>
-      <label>Fuso orario della sede<input required maxLength={100} value={draft.timeZone ?? "Europe/Rome"} placeholder="Europe/Rome" onChange={event => update("timeZone", event.target.value)} /><span>Usato per le date delle statistiche.</span></label>
+      <label>Fuso orario della sede<input required maxLength={100} value={draft.timeZone ?? "Europe/Rome"} placeholder="Europe/Rome" onChange={event => update("timeZone", event.target.value)} /><span>Usato per il calendario degli ordini e le statistiche.</span></label>
       <label>Email del ristorante<input type="email" value={draft.contactEmail ?? ""} onChange={event => update("contactEmail", event.target.value)} /></label>
       <label>WhatsApp del ristorante<input type="tel" placeholder="+39…" value={draft.contactPhone ?? ""} onChange={event => update("contactPhone", event.target.value)} /></label>
     </div>
@@ -83,11 +80,10 @@ export function StoreConfiguration({ store, isNew, section, busy, onSearchAddres
       <button className={styles.secondary} type="button" onClick={() => update("products", [...draft.products, { id: crypto.randomUUID(), name: "", description: "", priceCents: 0, available: true, allergens: [], ingredients: {}, options: [] }])}>Aggiungi prodotto</button>
     </fieldset>}
 
-    {(isNew || section === "profile") && <fieldset disabled={busy}><legend>Fasce orarie e capacità</legend><p>Inserisci le fasce nell&apos;orario locale del browser. Ogni fascia limita il numero di ordini, indipendentemente dal numero di pizze.</p>
-      {draft.slots.map((slot, index) => <div className={styles.repeatRow} key={slot.id}><label>Inizio fascia {index + 1}<input type="datetime-local" required value={localDate(slot.startsAt)} onChange={event => { const time = new Date(event.target.value); if (Number.isFinite(time.getTime())) update("slots", draft.slots.map((item, i) => i === index ? { ...item, startsAt: time.toISOString() } : item)); }} /></label>
-        <label>Massimo ordini fascia {index + 1}<input required type="number" min="1" step="1" value={slot.capacity} onChange={event => update("slots", draft.slots.map((item, i) => i === index ? { ...item, capacity: Number(event.target.value) } : item))} /></label>
-        <button className={styles.secondary} type="button" onClick={() => update("slots", draft.slots.filter((_, i) => i !== index))}>Rimuovi fascia</button>
-      </div>)}<button className={styles.secondary} type="button" onClick={() => update("slots", [...draft.slots, { id: crypto.randomUUID(), startsAt: new Date(Date.now() + 3600000).toISOString(), capacity: 10 }])}>Aggiungi fascia oraria</button>
+    {(isNew || section === "profile") && <fieldset disabled={busy}><legend>Fasce orarie e capacità</legend>
+      <WeeklyOrderCalendar schedule={draft.orderSchedule ?? createDefaultWeeklyOrderSchedule()}
+        protectedDates={store.protectedOrderDates ?? []} timeZone={draft.timeZone ?? "Europe/Rome"}
+        onChange={schedule => update("orderSchedule", schedule)} />
     </fieldset>}
 
     {(isNew || section === "profile") && <fieldset disabled={busy}><legend>Zone di consegna</legend><p>Il raggio è calcolato dalla sede. Il minimo riguarda i prodotti, prima del costo di consegna.</p>

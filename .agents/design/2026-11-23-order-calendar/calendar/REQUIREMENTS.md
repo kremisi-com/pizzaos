@@ -1,0 +1,7 @@
+# Comportamento del calendario
+
+- Lunedì–domenica, quattro fasce dalle 11:00 alle 15:00 e quattro dalle 18:00 alle 22:00. Capacità iniziale 5 in ciascuna fascia. Le sedi già esistenti ricevono subito la settimana tipo alla pubblicazione. Il controllo «Accetta nuovi ordini» continua a valere.
+- Il Profilo modifica la capacità e gli orari di ciascun giorno della settimana tipo e può copiare un giorno su tutta la settimana. I bordi delle celle sono azionabili anche da tastiera. Eliminando il bordo tra 11:00–12:00 e 12:00–13:00 con capacità 5 e 5 si ottiene 11:00–13:00 con capacità 10. Dividendo 19:00–20:00, capacità 5, alle 19:30 si ottengono 3 e 2 posti. Si possono aggiungere fasce in orari liberi e rimuoverle.
+- Una modifica protegge le date toccate con ordini o posti già riservati, conservando le fasce e capacità precedenti fino a fine giornata. Alla pubblicazione la stessa protezione si applica alle fasce manuali. Il pannello indica le date protette.
+- Il cliente vede oggi e i 13 giorni successivi nel fuso orario della sede. Una fascia 19:00–20:00 con posti liberi è selezionabile alle 19:15 ed esce alle 20:00. A zero posti mostra «Al completo» e rimane visibile ma disabilitata finché dura la fascia. «Appena possibile» ignora le fasce complete. Individuale, gruppo, ritiro e consegna condividono la capacità.
+- Un conflitto sull'ultimo posto non crea un secondo ordine. Il cliente sceglie un altro orario mantenendo il carrello. Il riepilogo e i dettagli mostrano la finestra dell'ordine. Gli ordini con orario puntuale mantengono quello storico.

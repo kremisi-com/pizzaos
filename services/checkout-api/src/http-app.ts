@@ -36,6 +36,16 @@ const cart = { type: "object", additionalProperties: false, required: ["storeId"
 const store = { type: "object", additionalProperties: false, required: ["id", "name", "latitude", "longitude", "acceptingOrders", "deliveryBands", "ingredients", "products", "slots"], properties: {
   address: { type: "string", minLength: 1, maxLength: storeAddressLimit },
   addressConfirmation: { type: "string", minLength: 1, maxLength: 4044 },
+  orderSchedule: { type: "object", additionalProperties: false, required: ["revision", "days"], properties: {
+    revision: { type: "integer", minimum: 0, maximum: Number.MAX_SAFE_INTEGER },
+    days: { type: "array", minItems: 7, maxItems: 7, items: { type: "object", additionalProperties: false, required: ["weekday", "windows"], properties: {
+      weekday: { type: "integer", minimum: 1, maximum: 7 },
+      windows: { type: "array", maxItems: 1440, items: { type: "object", additionalProperties: false, required: ["startMinute", "endMinute", "capacity"], properties: {
+        startMinute: { type: "integer", minimum: 0, maximum: 1439 }, endMinute: { type: "integer", minimum: 1, maximum: 1440 },
+        capacity: { type: "integer", minimum: 0, maximum: 10000 }
+      } } }
+    } } }
+  } },
   timeZone: { type: "string", minLength: 1, maxLength: 100 },
   id: text, name: text, contactEmail: { anyOf: [{ type: "string", format: "email", maxLength: 254 }, { const: "" }] }, contactPhone: { type: "string", maxLength: 100 }, latitude: { type: "number", minimum: -90, maximum: 90 }, longitude: { type: "number", minimum: -180, maximum: 180 }, acceptingOrders: { type: "boolean" },
   deliveryBands: { type: "array", maxItems: 100, items: { type: "object", additionalProperties: false, required: ["upToKm", "feeCents", "minimumCents"], properties: { upToKm: { type: "number", minimum: 0, maximum: 1000 }, feeCents: cents, minimumCents: cents } } },

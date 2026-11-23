@@ -1,5 +1,6 @@
 "use client";
 
+import { formatOrderWindow } from "@pizzaos/domain";
 import type { IndividualAction, IndividualOrder } from "@pizzaos/domain";
 import Image from "next/image";
 import { useState } from "react";
@@ -39,7 +40,6 @@ export function OperationalOrders({ orders, timeZone, busy, onRefresh, onAction 
     { label: "Ordini in corso", count: orders.filter(order => !["completed", "cancelled", "pending_payment"].includes(order.status)).length, tone: "orange", icon: "/images/live-orders/chef.png" },
     { label: "Rimborsi da gestire", count: orders.filter(order => order.payment === "refund_failed" || order.additions?.some(item => item.payment === "refund_failed")).length, tone: "purple", icon: "/images/live-orders/check.png" }
   ];
-  const date = new Intl.DateTimeFormat("it-IT", { dateStyle: "short", timeStyle: "short", timeZone });
 
   return <section className={styles.dashboard} aria-label="Dashboard ordini">
     <div className={styles.operationalKpis}>
@@ -71,7 +71,7 @@ export function OperationalOrders({ orders, timeZone, busy, onRefresh, onAction 
               <td><strong>{order.contact.name}</strong><small>{order.contact.phone}</small></td>
               <td>{order.cart.mode === "delivery" ? "Consegna" : "Ritiro"}</td>
               <td><span className={styles.statusBadge} data-tone={tones[order.status]}>{statusLabels[order.status]}</span></td>
-              <td>{date.format(new Date(order.quote.slotStartsAt))}</td>
+              <td>{formatOrderWindow(order.quote.slotStartsAt, order.quote.slotEndsAt, order.quote.slotTimeZone ?? timeZone)}</td>
               <td><strong>{money(order.quote.totalCents)}</strong></td>
               <td><span className={styles.payment}>{paymentLabels[order.payment]}</span></td>
             </tr>)}</tbody>
