@@ -30,7 +30,8 @@ import { DeliveryManager } from "../features/delivery/components/delivery-manage
 import { IntegrationsManager } from "../features/integrations/components/integrations-manager";
 import { ProfileManager } from "../features/profile/components/profile-manager";
 import { LiveOrdersSummaryCard, QuickActionsCard } from "./admin-dashboard-cards";
-import { AdminFrame, type AdminTab } from "./admin-frame";
+import { useAdminNavigation } from "./use-admin-navigation";
+import { AdminFrame } from "./admin-frame";
 import styles from "./admin-shell.module.css";
 
 const APP_ID = "admin" as const;
@@ -413,7 +414,7 @@ export function AdminShell(): ReactElement {
     loadDemoState(APP_ID, { storage: resolveStorage() }),
   );
 
-  const [activeTab, setActiveTab] = useState<AdminTab>("dashboard");
+  const [activeTab, setActiveTab] = useAdminNavigation(true);
   const [isSimulationRunning, setIsSimulationRunning] = useState(true);
   const [newOrderToasts, setNewOrderToasts] = useState<readonly NewOrderToast[]>([]);
   const knownOrderIdsRef = useRef<ReadonlySet<string> | null>(null);

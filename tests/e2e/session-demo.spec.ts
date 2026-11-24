@@ -35,7 +35,7 @@ for (const surface of surfaces) {
   test(`${surface.name}: login verifies mode, persistent routes are isolated and logout revokes access`, async ({ page }) => {
     await signInDemo(page, surface.origin);
     if (surface.name === "admin") {
-      await expect(page.getByRole("button", { name: "Analytics and AI", exact: true })).toBeVisible();
+      await expect(page.getByRole("link", { name: "Analytics and AI", exact: true })).toBeVisible();
       await expect(page.getByRole("button", { name: "Reset Demo", exact: true })).toBeVisible();
     }
     const liveRoutes = surface.name === "client" ? ["/ordina"] : ["/operazioni", "/rider"];

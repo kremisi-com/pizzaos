@@ -40,6 +40,10 @@ La mappa seguente riguarda le feature della demo autenticata. Le superfici opera
 - `@pizzaos/mock-data`
 - `@pizzaos/ui`
 
+## Feedback nell'interfaccia
+
+Gli esiti temporanei delle azioni (errori, successi e informazioni) vengono mostrati dal provider condiviso `src/composition/admin-toast.tsx` come toast ancorati in basso, accessibili da tastiera e con annunci screen reader. Stati di caricamento e dati operativi persistenti restano nel contesto della schermata.
+
 ## Analytics e consegne del pilota
 
 La composizione operativa collega le [analytics reali](src/features/pilot-analytics/README.md), il [pannello assegnazioni](src/features/delivery-assignment-panel/README.md) e l'[area rider](src/features/rider-deliveries/README.md) ai port pubblici del dominio. Il rider accede da `/rider` o dal relativo host operativo, usa l'identità Google/magic link e vede esclusivamente le proprie consegne. Le appartenenze rider non concedono permessi operatore.
@@ -110,7 +114,7 @@ Verifica dei due host: `pnpm exec vitest run tests/operational-domains.test.ts` 
 
 Il flusso operativo `/operazioni` usa il contratto pubblico `IndividualApi` di `@pizzaos/domain`, fornito dalla composizione attraverso un adapter HTTP same-origin. Le superfici operative sono l'esperienza predefinita della home. Il POC si apre solo con la sessione demo verificata dal servizio; `PIZZAOS_MODE` non seleziona più la modalità.
 
-L'admin operativo condivide con il POC la sidebar, il selettore sede e la struttura della dashboard. **Ordini** mostra la coda persistente della sede con elenco e dettaglio. **Menu** gestisce bozze e pubblicazione per sede. **Magazzino** gestisce scorte e schede allergeni degli ingredienti. **Profilo** raccoglie indirizzo, contatti, apertura ordini, fasce orarie e zone di consegna. L'operatore cerca e conferma l'indirizzo, poi salva la configurazione. Il superadmin trova in Profilo anche la creazione sede e l'invito operatore.
+L'admin operativo condivide con il POC la sidebar, il selettore sede e la struttura della dashboard. Ogni sezione ha un URL `/operazioni/<sezione>` (demo: `/poc/<sezione>`), ripristinato al ricaricamento e navigabile con la cronologia. La sede attiva � ricordata in localStorage e riutilizzata soltanto se ancora autorizzata. [Navigazione e persistenza](src/composition/README.md#navigazione-e-sede-attiva). **Ordini** mostra la coda persistente della sede con elenco e dettaglio. **Menu** gestisce bozze e pubblicazione per sede. **Magazzino** gestisce scorte e schede allergeni degli ingredienti. **Profilo** raccoglie indirizzo, contatti, apertura ordini, fasce orarie e zone di consegna. L'operatore cerca e conferma l'indirizzo, poi salva la configurazione. Il superadmin trova in Profilo anche la creazione sede e l'invito operatore.
 
 Con `PIZZAOS_ORDERING_DOMAIN` configurata, il superadmin può assegnare **Sottodominio ordini** da Profilo. Il salvataggio mostra il link pubblico della sede. [Regole e configurazione hosting](../../.agents/product-definition/architecture/pilot-deployment.md#sottodomini-delle-sedi).
 

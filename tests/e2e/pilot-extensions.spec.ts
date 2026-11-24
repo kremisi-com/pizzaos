@@ -44,7 +44,7 @@ test("operator enables a rider, resolves a delivery issue and completes one cano
     await operations.goto(`${adminOrigin}/operazioni`);
     await expect(operations.getByLabel("Negozio Attivo", { exact: true })).toHaveValue("roma");
     const navigation = operations.getByRole("navigation", { name: "Navigazione admin" });
-    await navigation.getByRole("button", { name: "Consegne", exact: true }).click();
+    await navigation.getByRole("link", { name: "Consegne", exact: true }).click();
     await operations.getByLabel("Email rider").fill("rider@example.test");
     await operations.getByLabel("Nome rider").fill("Rider Pilota");
     await operations.getByRole("button", { name: "Abilita rider", exact: true }).click();
@@ -85,7 +85,7 @@ test("operator enables a rider, resolves a delivery issue and completes one cano
     await expect(riderPage.getByRole("button", { name: /completa/i })).toHaveCount(0);
 
     await operations.reload();
-    await navigation.getByRole("button", { name: "Consegne", exact: true }).click();
+    await navigation.getByRole("link", { name: "Consegne", exact: true }).click();
     await expect(operations.getByText("Consegna da risolvere", { exact: true })).toBeVisible();
     await expect(operations.getByText("Cliente assente al primo tentativo", { exact: true })).toBeVisible();
     await operations.getByLabel(`Rider per ordine ${order.id}`, { exact: true }).selectOption(enabled.id);
@@ -114,7 +114,7 @@ test("operator enables a rider, resolves a delivery issue and completes one cano
     expect(finalAnalytics.salesCents).toBe(initialAnalytics.salesCents + 1000);
     expect(finalAnalytics.topProducts.find(product => product.productId === "pizza")).toMatchObject({ name: "Pizza", quantity: 1 });
     await operations.reload();
-    await navigation.getByRole("button", { name: "Analytics & AI", exact: true }).click();
+    await navigation.getByRole("link", { name: "Analytics & AI", exact: true }).click();
     await expect(operations.getByRole("heading", { name: "Vendite e ordini", exact: true })).toBeVisible();
     await expect(operations.getByText("10,00 €", { exact: true }).first()).toBeVisible();
   } finally {

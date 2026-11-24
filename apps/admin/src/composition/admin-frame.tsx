@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useState, type ReactNode } from "react";
+import { adminHref, type AdminTab } from "./admin-navigation";
 import styles from "./admin-shell.module.css";
 
 const NAV_ITEMS = [
@@ -32,7 +33,8 @@ const NAV_ITEMS = [
   { id: "profile", label: "Profilo", iconSrc: "/images/sidebar/user.png" },
 ] as const;
 
-export type AdminTab = (typeof NAV_ITEMS)[number]["id"];
+export type { AdminTab } from "./admin-navigation";
+
 
 export function AdminFrame({ activeTab, onTabChange, storeSelector, sidebarFooter, children, overlay, demo = false }: {
   activeTab: AdminTab;
@@ -86,14 +88,18 @@ export function AdminFrame({ activeTab, onTabChange, storeSelector, sidebarFoote
 
             <nav className={styles.nav} aria-label="Navigazione admin">
               {NAV_ITEMS.map((item) => (
-                <button
+                <a
                   key={item.id}
                   aria-label={
                     item.id === "analytics" && demo ? "Analytics and AI" : undefined
                   }
-                  type="button"
+                  href={adminHref(item.id, demo)}
                   aria-current={activeTab === item.id ? "page" : undefined}
-                  onClick={() => onTabChange(item.id)}
+                  onClick={event => {
+                    if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+                    event.preventDefault();
+                    onTabChange(item.id);
+                  }}
                   className={`${styles.navButton} ${
                     activeTab === item.id ? styles.navItemActive : ""
                   }`}
@@ -102,7 +108,7 @@ export function AdminFrame({ activeTab, onTabChange, storeSelector, sidebarFoote
                     <Image alt="" height={18} src={item.iconSrc} width={18} />
                   </span>
                   <span>{item.label}</span>
-                </button>
+                </a>
               ))}
             </nav>
 

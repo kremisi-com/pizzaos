@@ -112,12 +112,20 @@ function validateGroups(product: IndividualProduct, invalid: Invalid, publishing
   const optionIds = new Set(product.options.map(option => option.id));
   const assigned = new Set<string>();
   const groupIds = new Set<string>();
-  for (const group of groups) {
+  for (const [index, group] of groups.entries()) {
+    const label = isMenuRecord(group) && isText(group.name) ? `Il gruppo «${group.name}»` : `Il gruppo ${index + 1}`;
     if (!isMenuRecord(group) || !only(group, ["id", "name", "kind", "min", "max", "allowRepeat", "optionIds"]) ||
-      !isId(group.id) || groupIds.has(group.id) || !isText(group.name) || !kinds.has(group.kind) ||
-      !whole(group.min, 0, 100) || !whole(group.max, group.min, 100) || !isUniqueStrings(group.optionIds, 100) ||
-      (group.allowRepeat !== undefined && typeof group.allowRepeat !== "boolean") ||
-      (publishing && (!group.optionIds.length || (!group.allowRepeat && group.max > group.optionIds.length)))) invalid("Gruppo di scelte non valido.");
+      !isId(group.id) || groupIds.has(group.id)) invalid(`Il gruppo ${index + 1} contiene dati non validi. Rimuovilo e aggiungilo di nuovo.`);
+    if (!isText(group.name)) invalid(`Inserisci un nome per il gruppo ${index + 1}.`);
+    if (!kinds.has(group.kind)) invalid(`${label}: seleziona un tipo di scelta valido.`);
+    if (!whole(group.min, 0, 100)) invalid(`${label}: la quantità minima deve essere un numero intero da 0 a 100.`);
+    if (!whole(group.max, group.min, 100)) invalid(`${label}: la quantità massima deve essere un numero intero maggiore o uguale alla minima, fino a 100.`);
+    if (!isUniqueStrings(group.optionIds, 100)) invalid(`${label}: controlla le scelte associate, rimuovendo eventuali duplicati.`);
+    if (group.allowRepeat !== undefined && typeof group.allowRepeat !== "boolean") invalid(`${label}: correggi l’impostazione «Consenti più unità della stessa scelta».`);
+    if (publishing && !group.optionIds.length) invalid(`${label}: aggiungi almeno una scelta prima di pubblicare.`);
+    if (publishing && !group.allowRepeat && group.max > group.optionIds.length) {
+      invalid(`${label}: la quantità massima supera il numero di scelte disponibili. Riducila oppure consenti più unità della stessa scelta.`);
+    }
     groupIds.add(group.id);
     for (const id of group.optionIds) {
       if (!optionIds.has(id) || assigned.has(id)) invalid("Ogni opzione deve appartenere a un solo gruppo.");

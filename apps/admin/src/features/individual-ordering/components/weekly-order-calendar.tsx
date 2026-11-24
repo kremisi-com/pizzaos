@@ -2,6 +2,7 @@
 
 import type { WeeklyOrderDay, WeeklyOrderSchedule, WeeklyOrderWindow } from "@pizzaos/domain";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useAdminToast } from "../../../composition/admin-toast";
 import styles from "./weekly-order-calendar.module.css";
 
 const dayNames = ["Lunedì", "Martedì", "Mercoledì", "Giovedì", "Venerdì", "Sabato", "Domenica"];
@@ -54,7 +55,7 @@ function CalendarEdit({ edit, day, onUpdate, onClose }: {
   const initial = edit.kind === "boundary" ? edit.minute : split ? Math.ceil((split.startMinute + split.endMinute) / 2) : gap;
   const [start, setStart] = useState(time(initial));
   const [end, setEnd] = useState(time(Math.min(gap + 60, nextStart)));
-  const [error, setError] = useState("");
+  const showToast = useAdminToast();
   const firstInput = useRef<HTMLInputElement>(null);
   useEffect(() => { firstInput.current?.focus(); }, []);
 
@@ -63,11 +64,11 @@ function CalendarEdit({ edit, day, onUpdate, onClose }: {
     const endMinute = minuteFromTime(end);
     let changed: WeeklyOrderWindow[];
     if (edit.kind === "add") {
-      if (!(startMinute < endMinute)) { setError("Inserisci inizio e fine nel formato HH:MM."); return; }
+      if (!(startMinute < endMinute)) { showToast("Inserisci inizio e fine nel formato HH:MM.", "error"); return; }
       changed = [...windows, { startMinute, endMinute, capacity: 5 }];
     } else if (split) {
       if (!(startMinute > split.startMinute && startMinute < split.endMinute)) {
-        setError("Il separatore deve essere all’interno della fascia."); return;
+        showToast("Il separatore deve essere all’interno della fascia.", "error"); return;
       }
       const firstCapacity = Math.ceil(split.capacity * (startMinute - split.startMinute) / (split.endMinute - split.startMinute));
       changed = windows.flatMap(window => window === split ? [
@@ -75,14 +76,14 @@ function CalendarEdit({ edit, day, onUpdate, onClose }: {
         { ...split, startMinute, capacity: split.capacity - firstCapacity }
       ] : [window]);
     } else {
-      if (!Number.isFinite(startMinute)) { setError("Inserisci un orario nel formato HH:MM."); return; }
+      if (!Number.isFinite(startMinute)) { showToast("Inserisci un orario nel formato HH:MM.", "error"); return; }
       changed = windows.map(window => window === left ? { ...window, endMinute: startMinute }
         : window === right ? { ...window, startMinute } : window);
     }
     const sorted = sortWindows(changed);
     if (sorted.some((window, index) => window.endMinute <= window.startMinute ||
       window.startMinute < (sorted[index - 1]?.endMinute ?? 0))) {
-      setError("Le fasce devono avere una durata positiva e non possono sovrapporsi."); return;
+      showToast("Le fasce devono avere una durata positiva e non possono sovrapporsi.", "error"); return;
     }
     onUpdate(sorted);
   }
@@ -90,7 +91,7 @@ function CalendarEdit({ edit, day, onUpdate, onClose }: {
   function merge() {
     if (!left || !right) return;
     if (left.capacity + right.capacity > maximumCapacity) {
-      setError("Una fascia può accettare al massimo 10.000 ordini."); return;
+      showToast("Una fascia può accettare al massimo 10.000 ordini.", "error"); return;
     }
     onUpdate(windows.flatMap(window => window === left
       ? [{ ...left, endMinute: right.endMinute, capacity: left.capacity + right.capacity }]
@@ -108,7 +109,6 @@ function CalendarEdit({ edit, day, onUpdate, onClose }: {
       {edit.kind === "add" && <label>Fine<input type="text" placeholder="HH:MM" value={end} onChange={event => setEnd(event.target.value)}
         onKeyDown={event => { if (event.key === "Enter") { event.preventDefault(); save(); } }} /></label>}
     </div>
-    {error && <p className={styles.error} role="alert">{error}</p>}
     <div className={styles.controls}>
       <button type="button" onClick={save}>Applica</button>
       {left && right && <button type="button" onClick={merge}>Elimina separatore e unisci</button>}
@@ -131,9 +131,9 @@ export function WeeklyOrderCalendar({ schedule, protectedDates, timeZone, onChan
   timeZone: string;
   onChange: (schedule: WeeklyOrderSchedule) => void;
 }) {
+  const showToast = useAdminToast();
   const [edit, setEdit] = useState<Edit | null>(null);
   const [source, setSource] = useState(1);
-  const [announcement, setAnnouncement] = useState("");
   const opener = useRef<HTMLButtonElement | null>(null);
   const addButtons = useRef(new Map<number, HTMLButtonElement>());
   const activeDay = schedule.days.find(day => day.weekday === edit?.weekday);
@@ -171,20 +171,21 @@ export function WeeklyOrderCalendar({ schedule, protectedDates, timeZone, onChan
     const windows = schedule.days.find(day => day.weekday === source)?.windows ?? [];
     onChange({ ...schedule, days: schedule.days.map(day => ({ weekday: day.weekday, windows: windows.map(window => ({ ...window })) })) });
     setEdit(null);
-    setAnnouncement(`Orari di ${dayNames[source - 1]} copiati su tutta la settimana.`);
+    showToast(`Orari di ${dayNames[source - 1]} copiati su tutta la settimana.`, "info");
   }
 
   return <>
     <p>Settimana tipo · {timeZone}. Ogni ordine occupa un posto.</p>
-    {protectedDates.length > 0 && <p role="status">Orari precedenti mantenuti per le date già prenotate: {protectedDates.map(date =>
-      new Intl.DateTimeFormat("it-IT", { dateStyle: "short", timeZone: "UTC" }).format(new Date(date))).join(", ")}.</p>}
+    {protectedDates.length > 0 && <span className={styles.visuallyHidden}>
+      Orari precedenti mantenuti per le date già prenotate: {protectedDates.map(date =>
+        new Intl.DateTimeFormat("it-IT", { dateStyle: "short", timeZone: "UTC" }).format(new Date(date))).join(", ")}.
+    </span>}
     <div className={styles.controls}>
       <label>Copia orari di <select value={source} onChange={event => setSource(Number(event.target.value))}>
         {dayNames.map((day, index) => <option key={day} value={index + 1}>{day}</option>)}
       </select></label>
       <button type="button" onClick={copyWeek}>Applica a tutta la settimana</button>
     </div>
-    <span className={styles.visuallyHidden} aria-live="polite">{announcement}</span>
     {edit && activeDay && <CalendarEdit key={JSON.stringify(edit)} edit={edit} day={activeDay}
       onUpdate={windows => { setWindows(activeDay.weekday, windows); close(); }} onClose={close} />}
     <div className={styles.scroll} role="region" aria-label="Griglia della settimana tipo" tabIndex={0}>

@@ -1,7 +1,8 @@
-import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, cleanup, fireEvent, screen, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type { PilotAnalyticsApi, PilotAnalyticsReport } from "@pizzaos/domain";
 import { PilotAnalyticsPanel } from "../features/pilot-analytics";
+import { render } from "./render-with-admin-toasts";
 
 afterEach(cleanup);
 
@@ -64,7 +65,7 @@ describe("PilotAnalyticsPanel public contract", () => {
     fireEvent.change(screen.getByLabelText("Al"), { target: { value: "2026-11-05" } });
     fireEvent.click(screen.getByRole("button", { name: "Applica" }));
     expect(api.report).toHaveBeenCalledTimes(1);
-    expect(screen.getByRole("alert").textContent).toMatch(/data|intervallo|preced|success|iniz|fine/i);
+    expect(screen.getAllByRole("alert").some(toast => /data|intervallo|preced|success|iniz|fine/i.test(toast.textContent ?? ""))).toBe(true);
     fireEvent.change(screen.getByLabelText("Dal"), { target: { value: "2026-11-01" } });
     fireEvent.click(screen.getByRole("button", { name: "Applica" }));
     await waitFor(() => expect(api.report).toHaveBeenLastCalledWith({ storeId: "roma", period: "custom", fromDate: "2026-11-01", throughDate: "2026-11-05" }));
@@ -111,7 +112,7 @@ describe("PilotAnalyticsPanel public contract", () => {
     fireEvent.change(screen.getByLabelText("Dal"), { target: { value: "2026-11-01" } });
     fireEvent.change(screen.getByLabelText("Al"), { target: { value: "2026-11-05" } });
     fireEvent.click(screen.getByRole("button", { name: "Applica" }));
-    expect((await screen.findByRole("alert")).textContent).toContain("Impossibile caricare le statistiche.");
+    await screen.findByText("Impossibile caricare le statistiche.");
     expect(screen.queryByText(/SQL secret/)).toBeNull();
     fireEvent.click(screen.getByRole("button", { name: "Riprova" }));
     await screen.findByText("Margherita");

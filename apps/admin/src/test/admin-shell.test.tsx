@@ -48,12 +48,14 @@ beforeEach(() => {
   });
 
   window.localStorage.clear();
+  window.history.replaceState(null, "", "/");
 });
 
 afterEach(() => {
   cleanup();
   vi.useRealTimers();
   window.localStorage.clear();
+  window.history.replaceState(null, "", "/");
 });
 
 describe("admin shell", () =>
@@ -190,7 +192,7 @@ describe("admin shell", () =>
         .getByRole("button", { name: "Nascondi sidebar" })
         .getAttribute("aria-expanded"),
     ).toBe("true");
-    expect(screen.getByRole("button", { name: "Dashboard" })).toBeDefined();
+    expect(screen.getByRole("link", { name: "Dashboard" })).toBeDefined();
     expect(screen.getByRole("button", { name: "Reset Demo" })).toBeDefined();
   });
 
@@ -251,7 +253,7 @@ describe("admin shell", () =>
     fireEvent.click(screen.getByRole("button", { name: "Modifica menu" }));
     expect(screen.getByText("Gestione Catalogo")).toBeDefined();
 
-    fireEvent.click(screen.getByRole("button", { name: "Dashboard" }));
+    fireEvent.click(screen.getByRole("link", { name: "Dashboard" }));
     fireEvent.click(screen.getByRole("button", { name: "Assegna rider" }));
     expect(screen.getByLabelText("Mappa consegne")).toBeDefined();
   });

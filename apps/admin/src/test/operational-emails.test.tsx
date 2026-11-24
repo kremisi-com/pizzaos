@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it } from 'vitest';
 import { cleanupDom, domFireEvent, domScreen, domWaitFor, domWithin, renderDom } from '@pizzaos/testing';
 import type { OperationalEmailApi, OperationalEmailDelivery, OperationalEmailOverview } from '@pizzaos/domain';
 import { OperationalEmailPanel } from '../features/operational-emails';
+import { AdminToastProvider } from '../composition/admin-toast';
 afterEach(cleanupDom);
 const message = (status: OperationalEmailDelivery['status'] = 'pending'): OperationalEmailDelivery => ({ id: 'email-1', orderId: 'order-1', event: 'received', recipient: 'buyer@pizzaos.test', status, attempts: status === 'retrying' ? 1 : 0, createdAt: '2026-11-05T18:00:00.000Z', updatedAt: '2026-11-05T18:00:00.000Z', sentAt: status === 'sent' ? '2026-11-05T18:00:05.000Z' : null, nextAttemptAt: status === 'retrying' ? '2026-11-05T18:00:05.000Z' : null, lastError: status === 'retrying' ? { code: 'smtp_unavailable', message: 'Invio temporaneamente non disponibile.' } : null });
 const apiFor = (messages: OperationalEmailDelivery[]): OperationalEmailApi => ({ async list() { return { revision: 1, messages }; } });
@@ -24,7 +25,7 @@ describe('Email operative: pannello pubblico', () => {
   });
   it('errore di lettura in italiano offre riprova e nasconde errore provider raw', async () => {
     let fail = true; const api: OperationalEmailApi = { async list() { if (fail) throw new Error('smtp://secret:password@provider.invalid'); return { revision: 1, messages: [] }; } };
-    renderDom(<OperationalEmailPanel api={api} storeId="store" pollMs={0} />);
+    renderDom(<AdminToastProvider><OperationalEmailPanel api={api} storeId="store" pollMs={0} /></AdminToastProvider>);
     await domWaitFor(() => expect(domScreen.getByRole('alert')).toBeTruthy()); expect(domScreen.getByRole('alert').textContent).not.toMatch(/secret|password|provider.invalid/);
     fail = false; domFireEvent.click(domScreen.getByRole('button', { name: /riprova|aggiorna invii/i })); await domWaitFor(() => expect(domScreen.getByText('Nessuna email operativa')).toBeTruthy());
   });

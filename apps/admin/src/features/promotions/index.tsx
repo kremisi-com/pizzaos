@@ -2,6 +2,7 @@
 
 import type { IndividualProduct, PromotionConfiguration, PromotionCoupon, PromotionCouponInput, PromotionProgram, PromotionsApi } from "@pizzaos/domain";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useAdminToast } from "../../composition/admin-toast";
 import styles from "./promotions.module.css";
 
 interface CouponForm {
@@ -23,13 +24,13 @@ const errorText = (error: unknown) => {
 };
 
 export function PromotionAdminPanel({ api, storeId, products, refreshVersion = 0 }: { api: PromotionsApi; storeId: string; products: IndividualProduct[]; refreshVersion?: number }) {
+  const showToast = useAdminToast();
   const [configuration, setConfiguration] = useState<PromotionConfiguration | null>(null);
   const [program, setProgram] = useState<PromotionProgram | null>(null);
   const [rewardEuro, setRewardEuro] = useState("");
   const [coupon, setCoupon] = useState<CouponForm | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
-  const [notice, setNotice] = useState("");
   const dirty = useRef(false);
   const scope = useRef(storeId);
   const reload = useCallback(async (force = false) => {
@@ -39,21 +40,21 @@ export function PromotionAdminPanel({ api, storeId, products, refreshVersion = 0
     if (force || !dirty.current) { setProgram(next.program); setRewardEuro((next.program.rewardCents / 100).toFixed(2)); }
   }, [api, storeId]);
   useEffect(() => {
-    scope.current = storeId; dirty.current = false; setConfiguration(null); setProgram(null); setCoupon(null); setError(""); setNotice(""); setBusy(false);
-    void reload(true).catch(failure => { if (scope.current === storeId) setError(errorText(failure)); });
-  }, [storeId, reload]);
+    scope.current = storeId; dirty.current = false; setConfiguration(null); setProgram(null); setCoupon(null); setError(""); setBusy(false);
+    void reload(true).catch(failure => { if (scope.current === storeId) { setError(errorText(failure)); showToast(errorText(failure), "error"); } });
+  }, [storeId, reload, showToast]);
   useEffect(() => {
     if (refreshVersion === 0) return;
-    void reload().catch(failure => { if (scope.current === storeId) setError(errorText(failure)); });
-  }, [refreshVersion, reload, storeId]);
+    void reload().catch(failure => { if (scope.current === storeId) { setError(errorText(failure)); showToast(errorText(failure), "error"); } });
+  }, [refreshVersion, reload, showToast, storeId]);
 
   async function save(work: () => Promise<void>) {
     if (busy) return;
-    setBusy(true); setError(""); setNotice("");
+    setBusy(true); setError("");
     try { await work(); }
     catch (failure) {
       if (scope.current !== storeId) return;
-      setError(errorText(failure));
+      setError(errorText(failure)); showToast(errorText(failure), "error");
       if (failure && typeof failure === "object" && "code" in failure && failure.code === "revision_conflict") {
         dirty.current = false; setCoupon(null); await reload(true).catch(() => {});
       }
@@ -64,7 +65,7 @@ export function PromotionAdminPanel({ api, storeId, products, refreshVersion = 0
     const next = await api.saveProgram(storeId, { ...program, rewardCents: Math.round(Number(rewardEuro) * 100) });
     if (scope.current !== storeId) return;
     dirty.current = false; setProgram(next); setRewardEuro((next.rewardCents / 100).toFixed(2));
-    setConfiguration(current => current ? { ...current, program: next } : current); setNotice("Programma salvato.");
+    setConfiguration(current => current ? { ...current, program: next } : current); showToast("Programma salvato.", "success");
   }
   async function saveCoupon() {
     if (!coupon) return;
@@ -78,16 +79,15 @@ export function PromotionAdminPanel({ api, storeId, products, refreshVersion = 0
     const next = await api.saveCoupon(storeId, input);
     if (scope.current !== storeId) return;
     setConfiguration(current => current ? { ...current, coupons: [...current.coupons.filter(item => item.id !== next.id), next] } : current);
-    setCoupon(null); setNotice("Coupon salvato.");
+    setCoupon(null); showToast("Coupon salvato.", "success");
   }
   function editCoupon(value: PromotionCoupon) {
-    setNotice(""); setCoupon({ id: value.id, revision: value.revision, code: value.code, active: value.active, kind: value.kind, value: (value.value / 100).toFixed(2),
+    setCoupon({ id: value.id, revision: value.revision, code: value.code, active: value.active, kind: value.kind, value: (value.value / 100).toFixed(2),
       startsAt: localDate(value.startsAt), endsAt: localDate(value.endsAt), minimum: (value.minimumCents / 100).toFixed(2), productIds: [...value.productIds],
       globalLimit: value.globalLimit === null ? "" : String(value.globalLimit), perCustomerLimit: value.perCustomerLimit === null ? "" : String(value.perCustomerLimit) });
   }
   return <section className={styles.panel} aria-label="Coupon e fedeltà"><header className={styles.header}><div><h2>Coupon e fedeltà</h2><p>Regole della sede, applicate e verificate dal servizio al checkout.</p></div>
     <button type="button" className={styles.secondary} disabled={busy} onClick={() => void save(async () => { dirty.current = false; await reload(true); setCoupon(null); })}>Ricarica promozioni</button></header>
-    {error && <p role="alert" className={styles.error}>{error}</p>}{notice && <p role="status" className={styles.notice}>{notice}</p>}
     {!program && !error && <p role="status">Caricamento programma…</p>}
     {program && <div className={styles.layout}><form className={styles.card} onSubmit={event => { event.preventDefault(); void save(saveProgram); }}><h3>Programma fedeltà</h3>
       <fieldset disabled={busy}><legend>Regole punti e premio</legend><label className={styles.check}><input type="checkbox" checked={program.enabled} onChange={event => { dirty.current = true; setProgram({ ...program, enabled: event.target.checked }); }} />Programma attivo</label>
@@ -96,7 +96,7 @@ export function PromotionAdminPanel({ api, storeId, products, refreshVersion = 0
         <label>Valore premio (€)<input type="number" min="0.01" max="1000000" step="0.01" required value={rewardEuro} onChange={event => { dirty.current = true; setRewardEuro(event.target.value); }} /></label>
         <p className={styles.small}>Punti solo a ordine completato sul netto prodotti, escluse consegna e mance. Un premio per ordine, senza scadenza punti.</p><button type="submit">Salva programma</button>
       </fieldset></form>
-      <section className={styles.card}><div className={styles.header}><h3>Coupon della sede</h3><button type="button" disabled={busy} onClick={() => { setCoupon(freshCoupon()); setNotice(""); }}>Nuovo coupon</button></div>
+      <section className={styles.card}><div className={styles.header}><h3>Coupon della sede</h3><button type="button" disabled={busy} onClick={() => setCoupon(freshCoupon())}>Nuovo coupon</button></div>
         {configuration?.coupons.length === 0 && <p>Nessun coupon configurato.</p>}
         <ul className={styles.list}>{configuration?.coupons.map(item => { const usage = configuration.usage.find(record => record.couponId === item.id); return <li key={item.id}><div><strong>{item.code}</strong> · {item.active ? "Attivo" : "Disattivato"}<p className={styles.small}>{item.kind === "percent" ? `${item.value / 100}%` : `${(item.value / 100).toFixed(2)} €`} · {usage?.consumed ?? 0} utilizzi · {usage?.reserved ?? 0} impegnati</p></div><button type="button" className={styles.secondary} disabled={busy} onClick={() => editCoupon(item)}>Modifica {item.code}</button></li>; })}</ul>
         {coupon && <form onSubmit={event => { event.preventDefault(); void save(saveCoupon); }}><h3>{coupon.id ? `Modifica ${coupon.code}` : "Crea un coupon"}</h3><fieldset disabled={busy}><legend>Regole coupon</legend>

@@ -1,7 +1,8 @@
-import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, cleanup, fireEvent, screen, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type { IndividualActor, RiderDelivery, RiderDeliveryApi } from "@pizzaos/domain";
 import { RiderDeliveriesScreen } from "../features/rider-deliveries";
+import { render } from "./render-with-admin-toasts";
 
 const rider: IndividualActor = { id: "rider", email: "rider@example.test", name: "Rider" };
 const delivery = (status: "ready" | "out_for_delivery" = "ready"): RiderDelivery => ({
@@ -117,7 +118,7 @@ describe("RiderDeliveriesScreen public contract", () => {
     const api = port();
     vi.mocked(api.deliveries).mockRejectedValueOnce(new Error("Connessione interrotta")).mockResolvedValueOnce([delivery()]);
     render(<RiderDeliveriesScreen api={api} loginUrl="/auth/login" />);
-    expect((await screen.findByRole("alert")).textContent).toBeTruthy();
+    expect((await screen.findByText("Connessione interrotta")).textContent).toBeTruthy();
     fireEvent.click(screen.getByRole("button", { name: /aggiorna|riprova/i }));
     await screen.findByText("Via Roma 1");
     expect(api.deliveries).toHaveBeenCalledTimes(2);

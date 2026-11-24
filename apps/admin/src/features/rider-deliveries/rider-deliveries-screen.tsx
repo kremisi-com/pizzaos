@@ -2,6 +2,7 @@
 
 import type { RiderDelivery, RiderDeliveryApi, RiderSession } from "@pizzaos/domain";
 import { useEffect, useRef, useState, type ReactElement } from "react";
+import { useAdminToast } from "../../composition/admin-toast";
 import styles from "./rider-deliveries.module.css";
 
 export interface RiderDeliveriesScreenProps {
@@ -17,6 +18,8 @@ function message(error: unknown): string {
 const euros = new Intl.NumberFormat("it-IT", { style: "currency", currency: "EUR" });
 
 export function RiderDeliveriesScreen({ api, loginUrl, refreshMs = 5000 }: RiderDeliveriesScreenProps): ReactElement {
+  const showToast = useAdminToast();
+  const lastNotifiedError = useRef("");
   const [session, setSession] = useState<RiderSession | null>(null);
   const [deliveries, setDeliveries] = useState<RiderDelivery[]>([]);
   const [loaded, setLoaded] = useState(false);
@@ -57,6 +60,8 @@ export function RiderDeliveriesScreen({ api, loginUrl, refreshMs = 5000 }: Rider
         if (active) {
           setDeliveries([]);
           setError(message(cause));
+          if (lastNotifiedError.current !== message(cause)) showToast(message(cause), "error");
+          lastNotifiedError.current = message(cause);
           setLoaded(true);
         }
       } finally {
@@ -69,18 +74,20 @@ export function RiderDeliveriesScreen({ api, loginUrl, refreshMs = 5000 }: Rider
       active = false;
       if (timer !== undefined) clearInterval(timer);
     };
-  }, [api, intervalMs, refreshKey]);
+  }, [api, intervalMs, refreshKey, showToast]);
 
   async function perform(orderId: string, action: () => Promise<void>): Promise<void> {
     if (actionPending.current) return;
     actionPending.current = true;
     setBusy(orderId);
     setError(null);
+      lastNotifiedError.current = "";
     try {
       await action();
       setRefreshKey(value => value + 1);
     } catch (cause) {
       setError(message(cause));
+      showToast(message(cause), "error");
     } finally {
       actionPending.current = false;
       setBusy(null);
@@ -98,7 +105,6 @@ export function RiderDeliveriesScreen({ api, loginUrl, refreshMs = 5000 }: Rider
           onClick={() => { setRefreshKey(value => value + 1); }}>Aggiorna</button>
       </header>
 
-      {error && <div className={styles.error} role="alert">{error}</div>}
       {!loaded && <p role="status">Caricamento delle consegne…</p>}
       {loaded && !session?.actor && !error && (
         <section className={styles.card}>
@@ -148,7 +154,7 @@ export function RiderDeliveriesScreen({ api, loginUrl, refreshMs = 5000 }: Rider
                   <form className={styles.form} onSubmit={event => {
                     event.preventDefault();
                     const note = (notes[delivery.orderId] ?? "").trim();
-                    if (!note) { setError("Descrivi il problema prima di inviare."); return; }
+                    if (!note) { showToast("Descrivi il problema prima di inviare.", "error"); return; }
                     void perform(delivery.orderId, async () => {
                       await api.reportFailure(delivery.orderId, note);
                       setNotes(current => ({ ...current, [delivery.orderId]: "" }));

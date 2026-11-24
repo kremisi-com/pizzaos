@@ -3,6 +3,7 @@
 import type { PilotAnalyticsApi, PilotAnalyticsPeriod, PilotAnalyticsQuery, PilotAnalyticsReport } from "@pizzaos/domain";
 import { type FormEvent, type ReactElement, useEffect, useId, useState } from "react";
 import styles from "./pilot-analytics.module.css";
+import { useAdminToast } from "../../composition/admin-toast";
 
 export interface PilotAnalyticsPanelProps { storeId: string; api: PilotAnalyticsApi; refreshVersion?: number; }
 /** Render authorized analytics through an injected browser port. */
@@ -13,6 +14,7 @@ export function PilotAnalyticsPanel(props: PilotAnalyticsPanelProps): ReactEleme
 const euro = new Intl.NumberFormat("it-IT", { style: "currency", currency: "EUR" });
 
 function StoreAnalytics({ storeId, api, refreshVersion = 0 }: PilotAnalyticsPanelProps): ReactElement {
+  const showToast = useAdminToast();
   const id = useId();
   const [period, setPeriod] = useState<PilotAnalyticsPeriod>("today");
   const [fromDate, setFromDate] = useState("");
@@ -21,7 +23,6 @@ function StoreAnalytics({ storeId, api, refreshVersion = 0 }: PilotAnalyticsPane
   const [report, setReport] = useState<PilotAnalyticsReport | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
-  const [validation, setValidation] = useState("");
   const [retry, setRetry] = useState(0);
 
   useEffect(() => {
@@ -33,16 +34,15 @@ function StoreAnalytics({ storeId, api, refreshVersion = 0 }: PilotAnalyticsPane
     void api.report(query).then((result) => {
       if (current) setReport(result);
     }).catch(() => {
-      if (current) setError(true);
+      if (current) { setError(true); showToast("Impossibile caricare le statistiche.", "error"); }
     }).finally(() => {
       if (current) setLoading(false);
     });
     return () => { current = false; };
-  }, [api, query, retry, refreshVersion]);
+  }, [api, query, retry, refreshVersion, showToast]);
 
   function selectPeriod(value: PilotAnalyticsPeriod) {
     setPeriod(value);
-    setValidation("");
     setError(false);
     setReport(null);
     setLoading(value !== "custom");
@@ -52,14 +52,13 @@ function StoreAnalytics({ storeId, api, refreshVersion = 0 }: PilotAnalyticsPane
   function applyDates(event: FormEvent) {
     event.preventDefault();
     if (!fromDate || !throughDate) {
-      setValidation("Seleziona entrambe le date.");
+      showToast("Seleziona entrambe le date.", "error");
       return;
     }
     if (fromDate > throughDate) {
-      setValidation("La data iniziale deve precedere o coincidere con quella finale.");
+      showToast("La data iniziale deve precedere o coincidere con quella finale.", "error");
       return;
     }
-    setValidation("");
     setQuery({ storeId, period: "custom", fromDate, throughDate });
   }
 
@@ -81,10 +80,8 @@ function StoreAnalytics({ storeId, api, refreshVersion = 0 }: PilotAnalyticsPane
       <input id={`${id}-through`} type="date" value={throughDate} onChange={(event) => setThroughDate(event.target.value)} />
       <button type="submit">Applica</button>
     </form>}
-    {validation && <p role="alert">{validation}</p>}
     {loading && <p role="status">Caricamento statistiche…</p>}
-    {error && <div role="alert">
-      <p>Impossibile caricare le statistiche.</p>
+    {error && <div>
       <button type="button" onClick={() => setRetry((value) => value + 1)}>Riprova</button>
     </div>}
     {report && <>

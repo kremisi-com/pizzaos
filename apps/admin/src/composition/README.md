@@ -11,3 +11,11 @@ Verify with `pnpm --filter @pizzaos/admin test`, `pnpm --filter @pizzaos/admin t
 Â«Email operativeÂ» si trova in Integrazioni e riceve `OperationalEmailApi` da `api/operational-email-api.ts`. Ãˆ una lettura del servizio, con polling e aggiornamento operativo. Menu usa `MenuAdminApi` per bozze, immagini e pubblicazione. Magazzino e Profilo usano `IndividualApi` per le impostazioni della sede.
 
 `session-mode.ts` verifies demo sessions through the service. The home mounts `AdminShell` only in demo; ordinary access keeps the operational entry point. The root layout identifies the demo and offers logout; middleware prevents that session from opening persistent operations or rider routes. No operational adapter is mounted by the demo shell. See the app README for configuration and end-to-end verification.
+
+## Navigazione e sede attiva
+
+La sidebar e le scorciatoie aggiornano il percorso `/operazioni/<sezione>` nel pilota e `/poc/<sezione>` nella demo. Le sezioni sono `dashboard`, `ordini`, `menu`, `magazzino`, `marketing`, `analytics`, `consegne`, `integrazioni` e `profilo`. `admin-navigation.ts` possiede la mappa; `use-admin-navigation.ts` sincronizza la vista con URL e cronologia. Le pagine dinamiche verificano la sezione e riusano gli ingressi con le protezioni esistenti. Percorsi sconosciuti restituiscono 404.
+
+La composizione operativa salva soltanto l'ID della sede attiva nella chiave localStorage `pizzaos:admin:active-store:v1`. Al caricamento verifica l'ID contro le sedi autorizzate restituite dal servizio; se non è più disponibile usa la prima sede, oppure nessuna se l'elenco è vuoto. Lo storage non concede permessi. Se il browser lo blocca, la selezione resta utilizzabile nella sessione corrente. La demo mantiene la propria persistenza separata.
+
+Verifica: `src/test/admin-navigation.test.tsx` copre tutte le sezioni, riapertura, cronologia, scorciatoie, selezione salvata, revoca e storage bloccato.

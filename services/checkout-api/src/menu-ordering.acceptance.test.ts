@@ -296,6 +296,25 @@ describe("menu publication and access", () => {
     expect(json<IndividualStore>(await f.request("GET", catalog)).products.map(({ id }) => id)).toEqual([legacyProduct.id]);
   });
 
+  it("explains which group setting to correct when saving or publishing a menu", async () => {
+    const f = fixture();
+    const before = await f.workspace();
+    const unnamed = draft("gruppo-senza-nome", product("pizza", {
+      groups: [{ id: "scelte", name: " ", kind: "selection", min: 0, max: 1, optionIds: [] }],
+    }));
+    const saveError = await f.request("PUT", `${menu}/drafts`, "operator", { revision: before.revision, draft: unnamed });
+    expect(saveError.statusCode).toBe(400);
+    expect(saveError.json<{ message: string }>().message).toBe("Inserisci un nome per il gruppo 1.");
+
+    const empty = draft("gruppo-vuoto", product("pizza", {
+      groups: [{ id: "impasto", name: "Impasto", kind: "dough", min: 1, max: 1, optionIds: [] }],
+    }));
+    const saved = await f.save(before.revision, empty);
+    const publishError = await f.request("POST", `${menu}/publish`, "operator", { revision: saved.revision, draftId: empty.id });
+    expect(publishError.statusCode).toBe(400);
+    expect(publishError.json<{ message: string }>().message).toBe("Il gruppo «Impasto»: aggiungi almeno una scelta prima di pubblicare.");
+  });
+
   it("serves draft photos only to the assigned operator until publication", async () => {
     const f = fixture();
     const invalidPng = Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jJ1sAAAAASUVORK5CYII=", "base64");
