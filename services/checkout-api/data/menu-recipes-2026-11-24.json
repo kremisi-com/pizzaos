@@ -1,0 +1,460 @@
+{
+  "storeId": "verifica-online",
+  "provenance": {
+    "source": "Cinque screenshot forniti il 23 novembre 2026 nella chat Allinea menu e UX al PoC; ricette e impasti riletti sulle immagini originali il 24 novembre.",
+    "capturedAt": "2026-11-24",
+    "notes": [
+      "Le quantità massime visibili negli screenshot sono disponibilità commerciali storiche, non giacenze attuali né dosi. Non importarle come scorte.",
+      "La fonte non fornisce dosi né equivalenze di unità: tutti i valori nuovi restano null.",
+      "Verificare composizione del mix di verdure, del tris di formaggi, del mix di farine e degli impasti completi. La fonte non ne elenca le singole componenti.",
+      "Verificare ricette dei dolci finiti e varianti delle bevande/box. Non dedurle dal nome.",
+      "Mozzarella di Bufala D.O.P. e Bufala DOP sono diciture della stessa ricetta/sorgente; la bufala campana in cottura resta distinta.",
+      "Pane e Nutella sono ingredienti distinti anche quando serviti a parte. Bocconcini e impasti richiedono conferma della composizione completa.",
+      "Schede allergeni e possibili tracce non fornite: richiedono verifica del gestore.",
+      "SHA256 screenshot 90691239d95c2966fa051fc10c10a097656ba0d497efe30973e52daad4cf98f2",
+      "SHA256 screenshot 2692df2b33f3274dee6cd73fe0810c9dd42d302f1d01dbd6d75bc1e301b4fbfc",
+      "SHA256 screenshot c4d9dc13a9748c6d635d201d2b1f346e51c9b59067d74d80db2f6e4ae1fd680c",
+      "SHA256 screenshot 340c4471f5911c5445f70341c28308b7c4604eadbfb4302846b79db1575c2a0e",
+      "SHA256 screenshot 686b44a20fec27afec2863bff0b1824b564358d24c2e84d2ae806aab70956586"
+    ]
+  },
+  "recipes": [
+    {
+      "name": "La Pizza Speciale",
+      "description": "Datterini in due colori, bufala DOP e il profumo del pesto di Pra’ senza aglio: un incontro che lascia il segno.",
+      "ingredients": [
+        {
+          "name": "Pomodoro",
+          "quantity": null
+        },
+        {
+          "name": "Mozzarella",
+          "quantity": null
+        },
+        {
+          "name": "Datterini gialli",
+          "quantity": null
+        },
+        {
+          "name": "Datterini rossi",
+          "quantity": null
+        },
+        {
+          "name": "Mozzarella di Bufala D.O.P.",
+          "aliases": [
+            "Bufala DOP",
+            "Bufala D.O.P."
+          ],
+          "quantity": null
+        },
+        {
+          "name": "Pesto di Pra’ senza aglio",
+          "quantity": null
+        }
+      ],
+      "sourceText": "Pomodoro, mozzarella, datterini gialli e rossi, bufala DOP e pesto di Pra’ senza aglio."
+    },
+    {
+      "name": "Regina d’Autunno",
+      "description": "Speck croccante e gorgonzola DOP su un abbraccio di mozzarella: l’autunno si fa goloso.",
+      "ingredients": [
+        {
+          "name": "Mozzarella",
+          "quantity": null
+        },
+        {
+          "name": "Speck croccante",
+          "quantity": null
+        },
+        {
+          "name": "Gorgonzola D.O.P.",
+          "aliases": [
+            "Gorgonzola DOP"
+          ],
+          "quantity": null
+        }
+      ],
+      "sourceText": "Mozzarella, speck croccante e gorgonzola DOP."
+    },
+    {
+      "name": "Bufalina",
+      "description": "Bufala campana in cottura e olio EVO pugliese: pochi ingredienti, carattere da vendere.",
+      "ingredients": [
+        {
+          "name": "Pomodoro",
+          "quantity": null
+        },
+        {
+          "name": "Mozzarella di Bufala campana D.O.P. in cottura",
+          "aliases": [
+            "Bufala campana DOP in cottura"
+          ],
+          "quantity": null
+        },
+        {
+          "name": "Olio EVO made in Puglia",
+          "quantity": null
+        }
+      ],
+      "sourceText": "Pomodoro, bufala campana DOP in cottura e olio EVO pugliese."
+    },
+    {
+      "name": "Blu Blu",
+      "description": "Tonno al naturale e cipolle fresche caramellate: un equilibrio che conquista al primo morso.",
+      "ingredients": [
+        {
+          "name": "Pomodoro",
+          "quantity": null
+        },
+        {
+          "name": "Mozzarella",
+          "quantity": null
+        },
+        {
+          "name": "Tonno al naturale",
+          "quantity": null
+        },
+        {
+          "name": "Cipolle fresche caramellate",
+          "quantity": null
+        }
+      ],
+      "sourceText": "Pomodoro, mozzarella, tonno al naturale e cipolle caramellate."
+    },
+    {
+      "name": "Arcobaleno",
+      "description": "Il colore delle verdure fresche incontra pomodoro e mozzarella: ogni stagione ha il suo morso.",
+      "ingredients": [
+        {
+          "name": "Pomodoro",
+          "quantity": null
+        },
+        {
+          "name": "Mozzarella",
+          "quantity": null
+        },
+        {
+          "name": "Mix di verdure fresche in base a disponibilità",
+          "quantity": null
+        }
+      ],
+      "sourceText": "Pomodoro, mozzarella e verdure fresche secondo disponibilità."
+    },
+    {
+      "name": "Porciccia",
+      "description": "Funghi con porcini, brie e salsiccia fresca: una pizza dal cuore generoso.",
+      "ingredients": [
+        {
+          "name": "Pomodoro",
+          "quantity": null
+        },
+        {
+          "name": "Mozzarella",
+          "quantity": null
+        },
+        {
+          "name": "Funghi con porcini",
+          "quantity": null
+        },
+        {
+          "name": "Brie",
+          "quantity": null
+        },
+        {
+          "name": "Salsiccia fresca",
+          "quantity": null
+        }
+      ],
+      "sourceText": "Pomodoro, mozzarella, funghi con porcini, brie e salsiccia fresca."
+    },
+    {
+      "name": "Marinara Sbagliata",
+      "description": "Datterini gialli, aglio bianco e origano pugliese BIO: la marinara prende una strada tutta sua.",
+      "ingredients": [
+        {
+          "name": "Pomodoro",
+          "quantity": null
+        },
+        {
+          "name": "Datterini gialli",
+          "quantity": null
+        },
+        {
+          "name": "Aglio bianco",
+          "quantity": null
+        },
+        {
+          "name": "Olio EVO all’aglio",
+          "quantity": null
+        },
+        {
+          "name": "Origano pugliese BIO",
+          "quantity": null
+        }
+      ],
+      "sourceText": "Pomodoro, datterini gialli, aglio bianco, olio EVO all’aglio e origano pugliese bio."
+    },
+    {
+      "name": "Happy Pork",
+      "description": "Würstel giganti del Trentino e patate in tripla cottura: il lato felice della fame.",
+      "ingredients": [
+        {
+          "name": "Pomodoro",
+          "quantity": null
+        },
+        {
+          "name": "Mozzarella",
+          "quantity": null
+        },
+        {
+          "name": "Würstel giganti del Trentino",
+          "aliases": [
+            "Wurstel giganti del Trentino"
+          ],
+          "quantity": null
+        },
+        {
+          "name": "Patate fresche al forno in tripla cottura",
+          "quantity": null
+        }
+      ],
+      "sourceText": "Pomodoro, mozzarella, würstel del Trentino e patate al forno."
+    },
+    {
+      "name": "Diavolita",
+      "description": "Salame piccante e una spruzzata di olio EVO al peperoncino: piccola diavola, grande carattere.",
+      "ingredients": [
+        {
+          "name": "Pomodoro",
+          "quantity": null
+        },
+        {
+          "name": "Mozzarella",
+          "quantity": null
+        },
+        {
+          "name": "Salame piccante",
+          "quantity": null
+        },
+        {
+          "name": "Olio EVO al peperoncino",
+          "quantity": null
+        }
+      ],
+      "sourceText": "Pomodoro, mozzarella, salame piccante e olio EVO al peperoncino."
+    },
+    {
+      "name": "Super Napoli",
+      "description": "Bufala DOP, acciughe del Mar Cantabrico e origano siciliano BIO: un viaggio dal gusto deciso.",
+      "ingredients": [
+        {
+          "name": "Pomodoro",
+          "quantity": null
+        },
+        {
+          "name": "Mozzarella di Bufala D.O.P.",
+          "aliases": [
+            "Bufala DOP",
+            "Bufala D.O.P."
+          ],
+          "quantity": null
+        },
+        {
+          "name": "Acciughe pregiate del Mar Cantabrico",
+          "quantity": null
+        },
+        {
+          "name": "Origano di Sicilia BIO",
+          "quantity": null
+        }
+      ],
+      "sourceText": "Pomodoro, bufala DOP, acciughe del Cantabrico e origano di Sicilia bio."
+    },
+    {
+      "name": "Tre Formaggi",
+      "description": "Un tris cremoso con marmellata artigianale di fico d’India a parte: scegli tu il morso perfetto.",
+      "ingredients": [
+        {
+          "name": "Tris di formaggi in base a disponibilità",
+          "quantity": null
+        },
+        {
+          "name": "Marmellata artigianale di Fico d’India",
+          "quantity": null
+        }
+      ],
+      "sourceText": "Tre formaggi secondo disponibilità, con marmellata di fico d’India a parte."
+    },
+    {
+      "name": "Monellona",
+      "description": "Praga, porcini, carciofi gourmet e taggiasche: quattro spicchi, una gran voglia di assaggiarli tutti.",
+      "ingredients": [
+        {
+          "name": "Pomodoro",
+          "quantity": null
+        },
+        {
+          "name": "Mozzarella",
+          "quantity": null
+        },
+        {
+          "name": "Prosciutto cotto di Praga",
+          "quantity": null
+        },
+        {
+          "name": "Funghi con porcini",
+          "quantity": null
+        },
+        {
+          "name": "Carciofi gourmet con gambo",
+          "quantity": null
+        },
+        {
+          "name": "Olive taggiasche",
+          "quantity": null
+        }
+      ],
+      "sourceText": "Pomodoro, mozzarella, cotto di Praga, funghi con porcini, carciofi e olive taggiasche."
+    },
+    {
+      "name": "Margherita Tristezza",
+      "description": "Pomodoro e mozzarella: il grande classico che mette tutti di buonumore.",
+      "ingredients": [
+        {
+          "name": "Pomodoro",
+          "quantity": null
+        },
+        {
+          "name": "Mozzarella",
+          "quantity": null
+        }
+      ],
+      "sourceText": "Pomodoro e mozzarella."
+    },
+    {
+      "name": "Baby",
+      "description": "La gioia dei piccoli: pomodoro e mozzarella, con un 8 di pane e Nutella per il gran finale.",
+      "ingredients": [
+        {
+          "name": "Pomodoro",
+          "quantity": null
+        },
+        {
+          "name": "Mozzarella",
+          "quantity": null
+        },
+        {
+          "name": "Pane",
+          "quantity": null
+        },
+        {
+          "name": "Nutella",
+          "quantity": null
+        }
+      ],
+      "sourceText": "Pomodoro e mozzarella, con pane e Nutella."
+    },
+    {
+      "name": "Castagne – impasto del mese",
+      "description": "Castagne al vapore e farina di castagne: il profumo dell’autunno parte dall’impasto.",
+      "ingredients": [
+        {
+          "name": "Castagne al vapore",
+          "quantity": null
+        },
+        {
+          "name": "Farina di castagne",
+          "quantity": null
+        }
+      ],
+      "aliases": [
+        "Castagne - impasto del mese"
+      ]
+    },
+    {
+      "name": "Mais – special edition",
+      "description": "Croccante, leggero e pronto a farsi ricordare: scegli il tuo abbinamento preferito.",
+      "ingredients": [],
+      "aliases": [
+        "Mais - special edition"
+      ]
+    },
+    {
+      "name": "Integrale",
+      "description": "Farina integrale, morbidezza e un sapore che si riconosce al primo morso.",
+      "ingredients": [
+        {
+          "name": "Farina integrale",
+          "quantity": null
+        }
+      ]
+    },
+    {
+      "name": "Tradizionale",
+      "description": "Il mix di farine della casa: un grande classico, tutto da personalizzare.",
+      "ingredients": [
+        {
+          "name": "Mix di farine",
+          "quantity": null
+        }
+      ]
+    },
+    {
+      "name": "Bocconcini di pane",
+      "description": "Sei bocconcini appena sfornati: uno tira l’altro.",
+      "ingredients": [
+        {
+          "name": "Pane",
+          "quantity": null
+        }
+      ]
+    },
+    {
+      "name": "Barchetta",
+      "description": "Pomodoro, mozzarella e origano: salpa verso uno spuntino da condividere.",
+      "ingredients": [
+        {
+          "name": "Pomodoro",
+          "quantity": null
+        },
+        {
+          "name": "Mozzarella",
+          "quantity": null
+        },
+        {
+          "name": "Origano",
+          "quantity": null
+        }
+      ]
+    },
+    {
+      "name": "Bocconcini di pane alla Nutella (6 pz.)",
+      "description": "Sei bocconcini appena sfornati, un cuore di Nutella: la dolcezza si moltiplica.",
+      "ingredients": [
+        {
+          "name": "Pane",
+          "quantity": null
+        },
+        {
+          "name": "Nutella",
+          "quantity": null
+        }
+      ]
+    },
+    {
+      "name": "Sacher",
+      "description": "La pausa golosa firmata Pasticceria Monfrini: lasciati tentare.",
+      "ingredients": []
+    },
+    {
+      "name": "Cheesecake ai frutti rossi",
+      "description": "Una pausa ai frutti rossi firmata Pasticceria Monfrini: il finale che cercavi.",
+      "ingredients": []
+    },
+    {
+      "name": "Cheesecake al pistacchio",
+      "description": "Il richiamo del pistacchio, firmato Pasticceria Monfrini: concediti il bis di dolcezza.",
+      "ingredients": []
+    }
+  ]
+}

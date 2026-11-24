@@ -127,6 +127,25 @@ No new SQL tables are needed for these extensions: the existing durable state do
 
 ## Catalogo e preferenze
 
+### Importazione e recupero delle ricette
+
+Per modifiche ordinarie usare **Admin → Menu** e **Magazzino**. Il precedente caricamento del pilota era una trascrizione dal pannello: salvava ricette testuali, senza riferimenti al magazzino. `menu-import.ts` e `menu:import` riconciliano ingredienti, prodotti e scelte; il manifest separa nomi originali e descrizioni promozionali. Il [manifest del recupero del 24 novembre](data/menu-recipes-2026-11-24.json) documenta fonte e verifiche residue.
+
+Da questa directory, con `DATABASE_URL` dell'ambiente scelto già esportata:
+
+```powershell
+pnpm menu:import data/menu-recipes-2026-11-24.json
+pnpm menu:import data/menu-recipes-2026-11-24.json --apply
+```
+
+Il primo comando esegue soltanto SELECT e analisi. Il secondo ricalcola e applica sotto il lock del repository. Non pubblica menu e non modifica prezzi, ordini o riserve. Ripetere il comando non cambia record, ID o revisioni. Per una nuova importazione includere `draft` nel manifest, con ID stabile, sezioni, prodotti e scelte: inserisce/aggiorna la bozza e riusa identità e dosi note. ID o nome del menu devono identificare una sola bozza. Controllare il rapporto prima di applicare; corrispondenze ambigue bloccano la transazione.
+
+La ricerca normalizza maiuscole, accenti, spazi e apostrofi. I refusi si risolvono con alias espliciti confrontati con la fonte, mai unendo automaticamente nomi simili. Nomi composti e varianti rimangono distinti. Non ricavare ingredienti dalle nuove descrizioni catchy.
+
+Scorte e dosi `null` mantengono il dato da verificare. Magazzino ed editor mostrano campi vuoti **Da verificare**; zero indica scorta esaurita confermata. Dosi note e scorte esistenti si conservano. Le unità restano intere nella stessa convenzione delle ricette e del magazzino; la fonte non fornisce equivalenze in grammi. Dosi/scorte sconosciute bloccano pubblicazione e ordinazione delle composizioni coinvolte. Allergeni assenti restano non verificati. Nessun DDL aggiuntivo sullo snapshot JSONB: distribuire API e admin compatibili prima del backfill.
+
+Verifiche: `src/menu-import.acceptance.test.ts`, `src/menu-ordering.acceptance.test.ts` e test editor admin. [Analisi e riesame](../../.agents/design/2026-11-24-menu-import/REVIEW.md).
+
 Il [flusso Menu](../../.agents/product-definition/flows/menu-ordering.md) usa le rotte `/v1/pilot/stores/:id/menu-admin`, `/menu-images` e `/v1/pilot/food-preferences`. Il servizio conserva le bozze con revisione e pubblica il menu nella transazione del catalogo. La migrazione additiva crea `ordering_menu_images`, tabella per foto statiche JPEG, PNG e WebP fino a 2 MB. Dopo la migrazione verificare che il ruolo applicativo possa fare SELECT e INSERT sulla tabella. I byte restano separati dallo snapshot degli ordini.
 
 Il preventivo convalida gruppi e scorte effettive, calcola gli extra e conserva le scelte nella riga confermata. Le preferenze si leggono sul solo account cliente. Le rotte usano l'autenticazione e il proxy già configurati.

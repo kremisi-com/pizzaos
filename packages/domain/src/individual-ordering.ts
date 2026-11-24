@@ -5,16 +5,18 @@ import type { PromotionBreakdown, PromotionSelection } from "./promotions-loyalt
 
 /** Durable pilot contracts. EUR amounts are integer cents, dates are UTC ISO strings. */
 export interface IndividualActor { id: string; email: string; name: string; }
-export interface IndividualIngredient { id: string; name: string; stock: number; food?: MenuFoodInformation; }
+/** null means the stock has not been verified; it cannot fulfil an order. */
+export interface IndividualIngredient { id: string; name: string; stock: number | null; food?: MenuFoodInformation; }
 export interface IndividualOption {
-  id: string; name: string; priceCents: number; ingredients: Record<string, number>;
+  id: string; name: string; priceCents: number; ingredients: Record<string, number | null>;
   description?: string; food?: MenuFoodInformation; removesIngredientIds?: string[];
   /** Public projection of recipe references and current availability. */
   ingredientIds?: string[]; available?: boolean;
 }
 export interface IndividualProduct {
   id: string; name: string; description: string; priceCents: number; available: boolean;
-  allergens: string[]; ingredients: Record<string, number>; options: IndividualOption[];
+  /** null keeps the ingredient reference while its recipe dose awaits verification. */
+  allergens: string[]; ingredients: Record<string, number | null>; options: IndividualOption[];
   groups?: MenuOptionGroup[]; extraOffer?: MenuExtraOffer; pairingProductIds?: string[]; imageId?: string;
   food?: MenuFoodInformation;
   /** Public projection for menu presentation. Stock quantities and recipe units stay server-side. */

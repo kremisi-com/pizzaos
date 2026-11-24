@@ -6,8 +6,8 @@ import styles from "./operational-catalog.module.css";
 export function MenuRecipeFields({ label, ingredients, recipe, onChange }: {
   label: string;
   ingredients: readonly IndividualIngredient[];
-  recipe: Record<string, number>;
-  onChange: (recipe: Record<string, number>) => void;
+  recipe: Record<string, number | null>;
+  onChange: (recipe: Record<string, number | null>) => void;
 }) {
   const selected = new Set(Object.keys(recipe));
   const remaining = ingredients.filter(ingredient => !selected.has(ingredient.id));
@@ -20,12 +20,13 @@ export function MenuRecipeFields({ label, ingredients, recipe, onChange }: {
 
   return <fieldset className={styles.inner}>
     <legend>{label}</legend>
+    {Object.values(recipe).includes(null) && <p>Completa le dosi da verificare prima di pubblicare il menu.</p>}
     {Object.entries(recipe).map(([id, units]) => {
       const name = ingredients.find(ingredient => ingredient.id === id)?.name || "Ingrediente da verificare";
       return <div className={styles.row} key={id}>
         <label>Unità di {name}
-          <input type="number" min={1} step={1} value={units} required onChange={event => {
-            onChange({ ...recipe, [id]: Number(event.target.value) });
+          <input type="number" min={1} step={1} value={units ?? ""} placeholder="Da verificare" onChange={event => {
+            onChange({ ...recipe, [id]: event.target.value === "" ? null : Number(event.target.value) });
           }} />
         </label>
         <Button type="button" variant="secondary" aria-label={`Rimuovi ${name} da ${label}`} onClick={() => removeIngredient(id)}>Rimuovi</Button>
@@ -33,7 +34,7 @@ export function MenuRecipeFields({ label, ingredients, recipe, onChange }: {
     })}
     {ingredients.length > 0 ? <label>Aggiungi ingrediente a {label}
       <select value="" disabled={remaining.length === 0} onChange={event => {
-        if (event.target.value) onChange({ ...recipe, [event.target.value]: 1 });
+        if (event.target.value) onChange({ ...recipe, [event.target.value]: null });
       }}>
         <option value="">{remaining.length === 0 ? "Tutti gli ingredienti sono già inclusi" : "Scegli dal magazzino"}</option>
         {remaining.map(ingredient => <option key={ingredient.id} value={ingredient.id}>{ingredient.name || "Senza nome"}</option>)}

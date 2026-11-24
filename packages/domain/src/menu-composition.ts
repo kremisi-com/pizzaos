@@ -37,6 +37,7 @@ export function resolveMenuComposition(product: IndividualProduct, selections: r
   const recipe = new Map<string, number>();
   const base = product.baseIngredientIds?.map(id => [id, 1] as const) ?? Object.entries(product.ingredients);
   for (const [id, units] of base) {
+    if (units === null) { valid = false; continue; }
     if (!removed.has(id)) recipe.set(id, units);
   }
   const contains = new Map<string, string>();
@@ -55,6 +56,7 @@ export function resolveMenuComposition(product: IndividualProduct, selections: r
     const references = option.ingredientIds?.map(id => [id, 1] as const) ?? Object.entries(option.ingredients);
     const ownRemovals = new Set(option.removesIngredientIds);
     for (const [id, units] of references) {
+      if (units === null) { valid = false; continue; }
       if (!removed.has(id) || ownRemovals.has(id)) recipe.set(id, (recipe.get(id) ?? 0) + units * quantity);
     }
     if (option.food) { includeFood(option.food); identifiedFood = true; }

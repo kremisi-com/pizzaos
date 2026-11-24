@@ -9,3 +9,5 @@ La demo autenticata usa invece `CatalogManager` con il dataset dimostrativo e ca
 Nell’editor della bozza ogni sezione mostra sempre il campo **Descrizione**. **Modifica nome**, accanto alle frecce di riordino, rende modificabile il titolo nell’intestazione; Invio o l’uscita dal campo ripristinano la visualizzazione del titolo. Le modifiche seguono il normale salvataggio della bozza.
 
 Verifica locale con `pnpm --filter @pizzaos/admin test`. I requisiti e i contratti del catalogo persistente sono in [.agents/design/2026-11-23-menu-ordering](../../../../../.agents/design/2026-11-23-menu-ordering/design.md).
+
+Gli ingredienti importati sono selezionabili dalla stessa lista del Magazzino. Una dose vuota resta da verificare e si può salvare in bozza; pubblicazione e ordinazione richiedono dosi e scorte verificate. Le descrizioni promozionali non sono la fonte strutturata della ricetta.

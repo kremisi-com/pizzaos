@@ -67,7 +67,7 @@ export function validateDraftHeader(draft: unknown, invalid: Invalid): asserts d
     (draft.kitchenNotice !== undefined && !isText(draft.kitchenNotice, 1000))) invalid("Controlla nome, prodotti e sezioni del menu.");
 }
 
-export function validateMenuDraft(draft: MenuDraft, store: IndividualStore, invalid: Invalid, publishing = false): void {
+export function validateMenuDraft(draft: MenuDraft, store: IndividualStore, invalid: Invalid, publishing = false, checkRecipeReadiness = publishing): void {
   const ingredientIds = new Set(store.ingredients.map(item => item.id));
   const productIds = new Set(draft.products.map(item => item.id));
   const sectionIds = new Set<string>();
@@ -87,6 +87,15 @@ export function validateMenuDraft(draft: MenuDraft, store: IndividualStore, inva
   }
 
   for (const product of draft.products) {
+    if (checkRecipeReadiness) {
+      for (const recipe of [product.ingredients, ...product.options.map(option => option.ingredients)]) {
+        for (const [id, dose] of Object.entries(recipe)) {
+          if (dose === null || store.ingredients.find(ingredient => ingredient.id === id)?.stock == null) {
+            invalid(`«${product.name}»: verifica dosi e scorte degli ingredienti prima di pubblicare.`);
+          }
+        }
+      }
+    }
     if (!only(product as unknown as Record<string, unknown>,
       ["id", "name", "description", "priceCents", "available", "allergens", "ingredients", "options", "groups", "extraOffer", "pairingProductIds", "imageId", "food"])) invalid("Prodotto del menu non valido.");
     if (product.imageId !== undefined && !isId(product.imageId)) invalid("Foto prodotto non valida.");

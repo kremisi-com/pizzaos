@@ -69,14 +69,14 @@ function authenticated(actor: IndividualActor | null): IndividualActor {
   text(actor.id); email(actor.email); text(actor.name, 300);
   return actor;
 }
-function recipeValid(recipe: unknown, ingredientIds: Set<string>): asserts recipe is Record<string, number> {
+function recipeValid(recipe: unknown, ingredientIds: Set<string>): asserts recipe is Record<string, number | null> {
   if (!record(recipe)) fail("invalid_input", "Ricetta non valida.");
   for (const [id, quantity] of Object.entries(recipe)) {
     if (!ingredientIds.has(id)) fail("invalid_input", "Ingrediente della ricetta non presente.");
-    integer(quantity, 1);
+    if (quantity !== null) integer(quantity, 1);
   }
 }
-function validStore(store: IndividualStore): void {
+export function validateStoreConfiguration(store: IndividualStore): void {
   if (!record(store)) fail("invalid_input", "Configurazione sede non valida.");
   identifier(store.id); text(store.name); coordinate(store.latitude, 90); coordinate(store.longitude, 180);
   if (store.address !== undefined) text(store.address, storeAddressLimit);
@@ -92,7 +92,7 @@ function validStore(store: IndividualStore): void {
   if (store.products.length > 500 || store.ingredients.length > 1000 || store.slots.length > 5000 || store.deliveryBands.length > 100) fail("invalid_input", "Configurazione troppo grande.");
   for (const ingredient of store.ingredients) {
     if (!record(ingredient)) fail("invalid_input", "Ingrediente non valido.");
-    identifier(ingredient.id); text(ingredient.name); integer(ingredient.stock);
+    identifier(ingredient.id); text(ingredient.name); if (ingredient.stock !== null) integer(ingredient.stock);
     if (ingredient.food !== undefined) validateMenuFood(ingredient.food, invalid);
   }
   unique(store.ingredients.map(item => item.id)); unique(store.products.map(item => item.id)); unique(store.slots.map(item => item.id));
@@ -165,12 +165,12 @@ function describeFood(product: IndividualProduct, store: IndividualStore): Indiv
 }
 
 function publicProduct(product: IndividualProduct, store: IndividualStore, reserved: Record<string, number>): IndividualProduct {
-  const remaining = new Map(store.ingredients.map(item => [item.id, item.stock - (reserved[item.id] ?? 0)]));
+  const remaining = new Map(store.ingredients.map(item => [item.id, (item.stock ?? 0) - (reserved[item.id] ?? 0)]));
   const removable = new Set(product.options.flatMap(option => option.removesIngredientIds ?? []));
-  const possible = (recipe: Record<string, number>) => Object.entries(recipe).every(([id, units]) => removable.has(id) || (remaining.get(id) ?? 0) >= units);
+  const possible = (recipe: Record<string, number | null>) => Object.entries(recipe).every(([id, units]) => units !== null && (removable.has(id) || (remaining.get(id) ?? 0) >= units));
   const base = Object.entries(product.ingredients).filter(([id]) => !removable.has(id));
   const managed = Boolean(store.menu || product.groups);
-  const maxAvailable = managed && base.length ? Math.max(0, Math.min(...base.map(([id, units]) => Math.floor((remaining.get(id) ?? 0) / units)))) : undefined;
+  const maxAvailable = managed && base.length ? Math.max(0, Math.min(...base.map(([id, units]) => units === null ? 0 : Math.floor((remaining.get(id) ?? 0) / units)))) : undefined;
   return { ...(managed ? describeFood(product, store) : product), available: product.available && possible(product.ingredients),
     ...(managed ? { baseIngredientIds: Object.keys(product.ingredients), ...(maxAvailable !== undefined ? { maxAvailable } : {}) } : {}),
     ingredients: {}, options: product.options.map(option => ({ ...option, ingredients: {},
@@ -257,8 +257,9 @@ export function createOrderingService(options: OrderingServiceOptions): RiderOrd
     const lines = cart.lines.map(line => {
       const product = store.products.find(item => item.id === line.productId);
       if (!product?.available) fail("product_unavailable", "Un prodotto non è disponibile: correggi il carrello.");
-      const addRecipe = (requirements: Record<string, number>) => {
+      const addRecipe = (requirements: Record<string, number | null>) => {
         for (const [ingredientId, units] of Object.entries(requirements)) {
+          if (units === null) fail("inventory_changed", "Quantità della ricetta da verificare.");
           const next = (recipe[ingredientId] ?? 0) + units * line.quantity;
           if (!Number.isSafeInteger(next)) fail("invalid_input", "Quantità troppo grande.");
           recipe[ingredientId] = next;
@@ -648,7 +649,7 @@ export function createOrderingService(options: OrderingServiceOptions): RiderOrd
             const store = getStore(state, order.storeId); const recipe = reservations(state)[order.id]?.ingredients ?? {};
             for (const [ingredientId, quantity] of Object.entries(recipe)) {
               const ingredient = store.ingredients.find(item => item.id === ingredientId);
-              if (!ingredient || ingredient.stock < quantity) fail("inventory_changed", "Scorte incoerenti con le riserve dell'ordine.");
+              if (!ingredient || ingredient.stock === null || ingredient.stock < quantity) fail("inventory_changed", "Scorte incoerenti con le riserve dell'ordine.");
               ingredient.stock -= quantity;
             }
             release(order);
@@ -690,7 +691,7 @@ export function createOrderingService(options: OrderingServiceOptions): RiderOrd
           menuRevision(current, revision);
           validateDraftHeader(draft, invalid);
           if (draft.id === current.published.id) invalid("Duplica il menu pubblicato per modificarlo.");
-          validStore({ ...store, products: draft.products });
+          validateStoreConfiguration({ ...store, products: draft.products });
           validateMenuDraft(draft, store, invalid);
           const previous = current.drafts.findIndex(item => item.id === draft.id);
           if (previous < 0 && current.drafts.length >= 20) invalid("Hai raggiunto il numero massimo di bozze.");
@@ -721,7 +722,7 @@ export function createOrderingService(options: OrderingServiceOptions): RiderOrd
           menuRevision(current, revision);
           const draft = current.drafts.find(item => item.id === draftId);
           if (!draft) fail("not_found", "Bozza del menu non trovata.");
-          validStore({ ...store, products: draft.products });
+          validateStoreConfiguration({ ...store, products: draft.products });
           validateMenuDraft(draft, store, invalid, true);
           const { products, ...menu } = copy(draft);
           store.menu = menu;
@@ -952,7 +953,7 @@ export function createOrderingService(options: OrderingServiceOptions): RiderOrd
         const reserved = ingredientsReserved(state, input.id);
         for (const [ingredientId, quantity] of Object.entries(reserved)) {
           const ingredient = input.ingredients.find(item => item.id === ingredientId);
-          if (!ingredient || ingredient.stock < quantity) fail("inventory_changed", "Le nuove scorte non coprono gli ordini riservati.");
+          if (!ingredient || ingredient.stock === null || ingredient.stock < quantity) fail("inventory_changed", "Le nuove scorte non coprono gli ordini riservati.");
         }
         const instant = now().getTime();
         const occupied = occupiedOrders(state, input.id);
@@ -982,8 +983,8 @@ export function createOrderingService(options: OrderingServiceOptions): RiderOrd
           next = { ...next };
           delete next.menu;
         }
-        validStore(next);
-        if (next.menu) validateMenuDraft({ ...next.menu, products: next.products }, next, invalid, true);
+        validateStoreConfiguration(next);
+        if (next.menu) validateMenuDraft({ ...next.menu, products: next.products }, next, invalid, true, false);
         if (existing) protectCalendarChanges(state, existing, next, instant, occupied);
         const saved = copy(next);
         if (currentSubdomain) saved.orderingSubdomain = currentSubdomain;
