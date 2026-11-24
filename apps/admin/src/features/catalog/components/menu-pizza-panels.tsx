@@ -83,8 +83,8 @@ export function PizzaTastePanel({ draft, taste, ingredients, onChange, onClose, 
             ? [...taste.pairingProductIds ?? [], product.id] : taste.pairingProductIds?.filter(id => id !== product.id) })} />{product.name || "Senza nome"}
         </label>)}
       </fieldset>
-      {projected && <details className={styles.food}><summary>Scelte specifiche del prodotto</summary>
-        <p>Impasti, basi, formati ed extra sono comuni. Aggiungi qui soltanto eventuali scelte particolari di questa pizza.</p>
+      {projected && Boolean(taste.customizations?.options.length || taste.customizations?.groups?.length) && <details className={styles.food}><summary>Scelte specifiche del prodotto</summary>
+        <p>Qui puoi modificare le scelte già configurate. Gestisci le nuove aggiunte con abbinamenti consigliati o categorie dedicate.</p>
         <MenuProductChoices product={{ ...projected, options: taste.customizations?.options ?? [], groups: taste.customizations?.groups }}
           ingredients={ingredients} onChange={change => update({ customizations: {
             options: change.options ?? taste.customizations?.options ?? [],

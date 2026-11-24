@@ -3,7 +3,7 @@ import type { IndividualIngredient, IndividualOption, IndividualProduct, MenuOpt
 import { Button } from "@pizzaos/ui";
 import Image from "next/image";
 import { useState } from "react";
-import { MenuFoodFields, MenuPriceField, MenuRecipeFields } from "./catalog-form-fields";
+import { MenuPriceField, MenuRecipeFields } from "./catalog-form-fields";
 import styles from "./operational-catalog.module.css";
 
 const groupNames: Record<MenuOptionGroup["kind"], string> = {
@@ -41,7 +41,6 @@ function MenuOptionForm({ option, ingredients, baseRecipe, onChange, onRemove }:
         </label>)}
       </div>
     </fieldset>}
-    <MenuFoodFields food={option.food} onChange={food => onChange({ food })} />
     <div><Button type="button" variant="ghost" onClick={onRemove}>Rimuovi scelta</Button></div>
   </fieldset>;
 }
@@ -116,13 +115,6 @@ export function MenuProductChoices({ product, ingredients, onChange }: {
     {!product.groups && product.options.map(option => <MenuOptionForm key={option.id} option={option} baseRecipe={product.ingredients} ingredients={ingredients}
       onChange={change => onChange({ options: product.options.map(item => item.id === option.id ? { ...item, ...change } : item) })}
       onRemove={() => onChange({ options: product.options.filter(item => item.id !== option.id) })} />)}
-    <div><Button type="button" variant="secondary" onClick={() => {
-      const legacyOptions = !product.groups ? product.options : [];
-      const group: MenuOptionGroup = legacyOptions.length
-        ? { id: crypto.randomUUID(), name: "Personalizzazioni", kind: "selection", min: 0, max: legacyOptions.length, optionIds: legacyOptions.map(option => option.id) }
-        : { id: crypto.randomUUID(), name: "Nuovo gruppo", kind: "selection", min: 0, max: 1, optionIds: [] };
-      onChange({ groups: [...groups, group] });
-    }}>{!product.groups && product.options.length ? "Organizza le scelte in un gruppo" : "Aggiungi gruppo di scelte"}</Button></div>
   </>;
 }
 
@@ -191,7 +183,6 @@ export function MenuProductForm({ storeId, product, index, ingredients, products
       <p className={styles.small}>Allergeni del catalogo precedente · {product.allergens.join(", ")}</p>
       <Button type="button" variant="ghost" onClick={() => onChange({ allergens: [] })}>Rimuovi diciture precedenti</Button>
     </div>}
-    <MenuFoodFields food={product.food} onChange={food => onChange({ food })} />
     <MenuProductChoices product={product} ingredients={ingredients} onChange={onChange} />
     {(groups.some(group => group.kind === "extras") || currentOffer) && <label>Formula sconto extra
       <select value={selectedOffer} onChange={event => onChange({ extraOffer: presets.find(([name]) => name === event.target.value)?.[1] })}>

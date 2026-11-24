@@ -10,6 +10,8 @@ Il Profilo mostra anche la settimana tipo, le capacità per fascia e le date pro
 
 La modalità demo precedente è separata. Requisiti e contratti sono in `.agents/design/2026-11-05-individual-ordering/ordering-surfaces/`. Verificare lint, typecheck, test e build dell'app, controllo architettura ed E2E individuale.
 
+La creazione sede permette di inserire prodotti senza aggiungere personalizzazioni manuali. Per salse e aggiunte usare prodotti, categorie e abbinamenti nel Menu; le eventuali opzioni già presenti si conservano.
+
 Il Profilo mostra il link pubblico di una sede con sottodominio. Il superadmin può assegnare una nuova etichetta a una sede al momento della creazione o al primo salvataggio dell'indirizzo pubblico. [Regole del servizio](../../../../../.agents/product-definition/flows/customer-ordering-and-payment.md#sottodomini-delle-sedi).
 
 Il Magazzino conserva scorte null per ingredienti importati non ancora verificati. Il campo mostra Da verificare; zero rappresenta esaurimento confermato. Si può salvare una configurazione con scorte ignote se non vengono compromesse le riserve degli ordini.

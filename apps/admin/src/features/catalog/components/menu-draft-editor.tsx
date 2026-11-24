@@ -240,7 +240,7 @@ export function MenuDraftEditor({ draft, storeId, ingredients, onChange, onUploa
       {!settings && editing && editing.pizza?.kind !== "formula" && <div className={styles.stack}>
         <label className={styles.check}><input type="checkbox" checked={Boolean(editing.pizza)}
           onChange={event => setClassification({ productId: editing.id, pizza: event.target.checked })} />Pizza</label>
-        <p className={styles.small}>{editing.pizza ? "Impasti, basi, formati ed extra comuni; ingredienti della ricetta rimovibili." : "Prodotto normale. Puoi aggiungere gruppi specifici, per esempio le salse."}</p>
+        <p className={styles.small}>{editing.pizza ? "Impasti, basi, formati ed extra comuni; ingredienti della ricetta rimovibili." : "Prodotto normale. Gestisci le aggiunte con abbinamenti consigliati o categorie dedicate."}</p>
         {classificationPlan && <fieldset className={styles.confirm}>
           <legend>Cambiare tipo di prodotto?</legend>
           <ul>{classificationPlan.changes.map(change => <li key={change}>{change}</li>)}</ul>

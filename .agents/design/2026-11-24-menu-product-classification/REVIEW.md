@@ -27,3 +27,9 @@ Le fixture browser precedenti sono state allineate alla nuova regola: le formule
 ## Limiti ed evidenze online
 
 Verifica su servizio isolato e repository transazionale del test harness; nessuna modifica di database, menu o ordini online. Le prove precedenti del pilota non attestano questo incremento. Standard, ricette, dati alimentari ed extra del menu reale restano da verificare dall'operatore in bozza prima della pubblicazione. I prodotti esistenti non vengono classificati dal nome; le conversioni avvengono esplicitamente dal pannello.
+
+## Aggiornamento successivo: rimozione creazione gruppi (D84)
+
+Su richiesta esplicita successiva dell'utente sono stati rimossi i comandi per creare gruppi da pizze e prodotti ordinari, organizzare opzioni precedenti in nuovi gruppi e aggiungere personalizzazioni nella creazione sede. Gli eventuali gruppi salvati restano modificabili, senza cancellazioni dei dati; la sezione pizza vuota viene nascosta. I testi indirizzano a prodotti, abbinamenti e categorie dedicate. Questa modifica supera la possibilità di creare nuovi gruppi prevista da D83, senza modificare gli extra automatici.
+
+Verifiche locali di questo aggiornamento: 28 file / 123 test Admin passati, incluse le asserzioni sui comandi assenti per pizza e prodotto normale; lint, typecheck e build Admin superati. Le prove browser e di servizio sopra restano evidenze dell'incremento D83 e non sono state rieseguite per questa rimozione dei comandi. Nessun rilascio o modifica ai dati online eseguito.

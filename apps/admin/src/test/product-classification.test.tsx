@@ -60,6 +60,7 @@ describe("classificazione dal menu amministrativo", () => {
     setup();
     fireEvent.click(screen.getByRole("button", { name: /^Aggiungi prodotto$/i }));
     expect((screen.getByRole("checkbox", { name: /^Pizza$/i }) as HTMLInputElement).checked).toBe(false);
+    expect(screen.queryByRole("button", { name: /Aggiungi gruppo di scelte|Organizza le scelte in un gruppo|Aggiungi personalizzazione/i })).toBeNull();
   });
 
   it("annullare il cambio tipo conserva integralmente la bozza", () => {
@@ -85,6 +86,8 @@ describe("classificazione dal menu amministrativo", () => {
     expect(resulting.sections).toEqual(fixture().sections);
     expect((screen.getByRole("checkbox", { name: /^Pizza$/i }) as HTMLInputElement).checked).toBe(true);
     expect(screen.getByText(/Extra comuni dal Magazzino/i)).toBeTruthy();
+    expect(screen.queryByRole("button", { name: /Aggiungi gruppo di scelte|Organizza le scelte in un gruppo|Aggiungi personalizzazione/i })).toBeNull();
+    expect(screen.queryByText("Scelte specifiche del prodotto")).toBeNull();
     fireEvent.click(screen.getByRole("button", { name: /^Apri Magazzino$/i }));
     expect(inventory).toHaveBeenCalledOnce();
   });

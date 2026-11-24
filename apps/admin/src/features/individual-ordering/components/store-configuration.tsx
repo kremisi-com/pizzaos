@@ -85,7 +85,7 @@ export function StoreConfiguration({ store, isNew, section, busy, orderingDomain
       </div>)}<button className={styles.secondary} type="button" onClick={() => update("ingredients", [...draft.ingredients, { id: crypto.randomUUID(), name: "", stock: 0 }])}>Aggiungi ingrediente</button>
     </fieldset>}
 
-    {isNew && <fieldset disabled={busy}><legend>Menu e personalizzazioni</legend>
+    {isNew && <fieldset disabled={busy}><legend>Menu e prodotti</legend>
       {draft.products.map((product, index) => <article className={styles.productEditor} key={product.id}><h3>{product.name || `Nuovo prodotto ${index + 1}`}</h3><div className={styles.formGrid}>
         <label>Nome prodotto {index + 1}<input required value={product.name} onChange={event => productChange(index, { name: event.target.value })} /></label>
         <label>Prezzo prodotto {index + 1} in centesimi<input required type="number" min="0" step="1" value={product.priceCents} onChange={event => productChange(index, { priceCents: Number(event.target.value) })} /></label>
@@ -99,7 +99,7 @@ export function StoreConfiguration({ store, isNew, section, busy, orderingDomain
         </div><MenuRecipeFields label={`Ingredienti aggiuntivi ${option.name || optionIndex + 1}`} ingredients={draft.ingredients} recipe={option.ingredients} onChange={ingredients => productChange(index, { options: product.options.map((item, i) => i === optionIndex ? { ...item, ingredients } : item) })} />
           <button className={styles.secondary} type="button" onClick={() => productChange(index, { options: product.options.filter((_, i) => i !== optionIndex) })}>Rimuovi opzione</button>
         </fieldset>)}
-        <div className={styles.actions}><button className={styles.secondary} type="button" onClick={() => productChange(index, { options: [...product.options, { id: crypto.randomUUID(), name: "", priceCents: 0, ingredients: {} }] })}>Aggiungi personalizzazione</button><button className={styles.danger} type="button" onClick={() => update("products", draft.products.filter((_, i) => i !== index))}>Rimuovi prodotto</button></div>
+        <div className={styles.actions}><button className={styles.danger} type="button" onClick={() => update("products", draft.products.filter((_, i) => i !== index))}>Rimuovi prodotto</button></div>
       </article>)}
       <button className={styles.secondary} type="button" onClick={() => update("products", [...draft.products, { id: crypto.randomUUID(), name: "", description: "", priceCents: 0, available: true, allergens: [], ingredients: {}, options: [] }])}>Aggiungi prodotto</button>
     </fieldset>}

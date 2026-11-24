@@ -16,6 +16,8 @@ La composizione fornisce `MenuAdminApi`. Il servizio verifica permessi, revision
 
 La demo autenticata usa invece `CatalogManager` con il dataset dimostrativo e callback aggiornate dalla composizione.
 
+D84 rimuove da tutte le schede la creazione manuale di gruppi e l'organizzazione delle opzioni precedenti in nuovi gruppi. Salse e aggiunte si gestiscono come prodotti tramite **Abbinamenti consigliati** o categorie dedicate. Le scelte già salvate restano modificabili e non vengono cancellate; nella pizza la sezione avanzata compare solo quando ne esistono. Gli extra comuni dal Magazzino restano automatici. I test della classificazione verificano l'assenza dei comandi sia sui prodotti normali sia sulle pizze.
+
 Ogni riga della bozza offre **Elimina** per rimuovere il prodotto dal menu, con conferma o annullamento. Anche la rimozione dalla scheda richiede conferma. La rimozione pulisce sezioni e abbinamenti; segue il normale salvataggio della bozza e la pubblicazione. Il menu pubblicato e le altre bozze restano invariati.
 
 Nell’editor della bozza ogni sezione mostra sempre il campo **Descrizione**. **Modifica nome**, accanto alle frecce di riordino, rende modificabile il titolo nell’intestazione; Invio o l’uscita dal campo ripristinano la visualizzazione del titolo. Le modifiche seguono il normale salvataggio della bozza.
