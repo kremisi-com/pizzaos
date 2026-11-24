@@ -3,7 +3,7 @@
 import type { IndividualIngredient, MenuAdminApi, MenuDraft, MenuWorkspace } from "@pizzaos/domain";
 import { materializePizzaMenu } from "@pizzaos/domain";
 import { Button } from "@pizzaos/ui";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type SyntheticEvent } from "react";
 import { useAdminToast } from "../../notifications";
 import { MenuDraftEditor } from "./menu-draft-editor";
 import { MenuPreview } from "./menu-preview";
@@ -11,6 +11,12 @@ import styles from "./operational-catalog.module.css";
 
 function message(failure: unknown) {
   return failure instanceof Error ? failure.message : "Operazione non riuscita. Riprova.";
+}
+
+function isTextEdit(event: SyntheticEvent) {
+  const target = event.target;
+  return target instanceof HTMLTextAreaElement || target instanceof HTMLInputElement
+    && !["checkbox", "radio", "file", "button", "submit"].includes(target.type);
 }
 
 export function OperationalCatalog({ api, storeId, ingredients, onPublished, onInventory }: {
@@ -23,6 +29,8 @@ export function OperationalCatalog({ api, storeId, ingredients, onPublished, onI
   const showToast = useAdminToast();
   const [workspace, setWorkspace] = useState<MenuWorkspace | null>(null);
   const [edits, setEdits] = useState<Record<string, MenuDraft>>({});
+  const [queued, setQueued] = useState<Record<string, MenuDraft>>({});
+  const editingText = useRef(false);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [viewPreview, setViewPreview] = useState(false);
   const [confirmation, setConfirmation] = useState<"publish" | "delete" | null>(null);
@@ -34,7 +42,7 @@ export function OperationalCatalog({ api, storeId, ingredients, onPublished, onI
   const saveInFlight = useRef(false);
 
   useEffect(() => {
-    const draft = Object.values(edits)[0];
+    const draft = Object.values(queued)[0];
     if (!workspace || !draft || busy || saveInFlight.current || draft === failedDraft) return;
     saveInFlight.current = true;
     setSaving(true);
@@ -42,12 +50,19 @@ export function OperationalCatalog({ api, storeId, ingredients, onPublished, onI
     void api.saveDraft(storeId, workspace.revision, draft).then(updated => {
       setWorkspace(updated);
       setFailedDraft(null);
+      setQueued(current => {
+        if (current[draft.id] !== draft) return current;
+        const next = { ...current };
+        delete next[draft.id];
+        return next;
+      });
       setEdits(current => {
         if (current[draft.id] !== draft) return current;
         const next = { ...current };
         delete next[draft.id];
         return next;
       });
+      showToast("Bozza salvata.", "success");
     }).catch((failure: unknown) => {
       const text = message(failure);
       setFailedDraft(draft);
@@ -57,7 +72,7 @@ export function OperationalCatalog({ api, storeId, ingredients, onPublished, onI
       saveInFlight.current = false;
       setSaving(false);
     });
-  }, [api, busy, edits, failedDraft, saving, showToast, storeId, workspace]);
+  }, [api, busy, queued, failedDraft, saving, showToast, storeId, workspace]);
 
   useEffect(() => {
     let active = true;
@@ -77,6 +92,7 @@ export function OperationalCatalog({ api, storeId, ingredients, onPublished, onI
 
   function change(draft: MenuDraft) {
     setEdits(current => ({ ...current, [draft.id]: draft }));
+    if (!editingText.current) setQueued(current => ({ ...current, [draft.id]: draft }));
   }
 
   function reloadWorkspace() {
@@ -84,6 +100,8 @@ export function OperationalCatalog({ api, storeId, ingredients, onPublished, onI
     setWorkspace(null);
     setError("");
     setEdits({});
+    setQueued({});
+    editingText.current = false;
     setFailedDraft(null);
     setReload(version => version + 1);
   }
@@ -169,7 +187,7 @@ export function OperationalCatalog({ api, storeId, ingredients, onPublished, onI
       <header className={styles.catalogHeader}>
         <div className={styles.catalogTitle}><h1>Il tuo menu</h1><p>Aggiungi le pizze, scegli il prezzo. Il resto solo se ti serve.</p></div>
         <div className={styles.headerActions}>
-          <span role="status" className={styles.small}>{selectedDraft ? dirty || saving ? failedDraft ? "Salvataggio non riuscito" : "Salvataggio automatico…" : "Bozza salvata" : "Menu pubblicato"}</span>
+          <span role="status" className={styles.small}>{selectedDraft ? failedDraft ? "Salvataggio non riuscito" : saving ? "Salvataggio automatico…" : dirty ? "Modifiche da salvare" : "Bozza salvata" : "Menu pubblicato"}</span>
           <Button type="button" variant="secondary" disabled={busy} aria-pressed={viewPreview} onClick={() => setViewPreview(value => !value)}>{viewPreview ? "Torna alla modifica" : "Anteprima"}</Button>
           <label className={styles.menuSelect}>Menu da modificare<select value={selectedId ?? ""} disabled={busy} onChange={event => select(event.target.value || null)}>
             <option value="">{workspace.published.name} (pubblicato)</option>
@@ -185,7 +203,13 @@ export function OperationalCatalog({ api, storeId, ingredients, onPublished, onI
         {!selectedDraft && <p className={styles.small}>Duplica il menu pubblicato per modificarlo.</p>}
       </div>
       <section>
-        {selectedDraft ? <form className={styles.form} onSubmit={event => event.preventDefault()}>
+        {selectedDraft ? <form className={styles.form} onSubmit={event => event.preventDefault()}
+          onChangeCapture={event => { editingText.current = isTextEdit(event); }}
+          onBlur={event => {
+            if (!isTextEdit(event)) return;
+            editingText.current = false;
+            setQueued(current => ({ ...current, ...edits }));
+          }}>
           {viewPreview ? <MenuPreview menu={menu} storeId={storeId} ingredients={ingredients} /> : <fieldset className={styles.editor} disabled={busy}>
             <legend className={styles.screenReaderOnly}>Impostazioni della bozza</legend>
             <MenuDraftEditor key={selectedDraft.id} draft={selectedDraft} storeId={storeId} ingredients={ingredients}
