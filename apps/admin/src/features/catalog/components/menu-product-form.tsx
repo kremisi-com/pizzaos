@@ -142,6 +142,8 @@ export function MenuProductForm({ storeId, product, index, ingredients, products
   onClose: () => void;
   onUpload: (image: File) => void;
 }) {
+  const [failedImage, setFailedImage] = useState<string>();
+  const imageSource = product.imageId ? menuImagePath(storeId, product.imageId) : undefined;
   const groups = product.groups ?? [];
   const presets = Object.entries(PIZZA_EXTRA_OFFERS);
   const currentOffer = product.extraOffer;
@@ -178,17 +180,6 @@ export function MenuProductForm({ storeId, product, index, ingredients, products
       onChange={event => onChange({ description: event.target.value })} /></label>
     <label className={styles.check}><input type="checkbox" checked={product.available}
       onChange={event => onChange({ available: event.target.checked })} />Disponibile per l’ordinazione</label>
-    <div className={styles.row}>
-      {product.imageId && <Image src={menuImagePath(storeId, product.imageId)} alt="" width={96} height={96} unoptimized className={styles.image} />}
-      <label>Foto del prodotto<input type="file" accept="image/jpeg,image/png,image/webp" onChange={event => {
-        const file = event.currentTarget.files?.[0];
-        if (file) onUpload(file);
-        event.currentTarget.value = "";
-      }} />
-        <span className={styles.small}>JPEG, PNG o WebP · massimo 2 MB</span>
-      </label>
-      {product.imageId && <Button type="button" variant="ghost" onClick={() => onChange({ imageId: undefined })}>Rimuovi foto</Button>}
-    </div>
     <MenuRecipeFields label="Ricetta base" recipe={product.ingredients} ingredients={ingredients} onChange={changeRecipe} singleUnit />
     {product.allergens.length > 0 && <div className={styles.row}>
       <p className={styles.small}>Allergeni del catalogo precedente · {product.allergens.join(", ")}</p>
@@ -204,6 +195,27 @@ export function MenuProductForm({ storeId, product, index, ingredients, products
     </label>}
     <MenuPairingSelect productId={product.id} products={products} selectedIds={product.pairingProductIds}
       onChange={pairingProductIds => onChange({ pairingProductIds })} />
+    <section className={styles.photoCard} aria-label="Foto del prodotto">
+      <h4>Foto del prodotto</h4>
+      {imageSource && failedImage !== imageSource
+        ? <Image src={imageSource} alt={`Foto di ${product.name || "prodotto"}`} width={480} height={320}
+          unoptimized className={styles.photoPreview} onError={() => setFailedImage(imageSource)} />
+        : <div className={styles.photoPlaceholder} role="img" aria-label="Nessuna foto disponibile">
+          <svg aria-hidden="true" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+            <rect x="3" y="3" width="18" height="18" rx="3" />
+            <circle cx="8" cy="8" r="1.5" /><path d="m3 17 5-5 4 4 4-6 5 7" />
+          </svg>
+          <span>Nessuna foto disponibile</span>
+        </div>}
+      <label>Carica foto del prodotto<input type="file" accept="image/jpeg,image/png,image/webp" onChange={event => {
+        const file = event.currentTarget.files?.[0];
+        if (file) onUpload(file);
+        event.currentTarget.value = "";
+      }} />
+        <span className={styles.small}>JPEG, PNG o WebP · massimo 2 MB</span>
+      </label>
+      {product.imageId && <div><Button type="button" variant="ghost" onClick={() => onChange({ imageId: undefined })}>Rimuovi foto</Button></div>}
+    </section>
     <div><Button type="button" variant="ghost" onClick={onRemove}>Rimuovi prodotto dalla bozza</Button></div>
   </section>;
 }
