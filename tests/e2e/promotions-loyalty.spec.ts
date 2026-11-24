@@ -24,7 +24,7 @@ function availablePoints(page: Page) {
 }
 async function completeOrder(admin: Page, customer: Page, note: string, id: string) {
   await admin.goto(`${adminOrigin}/operazioni`);
-  await admin.getByRole("navigation", { name: "Navigazione admin" }).getByRole("button", { name: "Ordini", exact: true }).click();
+  await admin.getByRole("navigation", { name: "Navigazione admin" }).getByRole("link", { name: "Ordini", exact: true }).click();
   await admin.getByRole("button", { name: `Apri ordine ${id} di Alice`, exact: true }).click();
   const article = admin.getByRole("article").filter({ hasText: note }).last();
   for (const action of ["Accetta ordine", "Inizia preparazione", "Segna pronto", "Completa ordine"]) await article.getByRole("button", { name: action, exact: true }).click();
@@ -67,7 +67,7 @@ test("programma e coupon configurati nel browser, credito al completamento e rip
   const marker = `Fedeltà ${Date.now()}`;
   try {
     await admin.goto(`${adminOrigin}/operazioni`);
-    await admin.getByRole("navigation", { name: "Navigazione admin" }).getByRole("button", { name: "Marketing", exact: true }).click();
+    await admin.getByRole("navigation", { name: "Navigazione admin" }).getByRole("link", { name: "Marketing", exact: true }).click();
     await admin.getByLabel("Punti per euro").fill("1");
     await admin.getByLabel("Punti per premio").fill("1");
     await admin.getByLabel("Valore premio (€)").fill("1");
@@ -181,7 +181,7 @@ test("host gruppo applica benefici al solo wallet personale e annullamento ripri
     await expect(guest.getByText(/Saldo punti/)).toHaveCount(0);
     await expect(guest.getByLabel("Usa premio fedeltà")).toHaveCount(0);
     await admin.goto(`${adminOrigin}/operazioni`);
-    await admin.getByRole("navigation", { name: "Navigazione admin" }).getByRole("button", { name: "Ordini", exact: true }).click();
+    await admin.getByRole("navigation", { name: "Navigazione admin" }).getByRole("link", { name: "Ordini", exact: true }).click();
     await admin.getByRole("button", { name: `Apri ordine ${result.order.id} di Alice`, exact: true }).click();
     const article = admin.getByRole("article").filter({ hasText: marker }).last();
     await expect(article.getByLabel("Benefici applicati all'ordine")).toBeVisible();

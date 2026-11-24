@@ -34,10 +34,10 @@ test("host-only login, explicit roles and direct navigation stay separated", asy
   await context.addCookies([{ name: "host-test-role", value: "rider", url: admin }]);
   await page.reload();
   await expect(page.getByRole("heading", { name: "Accesso non abilitato" })).toBeVisible();
-  await expect(page.getByRole("button", { name: "Dashboard", exact: true })).toHaveCount(0);
+  await expect(page.getByRole("link", { name: "Dashboard", exact: true })).toHaveCount(0);
   await context.addCookies([{ name: "host-test-role", value: "operator", url: admin }]);
   await page.reload();
-  await expect(page.getByRole("button", { name: "Dashboard", exact: true })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Dashboard", exact: true })).toBeVisible();
   await context.addCookies([{ name: "host-test-role", value: "operator", url: rider }]);
   await page.goto(rider);
   await expect(page.getByRole("heading", { name: "Accesso non abilitato" })).toBeVisible();

@@ -3,6 +3,8 @@
 import type { IndividualAction, IndividualOrder, IndividualSession, IndividualStore } from "@pizzaos/domain";
 import { Button } from "@pizzaos/ui";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useAdminNavigation } from "./use-admin-navigation";
+import { rememberActiveStore, resolveActiveStore } from "./active-store";
 import { useAdminToast } from "./admin-toast";
 import { OperationalCatalog } from "../features/catalog";
 import { SignOutButton } from "../features/identity/components/sign-in-screen";
@@ -49,7 +51,7 @@ function mergeStoreChanges(current: IndividualStore, original: IndividualStore, 
 export function IndividualOperationsShell({ riderHref, orderingDomain }: { riderHref?: string; orderingDomain?: string }) {
   const showToast = useAdminToast();
   const api = useMemo(() => createIndividualApi(), []);
-  const [tab, setTab] = useState<AdminTab>("dashboard");
+  const [tab, setTab] = useAdminNavigation();
   const [session, setSession] = useState<IndividualSession | null>(null);
   const [stores, setStores] = useState<IndividualStore[]>([]);
   const [storeId, setStoreId] = useState("");
@@ -79,7 +81,7 @@ export function IndividualOperationsShell({ riderHref, orderingDomain }: { rider
         ? (await api.stores()).filter(item => current.superadmin || current.storeIds.includes(item.id))
         : [];
       setStores(available);
-      setStoreId(previous => available.some(item => item.id === previous) ? previous : available[0]?.id ?? "");
+      setStoreId(previous => resolveActiveStore(available, previous));
       setCatalog(null);
       setCatalogError("");
       refresh();
@@ -90,6 +92,10 @@ export function IndividualOperationsShell({ riderHref, orderingDomain }: { rider
     }
   }, [api, refresh]);
   useEffect(() => { void load(); }, [load]);
+
+  useEffect(() => {
+    if (!loading && !loadError) rememberActiveStore(storeId);
+  }, [storeId, loading, loadError]);
 
   useEffect(() => {
     if (!storeId) return;

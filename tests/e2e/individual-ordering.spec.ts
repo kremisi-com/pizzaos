@@ -51,7 +51,7 @@ test("guest draft survives reload and sign-in, cash pickup reaches completed in 
     await expect(awaiting.getByText("1", { exact: true })).toBeVisible();
 
     const navigation = operations.getByRole("navigation", { name: "Navigazione admin" });
-    await navigation.getByRole("button", { name: "Ordini", exact: true }).click();
+    await navigation.getByRole("link", { name: "Ordini", exact: true }).click();
     const orderButton = operations.getByRole("button", { name: `Apri ordine ${order.id} di Alice`, exact: true });
     const orderRow = operations.getByRole("row").filter({ has: orderButton });
     await expect(orderRow.getByText("Alice", { exact: true })).toBeVisible();
@@ -66,7 +66,7 @@ test("guest draft survives reload and sign-in, cash pickup reaches completed in 
       await detail.getByRole("button", { name: label, exact: true }).click();
     }
     await expect(detail.getByText("Completato", { exact: true })).toBeVisible();
-    await navigation.getByRole("button", { name: "Dashboard", exact: true }).click();
+    await navigation.getByRole("link", { name: "Dashboard", exact: true }).click();
     await expect(awaiting.getByText("0", { exact: true })).toBeVisible();
     await page.reload();
     await expect(page.getByRole("heading", { name: "Completato", exact: true })).toBeVisible();
@@ -233,7 +233,7 @@ test("the live admin sidebar switches tools and restricts store management to su
 
     const management = await superadmin.newPage();
     await management.goto(`${adminOrigin}/operazioni`);
-    await management.getByRole("navigation", { name: "Navigazione admin" }).getByRole("button", { name: "Profilo", exact: true }).click();
+    await management.getByRole("navigation", { name: "Navigazione admin" }).getByRole("link", { name: "Profilo", exact: true }).click();
     await expect(management.getByRole("button", { name: "Nuova sede", exact: true })).toBeVisible();
     await expect(management.getByRole("button", { name: "Invita operatore", exact: true })).toBeVisible();
 
@@ -245,7 +245,7 @@ test("the live admin sidebar switches tools and restricts store management to su
 
     await page.reload();
     await storePicker.selectOption({ label: store.name });
-    const profile = navigation.getByRole("button", { name: "Profilo", exact: true });
+    const profile = navigation.getByRole("link", { name: "Profilo", exact: true });
     const storeName = page.getByLabel("Nome sede", { exact: true });
     await profile.click();
     await expect(storeName).toHaveValue(store.name);
@@ -253,7 +253,7 @@ test("the live admin sidebar switches tools and restricts store management to su
     await storeName.fill(updatedName);
     await page.getByRole("button", { name: "Salva configurazione", exact: true }).click();
     await expect(page.getByText("Configurazione salvata.", { exact: true })).toBeVisible();
-    await navigation.getByRole("button", { name: "Dashboard", exact: true }).click();
+    await navigation.getByRole("link", { name: "Dashboard", exact: true }).click();
     await profile.click();
     await expect(storeName).toHaveValue(updatedName);
     await storePicker.selectOption({ label: "Roma" });
@@ -266,7 +266,7 @@ test("the live admin sidebar switches tools and restricts store management to su
 test("admin creates a store only after explicitly confirming a candidate and reloads the chosen address", async ({ context, page }) => {
   await context.addCookies([{ name: "pizzaos-e2e-actor", value: "superadmin", url: adminOrigin, httpOnly: true, sameSite: "Lax" }]);
   await page.goto(`${adminOrigin}/operazioni`);
-  const profile = page.getByRole("navigation", { name: "Navigazione admin" }).getByRole("button", { name: "Profilo", exact: true });
+  const profile = page.getByRole("navigation", { name: "Navigazione admin" }).getByRole("link", { name: "Profilo", exact: true });
   await profile.click();
   await page.getByRole("button", { name: "Nuova sede", exact: true }).click();
   const storeId = `torino-indirizzo-${Date.now()}`;
@@ -313,7 +313,7 @@ test("admin discards address results for an edited search and can still save a l
   await context.addCookies([{ name: "pizzaos-e2e-actor", value: "operator", url: adminOrigin, httpOnly: true, sameSite: "Lax" }]);
   await page.goto(`${adminOrigin}/operazioni`);
   await page.getByLabel("Negozio Attivo", { exact: true }).selectOption("roma");
-  await page.getByRole("navigation", { name: "Navigazione admin" }).getByRole("button", { name: "Profilo", exact: true }).click();
+  await page.getByRole("navigation", { name: "Navigazione admin" }).getByRole("link", { name: "Profilo", exact: true }).click();
   const address = page.getByRole("textbox", { name: "Indirizzo della sede", exact: true });
   const search = page.getByRole("button", { name: "Cerca indirizzo", exact: true });
   const save = page.getByRole("button", { name: "Salva configurazione", exact: true });
@@ -352,4 +352,33 @@ test("admin discards address results for an edited search and can still save a l
   const saved = await context.request.get(`${adminOrigin}/api/pilot/v1/pilot/stores/roma`);
   expect(saved.ok()).toBe(true);
   expect(await saved.json()).toMatchObject({ latitude: 41.9, longitude: 12.5 });
+});
+
+
+test("admin sidebar restores every section and the active store after reload", async ({ page, context }) => {
+  test.setTimeout(120_000);
+  await context.addCookies([{ name: "pizzaos-e2e-actor", value: "operator", url: adminOrigin, httpOnly: true, sameSite: "Lax" }]);
+  await page.goto(`${adminOrigin}/operazioni`);
+  const selector = page.getByLabel("Negozio Attivo", { exact: true });
+  await expect(selector).toHaveValue("roma");
+  for (const [label, path] of [
+    ["Ordini", "ordini"], ["Menu", "menu"], ["Magazzino", "magazzino"],
+    ["Marketing", "marketing"], ["Analytics & AI", "analytics"], ["Consegne", "consegne"],
+    ["Integrazioni", "integrazioni"], ["Profilo", "profilo"], ["Dashboard", "dashboard"]
+  ]) {
+    await page.getByRole("navigation", { name: "Navigazione admin" }).getByRole("link", { name: label, exact: true }).click();
+    await expect(page).toHaveURL(`${adminOrigin}/operazioni/${path}`);
+    await page.reload();
+    await expect(page.getByRole("heading", { name: label, exact: true }).first()).toBeVisible();
+    await expect(selector).toHaveValue("roma");
+  }
+  await expect.poll(() => page.evaluate(() => localStorage.getItem("pizzaos:admin:active-store:v1"))).toBe("roma");
+  await page.getByRole("link", { name: "Ordini", exact: true }).click();
+  await page.getByRole("link", { name: "Menu", exact: true }).click();
+  await page.goBack();
+  await expect(page.getByRole("heading", { name: "Ordini", exact: true })).toBeVisible();
+  await page.goForward();
+  await expect(page.getByRole("heading", { name: "Menu", exact: true })).toBeVisible();
+  const missing = await page.goto(`${adminOrigin}/operazioni/inesistente`);
+  expect(missing?.status()).toBe(404);
 });

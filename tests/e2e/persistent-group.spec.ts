@@ -84,7 +84,7 @@ test("Alice, Marco and Giulia share durable collection; only host submits one at
     const groupOrders = orders.filter((order) => order.cart.lines.some((row) => row.notes.startsWith("Per Alice")) && order.cart.lines.some((row) => row.notes.startsWith("Per Marco")));
     expect(groupOrders).toHaveLength(1); expect(groupOrders[0].method).toBe("cash");
     expect(groupOrders[0].cart.lines.some((row) => row.notes.startsWith("Per Giulia"))).toBe(false);
-    await operator.page.getByRole("navigation", { name: "Navigazione admin" }).getByRole("button", { name: "Ordini", exact: true }).click();
+    await operator.page.getByRole("navigation", { name: "Navigazione admin" }).getByRole("link", { name: "Ordini", exact: true }).click();
     await operator.page.getByRole("button", { name: `Apri ordine ${groupOrders[0].id} di Alice`, exact: true }).click();
     await expect(operator.page.getByText(/Per Alice/).first()).toBeVisible();
     await expect(operator.page.getByText(/Per Marco/).first()).toBeVisible();

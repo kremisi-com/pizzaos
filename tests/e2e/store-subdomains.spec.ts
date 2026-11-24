@@ -30,7 +30,7 @@ test("il superadmin pubblica Roma e il link apre menu e gruppo della stessa sede
   await context.addCookies([{ name: "pizzaos-e2e-actor", value: "superadmin", url: admin, httpOnly: true }]);
   await page.goto(`${admin}/operazioni`);
   await page.getByLabel("Negozio Attivo", { exact: true }).selectOption({ label: "Roma" });
-  await page.getByRole("navigation", { name: "Navigazione admin" }).getByRole("button", { name: "Profilo", exact: true }).click();
+  await page.getByRole("navigation", { name: "Navigazione admin" }).getByRole("link", { name: "Profilo", exact: true }).click();
   await page.getByRole("textbox", { name: /^Sottodominio ordini/ }).fill("lapizzaspeciale");
   await page.getByRole("button", { name: "Salva configurazione" }).click();
 
@@ -83,7 +83,7 @@ test("Bella Napoli conserva il pilota fino all’assegnazione e poi apre solo la
   await context.addCookies([{ name: "pizzaos-e2e-actor", value: "superadmin", url: admin, httpOnly: true }]);
   await page.goto(`${admin}/operazioni`);
   await page.getByLabel("Negozio Attivo", { exact: true }).selectOption({ label: "Napoli" });
-  await page.getByRole("navigation", { name: "Navigazione admin" }).getByRole("button", { name: "Profilo", exact: true }).click();
+  await page.getByRole("navigation", { name: "Navigazione admin" }).getByRole("link", { name: "Profilo", exact: true }).click();
   await page.getByRole("textbox", { name: /^Sottodominio ordini/ }).fill("bella-napoli");
   await page.getByRole("button", { name: "Salva configurazione" }).click();
   const link = page.getByRole("link", { name: "bella-napoli.pizzaos.app" });

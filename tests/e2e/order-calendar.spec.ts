@@ -12,7 +12,7 @@ test("la settimana tipo del Profilo governa entrambi i checkout", async ({ brows
     await context.addCookies([{ name: "pizzaos-e2e-actor", value: "alice", url: clientOrigin }]);
     const operations = await admin.newPage();
     await operations.goto(`${adminOrigin}/operazioni`);
-    await operations.getByRole("navigation", { name: "Navigazione admin" }).getByRole("button", { name: "Profilo", exact: true }).click();
+    await operations.getByRole("navigation", { name: "Navigazione admin" }).getByRole("link", { name: "Profilo", exact: true }).click();
     const calendar = operations.getByRole("group", { name: "Fasce orarie e capacità" });
     await expect(calendar.getByRole("spinbutton")).toHaveCount(56);
     await expect(calendar.getByRole("spinbutton", { name: "Massimo ordini, Lunedì 11:00–12:00" })).toHaveValue("5");

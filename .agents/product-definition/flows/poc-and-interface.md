@@ -17,3 +17,11 @@ Le verifiche comprendono [accesso manuale in Playwright](../../../tests/e2e/sess
 Le superfici di ordinazione e il pannello Menu seguono [il flusso D79](menu-ordering.md). Foto statiche, sezioni, menu pubblicati, personalizzazioni e sconti per gli extra provengono dal catalogo persistente. La timeline e lo storico usano gli ordini reali e l'ordine con amici usa la raccolta persistente. La demo autenticata rimane disponibile con il proprio catalogo e pagamenti simulati.
 
 Restano da collegare al prodotto le funzioni demo di recensione, abbonamenti, mappa GPS e le viste promozionali estese. Dashboard, magazzino, marketing e insight sono descritti nell'[inventario corrente](../flow-inventory.md).
+
+### Sidebar admin e ripristino
+
+L'operatore apre una voce della sidebar o una scorciatoia della Dashboard: la composizione admin aggiorna l'URL a `/operazioni/<sezione>` e visualizza la sezione corrispondente. Nella demo il prefisso è `/poc`. Ricaricando o aprendo direttamente quel percorso, viene ripristinata la stessa sezione dopo la verifica dell'accesso; avanti e indietro seguono la cronologia. Gli ingressi senza sezione conservano la Dashboard. Una sezione inesistente restituisce 404; le nuove pagine riusano le verifiche di sessione e host degli ingressi esistenti.
+
+La sede selezionata nel pilota viene ricordata in localStorage. Prima di ripristinarla, l'app verifica che sia ancora tra le sedi autorizzate dal servizio per l'utente corrente. Una sede rimossa o non più accessibile viene sostituita dalla prima disponibile; senza sedi resta lo stato «Nessuna sede assegnata». Se lo storage non è disponibile, il cambio sede funziona comunque, senza persistenza. La demo conserva separatamente il proprio stato locale. La preferenza browser non modifica autorizzazioni o dati del servizio.
+
+[Verifica browser di ricaricamento e cronologia](../../../tests/e2e/individual-ordering.spec.ts) e [test locali della navigazione e della preferenza sede](../../../apps/admin/src/test/admin-navigation.test.tsx). Le prove locali non attestano un rilascio online.
