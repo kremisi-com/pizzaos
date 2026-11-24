@@ -2,7 +2,7 @@
 
 La sezione manuale **Allergeni · verificati/da verificare** non compare nelle schede prodotto, nelle opzioni o nei componenti pizza. Gli allergeni e le tracce della composizione sono l’unione delle schede ingredienti del Magazzino, senza duplicati; ingredienti non verificati mantengono la composizione da verificare. Verifica: `src/test/menu-allergen-inheritance.test.tsx`.
 
-**Foto, allergeni e altre opzioni** espone direttamente dosi, disponibilità, foto, abbinamenti e rimozione della pizza, senza una seconda card né campi duplicati per nome, prezzo, sezione e descrizione. Non contiene configurazioni di anteprima PoC, impasti, basi, formati o topping consentiti; le associazioni già salvate vengono conservate. Gli allergeni restano nelle schede ingredienti del Magazzino.
+**Foto e altre opzioni** espone direttamente dosi, disponibilità, foto, abbinamenti e rimozione della pizza, senza una seconda card né campi duplicati per nome, prezzo, sezione e descrizione. Non contiene configurazioni di anteprima PoC, impasti, basi, formati o topping consentiti; le associazioni già salvate vengono conservate. Gli allergeni restano nelle schede ingredienti del Magazzino.
 
 **+ Categoria** si trova all’inizio della barra categorie, prima della prima voce, con bordo evidenziato. Aggiunge una sezione vuota alla bozza anche quando non sono ancora presenti categorie.
 

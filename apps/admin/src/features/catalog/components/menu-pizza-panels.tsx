@@ -70,7 +70,7 @@ export function PizzaTastePanel({ draft, taste, ingredients, onChange, onClose, 
       </div>}
     </div>
     <MenuPriceField label="Prezzo in euro" cents={taste.priceCents} onChange={priceCents => update({ priceCents })} />
-    <details className={styles.food}><summary>Foto, allergeni e altre opzioni</summary>
+    <details className={styles.food}><summary>Foto e altre opzioni</summary>
       <p className={styles.small}>Le dosi sconosciute vanno verificate prima di pubblicare. Gli ingredienti già presenti nella base non vanno aggiunti nuovamente.</p>
       {included.map(item => <MenuRecipeFields key={item.id} label={`Dosi ${item.name}`} ingredients={ingredients} recipe={item.ingredients}
         onChange={recipe => update({}, { ...catalog, toppings: catalog.toppings.map(topping => topping.id === item.id ? { ...topping, ingredients: recipe } : topping) })} />)}

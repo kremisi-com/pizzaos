@@ -44,7 +44,7 @@ describe("Catalogo pizza nel pannello", () => {
         <output aria-label="Bozza corrente">{JSON.stringify(draft)}</output></>;
     }
     render(<Panel />);
-    fireEvent.click(screen.getByText("Foto, allergeni e altre opzioni"));
+    fireEvent.click(screen.getByText("Foto e altre opzioni"));
     const editor = within(screen.getByRole("region", { name: "Modifica pizza" }));
     expect(editor.getAllByRole("heading", { name: "Margherita" })).toHaveLength(1);
     expect(editor.getAllByLabelText("Descrizione")).toHaveLength(1);
