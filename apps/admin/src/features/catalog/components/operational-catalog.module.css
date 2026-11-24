@@ -359,3 +359,10 @@
   .componentRow { grid-template-columns: 1.2rem minmax(0, 1fr); }
   .componentRow > label:last-child { grid-column: 2; }
 }
+
+.productHeaderActions {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 0.55rem;
+  align-items: center;
+}

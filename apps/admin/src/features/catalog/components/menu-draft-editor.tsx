@@ -237,10 +237,8 @@ export function MenuDraftEditor({ draft, storeId, ingredients, onChange, onUploa
     </fieldset>}
     </div>
     <aside className={styles.menuDetail} aria-label="Scheda di modifica">
-      {!settings && editing && editing.pizza?.kind !== "formula" && <div className={styles.stack}>
-        <label className={styles.check}><input type="checkbox" checked={Boolean(editing.pizza)}
-          onChange={event => setClassification({ productId: editing.id, pizza: event.target.checked })} />Pizza</label>
-        <p className={styles.small}>{editing.pizza ? "Impasti, basi, formati ed extra comuni; ingredienti della ricetta rimovibili." : "Prodotto normale. Gestisci le aggiunte con abbinamenti consigliati o categorie dedicate."}</p>
+      {!settings && editing && editing.pizza?.kind !== "formula" && (editing.pizza || classificationPlan) && <div className={styles.stack}>
+        {editing.pizza && <p className={styles.small}>Impasti, basi, formati ed extra comuni; ingredienti della ricetta rimovibili.</p>}
         {classificationPlan && <fieldset className={styles.confirm}>
           <legend>Cambiare tipo di prodotto?</legend>
           <ul>{classificationPlan.changes.map(change => <li key={change}>{change}</li>)}</ul>
@@ -271,9 +269,12 @@ export function MenuDraftEditor({ draft, storeId, ingredients, onChange, onUploa
           tastes: catalog.tastes.map(restoreChoices), formulas: catalog.formulas.map(restoreChoices) } }));
         setSettings(false);
       }} /> : taste ? <PizzaTastePanel key={taste.id} draft={draft} taste={taste} ingredients={ingredients} onChange={onChange}
-        onSave={onSave} onClose={() => setEditingId("")} onRemove={() => removeProduct(taste.id)} onUpload={file => onUpload(taste.id, file)} />
+        headerActions={<label className={styles.check}><input type="checkbox" checked={Boolean(editing?.pizza)}
+          onChange={event => setClassification({ productId: editingId, pizza: event.target.checked })} />Pizza</label>} onSave={onSave} onClose={() => setEditingId("")} onRemove={() => removeProduct(taste.id)} onUpload={file => onUpload(taste.id, file)} />
       : editing && !editing.pizza ? <><MenuProductForm key={editing.id} storeId={storeId} product={editing} index={productIndex}
         ingredients={ingredients} products={draft.products} sections={draft.sections} sectionId={editingSection?.id}
+        headerActions={<label className={styles.check}><input type="checkbox" checked={Boolean(editing?.pizza)}
+          onChange={event => setClassification({ productId: editingId, pizza: event.target.checked })} />Pizza</label>}
         onChange={change => onChange({ ...draft, products: draft.products.map(product => product.id === editing.id ? { ...product, ...change } : product) })}
         onMove={sectionId => onChange({ ...draft, sections: draft.sections.map(section => ({ ...section,
           productIds: section.id === sectionId ? [...section.productIds.filter(id => id !== editing.id), editing.id] : section.productIds.filter(id => id !== editing.id)

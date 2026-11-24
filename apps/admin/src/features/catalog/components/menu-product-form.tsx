@@ -2,7 +2,7 @@ import { menuImagePath, PIZZA_EXTRA_OFFERS } from "@pizzaos/domain";
 import type { IndividualIngredient, IndividualOption, IndividualProduct, MenuOptionGroup, OrderingMenuSection } from "@pizzaos/domain";
 import { Button } from "@pizzaos/ui";
 import Image from "next/image";
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { MenuPriceField, MenuRecipeFields } from "./catalog-form-fields";
 import styles from "./operational-catalog.module.css";
 
@@ -118,7 +118,7 @@ export function MenuProductChoices({ product, ingredients, onChange }: {
   </>;
 }
 
-export function MenuProductForm({ storeId, product, index, ingredients, products, sections, sectionId, onChange, onMove, onRemove, onClose, onUpload }: {
+export function MenuProductForm({ storeId, product, index, ingredients, products, sections, sectionId, onChange, onMove, onRemove, onClose, onUpload, headerActions }: {
   storeId: string;
   product: IndividualProduct;
   index: number;
@@ -126,6 +126,7 @@ export function MenuProductForm({ storeId, product, index, ingredients, products
   products: readonly IndividualProduct[];
   sections: readonly OrderingMenuSection[];
   sectionId?: string;
+  headerActions?: ReactNode;
   onChange: (change: Partial<IndividualProduct>) => void;
   onMove: (sectionId: string) => void;
   onRemove: () => void;
@@ -152,7 +153,9 @@ export function MenuProductForm({ storeId, product, index, ingredients, products
   return <section className={styles.productEditor} aria-label="Modifica prodotto">
     <div className={styles.header}>
       <h3>{product.name || "Nuovo prodotto"}</h3>
-      <Button type="button" variant="ghost" onClick={onClose}>Chiudi scheda</Button>
+      <div className={styles.productHeaderActions}>{headerActions}
+        <Button type="button" variant="ghost" onClick={onClose} aria-label="Chiudi scheda">×</Button>
+      </div>
     </div>
     <div className={styles.formGrid}>
       <label>Nome prodotto {index + 1}<input value={product.name} required maxLength={200}

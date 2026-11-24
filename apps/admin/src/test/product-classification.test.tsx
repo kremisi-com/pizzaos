@@ -60,7 +60,15 @@ describe("classificazione dal menu amministrativo", () => {
     setup();
     fireEvent.click(screen.getByRole("button", { name: /^Aggiungi prodotto$/i }));
     expect((screen.getByRole("checkbox", { name: /^Pizza$/i }) as HTMLInputElement).checked).toBe(false);
+    const checkbox = screen.getByRole("checkbox", { name: /^Pizza$/i });
+    const close = screen.getByRole("button", { name: /^Chiudi scheda$/i });
+    expect(close.textContent).toBe("×");
+    expect(close.parentElement?.contains(checkbox)).toBe(true);
+    expect(checkbox.compareDocumentPosition(close) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(screen.queryByText(/Prodotto normale/)).toBeNull();
     expect(screen.queryByRole("button", { name: /Aggiungi gruppo di scelte|Organizza le scelte in un gruppo|Aggiungi personalizzazione/i })).toBeNull();
+    fireEvent.click(close);
+    expect(screen.queryByRole("region", { name: "Modifica prodotto" })).toBeNull();
   });
 
   it("annullare il cambio tipo conserva integralmente la bozza", () => {

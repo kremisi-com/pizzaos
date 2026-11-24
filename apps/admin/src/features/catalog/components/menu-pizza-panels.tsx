@@ -1,14 +1,15 @@
 import { applyPizzaDefaults, materializePizzaMenu, PIZZA_EXTRA_OFFERS, syncPizzaInventory } from "@pizzaos/domain";
 import type { IndividualIngredient, MenuDraft, PizzaCatalog, PizzaComponent, PizzaEntry, PizzaFormula, PizzaTaste } from "@pizzaos/domain";
 import { Button } from "@pizzaos/ui";
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { MenuPriceField, MenuRecipeFields } from "./catalog-form-fields";
 import { MenuProductChoices } from "./menu-product-form";
 import styles from "./operational-catalog.module.css";
 
 export const blankPizzaCatalog = (): PizzaCatalog => ({ doughs: [], bases: [], formats: [], toppings: [], tastes: [], formulas: [] });
 
-export function PizzaTastePanel({ draft, taste, ingredients, onChange, onClose, onRemove, onUpload, onSave }: {
+export function PizzaTastePanel({ draft, taste, ingredients, onChange, onClose, onRemove, onUpload, onSave, headerActions }: {
+  headerActions?: ReactNode;
   draft: MenuDraft; taste: PizzaTaste; ingredients: readonly IndividualIngredient[];
   onChange: (draft: MenuDraft) => void; onClose: () => void; onRemove: () => void;
   onUpload: (file: File) => void; onSave?: () => void;
@@ -42,7 +43,9 @@ export function PizzaTastePanel({ draft, taste, ingredients, onChange, onClose, 
   }
   return <section className={styles.productEditor} aria-label="Modifica pizza">
     <div className={styles.header}><div><p className={styles.small}>Modifica pizza</p><h3>{taste.name || "Nuova pizza"}</h3></div>
-      <Button type="button" variant="ghost" onClick={onClose} aria-label="Chiudi scheda pizza">×</Button></div>
+      <div className={styles.productHeaderActions}>{headerActions}
+        <Button type="button" variant="ghost" onClick={onClose} aria-label="Chiudi scheda pizza">×</Button>
+      </div></div>
     <label>Nome pizza<input required maxLength={200} value={taste.name} onChange={event => update({ name: event.target.value })} /></label>
     <label>Descrizione<textarea maxLength={2000} value={taste.description} onChange={event => update({ description: event.target.value })} /></label>
     <div className={styles.ingredientSelect}>
