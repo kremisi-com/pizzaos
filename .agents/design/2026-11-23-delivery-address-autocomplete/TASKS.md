@@ -1,0 +1,1 @@
+- [x] **delivery-address**: Cercare e selezionare l’indirizzo di consegna nel checkout individuale e di gruppo.

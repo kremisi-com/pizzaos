@@ -26,6 +26,8 @@ Current exports from `src/index.ts`:
 
 - durable pilot boundary: `IndividualApi` and `Individual*` shapes for store configuration, recipes, cart/quote, checkout, order lifecycle, additional-payment/refund ledger, session, and resumable events. This narrower live contract deliberately excludes unresolved demo capabilities from `ClientApiContract`; apps inject its HTTP implementation through their own composition. It contains no database/provider implementation and no persisted payment secrets.
 - `StoreAddressApi` offre la ricerca di indirizzi della sede nel pannello operativo. `IndividualApi.saveStore` accetta la conferma del risultato scelto e il catalogo operatore restituisce l'indirizzo salvato.
+- `IndividualStore.orderingSubdomain` indica l'etichetta pubblica opzionale della sede. `isOrderingSubdomain` e `orderingSubdomainForHost` condividono le regole di sintassi e i nomi riservati.
+- `IndividualApi.searchDeliveryAddresses` cerca suggerimenti per il checkout cliente. `DeliveryAddressSuggestion` distingue le vie dai civici con un punto di consegna. `IndividualDeliveryAddress` rappresenta l’indirizzo scelto nel carrello individuale e di gruppo.
 - `WeeklyOrderSchedule` descrive la settimana in minuti locali. `IndividualSlot` e `IndividualQuote` possono riportare fine e fuso della finestra. `formatOrderWindow` presenta la finestra o l'orario puntuale storico in italiano.
 - `GroupOrderingApi`, `GroupSnapshot`, `GroupParticipant`, `GroupFulfillment`, `GroupQuote` e `GroupCheckout`: port live per raccolta condivisa, revisioni, chiusura e checkout canonico dell'organizzatore. Il riepilogo ospite espone nomi e scelte, senza contatti o capability personali; il trasporto custodisce queste ultime in cookie HttpOnly.
 
@@ -55,6 +57,10 @@ Current exports from `src/index.ts`:
   - `getNextOrderStatuses`
   - `isOrderStatusTransitionAllowed`
   - `progressOrderStatus`
+
+## Menu e composizione
+
+`MenuAdminApi`, `FoodPreferencesApi`, sezioni, gruppi, scelte e composizione estendono il catalogo operativo. `resolveMenuComposition` calcola un riepilogo da una configurazione, usato come anteprima dal client e dal servizio durante il preventivo. Le scorte, la validazione della richiesta e la pubblicazione appartengono al servizio.
 
 ## Import Rules
 

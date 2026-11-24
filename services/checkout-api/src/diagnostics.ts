@@ -24,7 +24,7 @@ export interface Diagnostics {
   flush(): Promise<void>;
 }
 const expectedCodes = new Set([
-  "unauthorized", "forbidden", "not_found", "invalid_input", "product_unavailable", "inventory_changed",
+  "unauthorized", "forbidden", "not_found", "invalid_input", "product_unavailable", "customization_changed", "inventory_changed",
   "slot_unavailable", "price_changed", "outside_delivery_area", "minimum_not_met", "idempotency_conflict",
   "payment_unresolved", "invalid_transition", "revision_conflict", "coupon_unavailable", "coupon_limit_reached",
   "loyalty_insufficient", "loyalty_unavailable", "demo_session", "group_closed", "checkout_pending", "group_full", "participant_removed",

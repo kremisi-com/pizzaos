@@ -118,7 +118,7 @@ Approvazione esplicita dell’utente in chat: «Approvo tutto. Aggiorna il regis
 | D66 | Coupon percentuali/importo fisso configurabili nell’admin: validità, minimo spesa, prodotti ammessi, limite complessivo e per cliente. Nessun prezzo o sconto automatico AI. | DECISO | Approvazione utente 2026-11-05, proposta 6 |
 | D67 | Promozioni cumulabili: percentuali in sequenza, poi importi fissi e premio fedeltà; solo prodotti, mai sotto zero, minimo spesa prima degli sconti. Coupon consumati all’invio e ripristinati su annullamento; limiti e saldo con controllo concorrente autorevole sul server. | DECISO | Approvazione utente 2026-11-05, proposta 7 e D11 |
 | D68 | Email operative per ordine ricevuto, accettato, pronto al ritiro/in consegna, annullato ed esito rimborso. Stato sempre consultabile nell’app. WhatsApp manuale; push, SMS e messaggi promozionali rinviati. | DECISO | Approvazione utente 2026-11-05, proposta 8 |
-| D69 | Email al cliente che effettua l’ordine, nel gruppo all’organizzatore. Errori visibili nell’admin con retry automatico senza bloccare l’ordine. Nell’ambiente test solo destinatari di prova. | DECISO | Approvazione utente 2026-11-05, proposta 9 |
+| D69 | Email al cliente che effettua l’ordine, nel gruppo all’organizzatore. Errori visibili nell’admin con retry automatico senza bloccare l’ordine. Il test usa di default una lista di destinatari di prova. Il pilota può abilitare esplicitamente gli invii all’indirizzo di ogni account cliente che effettua un ordine. | DECISO | Approvazione utente 2026-11-05, proposta 9. Apertura del pilota richiesta dall’utente il 2026-11-23. |
 | D70 | Sequenza vincolante: ordine individuale completo e verificato → gruppo completo e verificato → coupon/fedeltà completi e verificati → notifiche operative. Agenti SDD con test indipendenti dall’implementazione; avviare ogni feature solo dopo il gate precedente. Autonomia autorizzata senza ripetere conferme per queste scelte. D16/D31 e abbonamenti D26 restano rinviati. | DECISO | Istruzione esplicita utente 2026-11-05 |
 
 Piano di coordinamento e verifiche: [sequenza incrementi](sequential-increments.md). D53/D54 descrivono il primo incremento e non escludono quelli successivi ora approvati.
@@ -152,6 +152,30 @@ Fonte corrente: [errori ed esercizio](flows/backend-observability.md); specifica
 Nelle successive conferme dell'handoff Sentry del 20 novembre 2026 l'utente ha autorizzato la creazione di `pizzaos-backend` (Node.js/Fastify) nell'organizzazione/team `kremisi`, la verifica del collegamento, il login Vercel dedicato, la diagnosi del guasto corrente e il rilascio di backend/worker sul pilota test, l'alert email per nuovi errori/regressioni (team Kremisi, massimo ogni 30 minuti) e la risoluzione dell'issue di prova. Stato ed evidenze sono nel [verbale Sentry](../design/2026-11-20-backend-observability/SENTRY_VERIFICATION.md), senza upgrade automatici.
 
 Dopo accesso corretto e diagnosi della quota rete Neon, l'utente ha scelto esplicitamente «Resta gratis: sospendi il worker e prepara il ripristino». Il worker è stato portato a zero istanze; variabili e pacchetto sono predisposti, senza nuovo deploy o upgrade. Il prossimo passo concordato è il [ripristino manuale gratuito](../../services/checkout-api/restore-test-after-quota.md) dopo verifica del reset e del traffico; il rinnovo del periodo Neon è atteso il 1 dicembre 2026 alle 01:00 italiane.
+
+## Sottodomini del sito ordini
+
+| ID | Decisione | Stato | Fonte |
+|---|---|---|---|
+| D76 | Il superadmin assegna una sola etichetta pubblica per sede nel Profilo. I sottodomini `*.pizzaos.app` usano lo stesso deploy client. Per ogni sottodominio assegnato il servizio identifica una sola sede e limita menu, ordini e gruppi. La pagina cliente della sede non mostra il selettore. | DECISO | Conferma utente del 2026-11-23. [Flusso](flows/customer-ordering-and-payment.md#sottodomini-delle-sedi) |
+
+## Indirizzo di consegna nel client
+
+| ID | Decisione | Stato | Fonte |
+|---|---|---|---|
+| D77 | Il cliente inserisce l’indirizzo di consegna in un campo di testo con autocompletamento di vie e civici. Il client ricava il punto dall’indirizzo scelto. | DECISO | Richiesta utente del 2026-11-23. [Flusso](flows/customer-ordering-and-payment.md#indirizzo-di-consegna) |
+
+## Provider per la ricerca indirizzi
+
+| ID | Decisione | Stato | Fonte |
+|---|---|---|---|
+| D78 | PizzaOS usa Geoapify per la ricerca dell'indirizzo della sede e per i suggerimenti degli indirizzi di consegna. Il gestore conferma la sede prima di salvare le coordinate. | DECISO | Conferma utente del 2026-11-23. [Requisiti sede](../design/2026-11-06-store-address/address-confirmation/REQUIREMENTS.md) |
+
+## Menu operativo e percorso cliente
+
+| ID | Decisione | Stato | Fonte |
+|---|---|---|---|
+| D79 | Il gestore configura bozze per sede e pubblica manualmente un menu. Il cliente usa la composizione e gli sconti sugli extra del PoC con foto statiche, allergeni e preferenze salvabili, incluso il flusso di gruppo e il post-ordine. La mancia è rinviata. Nel pilota, il menu da screenshot viene salvato in bozza prima della validazione del gestore. | DECISO | Conferme utente in chat del 2026-11-23. [Flusso](flows/menu-ordering.md) |
 
 ## Decisioni che richiedono una ricerca o conferma esterna
 

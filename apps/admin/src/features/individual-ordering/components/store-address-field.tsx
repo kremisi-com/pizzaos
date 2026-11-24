@@ -73,5 +73,9 @@ export function StoreAddressField({ storeId, address, savedAddress, needsConfirm
       </li>)}</ul>
     </fieldset>}
     {confirmed && <p role="status">Indirizzo confermato. Salva per applicarlo alla sede.</p>}
+    <p>
+      Ricerca con <a href="https://www.geoapify.com/" target="_blank" rel="noreferrer">Geoapify</a>
+      {" · © "}<a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">OpenStreetMap</a>
+    </p>
   </div>;
 }

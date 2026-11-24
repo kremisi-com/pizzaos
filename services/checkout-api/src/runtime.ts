@@ -10,9 +10,11 @@ import { registerGroupOrderingRoutes } from "./group/group-http";
 import { registerPromotionRoutes } from "./promotions";
 import { createOperationalEmailServices, readOperationalEmailConfiguration, registerOperationalEmailRoutes } from "./operational-emails";
 import { readRuntimeConfiguration } from "./runtime-config";
-import { createOpenCageStoreGeocoder } from "./store-address";
+import { createGeoapifyAddressAutocomplete } from "./delivery-address-autocomplete";
+import { createGeoapifyStoreGeocoder } from "./store-address";
 import { createRuntimeDiagnostics } from "./sentry-reporter";
 import type { Diagnostics } from "./diagnostics";
+import { createPostgresMenuImages } from "./menu-images";
 import { OrderingError } from "./ordering-service";
 
 /** Construct one runtime. Entry points own listening, workers and process signals. */
@@ -27,15 +29,18 @@ export async function createOrderingRuntime(env: Record<string, string | undefin
     const email = readOperationalEmailConfiguration(env);
     const operational = createOperationalEmailServices({ repository: createPostgresOrderingRepository(pool), payments: createStripeOrderingPayments(stripe, reporting),
       superadminEmails: config.superadminEmails, reservationMs: config.reservationMs, email, diagnostics: reporting, activateOrderCalendar: true,
-      storeGeocoding: config.openCageApiKey ? createOpenCageStoreGeocoder(config.openCageApiKey, config.authSecret) : undefined });
+      storeGeocoding: config.geoapifyApiKey ? createGeoapifyStoreGeocoder(config.geoapifyApiKey, config.authSecret) : undefined });
     const { service } = operational;
     const groups = createGroupOrderingService({ repository: operational.repository, ordering: service });
     const auth = createOrderingAuth({ pool, secret: config.authSecret, proxySecret: config.proxySecret, origins: config.origins,
+      orderingDomain: config.orderingDomain, orderingAuthOrigin: config.orderingAuthOrigin,
       googleClientId: config.googleClientId, googleClientSecret: config.googleClientSecret,
       smtpUrl: config.smtpUrl, emailFrom: config.emailFrom, demoPassword: config.demoPassword, demoHandoff: config.demoHandoff, diagnostics: reporting });
     const reconcileOrders = async () => { await groups.tick(); await service.tick(); };
     const dispatchEmails = () => operational.emails.dispatch();
-    const app = buildOrderingApp({ service, ...auth, diagnostics: reporting,
+    const app = buildOrderingApp({ service, ...auth, diagnostics: reporting, menuImages: createPostgresMenuImages(pool),
+      orderingSites: config.orderingDomain ? { domain: config.orderingDomain, origins: config.origins, repository: operational.repository } : undefined,
+      deliveryAddressAutocomplete: config.geoapifyApiKey ? createGeoapifyAddressAutocomplete(config.geoapifyApiKey) : undefined,
       async webhook(body, signature) {
         try { stripe.webhooks.constructEvent(body, signature, config.stripeWebhookSecret); }
         catch (error) {

@@ -3,10 +3,12 @@
 import { useEffect, useMemo, useState } from "react";
 import { IndividualOrderingScreen } from "../features/individual-ordering/components/individual-ordering-screen";
 import { createIndividualApi } from "./api/individual-api";
+import { createFoodPreferencesApi } from "./api/food-preferences-api";
 import { createPromotionsApi } from "./api/promotions-api";
 
-export function IndividualOrderingShell() {
+export function IndividualOrderingShell({ storefront }: { storefront?: boolean }) {
   const api = useMemo(() => createIndividualApi(), []);
+  const preferencesApi = useMemo(() => createFoodPreferencesApi(), []);
   const promotionsApi = useMemo(() => createPromotionsApi(), []);
   const [refreshVersion, setRefreshVersion] = useState(0);
   const [connection, setConnection] = useState("Connessione in corso");
@@ -46,5 +48,5 @@ export function IndividualOrderingShell() {
     }).catch(() => { if (alive) setConnection("Servizio non raggiungibile"); });
     return () => { alive = false; stream?.close(); if (polling) clearInterval(polling); };
   }, [api]);
-  return <IndividualOrderingScreen api={api} promotionsApi={promotionsApi} refreshVersion={refreshVersion} connection={connection} />;
+  return <IndividualOrderingScreen api={api} promotionsApi={promotionsApi} preferencesApi={preferencesApi} refreshVersion={refreshVersion} connection={connection} storefront={storefront} />;
 }

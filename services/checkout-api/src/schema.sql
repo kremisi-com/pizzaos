@@ -55,3 +55,12 @@ create table if not exists checkout_idempotency (
   customer_id text not null, idempotency_key text not null, response jsonb not null,
   created_at timestamptz not null default now(), primary key (customer_id, idempotency_key)
 );
+
+-- Static catalog photo bytes stay outside the frequently read ordering snapshot.
+create table if not exists ordering_menu_images (
+  store_id text not null,
+  id text not null,
+  type text not null check (type in ('image/jpeg', 'image/png', 'image/webp')),
+  bytes bytea not null check (octet_length(bytes) between 1 and 2097152),
+  primary key (store_id, id)
+);

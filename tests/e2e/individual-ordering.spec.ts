@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import type { IndividualCheckoutResult, IndividualStore } from "@pizzaos/domain";
+import type { IndividualCart, IndividualCheckoutResult, IndividualDraft, IndividualStore } from "@pizzaos/domain";
 
 // Runs against two real Next applications and a seeded, isolated service.
 // The harness alone authenticates pizzaos-e2e-actor cookies (never production auth).
@@ -76,6 +76,123 @@ test("guest draft survives reload and sign-in, cash pickup reaches completed in 
   }
 });
 
+test("guest delivery requires a selected street number and sends its point to the quote", async ({ page }) => {
+  const chosenAddress = { text: "Via Verdi 10, Roma", latitude: 41.91, longitude: 12.51 };
+  await page.route("**/v1/pilot/stores/roma/delivery-address-search", async route => {
+    expect(route.request().method()).toBe("POST");
+    const { query } = route.request().postDataJSON() as { query: string };
+    if (query === "Via Ricerca Interrotta") {
+      await route.fulfill({ status: 503, json: { code: "unavailable", message: "Ricerca indirizzi non disponibile." } });
+      return;
+    }
+    const results = query === "Via Ver"
+      ? [{ kind: "street", text: "Via Verdi, Roma" }]
+      : query === "Via Verdi 10"
+        ? [{ kind: "address", ...chosenAddress }]
+        : [];
+    await route.fulfill({ json: results });
+  });
+
+  await page.goto(`${clientOrigin}/ordina`);
+  await page.getByLabel("Scegli la sede").selectOption("roma");
+  await page.getByRole("button", { name: "Aggiungi Pizza", exact: true }).click();
+  await page.getByLabel("Modalità", { exact: true }).selectOption("delivery");
+  const address = page.getByLabel("Indirizzo completo", { exact: true });
+  const verify = page.getByRole("button", { name: "Verifica disponibilità e totale" });
+  await expect(address).toHaveCount(1);
+  await expect(page.getByLabel(/^(Latitudine|Longitudine)$/i)).toHaveCount(0);
+  await expect(verify).toBeDisabled();
+
+  await address.fill("Via Ver");
+  await expect(page.getByRole("option", { name: /^Via Verdi, Roma\b/ })).toBeVisible();
+  await address.press("ArrowDown");
+  await address.press("Enter");
+  await expect(address).toHaveValue(/^Via Verdi/);
+  await expect(page.getByText(/(?:aggiungi|inserisci|indica).*civico/i).first()).toBeVisible();
+  await expect(verify).toBeDisabled();
+
+  await address.fill("Via Verdi 10");
+  const option = page.getByRole("option", { name: chosenAddress.text, exact: true });
+  await expect(option).toBeVisible();
+  await expect(verify).toBeDisabled();
+  await option.click();
+  await expect(address).toHaveValue(chosenAddress.text);
+  await expect(verify).toBeEnabled();
+
+  const pendingQuote = page.waitForResponse(response => response.url().endsWith("/v1/pilot/quote") && response.request().method() === "POST");
+  await verify.click();
+  const quote = await pendingQuote;
+  const { cart } = quote.request().postDataJSON() as { cart: IndividualCart };
+  expect(cart.mode).toBe("delivery");
+  expect(cart.address).toEqual(chosenAddress);
+  expect(quote.ok()).toBe(true);
+  expect(await quote.json()).toMatchObject({ deliveryCents: 200, totalCents: 1000 });
+  const summary = page.getByRole("heading", { name: "Riepilogo da confermare" });
+  await expect(summary).toBeVisible();
+
+  await address.fill("Via Inventata 99");
+  await expect(verify).toBeDisabled();
+  await expect(summary).toHaveCount(0);
+  await expect(page.getByText(/via.*civico.*comune/i).first()).toBeVisible();
+
+  const unavailable = page.waitForResponse(response => response.url().endsWith("/roma/delivery-address-search") && response.status() === 503);
+  await address.fill("Via Ricerca Interrotta");
+  await unavailable;
+  await expect(address).toBeEditable();
+  await expect(verify).toBeDisabled();
+  await address.fill("Via Verdi 10");
+  await expect(option).toBeVisible();
+  await page.getByLabel("Modalità", { exact: true }).selectOption("pickup");
+  await expect(address).toHaveCount(0);
+  await expect(verify).toBeEnabled();
+});
+
+test("delivery reuses an older cart and recovers the original checkout request", async ({ context, page }) => {
+  const savedAddress = { text: "Via Verdi 10, Roma", latitude: 41.91, longitude: 12.51 };
+  const draft: IndividualDraft = {
+    version: 1,
+    updatedAt: new Date().toISOString(),
+    cart: {
+      storeId: "roma", mode: "delivery", slotId: null, notes: "",
+      lines: [{ productId: "pizza", quantity: 1, optionIds: [], notes: "" }],
+      address: savedAddress,
+    },
+  };
+  const replacement = { text: "Via Verdi 20, Roma", latitude: 41.92, longitude: 12.51 };
+  await context.addCookies([{ name: "pizzaos-e2e-actor", value: "alice", url: clientOrigin, httpOnly: true, sameSite: "Lax" }]);
+  await page.addInitScript(savedCart => {
+    const key = "pizzaos.individual-cart.v1";
+    if (!localStorage.getItem(key)) localStorage.setItem(key, JSON.stringify(savedCart));
+  }, draft);
+  await page.route("**/v1/pilot/stores/roma/delivery-address-search", route =>
+    route.fulfill({ json: [{ kind: "address", ...replacement }] }));
+  const checkout = "**/v1/pilot/checkouts";
+  await page.route(checkout, route => route.fulfill({
+    status: 503, json: { code: "unavailable", message: "Invio temporaneamente non disponibile." },
+  }));
+
+  await page.goto(`${clientOrigin}/ordina`);
+  const address = page.getByLabel("Indirizzo completo", { exact: true });
+  await expect(address).toHaveValue(savedAddress.text);
+  await page.getByRole("button", { name: "Verifica disponibilità e totale" }).click();
+  await expect(page.getByRole("heading", { name: "Riepilogo da confermare" })).toBeVisible();
+  await page.getByLabel(/Telefono per l.ordine/).fill("+39 3331234567");
+  const original = page.waitForRequest(checkout);
+  await page.getByRole("button", { name: "Conferma e invia ordine" }).click();
+  const originalBody = (await original).postDataJSON() as { cart: IndividualCart };
+  expect(originalBody.cart.address).toEqual(savedAddress);
+
+  const recover = page.getByRole("button", { name: "Recupera tentativo ordine" });
+  await expect(recover).toBeEnabled();
+  await address.fill("Via Verdi 20");
+  await page.getByRole("option", { name: replacement.text, exact: true }).click();
+  await page.reload();
+  await expect(address).toHaveValue(replacement.text);
+  const retry = page.waitForRequest(checkout);
+  await recover.click();
+  expect((await retry).postDataJSON()).toEqual(originalBody);
+});
+
 test("the live admin sidebar switches tools and restricts store management to superadmin", async ({ browser, context, page }) => {
   await context.addCookies([{ name: "pizzaos-e2e-actor", value: "operator", url: adminOrigin, httpOnly: true, sameSite: "Lax" }]);
   await page.goto(adminOrigin);
@@ -92,7 +209,10 @@ test("the live admin sidebar switches tools and restricts store management to su
   for (const section of sections.slice(2)) {
     await navigation.getByRole("button", { name: section, exact: true }).click();
     await expect(page.getByRole("heading", { name: section, exact: true })).toBeVisible();
-    if (section === "Menu") await expect(page.getByLabel("Nome prodotto 1", { exact: true })).toHaveValue("Pizza");
+    if (section === "Menu") {
+      await expect(page.getByRole("heading", { name: "Menu pubblicato", exact: true })).toBeVisible();
+      await expect(page.getByText("Pizza", { exact: true })).toBeVisible();
+    }
     if (section === "Magazzino") await expect(page.getByLabel("Nome ingrediente 1", { exact: true })).toHaveValue("Impasto");
   }
   await expect(page.getByLabel("Nome sede", { exact: true })).toHaveValue("Roma");
@@ -154,6 +274,8 @@ test("admin creates a store only after explicitly confirming a candidate and rel
   await page.getByLabel("Nome sede", { exact: true }).fill("Torino Via Verdi");
   await expect(page.getByLabel("Latitudine della sede", { exact: true })).toHaveCount(0);
   await expect(page.getByLabel("Longitudine della sede", { exact: true })).toHaveCount(0);
+  await expect(page.getByRole("link", { name: "Geoapify", exact: true })).toHaveAttribute("href", "https://www.geoapify.com/");
+  await expect(page.getByRole("link", { name: "OpenStreetMap", exact: true })).toHaveAttribute("href", "https://www.openstreetmap.org/copyright");
 
   const address = page.getByRole("textbox", { name: "Indirizzo della sede", exact: true });
   const search = page.getByRole("button", { name: "Cerca indirizzo", exact: true });

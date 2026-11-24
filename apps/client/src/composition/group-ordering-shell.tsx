@@ -4,16 +4,18 @@ import { useEffect, useMemo, useState } from "react";
 import { PersistentGroupScreen } from "../features/group-order/components/persistent-group-screen";
 import { createGroupOrderingApi } from "./api/group-ordering-api";
 import { createIndividualApi } from "./api/individual-api";
+import { createFoodPreferencesApi } from "./api/food-preferences-api";
 import { createPromotionsApi } from "./api/promotions-api";
 
-export function GroupOrderingShell({ groupId }: { groupId?: string }) {
+export function GroupOrderingShell({ groupId, storefront }: { groupId?: string; storefront?: boolean }) {
   const api = useMemo(() => createGroupOrderingApi(), []);
   const individualApi = useMemo(() => createIndividualApi(), []);
+  const preferencesApi = useMemo(() => createFoodPreferencesApi(), []);
   const promotionsApi = useMemo(() => createPromotionsApi(), []);
   const [invitation, setInvitation] = useState<{ token?: string } | null>(null);
   useEffect(() => {
     setInvitation({ token: new URLSearchParams(window.location.hash.slice(1)).get("invito") ?? undefined });
   }, []);
   if (!invitation) return <p role="status">Caricamento del gruppo…</p>;
-  return <PersistentGroupScreen api={api} individualApi={individualApi} promotionsApi={promotionsApi} groupId={groupId} inviteToken={invitation.token} />;
+  return <PersistentGroupScreen api={api} individualApi={individualApi} promotionsApi={promotionsApi} preferencesApi={preferencesApi} groupId={groupId} inviteToken={invitation.token} storefront={storefront} />;
 }

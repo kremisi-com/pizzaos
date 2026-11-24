@@ -6,6 +6,8 @@ L'outbox è persistente e atomica con il lifecycle canonico. Invio separato, ret
 
 Modalità test predefinita con allowlist esplicita. Le prove locali dell'incremento usano sink SMTP e indirizzi `.test`. Successivamente, nel pilota online test del 5 novembre 2026, ricevuta, accettazione e avvio consegna sono state recapitate all'account di prova: il [verbale online](../../../services/checkout-api/online-client-verification.md) registra i tre esiti Delivered e i limiti della prova. L'invio live richiede configurazione SMTP/live esplicita; D16/D31 non sono risolte dai test.
 
+Su richiesta del 23 novembre 2026, il pilota può attivare `test_open` e inviare le email operative all'indirizzo di qualsiasi cliente autenticato che effettua un ordine, anche se assente dalla lista di prova. La modalità richiede `PIZZAOS_ENVIRONMENT=test` esplicito. I messaggi già accodati diventano idonei al prossimo tentativo pianificato e conservano l'ordine di invio. «Segna pronto» genera l'email per il ritiro. Per un ordine a domicilio l'email parte all'avvio della consegna. [Verifica della politica test](../../../services/checkout-api/src/operational-emails/emails.test.ts).
+
 Il servizio email possiede outbox e dispatch; il lifecycle canonico produce gli eventi e l'admin ne presenta lo stato. Configurazione e limiti operativi: [README email](../../../services/checkout-api/src/operational-emails/README.md).
 
 ## Casi limite e verifiche

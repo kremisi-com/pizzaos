@@ -1,0 +1,40 @@
+.page {
+  max-width: 610px;
+  margin: 0 auto;
+  padding: 28px 16px 64px;
+}
+
+.page a {
+  color: #984021;
+  font-weight: 650;
+}
+
+.page fieldset {
+  border: 1px solid #e7dfd4;
+  border-radius: 12px;
+  margin: 14px 0;
+  padding: 10px 14px;
+}
+
+.page label {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 30px;
+}
+
+.page button {
+  min-height: 44px;
+  border: 0;
+  border-radius: 11px;
+  padding: 8px 14px;
+  background: #a64529;
+  color: #fff;
+  font: inherit;
+  cursor: pointer;
+}
+
+.page button:disabled {
+  opacity: .5;
+  cursor: default;
+}

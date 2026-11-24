@@ -1,7 +1,9 @@
-# Catalog management
+# Gestione catalogo
 
-Owns the operator view for menus and products, including menu settings and product editing. `CatalogManager` receives menus and products and reports saved changes through update callbacks. Product editing derives allergen labels from ingredient contracts.
+In **Menu** il gestore visualizza il menu pubblicato, crea o duplica più bozze per la sede selezionata, ne apre l’anteprima e sceglie quale pubblicare. Le bozze che non servono più si eliminano dal pannello con conferma. Nella bozza configura sezioni e ordine di esposizione, prezzi, foto, ricette, disponibilità, gruppi di scelta, abbinamenti e formule per gli extra. Gli ingredienti e le relative schede allergeni provengono dal Magazzino.
 
-Admin composition owns the active store dataset and persists accepted updates. Ingredient seed choices come from `@pizzaos/mock-data`; this feature does not own inventory quantities or client menu rendering.
+La composizione fornisce `MenuAdminApi`. Il servizio verifica permessi, revisione e contenuti a ogni salvataggio o pubblicazione. Un conflitto conserva le modifiche locali finché il gestore sceglie di ricaricare. Le foto accettano JPEG, PNG e WebP fino a 2 MB per file. Le bozze salvate sono accessibili agli operatori della sede.
 
-Run `pnpm --filter @pizzaos/admin test` for catalog management coverage.
+La demo autenticata usa invece `CatalogManager` con il dataset dimostrativo e callback aggiornate dalla composizione.
+
+Verifica locale con `pnpm --filter @pizzaos/admin test`. I requisiti e i contratti del catalogo persistente sono in [.agents/design/2026-11-23-menu-ordering](../../../../../.agents/design/2026-11-23-menu-ordering/design.md).

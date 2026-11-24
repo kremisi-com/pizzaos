@@ -1,0 +1,281 @@
+.catalog {
+  display: grid;
+  gap: var(--space-4, 1rem);
+  color: var(--pizzaos-color-foreground, #24211e);
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: minmax(13rem, 15rem) minmax(0, 1fr);
+  align-items: start;
+  gap: 1rem;
+}
+
+.side,
+.panel,
+.preview,
+.section,
+.productEditor,
+.optionGroup {
+  min-width: 0;
+  padding: 1rem;
+  border: 1px solid var(--pizzaos-color-border, #e5dfda);
+  border-radius: 0.85rem;
+  background: var(--pizzaos-color-surface, white);
+}
+
+.side,
+.panel,
+.form,
+.preview,
+.section,
+.productEditor,
+.optionGroup {
+  display: grid;
+  gap: 0.85rem;
+  align-content: start;
+}
+
+.side h2,
+.panel h2,
+.preview h3,
+.preview h4,
+.section h3,
+.productEditor h3,
+.panel p,
+.preview p {
+  margin: 0;
+}
+
+.nav,
+.stack {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.nav button {
+  width: 100%;
+  text-align: left;
+  justify-content: flex-start;
+  overflow-wrap: anywhere;
+}
+
+.header,
+.row,
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  align-items: center;
+}
+
+.header {
+  justify-content: space-between;
+}
+
+.row {
+  justify-content: flex-start;
+}
+
+.formGrid,
+.foodGrid {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 13rem), 1fr));
+}
+
+.form,
+.form label,
+.inner label {
+  min-width: 0;
+}
+
+.form label:not(.check),
+.inner label:not(.check) {
+  display: grid;
+  gap: 0.35rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.form fieldset,
+.inner {
+  min-inline-size: 0;
+}
+
+.form input:not([type="checkbox"]),
+.form select,
+.form textarea,
+.inner input:not([type="checkbox"]),
+.inner select {
+  box-sizing: border-box;
+  min-width: 0;
+  width: 100%;
+  color: inherit;
+  font: inherit;
+  border: 1px solid var(--pizzaos-color-border, #dcd3cb);
+  border-radius: 0.5rem;
+  padding: 0.55rem;
+  background: var(--pizzaos-color-surface, white);
+}
+
+.form input:not([type="checkbox"]):not([type="file"]),
+.form select,
+.inner input:not([type="checkbox"]),
+.inner select {
+  min-height: 2.75rem;
+}
+
+.form input[type="file"] {
+  overflow-wrap: anywhere;
+}
+
+.form textarea {
+  min-height: 5.5rem;
+  resize: vertical;
+}
+
+.inner,
+.food {
+  margin: 0;
+  padding: 0.75rem;
+  border: 1px solid var(--pizzaos-color-border, #e5dfda);
+  border-radius: 0.6rem;
+}
+
+.inner {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.inner legend {
+  font-weight: 600;
+}
+
+.food summary,
+.optionGroup summary,
+.preview summary {
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.food[open] summary,
+.optionGroup[open] summary {
+  margin-bottom: 0.65rem;
+}
+
+.check {
+  display: flex;
+  gap: 0.4rem;
+  align-items: flex-start;
+}
+
+.foodGrid {
+  margin-top: 0.5rem;
+}
+
+.checkGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(7rem, 1fr));
+  gap: 0.35rem;
+}
+
+.productList {
+  display: grid;
+  gap: 0.3rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.productRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.55rem;
+  padding: 0.65rem 0;
+  border-top: 1px solid var(--pizzaos-color-border, #e5dfda);
+}
+
+.productRow strong {
+  overflow-wrap: anywhere;
+}
+
+.productPreview {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 0.7rem;
+  padding: 0.6rem 0;
+  border-top: 1px solid var(--pizzaos-color-border, #e5dfda);
+}
+
+.productPreview img,
+.image {
+  width: 4.5rem;
+  height: 4.5rem;
+  border-radius: 0.5rem;
+  object-fit: cover;
+}
+
+.productPreviewBody {
+  grid-column: 2;
+  display: grid;
+  gap: 0.3rem;
+  overflow-wrap: anywhere;
+}
+
+.small {
+  color: var(--pizzaos-color-foreground-muted, #68615d);
+  font-size: 0.84rem;
+}
+
+.error {
+  color: var(--pizzaos-color-danger, #a32820);
+}
+
+.confirm {
+  margin: 0;
+  padding: 0.8rem;
+  border: 1px solid var(--pizzaos-color-border, #e5dfda);
+  border-radius: 0.65rem;
+}
+
+@media (max-width: 740px) {
+  .layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .productRow {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
+
+.editor {
+  min-inline-size: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.screenReaderOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.check input[type="checkbox"] {
+  flex: none;
+  width: 1.1rem;
+  height: 1.1rem;
+  accent-color: var(--pizzaos-color-primary);
+}
+
+.catalog :focus-visible {
+  outline: 2px solid var(--pizzaos-color-primary);
+  outline-offset: 3px;
+}

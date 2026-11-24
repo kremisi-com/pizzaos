@@ -2,18 +2,19 @@
 
 import { formatOrderWindow } from "@pizzaos/domain";
 import type {
-  GroupCheckout, GroupFulfillment, GroupOrderingApi, GroupQuote, GroupSnapshot,
-  IndividualApi, IndividualCheckoutResult, IndividualLine, IndividualProduct, IndividualSession, IndividualStore, PromotionsApi
+  FoodPreferencesApi, GroupCheckout, GroupFulfillment, GroupOrderingApi, GroupQuote, GroupSnapshot,
+  IndividualApi, IndividualCheckoutResult, IndividualLine, IndividualSession, IndividualStore, PromotionsApi
 } from "@pizzaos/domain";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { IndividualStripeFields, OrderSlotSelect, type ConfirmIndividualPayment } from "../../individual-ordering";
+import { DeliveryAddressField, hasDeliveryPoint, IndividualStripeFields, OrderSlotSelect, type ConfirmIndividualPayment } from "../../individual-ordering";
+import { appendMenuLine, MenuLineDetails, MenuLineEditor, OperationalMenu, useMenuPreferences } from "../../menu";
 import { PromotionSelectionPanel, PromotionSummary } from "../../promotions";
 import styles from "./persistent-group-screen.module.css";
 
 const money = (cents: number) => new Intl.NumberFormat("it-IT", { style: "currency", currency: "EUR" }).format(cents / 100);
 const date = (iso: string) => new Date(iso).toLocaleString("it-IT", { dateStyle: "short", timeStyle: "short" });
 const initialFulfillment: GroupFulfillment = { mode: "pickup", slotId: null, notes: "" };
-const terms = (store: IndividualStore) => JSON.stringify({ products: store.products, ingredients: store.ingredients,
+const terms = (store: IndividualStore) => JSON.stringify({ menu: store.menu, products: store.products, ingredients: store.ingredients,
   slots: store.slots, deliveryBands: store.deliveryBands, acceptingOrders: store.acceptingOrders });
 const localDeadline = () => {
   const value = new Date(Date.now() + 60 * 60_000);
@@ -27,6 +28,7 @@ function errorText(value: unknown): string {
     checkout_pending: "Un tentativo è già in corso. Recupera il tentativo gruppo prima di procedere.",
     idempotency_conflict: "Il tentativo originale è già salvato. Recuperalo senza cambiare la richiesta.",
     price_changed: "Il totale è cambiato. Verifica di nuovo il totale e conferma il nuovo riepilogo.",
+    customization_changed: "Una personalizzazione è cambiata. L’organizzatore può correggere o rimuovere la scelta prima di verificare il totale.",
     product_unavailable: "Un prodotto non è più disponibile. L'organizzatore può rimuoverlo e verificare di nuovo il totale.",
     inventory_changed: "La disponibilità è cambiata. Riduci le quantità o rimuovi gli articoli e verifica di nuovo il totale.",
     slot_unavailable: "La fascia non è più disponibile. Scegli un altro orario e verifica di nuovo il totale.",
@@ -46,25 +48,15 @@ function errorText(value: unknown): string {
   return messages[code] ?? "Non è stato possibile completare l'operazione. Aggiorna il gruppo e riprova.";
 }
 
-function GroupProduct({ product, disabled, onAdd }: {
-  product: IndividualProduct; disabled: boolean; onAdd: (product: IndividualProduct, options: string[]) => void;
-}) {
-  const [options, setOptions] = useState<string[]>([]);
-  return <article className={styles.card}><h3>{product.name}</h3><p>{product.description}</p><p className={styles.price}>{money(product.priceCents)}</p>
-    {product.allergens.length > 0 && <p className={styles.small}>Allergeni: {product.allergens.join(", ")}</p>}
-    {product.options.length > 0 && <fieldset disabled={disabled}><legend>Personalizza {product.name}</legend>{product.options.map(option => <label className={styles.check} key={option.id}>
-      <input type="checkbox" checked={options.includes(option.id)} onChange={event => setOptions(current => event.target.checked ? [...current, option.id] : current.filter(id => id !== option.id))} />{option.name} (+{money(option.priceCents)})
-    </label>)}</fieldset>}
-    <button type="button" disabled={disabled || !product.available} onClick={() => onAdd(product, options)}>Aggiungi {product.name}</button>
-  </article>;
-}
-
-export function PersistentGroupScreen({ api, individualApi, promotionsApi, groupId, inviteToken, pollMs = 2000 }: {
-  api: GroupOrderingApi; individualApi: IndividualApi; promotionsApi?: PromotionsApi; groupId?: string; inviteToken?: string; pollMs?: number;
+export function PersistentGroupScreen({ api, individualApi, promotionsApi, preferencesApi, groupId, inviteToken, pollMs = 2000, storefront = false }: {
+  storefront?: boolean;
+  api: GroupOrderingApi; individualApi: IndividualApi; promotionsApi?: PromotionsApi; preferencesApi?: FoodPreferencesApi; groupId?: string; inviteToken?: string; pollMs?: number;
 }) {
   const [activeId, setActiveId] = useState(groupId);
   const [group, setGroup] = useState<GroupSnapshot | null>(null);
   const [session, setSession] = useState<IndividualSession | null>(null);
+  const preferences = useMenuPreferences(preferencesApi, session?.actor?.id);
+  const [inviteCopied, setInviteCopied] = useState(false);
   const [stores, setStores] = useState<IndividualStore[]>([]);
   const [store, setStore] = useState<IndividualStore | null>(null);
   const [storeId, setStoreId] = useState("");
@@ -167,9 +159,8 @@ export function PersistentGroupScreen({ api, individualApi, promotionsApi, group
     const next = await api.replaceLines(current.id, { participantId: current.participantId, revision: current.revision, lines });
     dirtyRef.current = false; setDirty(false); applyGroup(next);
   }
-  function add(product: IndividualProduct, optionIds: string[]) {
-    const lines = [...ownLines, { productId: product.id, quantity: 1, optionIds, notes: "" }];
-    void run(() => saveOwn(lines));
+  function add(line: IndividualLine) {
+    void run(() => saveOwn(appendMenuLine(ownLines, line)));
   }
   function changeFulfillment(next: GroupFulfillment) {
     fulfillmentRef.current = next; setFulfillment(next); invalidateQuote();
@@ -218,7 +209,8 @@ export function PersistentGroupScreen({ api, individualApi, promotionsApi, group
     {activeId && <p role="status" className={styles.small}>{connection}</p>}
     {!activeId && <section className={`${styles.card} ${styles.create}`}><h2>Apri una raccolta</h2><p>Il link funziona anche per chi non ha un account.</p>
       {session?.actor ? <form onSubmit={event => { event.preventDefault(); void run(create); }}>
-        <label>Sede<select aria-label="Sede" value={storeId} disabled={busy} onChange={event => setStoreId(event.target.value)}>{stores.map(location => <option value={location.id} key={location.id}>{location.name}</option>)}</select></label>
+        {!storefront ? <label>Sede<select aria-label="Sede" value={storeId} disabled={busy} onChange={event => setStoreId(event.target.value)}>{stores.map(location => <option value={location.id} key={location.id}>{location.name}</option>)}</select></label>
+          : stores[0] && <p>Sede <strong>{stores[0].name}</strong></p>}
         <label>Nome<input maxLength={120} required value={name} disabled={busy} onChange={event => setName(event.target.value)} /></label>
         <label>Scadenza raccolta<input type="datetime-local" required value={deadline} disabled={busy} onChange={event => setDeadline(event.target.value)} /></label>
         <p className={styles.small}>La scadenza chiude solo le scelte: non è uno slot di consegna e non avvia pagamenti. Scorte e fasce si verificano al checkout.</p>
@@ -227,14 +219,20 @@ export function PersistentGroupScreen({ api, individualApi, promotionsApi, group
     </section>}
     {group && <><section className={styles.card}><h2>{group.status === "open" ? "Raccolta aperta" : group.status === "closed" ? "Raccolta chiusa" : "Ordine di gruppo inviato"}</h2>
       <p>Scadenza raccolta: <strong>{date(group.deadline)}</strong></p><p className={styles.small}>Le scelte non riservano scorte o orari. Nessun ordine o pagamento parte automaticamente.</p>
-      {host && invitation && <label>Link invito<input readOnly value={invitation} onFocus={event => event.currentTarget.select()} /></label>}
+      {host && invitation && <div className={styles.invitation}>
+        <label>Link invito<input readOnly value={invitation} onFocus={event => event.currentTarget.select()} /></label>
+        {typeof navigator !== "undefined" && navigator.clipboard && <button type="button" className={styles.secondary} onClick={async () => {
+          try { await navigator.clipboard.writeText(invitation); setInviteCopied(true); } catch { setInviteCopied(false); }
+        }}>Copia link</button>}
+        {inviteCopied && <span role="status">Link copiato</span>}
+      </div>}
       {host && group.status === "open" && <button type="button" disabled={busy || pending || dirty} onClick={() => void run(async () => applyGroup(await api.close(group.id, { revision: group.revision })))}>Chiudi raccolta</button>}
       {group.role === "visitor" && group.status === "open" && inviteToken && <form onSubmit={event => { event.preventDefault(); void run(join); }}><label>Nome<input required maxLength={120} value={name} disabled={busy} onChange={event => setName(event.target.value)} /></label><button type="submit" disabled={busy || !name.trim()}>Entra nel gruppo</button></form>}
       {group.role !== "host" && group.status !== "open" && <p>Le scelte sono chiuse. L&apos;organizzatore verifica il totale e gestisce l&apos;ordine.</p>}
       {host && group.status === "submitted" && <p><a href="/ordina#i-tuoi-ordini">Gestisci l&apos;ordine e segui il ristorante</a></p>}
     </section>
     <div className={styles.layout}><section className={styles.stack}>
-      {canEdit && <><h2>Il menu</h2>{store?.products.map(product => <GroupProduct key={`${store.id}-${product.id}`} product={product} disabled={busy} onAdd={add} />)}
+      {canEdit && <><h2>Il menu</h2>{store && <OperationalMenu key={store.id} store={store} preferences={preferences} disabled={busy} onAdd={add} />}
         <section className={styles.card} aria-label="Le mie scelte"><h2>Le mie scelte</h2>{ownLines.length === 0 && <p>Non hai ancora scelto articoli.</p>}
           <fieldset disabled={busy}><legend>Personalizza le tue scelte</legend><ul className={styles.lines}>{ownLines.map((line, index) => {
             const product = store?.products.find(item => item.id === line.productId);
@@ -243,16 +241,28 @@ export function PersistentGroupScreen({ api, individualApi, promotionsApi, group
               const quantity = Number(event.target.value); if (Number.isInteger(quantity) && quantity >= 1 && quantity <= 100) editLines(ownLines.map((item, i) => i === index ? { ...item, quantity } : item));
             }} /></label><button type="button" className={styles.secondary} onClick={() => editLines(ownLines.filter((_, i) => i !== index))}>Rimuovi mia scelta</button></div>
               <label>Note per {title}<input maxLength={500} value={line.notes} onChange={event => editLines(ownLines.map((item, i) => i === index ? { ...item, notes: event.target.value } : item))} /></label>
-              {line.optionIds.length > 0 && <p className={styles.small}>{line.optionIds.map(id => product?.options.find(option => option.id === id)?.name ?? id).join(", ")}</p>}</li>;
+              <MenuLineDetails product={product} line={line} avoid={preferences.avoid} showUnknown={Boolean(store?.menu)} />
+              {store && product && product.options.length > 0 && <MenuLineEditor store={store} product={product} line={line} disabled={busy} avoid={preferences.avoid}
+                onSave={updated => void run(() => saveOwn(ownLines.map((item, i) => i === index ? updated : item)))} />}
+            </li>;
           })}</ul><button type="button" disabled={!dirty} onClick={() => void run(() => saveOwn(ownLines))}>Salva le mie scelte</button></fieldset>
         </section></>}
       <section className={styles.stack}><h2>Le scelte del gruppo</h2>{group.participants.map(person => <article key={person.id} aria-label={person.name} className={styles.card}><h3>{person.name}{person.host ? " · Organizzatore" : ""}</h3>
-        {person.lines.length === 0 && <p>Nessun articolo scelto.</p>}<ul className={styles.lines}>{person.lines.map((line, index) => <li key={`${line.productId}-${index}`}>
-          <strong>{line.quantity} × {store?.products.find(product => product.id === line.productId)?.name ?? line.productId}</strong>{line.notes && <p>{line.notes}</p>}
+        {person.lines.length === 0 && <p>Nessun articolo scelto.</p>}<ul className={styles.lines}>{person.lines.map((line, index) => {
+          const product = store?.products.find(item => item.id === line.productId);
+          return <li key={`${line.productId}-${index}`}>
+          <strong>{line.quantity} × {product?.name ?? line.productId}</strong>{line.notes && <p>{line.notes}</p>}
+          <MenuLineDetails product={product} line={line} />
+          {host && !person.host && group.status !== "submitted" && store && product && product.options.length > 0 &&
+            <MenuLineEditor store={store} product={product} line={line} disabled={busy || pending || dirty} avoid={[]}
+              onSave={updated => void run(async () => {
+                const lines = person.lines.map((item, current) => current === index ? updated : item);
+                applyGroup(await api.replaceLines(group.id, { participantId: person.id, revision: group.revision, lines }));
+              })} />}
           {host && group.status !== "submitted" && <button type="button" className={styles.secondary} disabled={busy || pending || dirty} onClick={() => void run(async () => {
             const next = await api.replaceLines(group.id, { participantId: person.id, revision: group.revision, lines: person.lines.filter((_, i) => i !== index) }); applyGroup(next);
           })}>Rimuovi articolo di {person.name}</button>}
-        </li>)}</ul>
+        </li>; })}</ul>
         {host && !person.host && group.status !== "submitted" && <button type="button" className={styles.secondary} disabled={busy || pending || dirty} onClick={() => void run(async () => applyGroup(await api.removeParticipant(group.id, { participantId: person.id, revision: group.revision })))}>Rimuovi partecipante {person.name}</button>}
       </article>)}</section>
     </section>
@@ -260,16 +270,15 @@ export function PersistentGroupScreen({ api, individualApi, promotionsApi, group
       {host && pending && <div className={styles.notice}><p>Un tentativo deve essere verificato prima di cambiare il gruppo o inviare un altro ordine.</p><button type="button" disabled={busy} onClick={() => void run(recover)}>Recupera tentativo gruppo</button></div>}
       {host && group.status === "closed" && <fieldset disabled={busy || pending}><legend>Consegna e pagamento</legend>
         <label>Modalità<select aria-label="Modalità" value={fulfillment.mode} onChange={event => changeFulfillment({ ...fulfillment, mode: event.target.value === "delivery" ? "delivery" : "pickup", address: undefined })}><option value="pickup">Ritiro in pizzeria</option><option value="delivery">Consegna a domicilio</option></select></label>
-        {fulfillment.mode === "delivery" && <><label>Indirizzo completo<input required value={fulfillment.address?.text ?? ""} onChange={event => changeFulfillment({ ...fulfillment, address: { text: event.target.value, latitude: fulfillment.address?.latitude ?? 0, longitude: fulfillment.address?.longitude ?? 0 } })} /></label>
-          <p className={styles.small}>Conferma il punto di consegna per verificare zona e costo.</p><div className={styles.columns}>
-            <label>Latitudine<input type="number" step="any" min={-90} max={90} value={fulfillment.address?.latitude ?? ""} onChange={event => changeFulfillment({ ...fulfillment, address: { text: fulfillment.address?.text ?? "", latitude: Number(event.target.value), longitude: fulfillment.address?.longitude ?? 0 } })} /></label>
-            <label>Longitudine<input type="number" step="any" min={-180} max={180} value={fulfillment.address?.longitude ?? ""} onChange={event => changeFulfillment({ ...fulfillment, address: { text: fulfillment.address?.text ?? "", latitude: fulfillment.address?.latitude ?? 0, longitude: Number(event.target.value) } })} /></label>
-          </div></>}
+        {fulfillment.mode === "delivery" && <DeliveryAddressField key={group.id} storeId={group.storeId} address={fulfillment.address}
+          search={individualApi.searchDeliveryAddresses} disabled={busy || pending} onChange={address => changeFulfillment({ ...fulfillment, address })} />}
         <OrderSlotSelect store={store} value={fulfillment.slotId} onChange={slotId => changeFulfillment({ ...fulfillment, slotId })} />
         <label>Note per l&apos;ordine<textarea maxLength={1000} value={fulfillment.notes} onChange={event => changeFulfillment({ ...fulfillment, notes: event.target.value })} /></label>
         {promotionsApi && <PromotionSelectionPanel api={promotionsApi} storeId={group.storeId} selection={fulfillment.benefits} disabled={busy || pending} onChange={benefits => changeFulfillment({ ...fulfillment, benefits })} onTermsChange={invalidateQuote} />}
-        <button type="button" disabled={!canCheckout || dirty || !group.participants.some(person => person.lines.length)} onClick={() => void run(verify)}>Verifica totale gruppo</button>
-        {validQuote && <section aria-label="Riepilogo da confermare"><h3>Riepilogo da confermare</h3>{quote.quote.lines.map((line, index) => <p key={`${line.productId}-${index}`}>{line.quantity} × {line.name} · {money(line.quantity * line.unitCents)}<br /><span className={styles.small}>{line.notes}</span></p>)}
+        <button type="button" disabled={!canCheckout || dirty || !group.participants.some(person => person.lines.length) || (fulfillment.mode === "delivery" && !hasDeliveryPoint(fulfillment.address))} onClick={() => void run(verify)}>Verifica totale gruppo</button>
+        {validQuote && <section aria-label="Riepilogo da confermare"><h3>Riepilogo da confermare</h3>{quote.quote.lines.map((line, index) => <p key={`${line.productId}-${index}`}>{line.quantity} × {line.name} · {money(line.quantity * line.unitCents)}<br /><span className={styles.small}>{line.notes}</span>
+          {Boolean(line.composition?.choices.length) && <><br /><span className={styles.small}>{line.composition?.choices.map(choice => `${choice.quantity > 1 ? `${choice.quantity} × ` : ""}${choice.name}`).join(", ")}</span></>}
+        </p>)}
           <PromotionSummary quote={quote.quote} />
           {!quote.quote.promotions && <><p>Consegna: {money(quote.quote.deliveryCents)}</p><p className={styles.total}>Totale: <strong>{money(quote.quote.totalCents)}</strong></p></>}<p>Orario: {formatOrderWindow(quote.quote.slotStartsAt, quote.quote.slotEndsAt, quote.quote.slotTimeZone)}</p></section>}
         <label>Telefono per l&apos;ordine<input type="tel" autoComplete="tel" value={phone} onChange={event => setPhone(event.target.value)} /></label>

@@ -1,25 +1,54 @@
 import { afterEach, expect, it, vi } from "vitest";
-import { createOpenCageStoreGeocoder } from "./store-address";
+import { createGeoapifyStoreGeocoder } from "./store-address";
 
 afterEach(() => vi.unstubAllGlobals());
 
-it("offers only usable addresses and keeps the provider query out of its logs", async () => {
-  const fetchOpenCage = vi.fn(async (url: URL) => {
-    expect(url.origin).toBe("https://api.opencagedata.com");
-    expect(url.searchParams.get("q")).toBe("Via Verdi 10, Torino");
-    expect(url.searchParams.get("no_record")).toBe("1");
+const query = "Via della Tessitura 30, Cavaria con Premezzo";
+const address = "Via della Tessitura, 30, 21044 Cavaria con Premezzo VA, Italia";
+const building = { formatted: address, result_type: "building", housenumber: "30", lat: 45.6934931, lon: 8.8033093 };
+const geocoder = createGeoapifyStoreGeocoder("provider-test-key", "confirmation-test-secret");
+
+it("finds complete addresses and named buildings, discarding imprecise and invalid results", async () => {
+  const fetchGeoapify = vi.fn(async (url: URL, init: RequestInit) => {
+    expect(url.origin + url.pathname).toBe("https://api.geoapify.com/v1/geocode/search");
+    expect(Object.fromEntries(url.searchParams)).toEqual({
+      text: query, apiKey: "provider-test-key", lang: "it", format: "json", limit: "5"
+    });
+    expect(init.redirect).toBe("error");
+    expect(init.signal).toBeInstanceOf(AbortSignal);
     return Response.json({ results: [
-      { formatted: "Via Verdi, Torino", components: { _type: "road" }, geometry: { lat: 45.07, lng: 7.68 } },
-      { formatted: "Via Verdi 10, Torino", components: { house_number: "10" }, geometry: { lat: 45.069, lng: 7.68 } },
-      { formatted: "Cascina Verdi, Torino", components: { _type: "building", house_name: "Cascina Verdi" }, geometry: { lat: 45.08, lng: 7.7 } },
-      { formatted: "Via Verdi 12, Torino", components: { house_number: "12" }, geometry: { lat: 100, lng: 7.68 } }
+      { ...building, formatted: "Via della Tessitura", result_type: "street", housenumber: undefined },
+      building,
+      { ...building, formatted: ` ${address} `, lat: 45.694 },
+      { formatted: "Cascina Verdi, Varese", result_type: "building", name: "Cascina Verdi", lat: 45.82, lon: 8.83 },
+      { ...building, formatted: "Ristorante Verdi, Via della Tessitura 30", result_type: "amenity" },
+      { ...building, formatted: "Via della Tessitura 31", lat: 100 },
+      { ...building, formatted: "Via della Tessitura, edificio senza civico", housenumber: " " },
+      { ...building, formatted: "Varese", result_type: "city" },
+      { ...building, formatted: "Piazza Verdi", result_type: "amenity", housenumber: undefined, name: "Piazza Verdi" }
     ] });
   });
-  vi.stubGlobal("fetch", fetchOpenCage);
-  const geocoder = createOpenCageStoreGeocoder("provider-test-key", "confirmation-test-secret");
+  vi.stubGlobal("fetch", fetchGeoapify);
 
-  await expect(geocoder.search("Via Verdi 10, Torino")).resolves.toEqual([
-    { address: "Via Verdi 10, Torino", latitude: 45.069, longitude: 7.68 },
-    { address: "Cascina Verdi, Torino", latitude: 45.08, longitude: 7.7 }
+  await expect(geocoder.search(query)).resolves.toEqual([
+    { address, latitude: building.lat, longitude: building.lon },
+    { address: "Cascina Verdi, Varese", latitude: 45.82, longitude: 8.83 },
+    { address: "Ristorante Verdi, Via della Tessitura 30", latitude: building.lat, longitude: building.lon }
   ]);
+});
+
+it("returns no candidates when the provider can locate only the street", async () => {
+  vi.stubGlobal("fetch", vi.fn(async () => Response.json({ results: [
+    { formatted: "Via della Tessitura, Cavaria con Premezzo", result_type: "street", lat: 45.69, lon: 8.80 }
+  ] })));
+  await expect(geocoder.search(query)).resolves.toEqual([]);
+});
+
+it("distinguishes provider errors from empty results", async () => {
+  vi.stubGlobal("fetch", vi.fn()
+    .mockResolvedValueOnce(new Response(null, { status: 429 }))
+    .mockResolvedValueOnce(Response.json({ results: null })));
+
+  await expect(geocoder.search(query)).rejects.toThrow("Ricerca indirizzi non disponibile.");
+  await expect(geocoder.search(query)).rejects.toThrow("Risposta di geocodifica non valida.");
 });

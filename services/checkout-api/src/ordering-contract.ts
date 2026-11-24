@@ -1,4 +1,5 @@
 import type { IndividualActor, IndividualApi, IndividualCart, IndividualCheckout, IndividualCheckoutResult, IndividualOrder, IndividualSlot, IndividualStore, IndividualSession, IndividualAction, IndividualQuote, IndividualEvent, IndividualAdditionQuote, IndividualAdditionRequest, IndividualLine, StoreAddressCandidate } from "@pizzaos/domain";
+import type { FoodPreferences, MenuDraft, MenuWorkspace } from "@pizzaos/domain";
 import type { StoreAddressGeocoder } from "./store-address";
 import type { Diagnostics } from "./diagnostics";
 
@@ -9,6 +10,8 @@ export interface OrderingState {
   idempotency: Record<string, { hash: string; orderId: string }>;
   events: IndividualEvent[];
   cursor: number;
+  menuDrafts?: Record<string, { revision: number; drafts: MenuDraft[] }>;
+  foodPreferences?: Record<string, FoodPreferences>;
   protectedOrderCalendars?: Record<string, Record<string, IndividualSlot[]>>;
 }
 /** Transactions serialize all reads/writes; a thrown callback rolls back changes. */
@@ -28,26 +31,37 @@ export interface OrderingPayments {
   refund(input: { intentId: string; key: string }): Promise<ProviderRefund>;
   readRefund(refundId: string): Promise<ProviderRefund>;
 }
+export interface MenuOperations {
+  workspace(actor: IndividualActor | null, storeId: string): Promise<MenuWorkspace>;
+  saveDraft(actor: IndividualActor | null, storeId: string, revision: number, draft: MenuDraft): Promise<MenuWorkspace>;
+  removeDraft(actor: IndividualActor | null, storeId: string, revision: number, draftId: string): Promise<MenuWorkspace>;
+  publish(actor: IndividualActor | null, storeId: string, revision: number, draftId: string): Promise<MenuWorkspace>;
+  imageAccess(actor: IndividualActor | null, storeId: string, imageId?: string): Promise<"published" | "private">;
+  preferences(actor: IndividualActor | null): Promise<FoodPreferences>;
+  savePreferences(actor: IndividualActor | null, value: FoodPreferences): Promise<FoodPreferences>;
+}
 export interface OrderingService {
+  menu?: MenuOperations;
   session(actor: IndividualActor | null): Promise<IndividualSession>;
   stores(actor?: IndividualActor | null): Promise<IndividualStore[]>;
   catalog(storeId: string, actor?: IndividualActor | null): Promise<IndividualStore>;
   quote(cart: IndividualCart, actor?: IndividualActor | null): Promise<IndividualQuote>;
   checkout(actor: IndividualActor | null, input: IndividualCheckout): Promise<IndividualCheckoutResult>;
-  orders(actor: IndividualActor | null, storeId?: string): Promise<IndividualOrder[]>;
+  orders(actor: IndividualActor | null, storeId?: string, customerStoreId?: string): Promise<IndividualOrder[]>;
   reconcile(actor: IndividualActor | null, orderId: string): Promise<IndividualCheckoutResult>;
-  action(actor: IndividualActor | null, orderId: string, input: IndividualAction): Promise<IndividualOrder>;
+  action(actor: IndividualActor | null, orderId: string, input: IndividualAction, customerOnly?: boolean): Promise<IndividualOrder>;
   notes(actor: IndividualActor | null, orderId: string, notes: string): Promise<IndividualOrder>;
   additionQuote(actor: IndividualActor | null, orderId: string, lines: IndividualLine[]): Promise<IndividualAdditionQuote>;
   additions(actor: IndividualActor | null, orderId: string, input: IndividualAdditionRequest): Promise<IndividualCheckoutResult>;
   searchStoreAddresses(actor: IndividualActor | null, storeId: string, query: string): Promise<StoreAddressCandidate[]>;
   saveStore(actor: IndividualActor | null, store: IndividualStore, addressConfirmation?: string): Promise<IndividualStore>;
   invite(actor: IndividualActor | null, storeId: string, email: string): Promise<void>;
-  events(actor: IndividualActor | null, cursor: number, storeId?: string): Promise<{ cursor: number; events: IndividualEvent[] }>;
+  events(actor: IndividualActor | null, cursor: number, storeId?: string, customerStoreId?: string): Promise<{ cursor: number; events: IndividualEvent[] }>;
   /** Reconcile remote operations and acceptance/reservation deadlines, safe across restarts. */
   tick(): Promise<void>;
 }
 export interface RiderOrderingService extends OrderingService {
+  menu: MenuOperations;
   /** Server-only rider entry; generic action never grants rider privileges. */
   riderProgress(actor: IndividualActor | null, orderId: string, action: "dispatch" | "complete"): Promise<IndividualOrder>;
 }

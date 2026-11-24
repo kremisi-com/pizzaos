@@ -64,9 +64,11 @@ function bounded(value: number | undefined, fallback: number, max: number, name:
 /** All consumers share an outbox decorator in the canonical transaction. */
 export function createOperationalEmailServices(options: OrderingServiceOptions & { email: OperationalEmailOptions }) {
   const now = options.now ?? (() => new Date()); const email = options.email;
-  if (email.mode !== undefined && email.mode !== "test" && email.mode !== "live") throw new Error("Configurazione email non valida: mode");
+  const mode = email.mode ?? "test";
+  if (mode !== "test" && mode !== "test_open" && mode !== "live") throw new Error("Configurazione email non valida: mode");
   if (email.environment !== undefined && email.environment !== "test" && email.environment !== "production") throw new Error("Configurazione email non valida: environment");
-  if (email.mode === "live" && email.environment !== "production") throw new Error("Configurazione email non valida: environment");
+  if (mode === "live" && email.environment !== "production") throw new Error("Configurazione email non valida: environment");
+  if (mode === "test_open" && email.environment !== "test") throw new Error("Configurazione email non valida: environment");
   const lease = bounded(email.leaseMs, 60_000, 3_600_000, "leaseMs");
   const base = bounded(email.retryBaseMs, 5000, 86_400_000, "retryBaseMs");
   const max = bounded(email.maxRetryMs, 900_000, 86_400_000, "maxRetryMs");
@@ -106,7 +108,7 @@ export function createOperationalEmailServices(options: OrderingServiceOptions &
         let failure: unknown;
         const recipients = new Set((email.testRecipients ?? []).map(value => value.trim().toLowerCase()).filter(value => validRecipient(value) && !value.includes("*")));
         if (!email.sender || !email.from || !validFrom(email.from)) error = "not_configured";
-        else if (!validRecipient(record.recipient) || ((email.mode ?? "test") === "test" && !recipients.has(record.recipient))) error = "recipient_not_allowed";
+        else if (!validRecipient(record.recipient) || (mode === "test" && !recipients.has(record.recipient))) error = "recipient_not_allowed";
         else {
           try { await email.sender.send({ to: record.recipient, from: email.from, messageId: record.messageId, subject: record.subject, text: record.text }); }
           catch (cause) { error = "smtp_unavailable"; failure = cause; }

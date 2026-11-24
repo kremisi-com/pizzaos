@@ -3,6 +3,7 @@
 import type { IndividualAction, IndividualOrder, IndividualSession, IndividualStore } from "@pizzaos/domain";
 import { Button } from "@pizzaos/ui";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { OperationalCatalog } from "../features/catalog";
 import { SignOutButton } from "../features/identity/components/sign-in-screen";
 import { StoreConfiguration, type StoreConfigurationSection } from "../features/individual-ordering";
 import { OperationalOrders } from "../features/orders";
@@ -27,7 +28,7 @@ function errorText(failure: unknown) {
   return failure instanceof Error ? failure.message : "Operazione non riuscita. Riprova.";
 }
 
-function isSettings(tab: AdminTab): tab is StoreConfigurationSection {
+function isSettings(tab: AdminTab): tab is StoreConfigurationSection | "catalog" {
   return tab === "catalog" || tab === "inventory" || tab === "profile";
 }
 
@@ -44,7 +45,7 @@ function mergeStoreChanges(current: IndividualStore, original: IndividualStore, 
   return next;
 }
 
-export function IndividualOperationsShell({ riderHref }: { riderHref?: string }) {
+export function IndividualOperationsShell({ riderHref, orderingDomain }: { riderHref?: string; orderingDomain?: string }) {
   const api = useMemo(() => createIndividualApi(), []);
   const [tab, setTab] = useState<AdminTab>("dashboard");
   const [session, setSession] = useState<IndividualSession | null>(null);
@@ -260,10 +261,13 @@ export function IndividualOperationsShell({ riderHref }: { riderHref?: string })
     {isSettings(tab) && session?.actor && <div className={styles.operationalSettings}>
       {tab === "profile" && session.superadmin && !creating &&
         <Button type="button" variant="secondary" disabled={busy} onClick={() => { setCreating(true); setError(""); setNotice(""); }}>Nuova sede</Button>}
-      {creating || store ? <StoreConfiguration key={creating ? "new" : `${storeId}:${tab}:${configurationVersion}`}
+      {tab === "catalog" && store && <OperationalCatalog key={storeId} api={api} storeId={storeId}
+        ingredients={store.ingredients} onPublished={refresh} />}
+      {tab !== "catalog" && (creating || store) && <StoreConfiguration key={creating ? "new" : `${storeId}:${tab}:${configurationVersion}`}
         store={creating ? emptyStore : store ?? emptyStore} isNew={creating} section={tab} busy={busy}
-        onSearchAddress={api.searchStoreAddresses} onSave={save} />
-        : storeId && !catalogError && <p role="status">Caricamento configurazione…</p>}
+        orderingDomain={orderingDomain} canPublish={session.superadmin}
+        onSearchAddress={api.searchStoreAddresses} onSave={save} />}
+      {storeId && !store && !creating && !catalogError && <p role="status">Caricamento configurazione…</p>}
       {tab === "profile" && creating && <Button type="button" variant="secondary" disabled={busy} onClick={() => setCreating(false)}>Annulla creazione</Button>}
       {tab === "profile" && session.superadmin && storeId && !creating &&
         <form className={styles.operationalInvite} onSubmit={event => { event.preventDefault(); void invite(); }}>

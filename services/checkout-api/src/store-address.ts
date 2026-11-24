@@ -49,16 +49,11 @@ function object(value: unknown): Record<string, unknown> | undefined {
 
 function parseLocation(value: unknown): StoreLocation | undefined {
   const result = object(value);
-  const geometry = object(result?.geometry);
-  const components = object(result?.components);
-  const address = typeof result?.formatted === "string" ? result.formatted.trim() : "";
-  const latitude = geometry?.lat;
-  const longitude = geometry?.lng;
-  // A street or city centroid is not precise enough to anchor delivery zones.
-  const houseNumber = components?.house_number;
-  const buildingName = components?.house_name ?? components?.building;
-  const hasNumber = typeof houseNumber === "string" && houseNumber.trim();
-  const hasNamedBuilding = components?._type === "building" && typeof buildingName === "string" && buildingName.trim();
+  if (!result || (result.result_type !== "building" && result.result_type !== "amenity")) return;
+  const { housenumber, name, lat: latitude, lon: longitude } = result;
+  const address = typeof result.formatted === "string" ? result.formatted.trim() : "";
+  const hasNumber = typeof housenumber === "string" && housenumber.trim().length > 0;
+  const hasNamedBuilding = result.result_type === "building" && typeof name === "string" && name.trim().length > 0;
   if (!hasNumber && !hasNamedBuilding) return;
   if (!address || address.length > storeAddressLimit ||
     typeof latitude !== "number" || !Number.isFinite(latitude) || Math.abs(latitude) > 90 ||
@@ -66,15 +61,15 @@ function parseLocation(value: unknown): StoreLocation | undefined {
   return { address, latitude, longitude };
 }
 
-export function createOpenCageStoreGeocoder(key: string, signingSecret: string): StoreAddressGeocoder {
+export function createGeoapifyStoreGeocoder(apiKey: string, signingSecret: string): StoreAddressGeocoder {
   return {
     signingSecret,
     async search(query) {
-      const url = new URL("https://api.opencagedata.com/geocode/v1/json");
+      const url = new URL("https://api.geoapify.com/v1/geocode/search");
       url.search = new URLSearchParams({
-        q: query, key, language: "it", limit: "5", address_only: "1", no_annotations: "1", no_record: "1"
+        text: query, apiKey, lang: "it", format: "json", limit: "5"
       }).toString();
-      const response = await fetch(url, { redirect: "error", signal: AbortSignal.timeout(5000) });
+      const response = await fetch(url, { redirect: "error", signal: AbortSignal.timeout(10_000) });
       if (!response.ok) throw new Error("Ricerca indirizzi non disponibile.");
       const results = object(await response.json())?.results;
       if (!Array.isArray(results)) throw new Error("Risposta di geocodifica non valida.");

@@ -9,9 +9,12 @@ import type { Pool } from "pg";
 import type { IndividualActor } from "@pizzaos/domain";
 import { createDemoAccess, DEMO_EMAIL } from "./demo-access";
 import type { Diagnostics } from "./diagnostics";
+import { orderingSubdomainForOrigin } from "./ordering-sites";
 
 export interface OrderingAuthOptions {
   pool: Pool; secret: string; proxySecret: string; origins: string[];
+  orderingDomain?: string;
+  orderingAuthOrigin?: string;
   googleClientId: string; googleClientSecret: string; smtpUrl: string; emailFrom: string;
   demoPassword?: string;
   demoHandoff?: { secret: string; origin: string };
@@ -26,12 +29,16 @@ function equalSecret(actual: unknown, expected: string): boolean {
 export function createOrderingAuth(options: OrderingAuthOptions) {
   const adapter = PostgresAdapter(options.pool);
   const demo = createDemoAccess({ secret: options.secret, password: options.demoPassword, handoff: options.demoHandoff });
+  const tenantOrigin = (origin: string) => !!options.orderingDomain && !options.origins.includes(origin) && !!orderingSubdomainForOrigin(origin, options.orderingDomain);
+  const knownOrigin = (value: unknown): value is string => typeof value === "string" && (options.origins.includes(value) || tenantOrigin(value));
   function originOf(request: FastifyRequest): string {
     const origin = request.headers["x-pizzaos-origin"];
-    if (typeof origin !== "string" || !options.origins.includes(origin)) throw new Error("Origine non consentita.");
+    if (!knownOrigin(origin)) throw new Error("Origine non consentita.");
     return origin;
   }
   function config(origin: string): AuthConfig {
+    const proxyOrigin = options.orderingDomain && options.orderingAuthOrigin;
+    const googleRedirectProxy = proxyOrigin && (origin === proxyOrigin || tenantOrigin(origin)) ? `${proxyOrigin}/api/pilot/auth` : undefined;
     return {
       secret: options.secret, adapter, basePath: "/api/pilot/auth", trustHost: true,
       useSecureCookies: origin.startsWith("https:"),
@@ -40,7 +47,8 @@ export function createOrderingAuth(options: OrderingAuthOptions) {
       providers: [
         // Linking is limited to Google's cryptographically authenticated profile
         // and the verified-email guard below; magic-link identity uses that email.
-        Google({ clientId: options.googleClientId, clientSecret: options.googleClientSecret, allowDangerousEmailAccountLinking: true }),
+        Google({ clientId: options.googleClientId, clientSecret: options.googleClientSecret, allowDangerousEmailAccountLinking: true,
+          ...(googleRedirectProxy ? { redirectProxyUrl: googleRedirectProxy } : {}) }),
         Nodemailer({ server: options.smtpUrl, from: options.emailFrom, maxAge: 15 * 60,
           async sendVerificationRequest({ identifier, url }) {
             const result = await createTransport(options.smtpUrl).sendMail({ to: identifier, from: options.emailFrom, subject: "Accedi a PizzaOS", text: `Apri questo link per accedere a PizzaOS:\n${url}\n\nIl link scade tra 15 minuti. Se non hai richiesto l'accesso, ignora questa email.` });
@@ -61,10 +69,11 @@ export function createOrderingAuth(options: OrderingAuthOptions) {
   }
   return {
     isDemoRequest(request: FastifyRequest) {
-      return demo.isActive(typeof request.headers.cookie === "string" ? request.headers.cookie : "", originOf(request));
+      const origin = originOf(request);
+      return !tenantOrigin(origin) && demo.isActive(typeof request.headers.cookie === "string" ? request.headers.cookie : "", origin);
     },
     authorizeProxy(request: FastifyRequest) {
-      return equalSecret(request.headers["x-pizzaos-proxy-secret"], options.proxySecret) && typeof request.headers["x-pizzaos-origin"] === "string" && options.origins.includes(request.headers["x-pizzaos-origin"]);
+      return equalSecret(request.headers["x-pizzaos-proxy-secret"], options.proxySecret) && knownOrigin(request.headers["x-pizzaos-origin"]);
     },
     async authHandler(request: FastifyRequest): Promise<Response> {
       const origin = originOf(request);
@@ -73,7 +82,15 @@ export function createOrderingAuth(options: OrderingAuthOptions) {
       headers.set("host", new URL(origin).host);
       const body = request.method === "GET" ? undefined : typeof request.body === "string" ? request.body : JSON.stringify(request.body);
       const webRequest = new Request(new URL(request.url, origin), { method: request.method, headers, body });
-      const demoResponse = await demo.handle(webRequest.clone());
+      const path = new URL(webRequest.url).pathname;
+      const tenant = tenantOrigin(origin);
+      if (tenant && path.startsWith("/api/pilot/auth/demo")) {
+        if (request.method === "GET" && path === "/api/pilot/auth/demo") {
+          return Response.json({ enabled: false, active: false }, { headers: { "cache-control": "no-store" } });
+        }
+        return Response.json({ code: "not_found", message: "Accesso demo non disponibile." }, { status: 404 });
+      }
+      const demoResponse = tenant ? undefined : await demo.handle(webRequest.clone());
       if (demoResponse) return demoResponse;
       if (new URL(webRequest.url).pathname === "/api/pilot/auth/session" && demo.isActive(headers.get("cookie") ?? "", origin)) return Response.json(null, { headers: { "cache-control": "no-store" } });
       const response = await Auth(webRequest, config(origin));
@@ -84,7 +101,7 @@ export function createOrderingAuth(options: OrderingAuthOptions) {
     },
     async authenticate(request: FastifyRequest): Promise<IndividualActor | null> {
       const origin = originOf(request);
-      if (demo.isActive(typeof request.headers.cookie === "string" ? request.headers.cookie : "", origin)) throw Object.assign(new Error("La demo non può accedere alle operazioni reali."), { statusCode: 403, code: "demo_session" });
+      if (!tenantOrigin(origin) && demo.isActive(typeof request.headers.cookie === "string" ? request.headers.cookie : "", origin)) throw Object.assign(new Error("La demo non può accedere alle operazioni reali."), { statusCode: 403, code: "demo_session" });
       const response = await Auth(new Request(`${origin}/api/pilot/auth/session`, { headers: { cookie: typeof request.headers.cookie === "string" ? request.headers.cookie : "" } }), config(origin));
       const session: unknown = await response.json();
       if (!session || typeof session !== "object" || !("user" in session)) return null;

@@ -1,0 +1,1 @@
+- [x] **store-subdomains**: assegnazione dal profilo, isolamento delle API cliente e accesso sulla sede.

@@ -1,12 +1,15 @@
 import { createHash, randomUUID } from "node:crypto";
-import { createDefaultWeeklyOrderSchedule } from "@pizzaos/domain";
+import { createDefaultWeeklyOrderSchedule, isOrderingSubdomain, resolveMenuComposition } from "@pizzaos/domain";
 import type {
   IndividualActor, IndividualCart, IndividualCheckoutResult, IndividualErrorCode,
-  IndividualOrder, IndividualQuote, IndividualSlot, IndividualStore, IndividualAction, IndividualAddition, IndividualAdditionQuote, IndividualLine
+  IndividualOrder, IndividualProduct, IndividualQuote, IndividualSlot, IndividualStore, MenuDraft, MenuWorkspace, IndividualAction, IndividualAddition, IndividualAdditionQuote, IndividualLine
 } from "@pizzaos/domain";
 import type { RiderOrderingService, OrderingServiceOptions, OrderingState, ProviderPayment, ProviderRefund } from "./ordering-contract";
 import { normalizePromotionSelection } from "./promotions/selection";
 import { addressConfirmation, readAddressConfirmation, storeAddressLimit, storeLocationKey } from "./store-address";
+import {
+  initialMenuWorkspace, normalizeFoodPreferences, validateDraftHeader, validateMenuDraft, validateMenuFood, validateMenuSelections
+} from "./menu-catalog";
 import { activateOrderCalendar, normalizeOrderSchedule, protectCalendarChanges, protectedOrderDates, upcomingOrderSlots } from "./order-calendar";
 
 interface Reservation { ingredients: Record<string, number>; slotId: string; }
@@ -26,6 +29,7 @@ export class OrderingError extends Error {
 }
 
 function fail(code: IndividualErrorCode, message: string): never { throw new OrderingError(code, message); }
+function invalid(message: string): never { return fail("invalid_input", message); }
 function record(value: unknown): value is Record<string, unknown> { return typeof value === "object" && value !== null && !Array.isArray(value); }
 function text(value: unknown, maximum = 200, allowEmpty = false): asserts value is string {
   if (typeof value !== "string" || (!allowEmpty && !value.trim()) || value.length > maximum) fail("invalid_input", "Testo mancante o non valido.");
@@ -89,6 +93,7 @@ function validStore(store: IndividualStore): void {
   for (const ingredient of store.ingredients) {
     if (!record(ingredient)) fail("invalid_input", "Ingrediente non valido.");
     identifier(ingredient.id); text(ingredient.name); integer(ingredient.stock);
+    if (ingredient.food !== undefined) validateMenuFood(ingredient.food, invalid);
   }
   unique(store.ingredients.map(item => item.id)); unique(store.products.map(item => item.id)); unique(store.slots.map(item => item.id));
   const ids = new Set(store.ingredients.map(item => item.id));
@@ -97,10 +102,11 @@ function validStore(store: IndividualStore): void {
     identifier(product.id); text(product.name); text(product.description, 2000, true); integer(product.priceCents);
     if (typeof product.available !== "boolean" || !Array.isArray(product.options) || !Array.isArray(product.allergens)) fail("invalid_input", "Prodotto incompleto.");
     product.allergens.forEach(allergen => text(allergen)); recipeValid(product.ingredients, ids);
-    unique(product.options.map(option => option.id));
     for (const option of product.options) {
+      if (!record(option)) invalid("Opzione prodotto non valida.");
       identifier(option.id); text(option.name); integer(option.priceCents); recipeValid(option.ingredients, ids);
     }
+    unique(product.options.map(option => option.id));
   }
   for (const slot of store.slots) {
     identifier(slot.id); text(slot.startsAt); integer(slot.capacity);
@@ -122,10 +128,14 @@ function validCart(value: IndividualCart): void {
   if (!Array.isArray(value.lines) || value.lines.length === 0 || value.lines.length > 100) fail("invalid_input", "Inserisci almeno un prodotto.");
   for (const line of value.lines) {
     if (!record(line)) fail("invalid_input", "Riga carrello non valida.");
-    if (Object.keys(line).some(key => !["productId", "quantity", "notes", "optionIds"].includes(key))) fail("invalid_input", "Campi riga non validi.");
+    if (Object.keys(line).some(key => !["productId", "quantity", "notes", "optionIds", "selections"].includes(key))) fail("invalid_input", "Campi riga non validi.");
     text(line.productId); integer(line.quantity, 1); text(line.notes, 1000, true);
     if (line.quantity > 100 || !Array.isArray(line.optionIds)) fail("invalid_input", "Quantità o opzioni non valide.");
     line.optionIds.forEach(id => text(id)); unique(line.optionIds);
+    if (line.selections !== undefined) {
+      if (line.optionIds.length) invalid("Usa un solo formato per le scelte prodotto.");
+      validateMenuSelections(line.selections, invalid);
+    }
   }
   if (value.mode === "delivery") {
     if (!record(value.address)) fail("invalid_input", "Inserisci l'indirizzo di consegna.");
@@ -136,11 +146,37 @@ function validCart(value: IndividualCart): void {
 function cleanCart(cart: IndividualCart): IndividualCart {
   return {
     storeId: cart.storeId, mode: cart.mode, slotId: cart.slotId, notes: cart.notes,
-    lines: cart.lines.map(line => ({ productId: line.productId, quantity: line.quantity, notes: line.notes, optionIds: [...line.optionIds].sort() })),
+    lines: cart.lines.map(line => ({ productId: line.productId, quantity: line.quantity, notes: line.notes, optionIds: [...line.optionIds].sort(),
+      ...(line.selections !== undefined ? { selections: [...line.selections].sort((left, right) => left.optionId.localeCompare(right.optionId))
+        .map(({ optionId, quantity }) => ({ optionId, quantity })) } : {}) })),
     ...(cart.benefits && (cart.benefits.couponCodes.length || cart.benefits.redeemReward) ? { benefits: normalizePromotionSelection(cart.benefits) } : {}),
     ...(cart.mode === "delivery" && cart.address ? { address: { text: cart.address.text, latitude: cart.address.latitude, longitude: cart.address.longitude } } : {})
   };
 }
+function catalogChanged(state: State, storeId: string) {
+  state.cursor += 1;
+  state.events.push({ cursor: state.cursor, storeId, orderId: "", revision: state.cursor });
+}
+
+function describeFood(product: IndividualProduct, store: IndividualStore): IndividualProduct {
+  const used = new Set([...Object.keys(product.ingredients), ...product.options.flatMap(option => Object.keys(option.ingredients))]);
+  return { ...product, foodIngredients: store.ingredients.filter(item => used.has(item.id))
+    .map(({ id, name, food }) => ({ id, name, ...(food ? { food } : {}) })) };
+}
+
+function publicProduct(product: IndividualProduct, store: IndividualStore, reserved: Record<string, number>): IndividualProduct {
+  const remaining = new Map(store.ingredients.map(item => [item.id, item.stock - (reserved[item.id] ?? 0)]));
+  const removable = new Set(product.options.flatMap(option => option.removesIngredientIds ?? []));
+  const possible = (recipe: Record<string, number>) => Object.entries(recipe).every(([id, units]) => removable.has(id) || (remaining.get(id) ?? 0) >= units);
+  const base = Object.entries(product.ingredients).filter(([id]) => !removable.has(id));
+  const managed = Boolean(store.menu || product.groups);
+  const maxAvailable = managed && base.length ? Math.max(0, Math.min(...base.map(([id, units]) => Math.floor((remaining.get(id) ?? 0) / units)))) : undefined;
+  return { ...(managed ? describeFood(product, store) : product), available: product.available && possible(product.ingredients),
+    ...(managed ? { baseIngredientIds: Object.keys(product.ingredients), ...(maxAvailable !== undefined ? { maxAvailable } : {}) } : {}),
+    ingredients: {}, options: product.options.map(option => ({ ...option, ingredients: {},
+      ...(managed ? { ingredientIds: Object.keys(option.ingredients), available: possible(option.ingredients) } : {}) })) };
+}
+
 function distanceKm(a: { latitude: number; longitude: number }, b: { latitude: number; longitude: number }): number {
   const radians = Math.PI / 180;
   const dLat = (b.latitude - a.latitude) * radians; const dLon = (b.longitude - a.longitude) * radians;
@@ -221,7 +257,6 @@ export function createOrderingService(options: OrderingServiceOptions): RiderOrd
     const lines = cart.lines.map(line => {
       const product = store.products.find(item => item.id === line.productId);
       if (!product?.available) fail("product_unavailable", "Un prodotto non è disponibile: correggi il carrello.");
-      let unitCents = product.priceCents;
       const addRecipe = (requirements: Record<string, number>) => {
         for (const [ingredientId, units] of Object.entries(requirements)) {
           const next = (recipe[ingredientId] ?? 0) + units * line.quantity;
@@ -229,15 +264,29 @@ export function createOrderingService(options: OrderingServiceOptions): RiderOrd
           recipe[ingredientId] = next;
         }
       };
+      const optionIds = [...line.optionIds].sort();
+      const result = { productId: product.id, name: product.name, quantity: line.quantity, unitCents: product.priceCents, optionIds, notes: line.notes };
+      if (store.menu || product.groups) {
+        const selections = line.selections ?? optionIds.map(optionId => ({ optionId, quantity: 1 }));
+        const ordered = [...selections].sort((left, right) => left.optionId.localeCompare(right.optionId));
+        const resolved = resolveMenuComposition(describeFood(product, store), ordered);
+        if (!resolved.valid) fail("customization_changed", "Controlla le scelte di un prodotto nel carrello.");
+        addRecipe(resolved.recipe);
+        subtotalCents += resolved.unitCents * line.quantity;
+        if (!Number.isSafeInteger(subtotalCents)) invalid("Totale non valido.");
+        return { ...result, unitCents: resolved.unitCents, composition: resolved.composition };
+      }
+      if (line.selections?.length) fail("customization_changed", "Personalizzazione non più disponibile.");
       addRecipe(product.ingredients);
       for (const optionId of line.optionIds) {
         const option = product.options.find(item => item.id === optionId);
         if (!option) fail("invalid_input", "Personalizzazione non più disponibile.");
-        unitCents += option.priceCents; addRecipe(option.ingredients);
+        result.unitCents += option.priceCents;
+        addRecipe(option.ingredients);
       }
-      subtotalCents += unitCents * line.quantity;
-      if (!Number.isSafeInteger(subtotalCents) || !Number.isSafeInteger(unitCents)) fail("invalid_input", "Totale non valido.");
-      return { productId: product.id, name: product.name, quantity: line.quantity, unitCents, optionIds: [...line.optionIds].sort(), notes: line.notes };
+      subtotalCents += result.unitCents * line.quantity;
+      if (!Number.isSafeInteger(subtotalCents) || !Number.isSafeInteger(result.unitCents)) invalid("Totale non valido.");
+      return result;
     });
     const reserved = ingredientsReserved(state, store.id);
     for (const [ingredientId, quantity] of Object.entries(recipe)) {
@@ -260,7 +309,7 @@ export function createOrderingService(options: OrderingServiceOptions): RiderOrd
     if (!Number.isSafeInteger(totalCents)) fail("invalid_input", "Totale non valido.");
     const details = { subtotalCents, deliveryCents, totalCents, slotId: slot.id, slotStartsAt: slot.startsAt,
       ...(slot.endsAt ? { slotEndsAt: slot.endsAt, slotTimeZone: slot.timeZone } : {}), lines };
-    return { quote: { ...details, fingerprint: hash({ cart: cleanCart(cart), details, recipe }) }, recipe };
+    return { quote: { ...details, fingerprint: hash({ cart: cleanCart(cart), details, recipe, ...(store.menu ? { menu: store.menu.id } : {}) }) }, recipe };
   }
   function submitted(order: IndividualOrder) {
     const instant = now().getTime(); const minutes = (Date.parse(order.quote.slotStartsAt) - instant) / 60_000;
@@ -527,36 +576,36 @@ export function createOrderingService(options: OrderingServiceOptions): RiderOrd
     const instant = now().getTime();
     ensureCalendar(state, store, instant);
     const operatorView = member(state, actor, store.id);
-    if (operatorView) return store.orderSchedule ? {
-      ...copy(store), slots: remainingSlots(state, store, instant), protectedOrderDates: protectedOrderDates(state, store, instant)
-    } : copy(store);
+    if (operatorView) {
+      const operatorStore = copy(store);
+      return store.orderSchedule ? {
+        ...operatorStore, slots: remainingSlots(state, store, instant), protectedOrderDates: protectedOrderDates(state, store, instant)
+      } : operatorStore;
+    }
     const reserved = ingredientsReserved(state, store.id);
     const publicStore = copy(store);
     delete publicStore.address;
     delete publicStore.orderSchedule;
     delete publicStore.protectedOrderDates;
     publicStore.ingredients = [];
-    publicStore.products = publicStore.products.map(product => ({ ...product,
-      available: product.available && Object.entries(product.ingredients).every(([ingredientId, quantity]) =>
-        (store.ingredients.find(item => item.id === ingredientId)?.stock ?? 0) - (reserved[ingredientId] ?? 0) >= quantity),
-      ingredients: {}, options: product.options.map(option => ({ ...option, ingredients: {} }))
-    }));
+    publicStore.products = store.products.map(product => publicProduct(product, store, reserved));
     publicStore.slots = remainingSlots(state, store, instant);
     return publicStore;
   }
-  async function performAction(actor: IndividualActor | null, orderId: string, input: IndividualAction, riderOnly = false): Promise<IndividualOrder> {
+  async function performAction(actor: IndividualActor | null, orderId: string, input: IndividualAction, surface?: "rider" | "customer"): Promise<IndividualOrder> {
       const user = authenticated(actor);
       if (!record(input)) fail("invalid_input", "Azione non valida.");
       const permittedActions = ["accept", "wait_for_customer", "cancel", "prepare", "ready", "dispatch", "complete", "retry_refund"];
       if (!permittedActions.includes(input.action)) fail("invalid_input", "Azione sconosciuta.");
       const result = await transact(state => {
         const order = getOrder(state, orderId);
-        const isOperator = member(state, user, order.storeId);
-        if (riderOnly) {
+      const isOperator = surface !== "customer" && member(state, user, order.storeId);
+      if (surface === "rider") {
           if ((input.action !== "dispatch" && input.action !== "complete") || !options.authorizeRiderProgress?.(state, user, order, input.action)) {
             fail("forbidden", "Non puoi aggiornare questa consegna.");
           }
         } else {
+        if (surface === "customer" && order.customerId !== user.id) fail("not_found", "Ordine non disponibile.");
           viewer(state, user, order);
           if (input.action !== "cancel" && !isOperator) fail("forbidden", "Questa azione è riservata agli operatori della sede.");
         }
@@ -614,7 +663,102 @@ export function createOrderingService(options: OrderingServiceOptions): RiderOrd
       if (result.expired && input.action !== "cancel") fail("invalid_transition", "L'ordine è scaduto ed è stato annullato.");
       return transact(state => copy(getOrder(state, orderId)));
   }
+  function workspace(state: State, store: IndividualStore): MenuWorkspace {
+    const saved = state.menuDrafts?.[store.id];
+    const initial = initialMenuWorkspace(store);
+    return { revision: saved?.revision ?? 0, drafts: saved?.drafts ?? [],
+      published: store.menu ? { ...store.menu, products: store.products } : initial.published };
+  }
+  function menuRevision(current: MenuWorkspace, revision: number) {
+    integer(revision);
+    if (revision !== current.revision) fail("revision_conflict", "Il menu è cambiato. Ricarica prima di salvare.");
+  }
+  function saveMenuWorkspace(state: State, storeId: string, current: MenuWorkspace, drafts: MenuDraft[]) {
+    (state.menuDrafts ??= {})[storeId] = { revision: current.revision + 1, drafts };
+  }
+
   const service: RiderOrderingService = {
+    menu: {
+      workspace(actor, storeId) {
+        return transact(state => { operator(state, actor, storeId); return copy(workspace(state, getStore(state, storeId))); });
+      },
+      saveDraft(actor, storeId, revision, draft) {
+        return transact(state => {
+          operator(state, actor, storeId);
+          const store = getStore(state, storeId);
+          const current = workspace(state, store);
+          menuRevision(current, revision);
+          validateDraftHeader(draft, invalid);
+          if (draft.id === current.published.id) invalid("Duplica il menu pubblicato per modificarlo.");
+          validStore({ ...store, products: draft.products });
+          validateMenuDraft(draft, store, invalid);
+          const previous = current.drafts.findIndex(item => item.id === draft.id);
+          if (previous < 0 && current.drafts.length >= 20) invalid("Hai raggiunto il numero massimo di bozze.");
+          const drafts = previous < 0 ? [...current.drafts, copy(draft)] : current.drafts.map(item => item.id === draft.id ? copy(draft) : item);
+          saveMenuWorkspace(state, storeId, current, drafts);
+          return copy(workspace(state, store));
+        });
+      },
+      removeDraft(actor, storeId, revision, draftId) {
+        return transact(state => {
+          operator(state, actor, storeId);
+          identifier(draftId);
+          const store = getStore(state, storeId);
+          const current = workspace(state, store);
+          menuRevision(current, revision);
+          const drafts = current.drafts.filter(item => item.id !== draftId);
+          if (drafts.length === current.drafts.length) fail("not_found", "Bozza del menu non trovata.");
+          saveMenuWorkspace(state, storeId, current, drafts);
+          return copy(workspace(state, store));
+        });
+      },
+      publish(actor, storeId, revision, draftId) {
+        return transact(state => {
+          operator(state, actor, storeId);
+          identifier(draftId);
+          const store = getStore(state, storeId);
+          const current = workspace(state, store);
+          menuRevision(current, revision);
+          const draft = current.drafts.find(item => item.id === draftId);
+          if (!draft) fail("not_found", "Bozza del menu non trovata.");
+          validStore({ ...store, products: draft.products });
+          validateMenuDraft(draft, store, invalid, true);
+          const { products, ...menu } = copy(draft);
+          store.menu = menu;
+          store.products = products;
+          const drafts = current.drafts.filter(item => item.id !== draftId);
+          if (current.published.products.length) drafts.push(current.published);
+          saveMenuWorkspace(state, storeId, current, drafts);
+          catalogChanged(state, storeId);
+          return copy(workspace(state, store));
+        });
+      },
+      imageAccess(actor, storeId, imageId) {
+        return transact(state => {
+          const store = getStore(state, storeId);
+          if (imageId !== undefined) {
+            identifier(imageId);
+            if (store.products.some(product => product.imageId === imageId)) return "published";
+            if (!member(state, actor, storeId)) fail("not_found", "Foto non trovata.");
+          } else operator(state, actor, storeId);
+          return "private";
+        });
+      },
+      preferences(actor) {
+        const { id } = authenticated(actor);
+        return transact(state => copy(state.foodPreferences && Object.hasOwn(state.foodPreferences, id) ? state.foodPreferences[id] : { avoid: [] }));
+      },
+      savePreferences(actor, value) {
+        const { id } = authenticated(actor);
+        identifier(id);
+        const preferences = normalizeFoodPreferences(value, invalid);
+        return transact(state => {
+          if (preferences.avoid.length) (state.foodPreferences ??= {})[id] = preferences;
+          else if (state.foodPreferences) delete state.foodPreferences[id];
+          return copy(preferences);
+        });
+      }
+    },
     async session(actor) {
       if (!actor) return { actor: null, superadmin: false, storeIds: [] };
       authenticated(actor);
@@ -665,11 +809,13 @@ export function createOrderingService(options: OrderingServiceOptions): RiderOrd
       });
       return order.method === "card" && order.status === "pending_payment" ? paymentOrder(order.id) : { order };
     },
-    async orders(actor, storeId) {
+    async orders(actor, storeId, customerStoreId) {
       const user = authenticated(actor);
       return transact(state => {
         if (storeId !== undefined) operator(state, user, storeId);
-        return Object.values(state.orders).filter(order => storeId === undefined ? order.customerId === user.id : order.storeId === storeId)
+        return Object.values(state.orders).filter(order => storeId === undefined
+          ? order.customerId === user.id && (customerStoreId === undefined || order.storeId === customerStoreId)
+          : order.storeId === storeId)
           .sort((a, b) => b.createdAt.localeCompare(a.createdAt)).map(copy);
       });
     },
@@ -680,8 +826,8 @@ export function createOrderingService(options: OrderingServiceOptions): RiderOrd
       const additions = await settleAdditions(orderId);
       return { order: additions.order, ...(original.clientSecret || additions.clientSecret ? { clientSecret: original.clientSecret ?? additions.clientSecret } : {}) };
     },
-    action(actor, orderId, input) { return performAction(actor, orderId, input); },
-    riderProgress(actor, orderId, action) { return performAction(actor, orderId, { action }, true); },
+    action(actor, orderId, input, customerOnly) { return performAction(actor, orderId, input, customerOnly ? "customer" : undefined); },
+    riderProgress(actor, orderId, action) { return performAction(actor, orderId, { action }, "rider"); },
     async notes(actor, orderId, notes) {
       const user = authenticated(actor); text(notes, 2000, true);
       return transact(state => {
@@ -774,6 +920,15 @@ export function createOrderingService(options: OrderingServiceOptions): RiderOrd
         const existing = Object.hasOwn(state.stores, input.id) ? state.stores[input.id] : undefined;
         if (!existing && !isSuper(user)) fail("forbidden", "Solo il superadmin può creare una sede.");
         if (existing) operator(state, user, input.id);
+        const subdomain = input.orderingSubdomain;
+        const currentSubdomain = existing?.orderingSubdomain;
+        if (subdomain !== undefined && subdomain !== currentSubdomain) {
+          if (!isSuper(user)) fail("forbidden", "Solo il superadmin può assegnare il sottodominio.");
+          if (!isOrderingSubdomain(subdomain)) fail("invalid_input", "Sottodominio non valido o riservato.");
+          if (currentSubdomain || Object.values(state.stores).some(store => store.orderingSubdomain === subdomain)) {
+            fail("revision_conflict", "Il sottodominio è già assegnato. Scegli un indirizzo disponibile per una sede senza sottodominio.");
+          }
+        }
         let next = input;
         if (confirmation !== undefined) {
           const geocoding = options.storeGeocoding;
@@ -821,12 +976,24 @@ export function createOrderingService(options: OrderingServiceOptions): RiderOrd
             if (slot && (slot.capacity < slotCount(state, input.id, slot.id) || (active && Date.parse(slot.startsAt) !== Date.parse(order.quote.slotStartsAt)))) fail("slot_unavailable", "La nuova fascia non copre gli ordini già ricevuti.");
           }
         }
+        if (existing?.menu) {
+          next = { ...next, menu: existing.menu, products: existing.products };
+        } else if (next.menu) {
+          next = { ...next };
+          delete next.menu;
+        }
         validStore(next);
+        if (next.menu) validateMenuDraft({ ...next.menu, products: next.products }, next, invalid, true);
         if (existing) protectCalendarChanges(state, existing, next, instant, occupied);
         const saved = copy(next);
+        if (currentSubdomain) saved.orderingSubdomain = currentSubdomain;
         delete saved.protectedOrderDates;
         state.stores[input.id] = saved;
-        state.cursor += 1; state.events.push({ cursor: state.cursor, storeId: input.id, orderId: "", revision: state.cursor });
+        if (existing && !existing.menu && JSON.stringify(existing.products) !== JSON.stringify(saved.products)) {
+          const current = workspace(state, existing);
+          saveMenuWorkspace(state, input.id, current, current.drafts);
+        }
+        catalogChanged(state, input.id);
         return visibleStore(state, saved, user);
       });
     },
@@ -838,11 +1005,12 @@ export function createOrderingService(options: OrderingServiceOptions): RiderOrd
         if (!state.memberships.some(item => item.storeId === storeId && item.email === normalized)) state.memberships.push({ storeId, email: normalized });
       });
     },
-    async events(actor, cursor, storeId) {
+    async events(actor, cursor, storeId, customerStoreId) {
       const user = authenticated(actor); integer(cursor);
       return transact(state => {
         if (storeId !== undefined) operator(state, user, storeId);
-        const events = state.events.filter(event => event.cursor > cursor && (storeId !== undefined ? event.storeId === storeId
+        const events = state.events.filter(event => event.cursor > cursor && (customerStoreId === undefined || event.storeId === customerStoreId)
+          && (storeId !== undefined ? event.storeId === storeId
           : (event.orderId ? state.orders[event.orderId]?.customerId === user.id : false)));
         return { cursor: state.cursor, events: copy(events) };
       });

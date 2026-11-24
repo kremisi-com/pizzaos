@@ -1,4 +1,4 @@
-import type { IndividualCart, IndividualDraft, PromotionSelection } from "@pizzaos/domain";
+import type { IndividualCart, IndividualDraft, MenuSelection, PromotionSelection } from "@pizzaos/domain";
 
 const KEY = "pizzaos.individual-cart.v1";
 const MAX_AGE = 7 * 24 * 60 * 60 * 1000;
@@ -13,6 +13,13 @@ function isSelection(value: unknown): value is PromotionSelection {
     && new Set(selection.couponCodes.map(code => String(code).trim().toUpperCase())).size === selection.couponCodes.length;
 }
 
+function isMenuSelection(value: unknown): value is MenuSelection {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return false;
+  const selection = value as Partial<MenuSelection>;
+  return typeof selection.optionId === "string" && selection.optionId.length > 0
+    && Number.isInteger(selection.quantity) && (selection.quantity ?? 0) > 0;
+}
+
 export function isIndividualCart(value: unknown): value is IndividualCart {
   if (!value || typeof value !== "object") return false;
   const cart = value as Partial<IndividualCart>;
@@ -22,7 +29,9 @@ export function isIndividualCart(value: unknown): value is IndividualCart {
     && (cart.benefits === undefined || isSelection(cart.benefits))
     && Array.isArray(cart.lines) && cart.lines.every(line => line && typeof line.productId === "string"
       && Number.isInteger(line.quantity) && line.quantity > 0 && typeof line.notes === "string"
-      && Array.isArray(line.optionIds) && line.optionIds.every((id: unknown) => typeof id === "string"))
+      && Array.isArray(line.optionIds) && line.optionIds.every((id: unknown) => typeof id === "string")
+      && (line.selections === undefined || (Array.isArray(line.selections) && line.selections.every(isMenuSelection)
+        && new Set(line.selections.map(selection => selection.optionId)).size === line.selections.length)))
     && (cart.address === undefined || (typeof cart.address.text === "string"
       && Number.isFinite(cart.address.latitude) && Number.isFinite(cart.address.longitude)));
 }
@@ -56,7 +65,10 @@ export function copyIndividualCart(cart: IndividualCart): IndividualCart {
   if (cart.benefits !== undefined && !isSelection(cart.benefits)) throw new Error("Selezione promozioni non valida.");
   return {
     storeId: cart.storeId,
-    lines: cart.lines.map(line => ({ productId: line.productId, quantity: line.quantity, optionIds: [...line.optionIds], notes: line.notes })),
+    lines: cart.lines.map(line => ({
+      productId: line.productId, quantity: line.quantity, optionIds: [...line.optionIds], notes: line.notes,
+      ...(line.selections ? { selections: line.selections.map(({ optionId, quantity }) => ({ optionId, quantity })) } : {})
+    })),
     mode: cart.mode, slotId: cart.slotId, notes: cart.notes,
     ...(cart.benefits ? { benefits: { couponCodes: [...cart.benefits.couponCodes], redeemReward: cart.benefits.redeemReward } } : {}),
     ...(cart.mode === "delivery" && cart.address ? { address: { text: cart.address.text, latitude: cart.address.latitude, longitude: cart.address.longitude } } : {})

@@ -1,21 +1,24 @@
 "use client";
 
 import { formatOrderWindow } from "@pizzaos/domain";
-import type { IndividualApi, IndividualCart, IndividualCheckout, IndividualOrder, IndividualProduct, IndividualQuote, IndividualSession, IndividualStore, PromotionsApi } from "@pizzaos/domain";
+import type { FoodPreferencesApi, IndividualApi, IndividualCart, IndividualCheckout, IndividualLine, IndividualOrder, IndividualQuote, IndividualSession, IndividualStore, PromotionsApi } from "@pizzaos/domain";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { readIndividualDraft, writeIndividualDraft } from "../draft";
+import { copyIndividualCart, readIndividualDraft, writeIndividualDraft } from "../draft";
 import { createCheckoutAttempt, readCheckoutAttempt, removeCheckoutAttempt, writeCheckoutAttempt, type IndividualCheckoutAttempt } from "../checkout-attempt";
 import { IndividualStripeFields, type ConfirmIndividualPayment } from "./individual-stripe-fields";
 import { IndividualAdditions } from "./individual-additions";
 import { OrderSlotSelect } from "./order-slot-select";
+import { DeliveryAddressField, hasDeliveryPoint } from "./delivery-address-field";
 import { SignOutButton } from "../../identity/components/sign-in-screen";
 import { PromotionSelectionPanel, PromotionSummary } from "../../promotions";
+import { appendMenuLine, lineIssue, MenuLineDetails, MenuLineEditor, OperationalMenu, useMenuPreferences } from "../../menu";
+import { OrderTimeline } from "../../orders/components/operational-order-timeline";
 import { OrderingCover } from "../../menu/components/ordering-cover";
 import styles from "./individual-ordering.module.css";
 
 const EMPTY_CART: IndividualCart = { storeId: "", lines: [], mode: "pickup", slotId: null, notes: "" };
 const catalogTerms = (store: IndividualStore) => JSON.stringify({ id: store.id, acceptingOrders: store.acceptingOrders,
-  products: store.products, ingredients: store.ingredients, slots: store.slots, deliveryBands: store.deliveryBands });
+  menu: store.menu, products: store.products, ingredients: store.ingredients, slots: store.slots, deliveryBands: store.deliveryBands });
 const money = (cents: number) => new Intl.NumberFormat("it-IT", { style: "currency", currency: "EUR" }).format(cents / 100);
 const statusLabels: Record<IndividualOrder["status"], string> = {
   pending_payment: "Pagamento da completare", awaiting_acceptance: "In attesa del ristorante", awaiting_customer: "Il ristorante attende una tua risposta",
@@ -31,6 +34,7 @@ function errorText(error: unknown): string {
   const code = error && typeof error === "object" && "code" in error ? String(error.code) : "";
   const messages: Record<string, string> = {
     price_changed: "Il totale è cambiato. Verifica il nuovo riepilogo e confermalo prima di inviare.",
+    customization_changed: "Una personalizzazione è cambiata. Modifica il prodotto evidenziato e verifica il totale.",
     product_unavailable: "Un prodotto non è più disponibile. Correggi il carrello e verifica il totale.",
     inventory_changed: "La disponibilità è cambiata. Riduci le quantità o scegli altri prodotti.",
     slot_unavailable: "La fascia non è più disponibile. Scegline un'altra e verifica il totale.",
@@ -49,24 +53,13 @@ function errorText(error: unknown): string {
   return messages[code] ?? "Non è stato possibile completare l'operazione. Riprova senza inviare un nuovo ordine.";
 }
 
-function MenuProduct({ product, onAdd }: { product: IndividualProduct; onAdd: (product: IndividualProduct, options: string[]) => void }) {
-  const [options, setOptions] = useState<string[]>([]);
-  return <article className={styles.product}>
-    <div><h3>{product.name}</h3><p>{product.description}</p><p className={styles.price}>{money(product.priceCents)}</p></div>
-    {product.allergens.length > 0 && <p className={styles.small}>Allergeni: {product.allergens.join(", ")}</p>}
-    {product.options.length > 0 && <fieldset><legend>Personalizza {product.name}</legend>{product.options.map(option => <label className={styles.check} key={option.id}>
-      <input type="checkbox" checked={options.includes(option.id)} onChange={event => setOptions(current => event.target.checked ? [...current, option.id] : current.filter(id => id !== option.id))} />
-      {option.name} {option.priceCents > 0 ? `(+${money(option.priceCents)})` : ""}
-    </label>)}</fieldset>}
-    <button type="button" disabled={!product.available} onClick={() => onAdd(product, options)}>{product.available ? `Aggiungi ${product.name}` : "Non disponibile"}</button>
-  </article>;
-}
-
-export function IndividualOrderingScreen({ api, promotionsApi, refreshVersion = 0, connection = "" }: { api: IndividualApi; promotionsApi?: PromotionsApi; refreshVersion?: number; connection?: string }) {
+export function IndividualOrderingScreen({ api, promotionsApi, preferencesApi, refreshVersion = 0, connection = "", storefront = false }: { api: IndividualApi; promotionsApi?: PromotionsApi; preferencesApi?: FoodPreferencesApi; refreshVersion?: number; connection?: string; storefront?: boolean }) {
   const [session, setSession] = useState<IndividualSession | null>(null);
   const [stores, setStores] = useState<IndividualStore[]>([]);
   const [store, setStore] = useState<IndividualStore | null>(null);
   const [cart, setCart] = useState<IndividualCart>(EMPTY_CART);
+  const preferences = useMenuPreferences(preferencesApi, session?.actor?.id);
+  const [confirmation, setConfirmation] = useState<string | null>(null);
   const [orders, setOrders] = useState<IndividualOrder[]>([]);
   const [quote, setQuote] = useState<IndividualQuote | null>(null);
   const [phone, setPhone] = useState("");
@@ -80,6 +73,7 @@ export function IndividualOrderingScreen({ api, promotionsApi, refreshVersion = 
   const [attempt, setAttempt] = useState<IndividualCheckoutAttempt | null>(null);
   const [catalogReload, setCatalogReload] = useState(0);
   const [benefitsRefresh, setBenefitsRefresh] = useState(0);
+  const confirmationRef = useRef<HTMLElement>(null);
   const attemptRef = useRef<IndividualCheckoutAttempt | null>(null);
   const cartRef = useRef<IndividualCart>(EMPTY_CART);
   const draftLoaded = useRef(false);
@@ -111,6 +105,7 @@ export function IndividualOrderingScreen({ api, promotionsApi, refreshVersion = 
     } catch (failure) { setError(errorText(failure)); setLoaded(true); }
   }, [api, reloadOrders]);
   useEffect(() => { void load(); }, [load]);
+  useEffect(() => { if (confirmation) confirmationRef.current?.focus(); }, [confirmation]);
   useEffect(() => {
     if (!cart.storeId) { storeRef.current = null; setStore(null); return; }
     let current = true;
@@ -135,12 +130,16 @@ export function IndividualOrderingScreen({ api, promotionsApi, refreshVersion = 
     cartRef.current = next; quoteRequest.current++; setCart(next); setQuote(null); setNotice("");
     try { writeIndividualDraft(localStorage, next); } catch { setNotice("Il browser non consente il salvataggio locale: mantieni aperta questa pagina fino all'invio."); }
   }
-  function add(product: IndividualProduct, optionIds: string[]) {
-    const key = [...optionIds].sort().join("|");
-    const existing = cart.lines.findIndex(line => line.productId === product.id && [...line.optionIds].sort().join("|") === key);
-    changeCart({ ...cart, lines: existing < 0 ? [...cart.lines, { productId: product.id, quantity: 1, optionIds, notes: "" }]
-      : cart.lines.map((line, index) => index === existing ? { ...line, quantity: line.quantity + 1 } : line) });
+  function add(line: IndividualLine) {
+    const current = cartRef.current;
+    changeCart({ ...current, lines: appendMenuLine(current.lines, line) });
   }
+
+  function replaceLine(index: number, line: IndividualLine) {
+    const current = cartRef.current;
+    changeCart({ ...current, lines: current.lines.map((item, i) => i === index ? line : item) });
+  }
+
   async function verifyQuote() {
     setBusy(true); setError(""); setQuote(null);
     const request = ++quoteRequest.current;
@@ -160,8 +159,9 @@ export function IndividualOrderingScreen({ api, promotionsApi, refreshVersion = 
   function clearSubmittedCart(order: IndividualOrder, submitted: IndividualCheckoutAttempt | null) {
     if (!submitted || attemptRef.current?.key !== submitted.key) return;
     if (order.status !== "pending_payment" && order.payment !== "failed") {
+      if (order.submittedAt && order.status !== "cancelled") setConfirmation(order.id);
       setResumeOrderId(null);
-      if (submitted.input && JSON.stringify(cartRef.current) === JSON.stringify(submitted.input.cart)) {
+      if (submitted.input && JSON.stringify(copyIndividualCart(cartRef.current)) === JSON.stringify(submitted.input.cart)) {
         changeCart({ ...cartRef.current, lines: [], notes: "", benefits: undefined });
       }
       forgetAttempt();
@@ -195,7 +195,7 @@ export function IndividualOrderingScreen({ api, promotionsApi, refreshVersion = 
     } catch (failure) {
       setError(errorText(failure));
       const code = failure && typeof failure === "object" && "code" in failure ? String(failure.code) : "";
-      if (!receivedOrder && ["price_changed", "product_unavailable", "inventory_changed", "slot_unavailable", "outside_delivery_area", "minimum_not_met", "invalid_input", "coupon_unavailable", "coupon_limit_reached", "loyalty_insufficient", "loyalty_unavailable"].includes(code)) { setQuote(null); forgetAttempt(); setCatalogReload(current => current + 1); setBenefitsRefresh(value => value + 1); }
+      if (!receivedOrder && ["price_changed", "product_unavailable", "customization_changed", "inventory_changed", "slot_unavailable", "outside_delivery_area", "minimum_not_met", "invalid_input", "coupon_unavailable", "coupon_limit_reached", "loyalty_insufficient", "loyalty_unavailable"].includes(code)) { setQuote(null); forgetAttempt(); setCatalogReload(current => current + 1); setBenefitsRefresh(value => value + 1); }
       await reloadOrders().catch(() => undefined);
     } finally { setBusy(false); }
   }
@@ -222,10 +222,12 @@ export function IndividualOrderingScreen({ api, promotionsApi, refreshVersion = 
     finally { setBusy(false); }
   }
   function repeat(order: IndividualOrder) {
+    setConfirmation(null);
     changeCart({ ...order.cart, slotId: null, lines: order.cart.lines.filter(line => !order.unavailableProductIds.includes(line.productId)) });
     setNotice("Carrello ricreato senza i prodotti segnalati indisponibili. Puoi modificarlo e verificare un nuovo totale.");
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    document.getElementById("il-tuo-ordine")?.focus();
   }
+  const cartCount = cart.lines.reduce((count, line) => count + line.quantity, 0);
   const unresolved = orders.some(order => (order.status === "pending_payment" && (order.payment === "requires_action" || order.payment === "processing")) || order.additions?.some(item => !item.applied && ["requires_action", "processing"].includes(item.payment)));
 
   return <>
@@ -233,14 +235,20 @@ export function IndividualOrderingScreen({ api, promotionsApi, refreshVersion = 
     <div className={styles.page}>
     <header className={styles.header}>
       <div><h1>La tua prossima pizza.</h1>{store && <p>{store.name} · {store.acceptingOrders ? "Ordini aperti" : "Ordini sospesi"}</p>}</div>
-      {session?.actor ? <div className={styles.account}><span>{session.actor.name || session.actor.email}</span><SignOutButton /></div> : <a href="/accesso">Accedi</a>}
+      {session?.actor ? <div className={styles.account}><a href="/ordina/profilo">{session.actor.name || session.actor.email} · Profilo</a><SignOutButton /></div> : <a href="/accesso">Accedi</a>}
     </header>
     <nav className={styles.heroActions} aria-label="Inizia a ordinare">
       {stores.length > 0 && <a className={styles.linkButton} href="#il-menu">Sfoglia il menu</a>}
       <a className={styles.groupLink} href="/ordina/gruppo">Ordine di gruppo</a>
+      {session?.actor && <a className={styles.groupLink} href="#i-tuoi-ordini">I tuoi ordini</a>}
     </nav>
     {connection && <p className={styles.connection} role="status">{connection}</p>}
     {error && <div className={styles.error} role="alert">{error}<div><button type="button" className={styles.secondary} disabled={busy} onClick={() => void load()}>Riprova caricamento</button></div></div>}
+    {confirmation && <section ref={confirmationRef} tabIndex={-1} className={styles.confirmation} aria-labelledby="conferma-ordine">
+      <div><h2 id="conferma-ordine">Ordine inviato</h2><p>Segui lo stato aggiornato nei tuoi ordini.</p></div>
+      <a className={styles.linkButton} href={`#ordine-${encodeURIComponent(confirmation)}`}>Segui l&apos;ordine</a>
+      <button type="button" className={styles.secondary} onClick={() => setConfirmation(null)}>Chiudi riepilogo</button>
+    </section>}
     {notice && <div className={styles.notice} role="status">{notice}</div>}
     {attempt && <aside className={styles.notice} aria-label="Tentativo ordine da recuperare"><p>L&apos;esito del tentativo precedente deve essere verificato prima di inviare un altro ordine. Il carrello attuale resta salvato.</p>
       {attempt.input && attempt.actorId === session?.actor?.id ? <button type="button" disabled={busy} onClick={() => void submitAttempt(attempt, false)}>Recupera tentativo ordine</button>
@@ -249,31 +257,47 @@ export function IndividualOrderingScreen({ api, promotionsApi, refreshVersion = 
     {!loaded && <p role="status">Caricamento del menu…</p>}
     {loaded && stores.length === 0 && <section className={styles.card}><h2>Menu non ancora disponibile</h2><p>Non ci sono sedi disponibili per ordinare.</p><button type="button" onClick={() => void load()}>Riprova</button></section>}
     {stores.length > 0 && <>
-      <div className={styles.storeSelector}><label>Scegli la sede<select aria-label="Scegli la sede" value={cart.storeId} disabled={busy || unresolved} onChange={event => changeCart({ ...EMPTY_CART, storeId: event.target.value })}>{stores.map(item => <option key={item.id} value={item.id}>{item.name}</option>)}</select></label></div>
+      {!storefront && <div className={styles.storeSelector}><label>Scegli la sede<select aria-label="Scegli la sede" value={cart.storeId} disabled={busy || unresolved} onChange={event => changeCart({ ...EMPTY_CART, storeId: event.target.value })}>{stores.map(item => <option key={item.id} value={item.id}>{item.name}</option>)}</select></label></div>}
       <fieldset className={styles.layout} disabled={busy} aria-label="Composizione dell'ordine"><section id="il-menu" tabIndex={-1}><h2>Il menu</h2>{!store && <p>Caricamento della sede…</p>}{store && !store.acceptingOrders && <p className={styles.error}>Gli ordini sono temporaneamente sospesi.</p>}
-        <div className={styles.products}>{store?.products.map(product => <MenuProduct key={`${store.id}-${product.id}`} product={product} onAdd={add} />)}</div>
-      </section><section className={styles.card} id="il-tuo-ordine" aria-labelledby="cart-title"><h2 id="cart-title">Il tuo ordine</h2>
+        {store && <OperationalMenu key={store.id} store={store} preferences={preferences} onAdd={add} />}
+      </section><div className={styles.orderPanel}>
+      <section className={styles.card} id="il-tuo-ordine" aria-labelledby="cart-title" tabIndex={-1}>
+        <div className={styles.headingRow}><h2 id="cart-title">Il tuo ordine</h2>{cartCount > 0 && <span className={styles.cartCount}>{cartCount}</span>}</div>
         {cart.lines.length === 0 ? <p>Il carrello è vuoto. Scegli dal menu.</p> : <ul className={styles.cartLines}>{cart.lines.map((line, index) => {
           const product = store?.products.find(item => item.id === line.productId);
-          return <li key={`${line.productId}-${index}`}><strong>{product?.name ?? "Prodotto non più nel menu"}</strong>
-            {line.optionIds.length > 0 && <p className={styles.small}>{line.optionIds.map(id => product?.options.find(option => option.id === id)?.name ?? "Opzione non disponibile").join(", ")}</p>}
-            <div className={styles.quantity}><label>Quantità {product?.name}<input type="number" min="1" max="99" value={line.quantity} onChange={event => { const quantity = Number(event.target.value); if (Number.isInteger(quantity) && quantity > 0) changeCart({ ...cart, lines: cart.lines.map((item, i) => i === index ? { ...item, quantity } : item) }); }} /></label>
+          const issue = store ? lineIssue(product, line) : undefined;
+          const name = product?.name ?? line.productId;
+          const adjust = (quantity: number) => {
+            if (Number.isInteger(quantity) && quantity > 0 && quantity <= 100) replaceLine(index, { ...line, quantity });
+          };
+          return <li key={`${line.productId}-${index}`} className={issue ? styles.needsReview : undefined}><strong>{name}</strong>
+            <MenuLineDetails product={product} line={line} avoid={preferences.avoid} showUnknown={Boolean(store?.menu)} />
+            <div className={styles.quantity}><label>Quantità {name}<input type="number" min="1" max="100" value={line.quantity} onChange={event => adjust(Number(event.target.value))} /></label>
               <button type="button" className={styles.secondary} onClick={() => changeCart({ ...cart, lines: cart.lines.filter((_, i) => i !== index) })}>Rimuovi</button></div>
-            <label>Note per {product?.name}<input maxLength={500} value={line.notes} onChange={event => changeCart({ ...cart, lines: cart.lines.map((item, i) => i === index ? { ...item, notes: event.target.value } : item) })} /></label></li>;
+            {store && product && product.options.length > 0 && <MenuLineEditor store={store} product={product} line={line} avoid={preferences.avoid}
+              onSave={next => replaceLine(index, next)} />}
+            <label>Note per {name}<input maxLength={500} value={line.notes} onChange={event => replaceLine(index, { ...line, notes: event.target.value })} /></label></li>;
         })}</ul>}
+        {cartCount > 0 && <a className={styles.checkoutJump} href="#checkout-ordine">Vai a consegna e pagamento</a>}
+      </section><section className={styles.card} id="checkout-ordine" aria-labelledby="checkout-title">
+        <h2 id="checkout-title">Consegna e pagamento</h2>
+        {cart.lines.length > 0 && store?.menu?.kitchenNotice && <p className={styles.small}>{store.menu.kitchenNotice}</p>}
         <label>Modalità<select aria-label="Modalità" value={cart.mode} onChange={event => changeCart({ ...cart, mode: event.target.value === "delivery" ? "delivery" : "pickup", address: undefined })}><option value="pickup">Ritiro in pizzeria</option><option value="delivery">Consegna a domicilio</option></select></label>
-        {cart.mode === "delivery" && <fieldset><legend>Dove consegniamo?</legend><label>Indirizzo completo<input required value={cart.address?.text ?? ""} onChange={event => changeCart({ ...cart, address: { text: event.target.value, latitude: cart.address?.latitude ?? 0, longitude: cart.address?.longitude ?? 0 } })} /></label>
-          <p className={styles.small}>Conferma il punto di consegna per verificare zona e costo.</p><div className={styles.twoColumns}>
-            <label>Latitudine<input type="number" step="any" min="-90" max="90" value={cart.address?.latitude ?? ""} onChange={event => changeCart({ ...cart, address: { text: cart.address?.text ?? "", latitude: Number(event.target.value), longitude: cart.address?.longitude ?? 0 } })} /></label>
-            <label>Longitudine<input type="number" step="any" min="-180" max="180" value={cart.address?.longitude ?? ""} onChange={event => changeCart({ ...cart, address: { text: cart.address?.text ?? "", latitude: cart.address?.latitude ?? 0, longitude: Number(event.target.value) } })} /></label></div>
-          <button type="button" className={styles.secondary} onClick={() => { if (!navigator.geolocation) { setError("Il browser non supporta la posizione."); return; } navigator.geolocation.getCurrentPosition(position => changeCart({ ...cart, address: { text: cart.address?.text ?? "", latitude: position.coords.latitude, longitude: position.coords.longitude } }), () => setError("Posizione non disponibile. Inserisci il punto di consegna.")); }}>Usa la mia posizione</button>
+        {cart.mode === "delivery" && <fieldset><legend>Dove consegniamo?</legend>
+          <DeliveryAddressField key={cart.storeId} storeId={cart.storeId} address={cart.address} search={api.searchDeliveryAddresses}
+            disabled={busy} onChange={address => changeCart({ ...cart, address })} />
         </fieldset>}
         <OrderSlotSelect store={store} value={cart.slotId} onChange={slotId => changeCart({ ...cart, slotId })}
           onFocus={() => setCatalogReload(current => current + 1)} />
         <label>Note per l&apos;ordine<textarea maxLength={1000} value={cart.notes} onChange={event => changeCart({ ...cart, notes: event.target.value })} /></label>
         {promotionsApi && session?.actor && <PromotionSelectionPanel api={promotionsApi} storeId={cart.storeId} selection={cart.benefits} disabled={busy || unresolved || !!attempt} refreshVersion={refreshVersion + benefitsRefresh} onChange={benefits => changeCart({ ...cart, benefits })} onTermsChange={invalidatePromotionQuote} />}
-        <button type="button" disabled={busy || !cart.lines.length || !store?.acceptingOrders || unresolved} onClick={() => void verifyQuote()}>Verifica disponibilità e totale</button>
-        {quote && <div className={styles.summary}><h3>Riepilogo da confermare</h3>{quote.lines.map((line, index) => <p key={`${line.productId}-${index}`}><span>{line.quantity} × {line.name}</span><strong>{money(line.unitCents * line.quantity)}</strong></p>)}
+        <button type="button" disabled={busy || !cart.lines.length || !store?.acceptingOrders || unresolved || (cart.mode === "delivery" && !hasDeliveryPoint(cart.address))} onClick={() => void verifyQuote()}>Verifica disponibilità e totale</button>
+        {quote && <div className={styles.summary}><h3>Riepilogo da confermare</h3>{quote.lines.map((line, index) => <div className={styles.quoteLine} key={`${line.productId}-${index}`}>
+          <span>{line.quantity} × {line.name}
+            {Boolean(line.composition?.choices.length) && <small>{line.composition?.choices.map(choice => `${choice.quantity > 1 ? `${choice.quantity} × ` : ""}${choice.name}`).join(", ")}</small>}
+            {Boolean(line.composition?.extraDiscountCents) && <small>Sconto extra {money((line.composition?.extraDiscountCents ?? 0) * line.quantity)}</small>}
+          </span><strong>{money(line.unitCents * line.quantity)}</strong>
+        </div>)}
           <PromotionSummary quote={quote} />
           {!quote.promotions && <><p><span>Consegna</span><strong>{money(quote.deliveryCents)}</strong></p><p className={styles.total}><span>Totale</span><strong>{money(quote.totalCents)}</strong></p></>}<p>Orario: {formatOrderWindow(quote.slotStartsAt, quote.slotEndsAt, quote.slotTimeZone)}</p></div>}
         {session?.actor ? <><p className={styles.small}>Ordine di {session.actor.name} · {session.actor.email}</p><label>Telefono per l&apos;ordine<input type="tel" required autoComplete="tel" value={phone} onChange={event => setPhone(event.target.value)} /></label>
@@ -284,17 +308,22 @@ export function IndividualOrderingScreen({ api, promotionsApi, refreshVersion = 
           <p className={styles.small}>Il ristorante deve accettare l&apos;ordine. Se viene annullato, il rimborso della carta viene avviato automaticamente.</p>
         </> : <div className={styles.login}><h3>Accedi quando sei pronto</h3><p>Il carrello resta su questo dispositivo mentre accedi con Google o con un link via email.</p><a className={styles.linkButton} href="/accesso">Accedi per completare l&apos;ordine</a></div>}
         {unresolved && <p className={styles.notice}>Hai un pagamento da verificare. Recuperalo nei tuoi ordini prima di inviarne un altro.</p>}
-      </section></fieldset>
+      </section></div></fieldset>
+      {cartCount > 0 && <div className={styles.mobileCart}><a href="#il-tuo-ordine">Carrello · {cartCount} {cartCount === 1 ? "articolo" : "articoli"}</a></div>}
     </>}
     {session?.actor && <section className={styles.history} id="i-tuoi-ordini"><div className={styles.headingRow}><h2>I tuoi ordini</h2><button type="button" className={styles.secondary} disabled={busy} onClick={() => void reloadOrders().catch(failure => setError(errorText(failure)))}>Aggiorna ordini</button></div>
       {orders.length === 0 && <p>Non hai ancora inviato ordini.</p>}
-      {orders.map(order => <article key={order.id} className={`${styles.order} ${order.status === "awaiting_customer" ? styles.waiting : ""}`}><div className={styles.headingRow}><div><p className={styles.small}>Ordine {order.id}</p><h3>{statusLabels[order.status]}</h3></div><strong>{money(order.quote.totalCents)}</strong></div>
+      {orders.map(order => <article id={`ordine-${encodeURIComponent(order.id)}`} key={order.id} className={`${styles.order} ${order.status === "awaiting_customer" ? styles.waiting : ""}`}><div className={styles.headingRow}><div><p className={styles.small}>Ordine {order.id}</p><h3>{statusLabels[order.status]}</h3></div><strong>{money(order.quote.totalCents)}</strong></div>
+        <OrderTimeline status={order.status} mode={order.cart.mode} />
         <p>{paymentLabels[order.payment]}</p>{order.additions?.filter(item => item.payment === "refund_pending" || item.payment === "refund_failed").map(item => <p key={item.id} className={styles.notice}>Rimborso aggiunta {money(item.deltaCents)}: {paymentLabels[item.payment]}</p>)}<p className={styles.small}>{order.cart.mode === "delivery" ? "Consegna" : "Ritiro"} · {formatOrderWindow(order.quote.slotStartsAt, order.quote.slotEndsAt, order.quote.slotTimeZone)}</p>
         {order.acceptanceDeadline && order.status === "awaiting_acceptance" && <p>Risposta del ristorante entro le {new Date(order.acceptanceDeadline).toLocaleTimeString("it-IT", { hour: "2-digit", minute: "2-digit" })}</p>}
-        <ul>{order.quote.lines.map((line, index) => <li key={`${line.productId}-${index}`}>{line.quantity} × {line.name}{line.notes ? ` — ${line.notes}` : ""}</li>)}</ul>
+        <ul>{order.quote.lines.map((line, index) => <li key={`${line.productId}-${index}`}>
+          {line.quantity} × {line.name}{line.notes ? ` — ${line.notes}` : ""}
+          {Boolean(line.composition?.choices.length) && <p className={styles.small}>{line.composition?.choices.map(choice => `${choice.quantity > 1 ? `${choice.quantity} × ` : ""}${choice.name}`).join(", ")}</p>}
+        </li>)}</ul>
         {order.status === "awaiting_customer" && <p className={styles.notice}>Il ristorante ti contatta via email o WhatsApp per un prodotto indisponibile. L&apos;ordine resta in attesa della tua risposta.</p>}
         {["pending_payment", "awaiting_acceptance", "awaiting_customer", "accepted"].includes(order.status) && <div><label>Note ordine {order.id}<textarea maxLength={1000} value={editedNotes[order.id] ?? order.notes} onChange={event => setEditedNotes(current => ({ ...current, [order.id]: event.target.value }))} /></label><button type="button" className={styles.secondary} disabled={busy} onClick={() => void orderAction(order, "notes")}>Aggiorna note</button></div>}
-        <IndividualAdditions api={api} order={order} onChanged={reloadOrders} />
+        <IndividualAdditions api={api} order={order} avoid={preferences.avoid} onChanged={reloadOrders} />
         <div className={styles.actions}>
           {order.status === "pending_payment" && order.payment !== "failed" && <><button type="button" disabled={busy} onClick={() => void recover(order, false)}>Verifica pagamento</button>{order.payment === "requires_action" && <button type="button" disabled={busy} onClick={() => { setMethod("card"); setResumeOrderId(order.id); setNotice("Completa i dati della carta nel pagamento sicuro e premi Riprendi pagamento."); window.scrollTo({ top: 0, behavior: "smooth" }); }}>Completa pagamento esistente</button>}</>}
           {["awaiting_acceptance", "awaiting_customer"].includes(order.status) && <button type="button" className={styles.secondary} disabled={busy} onClick={() => void orderAction(order, "cancel")}>Annulla ordine</button>}

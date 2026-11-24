@@ -10,6 +10,7 @@ export default defineConfig({
     "**/order-calendar.spec.ts",
     "**/pilot-extensions.spec.ts",
     "**/operational-domains.spec.ts",
+    "**/store-subdomains.spec.ts",
     "**/session-demo.spec.ts",
     "**/persistent-group.spec.ts",
     "**/promotions-loyalty.spec.ts",
