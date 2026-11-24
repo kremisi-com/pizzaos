@@ -2,6 +2,13 @@
 
 Stato verificato il 23 novembre 2026: ambiente **test** nuovamente raggiungibile dopo l'upgrade Neon. Il [collaudo del 23 novembre](#ripristino-e-collaudo-del-23-novembre-2026) conferma il percorso cliente â†’ admin â†’ rider. Client e admin offrono `/poc` con accesso manuale e [accesso automatico dalla landing](#accesso-dalla-landing-del-23-novembre-2026). Rider appartiene ad admin. `pizzaos-api` Ã¨ il servizio condiviso per identitÃ , permessi, ordini, pagamenti e persistenza.
 
+## Salvataggio menu al blur del 24 novembre 2026
+
+- Correzione admin `63baf1e`: campi testuali e numerici salvati alla perdita del focus, toast dopo risposta positiva, azioni immediate e richieste sequenziali. Admin/rider `dpl_CqAbxzGw18CYtn2bw8CmrKGZire1` Ready sugli alias operativi.
+- Il backend online era ancora `6a872c5`: la validazione dell’intestazione rifiutava `pizzaCatalog`, causando lo stesso errore generico sia aggiungendo un impasto sia rinominandolo. Pubblicato il servizio dal sorgente `63baf1e`, deployment `dpl_Bxad278mEfoBnjYGtKmsQva1HzAT`, Ready su `api.pizzaos.app`; health HTTP 200. Worker verificato stopped, zero istanze totali/pronte. Nessuna pubblicazione del menu cliente.
+- Verifiche locali: 129 test admin, lint, typecheck e build; 611 test servizio passati e 22 test PostgreSQL saltati in assenza dei database di test, typecheck/build servizio e controllo architettura passati. La suite autosave verifica nessuna richiesta durante la digitazione, toast dopo salvataggio al blur, aggiunta di impasti/basi/formati e gestione degli errori.
+- Evidenza online: pagina autenticata riletta dopo i deploy con stato **Bozza salvata** e senza errore. La bozza risultava nel frattempo modificata dall’operatore; non sono state aggiunte scritture di prova concorrenti. Il comportamento dettagliato del blur e del toast è verificato localmente, non con una nuova modifica browser online.
+
 ## Importazione menu e magazzino del 24 novembre 2026
 
 - Sorgente `6a872c5`: backend `dpl_2AN5ZoTg79YDspBequ64zV1awT9p` e admin/rider `dpl_GSVH4gQFfKGJpkBvaVUoSTC1ZVK6` compilati, Ready e promossi al pilota. Health API 200. Worker lasciato stopped, zero istanze ready. Il client mantiene il proprio deploy esistente.
