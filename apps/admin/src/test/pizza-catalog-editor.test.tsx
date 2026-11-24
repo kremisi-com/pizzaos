@@ -54,7 +54,7 @@ describe("Catalogo pizza nel pannello", () => {
     for (const name of ["Impasti", "Basi", "Formati", "Topping consentiti e ingredienti inclusi"]) {
       expect(editor.queryByRole("group", { name })).toBeNull();
     }
-    fireEvent.change(editor.getByLabelText("Unità di Olive"), { target: { value: "2" } });
+    expect(editor.queryByLabelText("Unità di Olive")).toBeNull();
     fireEvent.click(editor.getByLabelText("Disponibile per l’ordinazione"));
     fireEvent.click(within(editor.getByRole("group", { name: "Abbinamenti consigliati" })).getByLabelText("Simple"));
     const file = new File(["foto"], "pizza.png", { type: "image/png" });
@@ -67,7 +67,7 @@ describe("Catalogo pizza nel pannello", () => {
       doughIds: entry.doughIds, baseIds: entry.baseIds, formatIds: entry.formatIds, toppingIds: entry.toppingIds,
       includedToppingIds: ["olive"], previewImages: candidate.pizzaCatalog!.tastes[0].previewImages });
     expect(taste.imageId).toBeUndefined();
-    expect(current().pizzaCatalog!.toppings[0].ingredients).toEqual({ olive: 2 });
+    expect(current().pizzaCatalog!.toppings[0].ingredients).toEqual({ olive: 1 });
     expect(current().sections).toEqual(candidate.sections);
     fireEvent.click(editor.getByRole("button", { name: "Rimuovi gusto dalla bozza" }));
     expect(onRemove).toHaveBeenCalledOnce();
@@ -132,6 +132,7 @@ describe("Catalogo pizza nel pannello", () => {
     expect(baseIngredient).toBeDisabled();
     fireEvent.click(editor.getByRole("checkbox", { name: "Olive" }));
     expect(current().pizzaCatalog!.tastes[0].includedToppingIds).toHaveLength(1);
+    expect(current().pizzaCatalog!.toppings.find(item => Object.hasOwn(item.ingredients, "olive"))?.ingredients).toEqual({ olive: 1 });
     expect(current().pizzaCatalog!.toppings.some(({ ingredients: recipe }) => Object.hasOwn(recipe, "farina"))).toBe(false);
   });
 

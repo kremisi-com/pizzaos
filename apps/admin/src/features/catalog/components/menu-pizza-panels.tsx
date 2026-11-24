@@ -3,7 +3,7 @@ import type { IndividualIngredient, MenuDraft, PizzaCatalog, PizzaComponent, Piz
 import { Button } from "@pizzaos/ui";
 import { useState, type ReactNode } from "react";
 import { MenuPriceField, MenuRecipeFields } from "./catalog-form-fields";
-import { MenuProductChoices } from "./menu-product-form";
+import { hasMenuProductChoices, MenuProductChoices } from "./menu-product-form";
 import styles from "./operational-catalog.module.css";
 
 export const blankPizzaCatalog = (): PizzaCatalog => ({ doughs: [], bases: [], formats: [], toppings: [], tastes: [], formulas: [] });
@@ -33,11 +33,12 @@ export function PizzaTastePanel({ draft, taste, ingredients, onChange, onClose, 
       update({ includedToppingIds: taste.includedToppingIds.filter(id => !matchingIds.has(id)) });
       return;
     }
-    const existing = candidates.find(item => item.id === `ingredient:${ingredient.id}`) ?? (candidates.length === 1 ? candidates[0] : undefined);
-    const id = existing?.id ?? `ingredient:${ingredient.id}`;
+    const existing = candidates.find(item => item.ingredients[ingredient.id] === 1);
+    const preferredId = `ingredient:${ingredient.id}`;
+    const id = existing?.id ?? (catalog.toppings.some(item => item.id === preferredId) ? `ingredient:${crypto.randomUUID()}` : preferredId);
     const nextCatalog = existing ? catalog : { ...catalog, toppings: [...catalog.toppings, {
       id, name: ingredient.name, description: "", priceCents: ingredient.extra?.priceCents ?? 0,
-      available: true, category: "Extra", ingredients: { [ingredient.id]: null }, food: ingredient.food
+      available: true, category: "Extra", ingredients: { [ingredient.id]: 1 }, food: ingredient.food
     }] };
     update({ includedToppingIds: checked ? [...taste.includedToppingIds, id] : taste.includedToppingIds.filter(value => value !== id) }, nextCatalog);
   }
@@ -71,9 +72,7 @@ export function PizzaTastePanel({ draft, taste, ingredients, onChange, onClose, 
     </div>
     <MenuPriceField label="Prezzo in euro" cents={taste.priceCents} onChange={priceCents => update({ priceCents })} />
     <details className={styles.food}><summary>Foto e altre opzioni</summary>
-      <p className={styles.small}>Le dosi sconosciute vanno verificate prima di pubblicare. Gli ingredienti già presenti nella base non vanno aggiunti nuovamente.</p>
-      {included.map(item => <MenuRecipeFields key={item.id} label={`Dosi ${item.name}`} ingredients={ingredients} recipe={item.ingredients}
-        onChange={recipe => update({}, { ...catalog, toppings: catalog.toppings.map(topping => topping.id === item.id ? { ...topping, ingredients: recipe } : topping) })} />)}
+      <p className={styles.small}>Ogni ingrediente della pizza si seleziona una sola volta. Gli ingredienti già presenti nella base non vanno aggiunti nuovamente.</p>
       <label className={styles.check}><input type="checkbox" checked={taste.available}
         onChange={event => update({ available: event.target.checked })} />Disponibile per l’ordinazione</label>
       <label>Foto<input type="file" accept="image/jpeg,image/png,image/webp" onChange={event => {
@@ -86,7 +85,7 @@ export function PizzaTastePanel({ draft, taste, ingredients, onChange, onClose, 
             ? [...taste.pairingProductIds ?? [], product.id] : taste.pairingProductIds?.filter(id => id !== product.id) })} />{product.name || "Senza nome"}
         </label>)}
       </fieldset>
-      {projected && Boolean(taste.customizations?.options.length || taste.customizations?.groups?.length) && <details className={styles.food}><summary>Scelte specifiche del prodotto</summary>
+      {projected && taste.customizations && hasMenuProductChoices(taste.customizations) && <details className={styles.food}><summary>Scelte specifiche del prodotto</summary>
         <p>Qui puoi modificare le scelte già configurate. Gestisci le nuove aggiunte con abbinamenti consigliati o categorie dedicate.</p>
         <MenuProductChoices product={{ ...projected, options: taste.customizations?.options ?? [], groups: taste.customizations?.groups }}
           ingredients={ingredients} onChange={change => update({ customizations: {

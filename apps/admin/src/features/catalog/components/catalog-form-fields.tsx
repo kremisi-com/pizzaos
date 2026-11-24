@@ -1,14 +1,18 @@
 import { MENU_ALLERGENS, menuAllergenKey } from "@pizzaos/domain";
 import type { IndividualIngredient, MenuFoodInformation } from "@pizzaos/domain";
 import { Button } from "@pizzaos/ui";
+import { useState } from "react";
 import styles from "./operational-catalog.module.css";
 
-export function MenuRecipeFields({ label, ingredients, recipe, onChange }: {
+export function MenuRecipeFields({ label, ingredients, recipe, onChange, singleUnit = false }: {
   label: string;
   ingredients: readonly IndividualIngredient[];
   recipe: Record<string, number | null>;
   onChange: (recipe: Record<string, number | null>) => void;
+  singleUnit?: boolean;
 }) {
+  const [open, setOpen] = useState(false);
+  const [search, setSearch] = useState("");
   const selected = new Set(Object.keys(recipe));
   const remaining = ingredients.filter(ingredient => !selected.has(ingredient.id));
 
@@ -16,6 +20,37 @@ export function MenuRecipeFields({ label, ingredients, recipe, onChange }: {
     const next = { ...recipe };
     delete next[id];
     onChange(next);
+  }
+
+  function toggle(id: string, checked: boolean) {
+    const next = Object.fromEntries(Object.entries(recipe).filter(([key]) => key !== id).map(([key, units]) => [key, units === null ? null : 1]));
+    if (checked) next[id] = 1;
+    onChange(next);
+  }
+
+  if (singleUnit) {
+    const names = new Map(ingredients.map(ingredient => [ingredient.id, ingredient.name]));
+    const matching = ingredients.filter(ingredient => ingredient.name.toLocaleLowerCase("it-IT").includes(search.toLocaleLowerCase("it-IT")));
+    return <fieldset className={styles.inner}>
+      <legend>{label}</legend>
+      {Object.values(recipe).includes(null) && <p>Rimuovi e riseleziona gli ingredienti con dose da verificare per confermare una unità.</p>}
+      <div className={styles.ingredientSelect}>
+        <button type="button" className={styles.selectTrigger} aria-label={`Seleziona ingredienti per ${label}`} aria-expanded={open} onClick={() => setOpen(value => !value)}>
+          <span>{selected.size ? [...selected].map(id => names.get(id) || "Ingrediente da verificare").join(", ") : "Scegli gli ingredienti"}</span><span aria-hidden="true">⌄</span>
+        </button>
+        <p className={styles.small}>Una unità per ogni ingrediente selezionato.</p>
+        <div className={styles.chips}>{[...selected].map(id => <button type="button" key={id}
+          aria-label={`Rimuovi ${names.get(id) || "Ingrediente da verificare"} da ${label}`} onClick={() => toggle(id, false)}>{names.get(id) || "Ingrediente da verificare"} ×</button>)}</div>
+        {open && <div className={styles.ingredientOptions}>
+          <label>Cerca ingrediente in {label}<input type="search" value={search} onChange={event => setSearch(event.target.value)} /></label>
+          {matching.map(ingredient => <label key={ingredient.id} className={styles.check}>
+            <input type="checkbox" checked={selected.has(ingredient.id)} onChange={event => toggle(ingredient.id, event.target.checked)} />{ingredient.name || "Senza nome"}
+          </label>)}
+          {!ingredients.length ? <p>Aggiungi prima gli ingredienti in Magazzino.</p> : !matching.length && <p>Nessun ingrediente corrisponde alla ricerca.</p>}
+          <Button type="button" variant="ghost" onClick={() => setOpen(false)}>Chiudi ingredienti</Button>
+        </div>}
+      </div>
+    </fieldset>;
   }
 
   return <fieldset className={styles.inner}>

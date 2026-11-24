@@ -11,6 +11,14 @@ const groupNames: Record<MenuOptionGroup["kind"], string> = {
   extras: "Extra", recipe: "Ricetta", selection: "Selezione"
 };
 
+function isPreviousMenuGroup(group: MenuOptionGroup) {
+  return ["scegli l'impasto", "scegli la pizza"].includes(group.name.trim().toLocaleLowerCase("it-IT").replaceAll("’", "'").replace(/\s+/g, " "));
+}
+
+export function hasMenuProductChoices(product: Pick<IndividualProduct, "groups" | "options">) {
+  return product.groups ? product.groups.some(group => !isPreviousMenuGroup(group)) : product.options.length > 0;
+}
+
 function MenuOptionForm({ option, ingredients, baseRecipe, onChange, onRemove }: {
   option: IndividualOption;
   ingredients: readonly IndividualIngredient[];
@@ -111,7 +119,7 @@ export function MenuProductChoices({ product, ingredients, onChange }: {
 }) {
   const groups = product.groups ?? [];
   return <>
-    {groups.map(group => <MenuGroupForm key={group.id} group={group} product={product} ingredients={ingredients} onChange={onChange} />)}
+    {groups.filter(group => !isPreviousMenuGroup(group)).map(group => <MenuGroupForm key={group.id} group={group} product={product} ingredients={ingredients} onChange={onChange} />)}
     {!product.groups && product.options.map(option => <MenuOptionForm key={option.id} option={option} baseRecipe={product.ingredients} ingredients={ingredients}
       onChange={change => onChange({ options: product.options.map(item => item.id === option.id ? { ...item, ...change } : item) })}
       onRemove={() => onChange({ options: product.options.filter(item => item.id !== option.id) })} />)}
@@ -181,7 +189,7 @@ export function MenuProductForm({ storeId, product, index, ingredients, products
       </label>
       {product.imageId && <Button type="button" variant="ghost" onClick={() => onChange({ imageId: undefined })}>Rimuovi foto</Button>}
     </div>
-    <MenuRecipeFields label="Ricetta base" recipe={product.ingredients} ingredients={ingredients} onChange={changeRecipe} />
+    <MenuRecipeFields label="Ricetta base" recipe={product.ingredients} ingredients={ingredients} onChange={changeRecipe} singleUnit />
     {product.allergens.length > 0 && <div className={styles.row}>
       <p className={styles.small}>Allergeni del catalogo precedente · {product.allergens.join(", ")}</p>
       <Button type="button" variant="ghost" onClick={() => onChange({ allergens: [] })}>Rimuovi diciture precedenti</Button>
