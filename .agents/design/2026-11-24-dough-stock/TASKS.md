@@ -1,0 +1,1 @@
+- [x] **dough-stock**: configurazione, composizione, validazione, conversione delle basi e verifica dei consumi.

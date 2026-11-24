@@ -1,13 +1,13 @@
 import { MenuPairingSelect } from "./menu-pairing-select";
-import { applyPizzaDefaults, materializePizzaMenu, PIZZA_EXTRA_OFFERS, syncPizzaInventory } from "@pizzaos/domain";
+import { applyPizzaDefaults, materializePizzaMenu, PIZZA_EXTRA_OFFERS, simplifyPizzaInventory, syncPizzaInventory } from "@pizzaos/domain";
 import type { IndividualIngredient, MenuDraft, PizzaCatalog, PizzaComponent, PizzaEntry, PizzaFormula, PizzaTaste } from "@pizzaos/domain";
 import { Button } from "@pizzaos/ui";
-import { useState, type ReactNode } from "react";
-import { MenuPriceField, MenuRecipeFields } from "./catalog-form-fields";
+import { useRef, useState, type ReactNode } from "react";
+import { MenuPriceField } from "./catalog-form-fields";
 import { hasMenuProductChoices, MenuProductChoices } from "./menu-product-form";
 import styles from "./operational-catalog.module.css";
 
-export const blankPizzaCatalog = (): PizzaCatalog => ({ doughs: [], bases: [], formats: [], toppings: [], tastes: [], formulas: [] });
+export const blankPizzaCatalog = (): PizzaCatalog => ({ inventoryMode: "dough-format", doughs: [], bases: [], formats: [], toppings: [], tastes: [], formulas: [] });
 
 export function PizzaTastePanel({ draft, taste, ingredients, onChange, onClose, onRemove, onUpload, headerActions }: {
   headerActions?: ReactNode;
@@ -22,11 +22,13 @@ export function PizzaTastePanel({ draft, taste, ingredients, onChange, onClose, 
     onChange(materializePizzaMenu({ ...draft, pizzaCatalog: { ...nextCatalog,
       tastes: nextCatalog.tastes.map(item => item.id === taste.id ? { ...item, ...change } : item) } }));
   }
-  const base = catalog.bases.find(item => item.id === (catalog.defaults?.baseId ?? taste.standardBaseId));
-  const included = catalog.toppings.filter(item => taste.includedToppingIds.includes(item.id));
+  const included = catalog.toppings.filter(item => taste.includedToppingIds.includes(item.id)).map(item => {
+    const ids = Object.keys(item.ingredients);
+    const ingredient = ids.length === 1 ? ingredients.find(value => value.id === ids[0]) : undefined;
+    return ingredient ? { ...item, name: ingredient.name } : item;
+  });
   const projected = draft.products.find(product => product.id === taste.id);
   function toggle(ingredient: IndividualIngredient, checked: boolean) {
-    if (checked && base && Object.hasOwn(base.ingredients, ingredient.id)) return;
     const candidates = catalog.toppings.filter(item => !item.inventoryIngredientId
       && Object.keys(item.ingredients).length === 1 && Object.hasOwn(item.ingredients, ingredient.id));
     if (!checked) {
@@ -62,9 +64,8 @@ export function PizzaTastePanel({ draft, taste, ingredients, onChange, onClose, 
         {ingredients.filter(item => item.name.toLocaleLowerCase("it-IT").includes(search.toLocaleLowerCase("it-IT"))).map(ingredient => {
           const matches = included.filter(item => item.inventoryIngredientId === ingredient.id
             || Object.keys(item.ingredients).length === 1 && Object.hasOwn(item.ingredients, ingredient.id));
-          const inBase = Boolean(base && Object.hasOwn(base.ingredients, ingredient.id));
-          return <label className={styles.check} key={ingredient.id}><input type="checkbox" checked={inBase || matches.length > 0} disabled={inBase && matches.length === 0}
-            onChange={event => toggle(ingredient, event.target.checked)} />{ingredient.name}{inBase && <small>Già nella base</small>}</label>;
+          return <label className={styles.check} key={ingredient.id}><input type="checkbox" checked={matches.length > 0}
+            onChange={event => toggle(ingredient, event.target.checked)} />{ingredient.name}</label>;
         })}
         {!ingredients.length && <p>Aggiungi prima gli ingredienti in Magazzino.</p>}
         {ingredients.length > 0 && !ingredients.some(item => item.name.toLocaleLowerCase("it-IT").includes(search.toLocaleLowerCase("it-IT"))) && <p>Nessun ingrediente corrisponde alla ricerca.</p>}
@@ -73,7 +74,7 @@ export function PizzaTastePanel({ draft, taste, ingredients, onChange, onClose, 
     </div>
     <MenuPriceField label="Prezzo in euro" cents={taste.priceCents} onChange={priceCents => update({ priceCents })} />
     <details className={styles.food}><summary>Foto e altre opzioni</summary>
-      <p className={styles.small}>Ogni ingrediente della pizza si seleziona una sola volta. Gli ingredienti già presenti nella base non vanno aggiunti nuovamente.</p>
+      <p className={styles.small}>Ogni ingrediente della pizza si seleziona una sola volta.</p>
       <label className={styles.check}><input type="checkbox" checked={taste.available}
         onChange={event => update({ available: event.target.checked })} />Disponibile per l’ordinazione</label>
       <label>Foto<input type="file" accept="image/jpeg,image/png,image/webp" onChange={event => {
@@ -97,30 +98,57 @@ export function PizzaTastePanel({ draft, taste, ingredients, onChange, onClose, 
 
 const dimensions = [
   { key: "doughs", title: "Impasti", singular: "impasto", defaultKey: "doughId" },
-  { key: "bases", title: "Basi", singular: "base", defaultKey: "baseId" },
   { key: "formats", title: "Formati", singular: "formato", defaultKey: "formatId" }
 ] as const;
 
-export function PizzaSettingsPanel({ draft, ingredients, onChange, onClose }: {
+function DoughInventorySelect({ dough, ingredients, onChange }: {
+  dough: PizzaComponent; ingredients: readonly IndividualIngredient[]; onChange: (id: string | undefined) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const [filter, setFilter] = useState("");
+  const trigger = useRef<HTMLButtonElement>(null);
+  function close() { setOpen(false); trigger.current?.focus(); }
+  const selected = ingredients.find(item => item.id === dough.inventoryIngredientId);
+  const filtered = ingredients.filter(item => item.name.toLocaleLowerCase("it-IT").includes(filter.trim().toLocaleLowerCase("it-IT")));
+  return <div className={styles.ingredientSelect} onKeyDown={event => { if (event.key === "Escape") close(); }}>
+    <span className={styles.small}>Elemento di magazzino</span>
+    <button ref={trigger} type="button" className={styles.selectTrigger} aria-label={`Elemento di magazzino ${dough.name}`} aria-expanded={open}
+      onClick={() => { setOpen(value => !value); setFilter(""); }}>
+      <span>{selected?.name ?? (dough.inventoryIngredientId ? "Elemento da verificare" : "Scegli dal Magazzino")}</span><span aria-hidden="true">⌄</span>
+    </button>
+    {open && <div className={styles.ingredientOptions}>
+      <label><span className={styles.screenReaderOnly}>Cerca elemento di magazzino {dough.name}</span>
+        <input type="search" autoFocus placeholder="Cerca nel Magazzino…" value={filter} onChange={event => setFilter(event.target.value)} /></label>
+      {filtered.map(item => <Button key={item.id} type="button" aria-pressed={item.id === selected?.id} variant={item.id === selected?.id ? "secondary" : "ghost"}
+        onClick={() => { onChange(item.id); close(); }}>{item.name}</Button>)}
+      {!filtered.length && <p>{ingredients.length ? "Nessun elemento trovato." : "Aggiungi prima un elemento in Magazzino."}</p>}
+      {dough.inventoryIngredientId && <Button type="button" variant="ghost" onClick={() => { onChange(undefined); close(); }}>Rimuovi associazione</Button>}
+      <Button type="button" variant="ghost" onClick={close}>Chiudi selezione</Button>
+    </div>}
+  </div>;
+}
+
+export function PizzaSettingsPanel({ draft: sourceDraft, ingredients, onChange, onClose }: {
   draft: MenuDraft; ingredients: readonly IndividualIngredient[]; onChange: (draft: MenuDraft) => void; onClose: () => void;
 }) {
+  const draft = simplifyPizzaInventory(sourceDraft, ingredients);
   const catalog = draft.pizzaCatalog ?? blankPizzaCatalog();
   const defaults = catalog.defaults ?? { doughId: catalog.tastes[0]?.standardDoughId ?? catalog.formulas[0]?.standardDoughId ?? catalog.doughs[0]?.id ?? "",
-    baseId: catalog.tastes[0]?.standardBaseId ?? catalog.formulas[0]?.standardBaseId ?? catalog.bases[0]?.id ?? "",
+    baseId: "",
     formatId: catalog.tastes[0]?.standardFormatId ?? catalog.formulas[0]?.standardFormatId ?? catalog.formats[0]?.id ?? "" };
   function update(next: PizzaCatalog) { onChange(materializePizzaMenu({ ...draft, pizzaCatalog: applyPizzaDefaults({ ...next, defaults: next.defaults ?? defaults }) })); }
-  function changeComponent(key: "doughs" | "bases" | "formats", id: string, change: Partial<PizzaComponent>) {
+  function changeComponent(key: "doughs" | "formats", id: string, change: Partial<PizzaComponent>) {
     update({ ...catalog, [key]: catalog[key].map(item => item.id === id ? { ...item, ...change } : item) });
   }
-  return <section className={styles.productEditor} aria-label="Impasti, basi e formati">
-    <div className={styles.header}><div><p className={styles.small}>Configurazione del menu</p><h3>Impasti, basi e formati</h3></div>
+  return <section className={styles.productEditor} aria-label="Impasti e formati">
+    <div className={styles.header}><div><p className={styles.small}>Configurazione del menu</p><h3>Impasti e formati</h3></div>
       <Button type="button" variant="ghost" onClick={onClose} aria-label="Chiudi configurazione">×</Button></div>
-    <p>Imposta lo standard e aggiungi le alternative che offri.</p>
     {dimensions.map(dimension => {
       const standard = catalog[dimension.key].find(item => item.id === defaults[dimension.defaultKey]);
       return <section className={styles.dimension} key={dimension.key} aria-label={dimension.title}>
         <h4>{dimension.title}</h4>
-        {catalog[dimension.key].map(component => <div className={styles.componentRow} key={component.id}>
+        {catalog[dimension.key].map(component => <div className={styles.componentItem} key={component.id}>
+          <div className={styles.componentRow}>
           <label className={styles.standardChoice}><input type="radio" name={`standard-${dimension.key}`} aria-label={`${component.name} standard`}
             checked={component.id === defaults[dimension.defaultKey]} onChange={() => update({ ...catalog, defaults: { ...defaults, [dimension.defaultKey]: component.id } })} />
             <span className={styles.screenReaderOnly}>Standard</span></label>
@@ -133,22 +161,22 @@ export function PizzaSettingsPanel({ draft, ingredients, onChange, onClose }: {
               const shift = Math.max(0, -desired);
               update({ ...catalog, [dimension.key]: catalog[dimension.key].map(item => ({ ...item, priceCents: (item.id === component.id ? desired : item.priceCents) + shift })) });
             }} /></label>
+          </div>
+          {dimension.key === "doughs" ? <DoughInventorySelect dough={component} ingredients={ingredients}
+            onChange={inventoryIngredientId => changeComponent("doughs", component.id, { inventoryIngredientId, ingredients: {} })} />
+            : <label>Quantità impasto {component.name}<input type="number" min={1} step={1} inputMode="numeric" required
+              value={component.doughQuantity ?? ""} placeholder="Da verificare"
+              onChange={event => changeComponent("formats", component.id, { doughQuantity: event.target.value === "" ? null : Number(event.target.value) })} /></label>}
+          <label className={styles.check}><input type="checkbox" checked={component.available}
+            onChange={event => changeComponent(dimension.key, component.id, { available: event.target.checked })} />Disponibile</label>
         </div>)}
         <Button type="button" variant="ghost" onClick={() => {
-          const component: PizzaComponent = { id: crypto.randomUUID(), name: `Nuovo ${dimension.singular}`, description: "", priceCents: standard?.priceCents ?? 0, available: true, ingredients: {} };
+          const component: PizzaComponent = { id: crypto.randomUUID(), name: `Nuovo ${dimension.singular}`, description: "", priceCents: standard?.priceCents ?? 0, available: true, ingredients: {},
+            ...(dimension.key === "formats" ? { doughQuantity: null } : {}) };
           update({ ...catalog, [dimension.key]: [...catalog[dimension.key], component], defaults: { ...defaults, [dimension.defaultKey]: defaults[dimension.defaultKey] || component.id } });
         }}>+ Aggiungi {dimension.singular}</Button>
       </section>;
     })}
-    <p className={styles.notice}>Lo standard è incluso nel prezzo della pizza. Le alternative applicano il supplemento indicato.</p>
-    <details className={styles.food}><summary>Ricette e dosi dal Magazzino</summary>
-      {dimensions.flatMap(dimension => catalog[dimension.key].map(component => <div className={styles.stack} key={component.id}>
-        <MenuRecipeFields label={`Ricetta ${component.name}`} ingredients={ingredients} recipe={component.ingredients}
-          onChange={recipe => changeComponent(dimension.key, component.id, { ingredients: recipe })} />
-        <label className={styles.check}><input type="checkbox" checked={component.available} onChange={event => changeComponent(dimension.key, component.id, { available: event.target.checked })} />{component.name} disponibile</label>
-        <label>Anteprima {component.name}<input value={component.imagePath ?? ""} placeholder="/images/pizza/…" onChange={event => changeComponent(dimension.key, component.id, { imagePath: event.target.value || undefined })} /></label>
-      </div>))}
-    </details>
     <Button type="button" variant="ghost" onClick={onClose}>Chiudi configurazione</Button>
   </section>;
 }

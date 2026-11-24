@@ -17,8 +17,8 @@ export function applyPizzaDefaults(catalog: PizzaCatalog): PizzaCatalog {
   const defaults = catalog.defaults;
   if (!defaults) return catalog;
   const common = {
-    standardDoughId: defaults.doughId, standardBaseId: defaults.baseId, standardFormatId: defaults.formatId,
-    doughIds: catalog.doughs.map(item => item.id), baseIds: catalog.bases.map(item => item.id),
+    standardDoughId: defaults.doughId, standardBaseId: catalog.inventoryMode ? "" : defaults.baseId, standardFormatId: defaults.formatId,
+    doughIds: catalog.doughs.map(item => item.id), baseIds: catalog.inventoryMode ? [] : catalog.bases.map(item => item.id),
     formatIds: catalog.formats.map(item => item.id)
   };
   return { ...catalog, tastes: catalog.tastes.map(entry => ({ ...entry, ...common })),
@@ -45,7 +45,7 @@ export function syncPizzaInventory(draft: MenuDraft, ingredients: readonly Indiv
   });
   const activeIds = generated.map(item => item.id);
   // Keep recipes referenced by tastes even when an ingredient is no longer an offered extra.
-  const included = new Set(catalog.tastes.flatMap(entry => entry.includedToppingIds));
+  const included = new Set([...catalog.tastes, ...catalog.formulas].flatMap(entry => entry.includedToppingIds ?? []));
   const existing = new Set(generated.map(item => item.id));
   const preserved = catalog.toppings.filter(item => !existing.has(item.id) && included.has(item.id));
   // Keep an included recipe stable even when its warehouse extra changes commercially.
@@ -63,7 +63,8 @@ export function syncPizzaInventory(draft: MenuDraft, ingredients: readonly Indiv
     return { ...recipe, id };
   });
   const next = { ...catalog, inventoryExtras: true, inventorySignature, toppings: [...preserved, ...recipeCopies, ...generated],
-    formulas: catalog.formulas.map(entry => ({ ...entry, toppingIds: activeIds })),
+    formulas: catalog.formulas.map(entry => ({ ...entry, toppingIds: activeIds,
+      ...(entry.includedToppingIds ? { includedToppingIds: entry.includedToppingIds.map(id => copiedIds.get(id) ?? id) } : {}) })),
     tastes: catalog.tastes.map(entry => ({ ...entry, toppingIds: activeIds,
       includedToppingIds: entry.includedToppingIds.map(id => copiedIds.get(id) ?? id) })) };
   return materializePizzaMenu({ ...draft, pizzaCatalog: next });
@@ -93,20 +94,25 @@ function projectPizza(catalog: PizzaCatalog, entry: PizzaTaste | PizzaFormula, k
     { kind: "format", name: "Formato", items: catalog.formats, allowed: entry.formatIds, standard: entry.standardFormatId }
   ] as const;
   for (const dimension of dimensions) {
+    if (catalog.inventoryMode === "dough-format" && dimension.kind === "base") continue;
     const standard = dimension.items.find(item => item.id === dimension.standard);
     const optionIds: string[] = [];
     for (const component of dimension.items.filter(item => dimension.allowed.includes(item.id))) {
       const id = makeId(dimension.kind, component.id);
       optionIds.push(id);
       options.push({ id, name: component.name, ...(component.description ? { description: component.description } : {}),
-        priceCents: component.priceCents - (standard?.priceCents ?? 0), ingredients: { ...component.ingredients },
-        ...(component.food ? { food: copyFood(component.food) } : {}), available: component.available,
-        pizza: { kind: dimension.kind, sourceId: component.id, ...(component.imagePath ? { imagePath: component.imagePath } : {}) } });
+        priceCents: component.priceCents - (standard?.priceCents ?? 0), ingredients: catalog.inventoryMode === "dough-format"
+          ? dimension.kind === "dough" && component.inventoryIngredientId ? { [component.inventoryIngredientId]: 1 } : {}
+          : { ...component.ingredients },
+        ...(component.food ? { food: copyFood(component.food) } : {}), available: component.available
+          && !(catalog.inventoryMode === "dough-format" && dimension.kind === "dough" && !component.inventoryIngredientId),
+        pizza: { kind: dimension.kind, sourceId: component.id, ...(component.imagePath ? { imagePath: component.imagePath } : {}),
+          ...(catalog.inventoryMode === "dough-format" && dimension.kind === "format" ? { doughQuantity: component.doughQuantity ?? null } : {}) } });
       if (component.id === dimension.standard) defaultSelections.push({ optionId: id, quantity: 1 });
     }
     groups.push({ id: dimension.kind, name: dimension.name, kind: dimension.kind, min: 1, max: 1, optionIds });
   }
-  const included = "includedToppingIds" in entry ? entry.includedToppingIds : [];
+  const included = entry.includedToppingIds ?? [];
   for (const topping of catalog.toppings.filter(item => included.includes(item.id))) {
     for (const [id, quantity] of Object.entries(topping.ingredients)) {
       const previous = ingredients[id];
@@ -124,7 +130,7 @@ function projectPizza(catalog: PizzaCatalog, entry: PizzaTaste | PizzaFormula, k
   }
   const extraIds = options.filter(option => option.pizza?.kind === "topping").map(option => option.id);
   if (extraIds.length) groups.push({ id: "extras", name: "Extra", kind: "extras", min: 0, max: 100, allowRepeat: true, optionIds: extraIds });
-  const taste = "includedToppingIds" in entry ? entry : undefined;
+  const taste = kind === "taste" ? entry as PizzaTaste : undefined;
   const customizations = taste?.customizations;
   if (customizations) {
     options.push(...structuredClone(customizations.options));

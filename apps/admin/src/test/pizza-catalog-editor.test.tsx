@@ -82,7 +82,7 @@ describe("Catalogo pizza nel pannello", () => {
     expect(current().pizzaCatalog?.customEnabled).toBe(false);
     expect(current().pizzaCatalog?.formulas).toHaveLength(1);
     expect(current().pizzaCatalog?.formulas[0]).toMatchObject({ id: "simple", name: "Simple", priceCents: 600, toppingIds: [],
-      standardDoughId: "classico", standardBaseId: "rossa", standardFormatId: "standard" });
+      standardDoughId: "classico", standardBaseId: "", standardFormatId: "standard" });
     expect(current().sections).toEqual(before.sections);
     expect(current().products.some(({ pizza }) => pizza?.kind === "formula")).toBe(false);
     fireEvent.click(screen.getByRole("switch", { name: "Pizza custom" }));
@@ -95,7 +95,7 @@ describe("Catalogo pizza nel pannello", () => {
     const candidate = initial();
     candidate.pizzaCatalog!.doughs.push({ id: "integrale", name: "Integrale", description: "", priceCents: 120, available: true, ingredients: {} });
     render(<Editor initialDraft={candidate} />);
-    fireEvent.click(screen.getByRole("button", { name: /Impasti, basi e formati/ }));
+    fireEvent.click(screen.getByRole("button", { name: /Impasti e formati/ }));
     fireEvent.click(screen.getByRole("radio", { name: "Integrale standard" }));
     expect(current().pizzaCatalog?.defaults?.doughId).toBe("integrale");
     expect(current().pizzaCatalog?.formulas[0]).toMatchObject({ priceCents: 600, standardDoughId: "integrale", doughIds: ["classico", "integrale"] });
@@ -103,7 +103,7 @@ describe("Catalogo pizza nel pannello", () => {
     expect(screen.queryByRole("button", { name: "Salva configurazione" })).toBeNull();
     fireEvent.click(screen.getAllByRole("button", { name: "Chiudi configurazione" })[0]);
     expect(current().pizzaCatalog?.defaults?.doughId).toBe("integrale");
-    expect(screen.queryByRole("region", { name: "Impasti, basi e formati" })).toBeNull();
+    expect(screen.queryByRole("region", { name: "Impasti e formati" })).toBeNull();
   });
 
   it("modifica nome e regola libera senza scegliere preset né configurare ingredienti nella card", () => {
@@ -118,7 +118,7 @@ describe("Catalogo pizza nel pannello", () => {
     expect(screen.queryByLabelText("Formula sconto extra")).toBeNull();
   });
 
-  it("mostra ingredienti della base senza aggiungere una seconda porzione al gusto", () => {
+  it("trasferisce la base tra gli ingredienti ordinari modificabili senza duplicare la dose", () => {
     const candidate = initial();
     candidate.pizzaCatalog!.bases[0].ingredients = { farina: 2 };
     candidate.pizzaCatalog!.formulas = [];
@@ -129,12 +129,16 @@ describe("Catalogo pizza nel pannello", () => {
     fireEvent.click(screen.getByRole("button", { name: "Modifica Margherita" }));
     const editor = within(screen.getByRole("region", { name: "Modifica pizza" }));
     fireEvent.click(editor.getByRole("button", { name: "Seleziona ingredienti" }));
-    const baseIngredient = editor.getByRole("checkbox", { name: /Farina.*Già nella base/ });
-    expect(baseIngredient).toBeDisabled();
+    const baseIngredient = editor.getByRole("checkbox", { name: "Farina" });
+    expect(baseIngredient).toBeEnabled();
+    expect(baseIngredient).toBeChecked();
     fireEvent.click(editor.getByRole("checkbox", { name: "Olive" }));
-    expect(current().pizzaCatalog!.tastes[0].includedToppingIds).toHaveLength(1);
+    expect(current().pizzaCatalog!.tastes[0].includedToppingIds).toHaveLength(2);
     expect(current().pizzaCatalog!.toppings.find(item => Object.hasOwn(item.ingredients, "olive"))?.ingredients).toEqual({ olive: 1 });
-    expect(current().pizzaCatalog!.toppings.some(({ ingredients: recipe }) => Object.hasOwn(recipe, "farina"))).toBe(false);
+    expect(current().pizzaCatalog!.bases).toEqual([]);
+    expect(current().pizzaCatalog!.toppings.find(item => Object.hasOwn(item.ingredients, "farina"))?.ingredients).toEqual({ farina: 2 });
+    fireEvent.click(baseIngredient);
+    expect(current().pizzaCatalog!.tastes[0].includedToppingIds).toHaveLength(1);
   });
 
   it("duplica e rimuove una formula senza trasformarla in un prodotto generico", () => {

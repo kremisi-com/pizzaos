@@ -12,8 +12,11 @@ const only = (value: Record<string, unknown>, fields: string[]) => Object.keys(v
 /** Validate the source catalog before compiling any browser-supplied projections. */
 export function validatePizzaCatalog(value: unknown, ingredientIds: Set<string>, invalid: Invalid, publishing = false, stocks?: Map<string, number | null>): asserts value is PizzaCatalog {
   const collections = ["doughs", "bases", "formats", "toppings", "tastes", "formulas"];
-  if (!isMenuRecord(value) || !only(value, [...collections, "defaults", "customEnabled", "inventoryExtras", "inventorySignature"]) || collections.some(key => !Array.isArray(value[key]) || value[key].length > 100)) invalid("Catalogo pizza non valido.");
+  if (!isMenuRecord(value) || !only(value, [...collections, "inventoryMode", "defaults", "customEnabled", "inventoryExtras", "inventorySignature"]) || collections.some(key => !Array.isArray(value[key]) || value[key].length > 100)) invalid("Catalogo pizza non valido.");
   const catalog = value as unknown as PizzaCatalog;
+  if (catalog.inventoryMode !== undefined && catalog.inventoryMode !== "dough-format") invalid("Gestione scorte pizza non valida.");
+  const doughInventory = catalog.inventoryMode === "dough-format";
+  if (doughInventory && catalog.bases.length) invalid("La base si gestisce tra gli ingredienti della pizza.");
   // A menu containing only ordinary products does not require pizza standards or recipe readiness.
   publishing = publishing && (catalog.tastes.length > 0 || catalog.formulas.length > 0);
   if ((catalog.customEnabled !== undefined && typeof catalog.customEnabled !== "boolean") ||
@@ -23,13 +26,15 @@ export function validatePizzaCatalog(value: unknown, ingredientIds: Set<string>,
     if (!isMenuRecord(catalog.defaults) || !only(catalog.defaults, ["doughId", "baseId", "formatId"])) invalid("Scelte standard del menu non valide.");
     for (const [key, items] of [["doughId", catalog.doughs], ["baseId", catalog.bases], ["formatId", catalog.formats]] as const) {
       const id = catalog.defaults[key];
-      if (typeof id !== "string" || (id !== "" && !items.some(item => isMenuRecord(item) && item.id === id)) || (publishing && !id)) invalid("Verifica impasto, base e formato standard del menu.");
+      if (doughInventory && key === "baseId") { if (id !== "") invalid("La base non è una scelta standard."); continue; }
+      if (typeof id !== "string" || (id !== "" && !items.some(item => isMenuRecord(item) && item.id === id)) || (publishing && !id)) invalid(doughInventory
+        ? "Verifica impasto e formato standard del menu." : "Verifica impasto, base e formato standard del menu.");
     }
   }
   for (const collection of [catalog.doughs, catalog.bases, catalog.formats, catalog.toppings]) {
     const seen = new Set<string>();
     for (const item of collection) {
-      if (!isMenuRecord(item) || !only(item, ["id", "name", "description", "priceCents", "available", "ingredients", "food", "imagePath", "category", "inventoryIngredientId"]) ||
+      if (!isMenuRecord(item) || !only(item, ["id", "name", "description", "priceCents", "available", "ingredients", "food", "imagePath", "category", "inventoryIngredientId", "doughQuantity"]) ||
         !safeId(item.id) || seen.has(item.id) || !label(item.name) || typeof item.description !== "string" || item.description.length > 2000 ||
         !cents(item.priceCents) || typeof item.available !== "boolean" || !isMenuRecord(item.ingredients)) invalid("Controlla nome, prezzo e ricetta dei componenti pizza.");
       seen.add(item.id);
@@ -40,6 +45,18 @@ export function validatePizzaCatalog(value: unknown, ingredientIds: Set<string>,
         if (!ingredientIds.has(id) || (dose !== null && (typeof dose !== "number" || !Number.isSafeInteger(dose) || dose < 1))) invalid("Ricetta del componente pizza non valida.");
         if (publishing && (dose === null || stocks?.get(id) == null)) invalid(`«${item.name}»: verifica dosi e scorte prima di pubblicare.`);
       }
+    }
+  }
+  if (doughInventory) {
+    for (const dough of catalog.doughs) {
+      if (Object.keys(dough.ingredients).length || dough.doughQuantity !== undefined) invalid("Associa una sola voce di Magazzino a ogni impasto.");
+      if (dough.inventoryIngredientId !== undefined && !ingredientIds.has(dough.inventoryIngredientId)) invalid("Voce di Magazzino dell'impasto non valida.");
+      if (publishing && (!dough.inventoryIngredientId || stocks && stocks.get(dough.inventoryIngredientId) == null)) invalid(`«${dough.name}»: verifica collegamento e scorte dell'impasto prima di pubblicare.`);
+    }
+    for (const format of catalog.formats) {
+      if (Object.keys(format.ingredients).length || format.inventoryIngredientId !== undefined) invalid("Il formato indica soltanto la quantità di impasto.");
+      if (format.doughQuantity != null && (!Number.isSafeInteger(format.doughQuantity) || format.doughQuantity < 1)) invalid("Indica una quantità intera positiva di impasto per il formato.");
+      if (publishing && format.doughQuantity == null) invalid(`«${format.name}»: verifica la quantità di impasto prima di pubblicare.`);
     }
   }
   const inventoryReferences = new Set<string>();
@@ -57,8 +74,13 @@ export function validatePizzaCatalog(value: unknown, ingredientIds: Set<string>,
       !safeId(entry.id) || ids.has(entry.id) || !label(entry.name) || typeof entry.description !== "string" || entry.description.length > 2000 || !cents(entry.priceCents) || typeof entry.available !== "boolean") invalid("Gusto o formula pizza non validi.");
     ids.add(entry.id);
     for (const [items, allowed, standard] of [[catalog.doughs, entry.doughIds, entry.standardDoughId], [catalog.bases, entry.baseIds, entry.standardBaseId], [catalog.formats, entry.formatIds, entry.standardFormatId]] as const) {
+      if (doughInventory && items === catalog.bases) {
+        if (!Array.isArray(allowed) || allowed.length || standard !== "") invalid("Rimuovi le scelte base: usa gli ingredienti della pizza.");
+        continue;
+      }
       if (!strings(allowed) || typeof standard !== "string" || (standard !== "" && !safeId(standard)) || allowed.some(id => !items.some(item => item.id === id)) ||
-        (standard !== "" && !allowed.includes(standard)) || (publishing && (!allowed.length || !standard))) invalid(`«${entry.name}»: verifica impasti, basi, formati e scelte standard.`);
+        (standard !== "" && !allowed.includes(standard)) || (publishing && (!allowed.length || !standard))) invalid(doughInventory
+          ? `«${entry.name}»: verifica impasti, formati e scelte standard.` : `«${entry.name}»: verifica impasti, basi, formati e scelte standard.`);
     }
     if (!strings(entry.toppingIds) || entry.toppingIds.some(id => !catalog.toppings.some(topping => topping.id === id))) invalid("Topping ammessi non validi.");
     if (entry.toppingImagePath !== undefined && !asset(entry.toppingImagePath)) invalid("Immagine degli ingredienti non valida.");
@@ -66,7 +88,7 @@ export function validatePizzaCatalog(value: unknown, ingredientIds: Set<string>,
       if (!Array.isArray(entry.previewImages) || entry.previewImages.length > 100) invalid("Anteprime pizza non valide.");
       const seenPreviews = new Set<string>();
       for (const preview of entry.previewImages) {
-        if (!isMenuRecord(preview) || !only(preview, ["doughId", "baseId", "imagePath"]) || !entry.doughIds.includes(preview.doughId) || !entry.baseIds.includes(preview.baseId) || !asset(preview.imagePath)) invalid("Associa ogni anteprima a impasto e base ammessi e a un'immagine locale.");
+        if (!isMenuRecord(preview) || !only(preview, ["doughId", "baseId", "imagePath"]) || !entry.doughIds.includes(preview.doughId) || !(doughInventory ? preview.baseId === "" : entry.baseIds.includes(preview.baseId)) || !asset(preview.imagePath)) invalid("Associa ogni anteprima alle scelte ammesse e a un'immagine locale.");
         const key = JSON.stringify([preview.doughId, preview.baseId]);
         if (seenPreviews.has(key)) invalid("Anteprima pizza duplicata.");
         seenPreviews.add(key);
@@ -92,7 +114,9 @@ export function validatePizzaCatalog(value: unknown, ingredientIds: Set<string>,
     }
   }
   for (const formula of catalog.formulas) {
-    if ("includedToppingIds" in formula || "customizations" in formula || "food" in formula || "allergens" in formula || (formula.offer !== undefined && (typeof formula.offer !== "string" || !Object.hasOwn(PIZZA_EXTRA_OFFERS, formula.offer)))) invalid("Regola precedente della formula non valida.");
+    if (formula.includedToppingIds !== undefined && (!doughInventory || !strings(formula.includedToppingIds)
+      || formula.includedToppingIds.some(id => !catalog.toppings.some(topping => topping.id === id)))) invalid("Ingredienti inclusi nella combinazione non validi.");
+    if ("customizations" in formula || "food" in formula || "allergens" in formula || (formula.offer !== undefined && (typeof formula.offer !== "string" || !Object.hasOwn(PIZZA_EXTRA_OFFERS, formula.offer)))) invalid("Regola precedente della formula non valida.");
     const offer = formula.extraOffer;
     if (offer !== undefined && (!isMenuRecord(offer) || !only(offer, ["quota", "percent"]) ||
       !Number.isSafeInteger(offer.quota) || offer.quota < 0 || offer.quota > 100 ||

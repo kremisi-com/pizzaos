@@ -29,7 +29,7 @@ export function pizzaPreview(product: IndividualProduct, selections: readonly Me
   const selected = product.options.filter(option => selections.some(choice => choice.optionId === option.id));
   const doughId = selected.find(option => option.pizza?.kind === "dough")?.pizza?.sourceId;
   const baseId = selected.find(option => option.pizza?.kind === "base")?.pizza?.sourceId;
-  const configured = product.pizza?.previewImages?.find(image => image.doughId === doughId && image.baseId === baseId)?.imagePath
+  const configured = product.pizza?.previewImages?.find(image => image.doughId === doughId && image.baseId === (baseId ?? ""))?.imagePath
     ?? selected.find(option => option.pizza?.kind === "base" && option.pizza.imagePath)?.pizza?.imagePath
     ?? selected.find(option => option.pizza?.kind === "dough" && option.pizza.imagePath)?.pizza?.imagePath;
   return {

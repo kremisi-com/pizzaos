@@ -24,11 +24,11 @@ async function openDraft() {
 }
 
 describe("salvataggio automatico menu", () => {
-  it("aggiunge impasti, basi e formati e salva i nomi soltanto al blur", async () => {
+  it("aggiunge impasti e formati e salva i nomi soltanto al blur", async () => {
     const { saveDraft, showToast } = setup();
     await openDraft();
-    fireEvent.click(screen.getByRole("button", { name: /Impasti, basi e formati/ }));
-    for (const singular of ["impasto", "base", "formato"]) {
+    fireEvent.click(screen.getByRole("button", { name: /Impasti e formati/ }));
+    for (const singular of ["impasto", "formato"]) {
       fireEvent.click(screen.getByRole("button", { name: `+ Aggiungi ${singular}` }));
       await waitFor(() => expect(screen.getByText("Bozza salvata")).toBeInTheDocument());
       const previous = saveDraft.mock.calls.length;

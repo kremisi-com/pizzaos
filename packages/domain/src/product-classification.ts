@@ -19,6 +19,11 @@ function combine(recipes: readonly Recipe[]): Recipe {
 }
 
 function standards(catalog: PizzaCatalog, entry: PizzaEntry): Recipe {
+  if (catalog.inventoryMode === "dough-format") {
+    const dough = catalog.doughs.find(item => item.id === entry.standardDoughId);
+    const format = catalog.formats.find(item => item.id === entry.standardFormatId);
+    return dough?.inventoryIngredientId ? { [dough.inventoryIngredientId]: format?.doughQuantity ?? null } : {};
+  }
   return combine([
     catalog.doughs.find(item => item.id === entry.standardDoughId)?.ingredients ?? {},
     catalog.bases.find(item => item.id === entry.standardBaseId)?.ingredients ?? {},
@@ -37,9 +42,9 @@ export function planProductClassification(
   if (product.pizza?.kind === "formula") return fail("Le combinazioni Pizza custom si gestiscono nel pannello dedicato.");
   if (Boolean(product.pizza) === pizza) return { draft: structuredClone(draft), changes: [], errors: [] };
   const next = structuredClone(draft);
-  const source = next.pizzaCatalog ?? emptyPizzaCatalog();
+  const source = next.pizzaCatalog ?? { ...emptyPizzaCatalog(), inventoryMode: "dough-format" as const };
   if (pizza && !source.defaults && (source.tastes.length || source.formulas.length)) {
-    return fail("Configura esplicitamente gli standard comuni in Impasti, basi e formati prima di convertire il prodotto. Le altre pizze restano invariate.");
+    return fail("Configura esplicitamente gli standard comuni in Impasti e formati prima di convertire il prodotto. Le altre pizze restano invariate.");
   }
   const catalog = pizza ? applyPizzaDefaults({ ...source, defaults: source.defaults ?? {
     doughId: source.doughs[0]?.id ?? "", baseId: source.bases[0]?.id ?? "", formatId: source.formats[0]?.id ?? ""
@@ -61,7 +66,7 @@ export function planProductClassification(
     next.pizzaCatalog = catalog;
     return { draft: syncPizzaInventory(next, ingredients), errors: [], changes: [
       "Il prodotto conserva ricetta completa, prezzo, foto, posizione e scelte specifiche.",
-      "Impasti, basi, formati ed extra comuni non saranno più proposti per questa voce."
+      "Impasti, formati ed extra comuni non saranno più proposti per questa voce."
     ] };
   }
   if (product.extraOffer) return fail("Verifica lo sconto extra del prodotto prima di convertirlo: le formule pizza si gestiscono in Pizza custom.");
@@ -106,10 +111,10 @@ export function planProductClassification(
   catalog.tastes.push(entry);
   next.pizzaCatalog = catalog;
   return { draft: syncPizzaInventory(materializePizzaMenu(next), ingredients), errors: [], changes: [
-    "La voce diventa una pizza con impasti, basi e formati comuni ed extra dal Magazzino.",
+    "La voce diventa una pizza con impasti e formati comuni ed extra dal Magazzino.",
     "Nome, prezzo, ricetta, foto, disponibilità, posizione e scelte specifiche vengono conservati.",
     ...(options.newProduct && !Object.keys(product.ingredients).length ? ["La nuova pizza parte dalla ricetta dei componenti standard."] : []),
-    ...(!entry.standardDoughId || !entry.standardBaseId || !entry.standardFormatId
-      ? ["Configura impasto, base e formato standard prima di pubblicare."] : [])
+    ...(!entry.standardDoughId || !entry.standardFormatId || !catalog.inventoryMode && !entry.standardBaseId
+      ? ["Configura impasto e formato standard prima di pubblicare."] : [])
   ] };
 }

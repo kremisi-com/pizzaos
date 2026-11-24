@@ -272,7 +272,9 @@ export function OperationalMenu({ store, preferences, disabled = false, onAdd }:
     <header className={styles.hero}>
       {store.menu?.name && <p className={styles.menuName}>{store.menu.name}</p>}
       <h2>{pizzas.length ? "La pizza a modo tuo" : "Scegli dal menu"}</h2>
-      <p>{pizzas.length ? "Scegli impasto e base, poi trova la tua pizza." : "Scopri le proposte della pizzeria."}</p>
+      <p>{pizzas.length ? dimensions.some(dimension => dimension.kind === "base" && dimension.choices.length)
+        ? "Scegli impasto e base, poi trova la tua pizza." : "Scegli l'impasto, poi trova la tua pizza."
+        : "Scopri le proposte della pizzeria."}</p>
       {pizzas.length > 0 && <div className={styles.heroPreview}>
         {heroImage?.src ? <>
           <Image unoptimized loading="eager" src={heroImage.src} alt={`Anteprima pizza ${heroProduct?.name ?? ""}`} width={360} height={360} />

@@ -13,4 +13,5 @@ export * from "./menu-ordering";
 export * from "./menu-composition";
 
 export * from "./pizza-catalog";
+export { simplifyPizzaInventory } from "./pizza-inventory";
 export * from "./product-classification";

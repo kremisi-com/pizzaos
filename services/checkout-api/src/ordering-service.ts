@@ -187,7 +187,8 @@ function publicProduct(product: IndividualProduct, store: IndividualStore, reser
   }
   return { ...(managed ? describeFood(product, store) : product), available: product.available && possible(product.ingredients, true),
     ...(managed ? { baseIngredientIds: Object.keys(product.ingredients), ...(maxAvailable !== undefined ? { maxAvailable } : {}) } : {}),
-    pizzaRecipeSources: undefined, ingredients: {}, options: product.options.map(option => ({ ...option, ingredients: {},
+    pizzaRecipeSources: undefined, ingredients: {}, options: product.options.map(option => ({ ...option,
+      ...(option.pizza ? { pizza: { ...option.pizza, doughQuantity: undefined } } : {}), ingredients: {},
       ...(managed ? { ingredientIds: Object.keys(option.ingredients), available: option.available !== false && optionPossible(option) } : {}) })) };
 }
 

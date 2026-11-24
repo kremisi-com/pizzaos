@@ -59,12 +59,18 @@ export function resolveMenuComposition(product: IndividualProduct, selections: r
     if (!removedToppings.has(source.sourceId) && source.food) { includeFood(source.food); identifiedFood = true; }
   }
   const ingredients = new Map(product.foodIngredients?.map(item => [item.id, item]));
+  const format = selected.find(({ option }) => option.pizza?.kind === "format")?.option.pizza;
+  const doughQuantity = format?.doughQuantity;
+  if (doughQuantity !== undefined && (doughQuantity === null || !Number.isSafeInteger(doughQuantity) || doughQuantity < 1)) valid = false;
   for (const { option, quantity } of selected) {
     const references = option.ingredientIds?.map(id => [id, 1] as const) ?? Object.entries(option.ingredients);
     const ownRemovals = new Set(option.removesIngredientIds);
     for (const [id, units] of references) {
       if (units === null) { valid = false; continue; }
-      if (!removed.has(id) || ownRemovals.has(id)) recipe.set(id, (recipe.get(id) ?? 0) + units * quantity);
+      const dose = option.pizza?.kind === "dough" && doughQuantity != null ? doughQuantity : units;
+      if (!removed.has(id) || ownRemovals.has(id) || option.pizza?.kind === "dough" && doughQuantity !== undefined) {
+        recipe.set(id, (recipe.get(id) ?? 0) + dose * quantity);
+      }
     }
     if (option.food) { includeFood(option.food); identifiedFood = true; }
     else if (!references.length && !ownRemovals.size && ["recipe", "extras", "selection"].includes(groupByOption.get(option.id)?.kind ?? "")) foodComplete = false;

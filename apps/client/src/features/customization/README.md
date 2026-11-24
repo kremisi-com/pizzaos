@@ -10,7 +10,7 @@ Run `pnpm --filter @pizzaos/client test` for customization model and product det
 
 ## Composizione persistente
 
-`LivePizzaEditor`, esportato dall'entry point della feature, riceve catalogo pubblico, riga eventuale e callback dalla composizione del menu. Usa le stesse sezioni espandibili e lo stesso CSS del dettaglio PoC: Impasto, Base, Formato, Ingredienti, Extra, note, abbinamenti e CTA fissa. `CollapsibleSection` è condivisa dalle due esperienze; le sezioni chiuse sono escluse dall'interazione da tastiera.
+`LivePizzaEditor`, esportato dall'entry point della feature, riceve catalogo pubblico, riga eventuale e callback dalla composizione del menu. Usa le sezioni espandibili Impasto, Formato, Ingredienti, Extra, note, abbinamenti e CTA fissa. La base è un ingrediente ordinario; la sezione Base rimane soltanto per menu precedentemente pubblicati che la prevedono ancora. Il formato determina il consumo della voce di Magazzino dell'impasto scelto, ricalcolato esclusivamente dal servizio; il catalogo pubblico non espone dosi. `CollapsibleSection` è condivisa con il PoC; le sezioni chiuse sono escluse dall'interazione da tastiera.
 
 Le scelte e le impostazioni standard provengono dalla proiezione del servizio. Il client non ricava regole dai nomi commerciali e non legge dati demo nel flusso persistente. Gusti e formule mantengono identità distinte nella riga; le formule custom iniziano senza gusto, indipendentemente dal loro nome. L'anteprima usa gli asset esplicitamente configurati, oppure la foto della voce. Il prezzo locale anticipa il preventivo autorevole del servizio.
 

@@ -1,4 +1,4 @@
-import { materializePizzaMenu, planProductClassification, PIZZA_EXTRA_OFFERS, syncPizzaInventory } from "@pizzaos/domain";
+import { materializePizzaMenu, planProductClassification, PIZZA_EXTRA_OFFERS, simplifyPizzaInventory, syncPizzaInventory } from "@pizzaos/domain";
 import type { IndividualIngredient, IndividualProduct, MenuDraft, OrderingMenuSection, PizzaEntry } from "@pizzaos/domain";
 import { Button } from "@pizzaos/ui";
 import { useState } from "react";
@@ -31,7 +31,7 @@ function MoveButtons({ label, index, count, onMove }: {
   </>;
 }
 
-export function MenuDraftEditor({ draft, storeId, ingredients, onChange, onUpload, onInventory }: {
+export function MenuDraftEditor({ draft: sourceDraft, storeId, ingredients, onChange, onUpload, onInventory }: {
   draft: MenuDraft;
   storeId: string;
   ingredients: readonly IndividualIngredient[];
@@ -39,6 +39,7 @@ export function MenuDraftEditor({ draft, storeId, ingredients, onChange, onUploa
   onUpload: (productId: string, file: File) => void;
   onInventory?: () => void;
 }) {
+  const draft = simplifyPizzaInventory(sourceDraft, ingredients);
   const [editingId, setEditingId] = useState("");
   const [removingId, setRemovingId] = useState("");
   const [editingSectionId, setEditingSectionId] = useState("");
@@ -61,9 +62,7 @@ export function MenuDraftEditor({ draft, storeId, ingredients, onChange, onUploa
   function ingredientSummary(product: IndividualProduct) {
     const entry = catalog.tastes.find(item => item.id === product.id);
     if (!entry) return product.description;
-    const base = catalog.bases.find(item => item.id === (catalog.defaults?.baseId ?? entry.standardBaseId));
     return [...new Set([
-      ...Object.keys(base?.ingredients ?? {}).map(id => ingredients.find(item => item.id === id)?.name ?? "Ingrediente da verificare"),
       ...catalog.toppings.filter(item => entry.includedToppingIds.includes(item.id)).map(item => item.name)
     ])].join(", ");
   }
@@ -94,7 +93,7 @@ export function MenuDraftEditor({ draft, storeId, ingredients, onChange, onUploa
     const id = crypto.randomUUID();
     const entry: PizzaEntry = source ? { ...structuredClone(source), id, name: `Copia di ${source.name}` } : { ...createPizzaEntry(catalog, kind), id };
     const pizzaCatalog = kind === "taste" ? { ...catalog, tastes: [...catalog.tastes,
-      { ...entry, includedToppingIds: source && "includedToppingIds" in source ? source.includedToppingIds : [] }] }
+      { ...entry, includedToppingIds: source?.includedToppingIds ?? [] }] }
       : { ...catalog, customEnabled: true, inventoryExtras: source ? catalog.inventoryExtras : true, formulas: [...catalog.formulas,
         { ...entry, extraOffer: source && "extraOffer" in source && source.extraOffer ? source.extraOffer
           : source && "offer" in source && source.offer ? PIZZA_EXTRA_OFFERS[source.offer] : { quota: 0, percent: 0 } }] };
@@ -201,8 +200,8 @@ export function MenuDraftEditor({ draft, storeId, ingredients, onChange, onUploa
     </section>; })}
     <button type="button" className={`${styles.settingsCard} ${settings ? styles.selectedCard : ""}`} onClick={() => {
       setSettings(true); setEditingId("");
-    }}><strong>Impasti, basi e formati</strong><span>{settings ? "In modifica" : "Personalizza"}</span>
-      <small>{catalog.doughs.find(item => item.id === catalog.defaults?.doughId)?.name ?? catalog.doughs[0]?.name ?? "Configura impasto"} · {catalog.bases.find(item => item.id === catalog.defaults?.baseId)?.name ?? catalog.bases[0]?.name ?? "base"} · {catalog.formats.find(item => item.id === catalog.defaults?.formatId)?.name ?? catalog.formats[0]?.name ?? "formato"}</small>
+    }}><strong>Impasti e formati</strong><span>{settings ? "In modifica" : "Personalizza"}</span>
+      <small>{catalog.doughs.find(item => item.id === catalog.defaults?.doughId)?.name ?? catalog.doughs[0]?.name ?? "Configura impasto"} · {catalog.formats.find(item => item.id === catalog.defaults?.formatId)?.name ?? catalog.formats[0]?.name ?? "formato"}</small>
       <small>Valgono per tutte le pizze. Cambiali solo se offri alternative.</small></button>
     {(catalog.tastes.length > 0 || catalog.formulas.length > 0) && <section className={styles.section} aria-label="Extra comuni dal Magazzino">
       <h3>Extra comuni dal Magazzino</h3>

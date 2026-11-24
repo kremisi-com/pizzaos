@@ -52,7 +52,8 @@ describe("classificazione dal menu amministrativo", () => {
     const resulting = changes.mock.lastCall![0] as MenuDraft;
     const pizza = resulting.products.find((product) => product.id === id)!;
     expect(pizza.pizza?.kind).toBe("taste");
-    expect(resolveMenuComposition(pizza, pizza.pizza!.defaultSelections).recipe).toEqual({ farina: 2, pomodoro: 1 });
+    expect(resolveMenuComposition(pizza, pizza.pizza!.defaultSelections).recipe).toEqual({ farina: 2 });
+    expect(resulting.pizzaCatalog?.bases).toEqual([]);
     expect((screen.getByRole("checkbox", { name: /^Pizza$/i }) as HTMLInputElement).checked).toBe(true);
   });
 

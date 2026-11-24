@@ -145,7 +145,7 @@ export function PizzaCatalogEditor({ draft, ingredients, onChange }: {
         {catalog[key].map(component => {
           const referenced = [...catalog.tastes, ...catalog.formulas].some(entry =>
             [...entry.doughIds, ...entry.baseIds, ...entry.formatIds, ...entry.toppingIds,
-              ...("includedToppingIds" in entry ? entry.includedToppingIds : [])].includes(component.id));
+              ...(entry.includedToppingIds ?? [])].includes(component.id));
           return <details key={component.id} className={styles.optionGroup}><summary>{component.name || `Nuovo ${singular}`}</summary>
             <ComponentEditor component={component} ingredients={ingredients} canRemove={!referenced}
               onChange={change => update({ ...catalog, [key]: catalog[key].map(item => item.id === component.id ? { ...item, ...change } : item) })}

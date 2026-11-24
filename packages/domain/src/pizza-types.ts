@@ -4,6 +4,9 @@ import type { MenuFoodInformation, MenuOptionGroup, MenuSpecificOption } from ".
 export interface PizzaComponent {
   id: string; name: string; description: string; priceCents: number; available: boolean;
   ingredients: Record<string, number | null>; food?: { contains: string[]; mayContain: string[] }; imagePath?: string;
+  inventoryIngredientId?: string;
+  /** Units deducted from the selected dough's warehouse item, per pizza. */
+  doughQuantity?: number | null;
 }
 export interface PizzaTopping extends PizzaComponent { category: string; inventoryIngredientId?: string; }
 export interface PizzaPreviewImage { doughId: string; baseId: string; imagePath: string; }
@@ -21,11 +24,14 @@ export interface PizzaTaste extends PizzaEntry {
   allergens?: string[];
 }
 export interface PizzaFormula extends PizzaEntry {
+  includedToppingIds?: string[];
   /** Legacy rules remain readable; new formulas use explicit extraOffer. */
   offer?: "Simple" | "Wild" | "Savage";
   extraOffer?: { quota: number; percent: number };
 }
 export interface PizzaCatalog {
+  /** Absent only on saved catalogs using the previous component recipes. */
+  inventoryMode?: "dough-format";
   doughs: PizzaComponent[]; bases: PizzaComponent[]; formats: PizzaComponent[];
   toppings: PizzaTopping[]; tastes: PizzaTaste[]; formulas: PizzaFormula[];
   defaults?: { doughId: string; baseId: string; formatId: string };
@@ -36,6 +42,8 @@ export interface PizzaCatalog {
 export interface PizzaOptionIdentity {
   kind: "dough" | "base" | "format" | "topping" | "removal";
   sourceId: string; category?: string; imagePath?: string;
+  /** Server/operator recipe metadata; omitted from the public customer catalog. */
+  doughQuantity?: number | null;
 }
 export interface PizzaProductIdentity {
   kind: "taste" | "formula"; sourceId: string; defaultSelections: { optionId: string; quantity: number }[];
