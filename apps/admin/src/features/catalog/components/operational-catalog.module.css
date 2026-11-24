@@ -108,6 +108,7 @@
 .form textarea,
 .inner input:not([type="checkbox"]),
 .inner select {
+  box-sizing: border-box;
   min-width: 0;
   width: 100%;
   color: inherit;
@@ -118,12 +119,19 @@
   background: var(--pizzaos-color-surface, white);
 }
 
+.form input:not([type="checkbox"]):not([type="file"]),
+.form select,
+.inner input:not([type="checkbox"]),
+.inner select {
+  min-height: 2.75rem;
+}
+
 .form input[type="file"] {
   overflow-wrap: anywhere;
 }
 
 .form textarea {
-  min-height: 4.6rem;
+  min-height: 5.5rem;
   resize: vertical;
 }
 
