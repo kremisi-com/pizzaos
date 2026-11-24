@@ -1,7 +1,8 @@
-import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, cleanup, fireEvent, screen, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type { AdminDeliveryItem, DeliveryAdminApi, DeliveryRider, IndividualOrder } from "@pizzaos/domain";
 import { DeliveryAssignmentsPanel } from "../features/delivery-assignment-panel";
+import { render } from "./render-with-admin-toasts";
 
 const mario: DeliveryRider = { id: "mario", storeId: "roma", email: "mario@example.test", name: "Mario", active: true };
 const luisa: DeliveryRider = { id: "luisa", storeId: "roma", email: "luisa@example.test", name: "Luisa", active: false };
@@ -127,11 +128,11 @@ describe("DeliveryAssignmentsPanel public operator contract", () => {
     vi.mocked(api.riders).mockRejectedValueOnce(new Error("SQL password INTERNAL_SECRET"));
     vi.mocked(api.setRiderActive).mockRejectedValueOnce(new Error("provider stacktrace SECRET"));
     render(<DeliveryAssignmentsPanel storeId="roma" orders={[]} api={api} onChanged={onChanged} />);
-    expect((await screen.findByRole("alert")).textContent).toContain("Impossibile caricare le consegne.");
+    await screen.findByText("Impossibile caricare le consegne.");
     expect(document.body.textContent).not.toContain("INTERNAL_SECRET");
     fireEvent.click(screen.getByRole("button", { name: "Riprova" }));
     fireEvent.click(await screen.findByRole("button", { name: "Disattiva Mario" }));
-    await waitFor(() => expect(screen.getByRole("alert").textContent).toContain("Impossibile aggiornare le consegne."));
+    await screen.findByText("Impossibile aggiornare le consegne.");
     expect(document.body.textContent).not.toContain("stacktrace");
     expect(onChanged).not.toHaveBeenCalled();
     fireEvent.click(screen.getByRole("button", { name: "Riprova" }));
@@ -179,9 +180,9 @@ describe("DeliveryAssignmentsPanel public operator contract", () => {
     const pending = deferred<DeliveryRider[]>(); const api = port();
     vi.mocked(api.riders).mockRejectedValueOnce(new Error("old store failure")).mockReturnValueOnce(pending.promise);
     const { rerender } = render(<DeliveryAssignmentsPanel storeId="roma" orders={[]} api={api} />);
-    await screen.findByRole("alert");
+    await screen.findByText("Impossibile caricare le consegne.");
     rerender(<DeliveryAssignmentsPanel storeId="milano" orders={[]} api={api} />);
-    expect(screen.queryByRole("alert")).toBeNull();
+    expect(screen.getByText("Impossibile caricare le consegne.")).toBeTruthy();
     expect(screen.getByRole("status").textContent).toContain("Caricamento consegne");
     await act(async () => pending.resolve([]));
     await screen.findByText("Nessuna consegna da assegnare.");

@@ -52,7 +52,7 @@ export function StoreConfiguration({ store, isNew, section, busy, orderingDomain
       <label>WhatsApp del ristorante<input type="tel" placeholder="+39…" value={draft.contactPhone ?? ""} onChange={event => update("contactPhone", event.target.value)} /></label>
     </div>
     <StoreAddressField key={draft.id} storeId={draft.id} address={address} savedAddress={original.address}
-      needsConfirmation={needsConfirmation} confirmed={Boolean(confirmedAddress)} onSearch={onSearchAddress}
+      needsConfirmation={needsConfirmation} onSearch={onSearchAddress}
       onEdit={value => { setAddress(value); setConfirmedAddress(null); }}
       onConfirm={candidate => { setAddress(candidate.address); setConfirmedAddress(candidate); }} />
     <label className={styles.check}><input type="checkbox" checked={draft.acceptingOrders} onChange={event => update("acceptingOrders", event.target.checked)} />Accetta nuovi ordini</label></fieldset>}

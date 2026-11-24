@@ -3,6 +3,7 @@
 import type { AdminDeliveryItem, DeliveryAdminApi, DeliveryRider, IndividualOrder } from "@pizzaos/domain";
 import { type FormEvent, type ReactElement, useCallback, useEffect, useId, useRef, useState } from "react";
 import styles from "./delivery-assignment-panel.module.css";
+import { useAdminToast } from "../../composition/admin-toast";
 
 export interface DeliveryAssignmentsPanelProps {
   storeId: string;
@@ -19,6 +20,7 @@ export function DeliveryAssignmentsPanel(props: DeliveryAssignmentsPanelProps): 
 }
 
 function StoreDeliveryAssignments({ storeId, orders, api, onChanged, refreshVersion = 0, riderHref = "/rider" }: DeliveryAssignmentsPanelProps): ReactElement {
+  const showToast = useAdminToast();
   const id = useId();
   const alive = useRef(true);
   const generation = useRef(0);
@@ -28,7 +30,6 @@ function StoreDeliveryAssignments({ storeId, orders, api, onChanged, refreshVers
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<"load" | "mutation" | null>(null);
-  const [validation, setValidation] = useState("");
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
   const [selectedRiders, setSelectedRiders] = useState<Record<string, string>>({});
@@ -49,11 +50,11 @@ function StoreDeliveryAssignments({ storeId, orders, api, onChanged, refreshVers
         setAssignments(nextAssignments);
       }
     } catch {
-      if (alive.current && request === generation.current) setError("load");
+      if (alive.current && request === generation.current) { setError("load"); showToast("Impossibile caricare le consegne.", "error"); }
     } finally {
       if (alive.current && request === generation.current) setLoading(false);
     }
-  }, [api, storeId]);
+  }, [api, showToast, storeId]);
 
   useEffect(() => {
     void load();
@@ -65,7 +66,6 @@ function StoreDeliveryAssignments({ storeId, orders, api, onChanged, refreshVers
     mutationInProgress.current = true;
     setBusy(true);
     setError(null);
-    setValidation("");
     try {
       await operation();
       if (!alive.current) return false;
@@ -73,7 +73,7 @@ function StoreDeliveryAssignments({ storeId, orders, api, onChanged, refreshVers
       await load();
       return alive.current;
     } catch {
-      if (alive.current) setError("mutation");
+      if (alive.current) { setError("mutation"); showToast("Impossibile aggiornare le consegne.", "error"); }
       return false;
     } finally {
       mutationInProgress.current = false;
@@ -84,11 +84,11 @@ function StoreDeliveryAssignments({ storeId, orders, api, onChanged, refreshVers
   async function enableRider(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!email.trim() || !name.trim()) {
-      setValidation("Inserisci email e nome del rider.");
+      showToast("Inserisci email e nome del rider.", "error");
       return;
     }
     if (!event.currentTarget.checkValidity()) {
-      setValidation("Inserisci un indirizzo email valido.");
+      showToast("Inserisci un indirizzo email valido.", "error");
       return;
     }
     const succeeded = await mutate(() => api.inviteRider(storeId, email.trim(), name.trim()));
@@ -117,10 +117,8 @@ function StoreDeliveryAssignments({ storeId, orders, api, onChanged, refreshVers
       </div>
       <button className={styles.primary} type="submit" disabled={disabled}>Abilita rider</button>
     </form>
-    {validation && <p role="alert">{validation}</p>}
     {busy ? <p role="status">Aggiornamento consegne…</p> : loading && <p role="status">Caricamento consegne…</p>}
-    {error && <div role="alert">
-      <p>{error === "load" ? "Impossibile caricare le consegne." : "Impossibile aggiornare le consegne."}</p>
+    {error && <div>
       <button type="button" disabled={disabled} onClick={() => { void load(); }}>Riprova</button>
     </div>}
     {!loading && error !== "load" && <>

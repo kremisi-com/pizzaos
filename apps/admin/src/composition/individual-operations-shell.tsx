@@ -3,6 +3,7 @@
 import type { IndividualAction, IndividualOrder, IndividualSession, IndividualStore } from "@pizzaos/domain";
 import { Button } from "@pizzaos/ui";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useAdminToast } from "./admin-toast";
 import { OperationalCatalog } from "../features/catalog";
 import { SignOutButton } from "../features/identity/components/sign-in-screen";
 import { StoreConfiguration, type StoreConfigurationSection } from "../features/individual-ordering";
@@ -46,6 +47,7 @@ function mergeStoreChanges(current: IndividualStore, original: IndividualStore, 
 }
 
 export function IndividualOperationsShell({ riderHref, orderingDomain }: { riderHref?: string; orderingDomain?: string }) {
+  const showToast = useAdminToast();
   const api = useMemo(() => createIndividualApi(), []);
   const [tab, setTab] = useState<AdminTab>("dashboard");
   const [session, setSession] = useState<IndividualSession | null>(null);
@@ -232,6 +234,8 @@ export function IndividualOperationsShell({ riderHref, orderingDomain }: { rider
   const timeZone = store?.timeZone ?? stores.find(item => item.id === storeId)?.timeZone ?? "Europe/Rome";
   const failure = error || loadError || ((tab === "orders" || tab === "dashboard" || tab === "delivery") ? orderError : "") ||
     (isSettings(tab) || tab === "marketing" ? catalogError : "");
+  useEffect(() => { if (failure) showToast(failure, "error"); }, [failure, showToast]);
+  useEffect(() => { if (notice) showToast(notice, "success"); }, [notice, showToast]);
 
   return <AdminFrame activeTab={tab} onTabChange={navigate}
     storeSelector={<StoreSwitcher stores={stores.map(item => ({ id: item.id, displayName: item.name }))}
@@ -245,9 +249,7 @@ export function IndividualOperationsShell({ riderHref, orderingDomain }: { rider
       <h1>{titles[tab]}</h1>
       {tab === "orders" && <p>Gestione ordini · {connection}</p>}
     </header>
-    {failure && <p role="alert" className={styles.operationalError}>{failure}</p>}
     {loadError && <Button type="button" variant="secondary" onClick={() => void load()} disabled={loading}>Riprova caricamento</Button>}
-    {notice && <p role="status" className={styles.operationalNotice}>{notice}</p>}
     {loading && <p role="status">Caricamento dell’area operativa…</p>}
     {!loading && !session?.actor && !loadError && <p><a href="/accesso">Accedi all’area ristorante</a></p>}
     {!loading && session?.actor && !storeId && !creating && <p>Nessuna sede assegnata.</p>}

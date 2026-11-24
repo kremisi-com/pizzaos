@@ -2,8 +2,10 @@
 
 import { useEffect, useState } from "react";
 import styles from "./sign-in.module.css";
+import { useAdminToast } from "../../../composition/admin-toast";
 
 export function SignInScreen({ returnTo, area = "admin", demoOnly = false }: { returnTo: string; area?: "admin" | "rider"; demoOnly?: boolean }) {
+  const showToast = useAdminToast();
   const [csrf, setCsrf] = useState("");
   const [verification, setVerification] = useState(false);
   const [error, setError] = useState("");
@@ -11,6 +13,7 @@ export function SignInScreen({ returnTo, area = "admin", demoOnly = false }: { r
   const [demoCsrf, setDemoCsrf] = useState("");
   const [demoEnabled, setDemoEnabled] = useState<boolean | null>(null);
   const demoEmail = area === "admin" && email.trim().toLowerCase() === "poc@pizzaos.app";
+  useEffect(() => { if (error) showToast(error, "error"); }, [error, showToast]);
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     setVerification(params.get("verifica") === "1" || params.get("type") === "email");
@@ -44,7 +47,6 @@ export function SignInScreen({ returnTo, area = "admin", demoOnly = false }: { r
         <label>Password demo<input type="password" autoComplete="current-password" name="password" required /></label>
         <button type="submit" disabled={!demoEnabled || !demoCsrf}>Entra nella demo</button>
       </form>
-      {error && <p className={styles.error} role="alert">{error}</p>}
     </section>
   </div>;
   const rider = area === "rider";
@@ -61,15 +63,15 @@ export function SignInScreen({ returnTo, area = "admin", demoOnly = false }: { r
         <button disabled={demoEmail ? !demoEnabled || !demoCsrf : !csrf} type="submit">{demoEmail ? "Entra nella demo" : "Inviami un link di accesso"}</button>
       </form>
       {demoEnabled && !demoEmail && <p>Per provare la demo, usa poc@pizzaos.app e la password dedicata.</p>}
-    </>}{error && <p className={styles.error} role="alert">{error}</p>}
+    </>}
   </section></div>;
 }
 
 export function SignOutButton({ allowDemo = true }: { allowDemo?: boolean }) {
+  const showToast = useAdminToast();
   const [busy, setBusy] = useState(false);
-  const [error, setError] = useState("");
   async function logout() {
-    setBusy(true); setError("");
+    setBusy(true);
     try {
       const demoResponse = allowDemo ? await fetch("/api/pilot/auth/demo", { cache: "no-store" }) : null;
       if (demoResponse && !demoResponse.ok) throw new Error("Impossibile uscire. Riprova.");
@@ -81,7 +83,7 @@ export function SignOutButton({ allowDemo = true }: { allowDemo?: boolean }) {
       const form = document.createElement("form"); form.method = "POST"; form.action = demo.active ? "/api/pilot/auth/demo/signout" : "/api/pilot/auth/signout";
       for (const [name, value] of Object.entries({ csrfToken: data.csrfToken, callbackUrl: "/accesso" })) { const input = document.createElement("input"); input.type = "hidden"; input.name = name; input.value = value; form.appendChild(input); }
       document.body.appendChild(form); form.submit();
-    } catch (failure) { setError(failure instanceof Error ? failure.message : "Impossibile uscire."); setBusy(false); }
+    } catch (failure) { showToast(failure instanceof Error ? failure.message : "Impossibile uscire.", "error"); setBusy(false); }
   }
-  return <span><button type="button" disabled={busy} onClick={() => void logout()}>{busy ? "Uscita…" : "Esci"}</button>{error && <span role="alert">{error}</span>}</span>;
+  return <span><button type="button" disabled={busy} onClick={() => void logout()}>{busy ? "Uscita…" : "Esci"}</button></span>;
 }

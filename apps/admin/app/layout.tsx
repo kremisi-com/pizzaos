@@ -9,6 +9,7 @@ import { getExperienceMode } from "@/composition/session-mode";
 import { SignOutButton } from "@/features/identity/components/sign-in-screen";
 import demoStyles from "@/composition/demo-banner.module.css";
 import { getRequestOperationalHost } from "@/composition/operational-page";
+import { AdminToastProvider } from "@/composition/admin-toast";
 
 export async function generateMetadata(): Promise<Metadata> {
   const host = await getRequestOperationalHost();
@@ -38,8 +39,10 @@ export default async function RootLayout(props: RootLayoutProps): Promise<ReactE
         className={getThemeClass(surface)}
         style={getThemeStyleVariables(surface) as CSSProperties}
       >
-        {demo && <aside className={demoStyles.banner} aria-label="Modalità demo"><p><strong>Modalità demo</strong> · Dati fittizi e operazioni simulate</p><SignOutButton /></aside>}
-        {props.children}
+        <AdminToastProvider>
+          {demo && <aside className={demoStyles.banner} aria-label="Modalità demo"><p><strong>Modalità demo</strong> · Dati fittizi e operazioni simulate</p><SignOutButton /></aside>}
+          {props.children}
+        </AdminToastProvider>
         <GoogleTag />
         <MicrosoftClarity />
       </body>

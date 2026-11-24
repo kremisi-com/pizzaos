@@ -40,6 +40,10 @@ La mappa seguente riguarda le feature della demo autenticata. Le superfici opera
 - `@pizzaos/mock-data`
 - `@pizzaos/ui`
 
+## Feedback nell'interfaccia
+
+Gli esiti temporanei delle azioni (errori, successi e informazioni) vengono mostrati dal provider condiviso `src/composition/admin-toast.tsx` come toast ancorati in basso, accessibili da tastiera e con annunci screen reader. Stati di caricamento e dati operativi persistenti restano nel contesto della schermata.
+
 ## Analytics e consegne del pilota
 
 La composizione operativa collega le [analytics reali](src/features/pilot-analytics/README.md), il [pannello assegnazioni](src/features/delivery-assignment-panel/README.md) e l'[area rider](src/features/rider-deliveries/README.md) ai port pubblici del dominio. Il rider accede da `/rider` o dal relativo host operativo, usa l'identità Google/magic link e vede esclusivamente le proprie consegne. Le appartenenze rider non concedono permessi operatore.

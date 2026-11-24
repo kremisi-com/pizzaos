@@ -3,6 +3,7 @@
 import type { IndividualIngredient, MenuAdminApi, MenuDraft, MenuWorkspace } from "@pizzaos/domain";
 import { Button } from "@pizzaos/ui";
 import { useEffect, useState } from "react";
+import { useAdminToast } from "../../../composition/admin-toast";
 import { MenuDraftEditor } from "./menu-draft-editor";
 import { MenuPreview } from "./menu-preview";
 import styles from "./operational-catalog.module.css";
@@ -17,6 +18,7 @@ export function OperationalCatalog({ api, storeId, ingredients, onPublished }: {
   ingredients: readonly IndividualIngredient[];
   onPublished: () => void;
 }) {
+  const showToast = useAdminToast();
   const [workspace, setWorkspace] = useState<MenuWorkspace | null>(null);
   const [edits, setEdits] = useState<Record<string, MenuDraft>>({});
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -25,28 +27,25 @@ export function OperationalCatalog({ api, storeId, ingredients, onPublished }: {
   const [busy, setBusy] = useState(false);
   const [reload, setReload] = useState(0);
   const [error, setError] = useState("");
-  const [notice, setNotice] = useState("");
 
   useEffect(() => {
     let active = true;
     void api.workspace(storeId).then(result => {
       if (active) setWorkspace(result);
     }).catch((failure: unknown) => {
-      if (active) setError(message(failure));
+      if (active) { setError(message(failure)); showToast(message(failure), "error"); }
     });
     return () => { active = false; };
-  }, [api, storeId, reload]);
+  }, [api, showToast, storeId, reload]);
 
   function select(id: string | null) {
     setSelectedId(id);
     setViewPreview(false);
     setConfirmation(null);
-    setNotice("");
   }
 
   function change(draft: MenuDraft) {
     setEdits(current => ({ ...current, [draft.id]: draft }));
-    setNotice("");
   }
 
   function clearEdit(id: string) {
@@ -76,11 +75,12 @@ export function OperationalCatalog({ api, storeId, ingredients, onPublished }: {
   async function perform(operation: () => Promise<void>) {
     setBusy(true);
     setError("");
-    setNotice("");
     try {
       await operation();
     } catch (failure) {
-      setError(message(failure));
+      const text = message(failure);
+      setError(text);
+      showToast(text, "error");
     } finally {
       setBusy(false);
     }
@@ -96,7 +96,7 @@ export function OperationalCatalog({ api, storeId, ingredients, onPublished }: {
       const updated = await api.saveDraft(storeId, workspace.revision, selectedDraft);
       setWorkspace(updated);
       clearEdit(selectedDraft.id);
-      setNotice("Bozza salvata.");
+    showToast("Bozza salvata.", "success");
     });
   }
 
@@ -106,7 +106,7 @@ export function OperationalCatalog({ api, storeId, ingredients, onPublished }: {
       const updated = await api.publish(storeId, workspace.revision, selectedDraft.id);
       setWorkspace(updated);
       select(null);
-      setNotice("Menu pubblicato.");
+      showToast("Menu pubblicato.", "success");
       onPublished();
     });
   }
@@ -117,7 +117,7 @@ export function OperationalCatalog({ api, storeId, ingredients, onPublished }: {
       const updated = await api.removeDraft(storeId, workspace.revision, selectedDraft.id);
       setWorkspace(updated);
       select(null);
-      setNotice("Bozza eliminata.");
+      showToast("Bozza eliminata.", "success");
     });
   }
 
@@ -130,7 +130,7 @@ export function OperationalCatalog({ api, storeId, ingredients, onPublished }: {
         ...selectedDraft,
         products: selectedDraft.products.map(product => product.id === productId ? { ...product, imageId: image.id } : product)
       });
-      setNotice("Foto caricata. Salva la bozza per confermarla.");
+      showToast("Foto caricata. Salva la bozza per confermarla.", "info");
     });
   }
 
@@ -139,12 +139,10 @@ export function OperationalCatalog({ api, storeId, ingredients, onPublished }: {
 
   return <div className={styles.catalog} aria-busy={busy}>
     {error && <div className={styles.actions}>
-      <p role="alert" className={styles.error}>{error}</p>
       <Button type="button" variant="secondary" disabled={busy} onClick={reloadWorkspace}>
         {Object.keys(edits).length > 0 ? "Ricarica e scarta le modifiche locali" : "Ricarica menu"}
       </Button>
     </div>}
-    {notice && <p role="status">{notice}</p>}
     {!workspace && !error && <p role="status">Caricamento del menu…</p>}
     {workspace && menu && <div className={styles.layout}>
       <aside className={styles.side}>

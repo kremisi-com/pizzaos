@@ -1,22 +1,22 @@
 import type { StoreAddressApi, StoreAddressCandidate } from "@pizzaos/domain";
 import { useId, useRef, useState } from "react";
+import { useAdminToast } from "../../../composition/admin-toast";
 import styles from "./individual-operations.module.css";
 
-export function StoreAddressField({ storeId, address, savedAddress, needsConfirmation, confirmed, onSearch, onEdit, onConfirm }: {
+export function StoreAddressField({ storeId, address, savedAddress, needsConfirmation, onSearch, onEdit, onConfirm }: {
   storeId: string;
   address: string;
   savedAddress?: string;
   needsConfirmation: boolean;
-  confirmed: boolean;
   onSearch: StoreAddressApi["searchStoreAddresses"];
   onEdit: (address: string) => void;
   onConfirm: (candidate: StoreAddressCandidate) => void;
 }) {
+  const showToast = useAdminToast();
   const hintId = useId();
   const request = useRef(0);
   const [matches, setMatches] = useState<StoreAddressCandidate[] | null>(null);
   const [pending, setPending] = useState(false);
-  const [error, setError] = useState(false);
   const query = address.trim();
   const canSearch = Boolean(storeId.trim()) && query.length >= 5 && !pending;
 
@@ -24,7 +24,6 @@ export function StoreAddressField({ storeId, address, savedAddress, needsConfirm
     request.current += 1;
     setMatches(null);
     setPending(false);
-    setError(false);
     onEdit(value);
   }
 
@@ -32,14 +31,16 @@ export function StoreAddressField({ storeId, address, savedAddress, needsConfirm
     if (!canSearch) return;
     const version = ++request.current;
     setMatches(null);
-    setError(false);
     setPending(true);
     onEdit(address);
     try {
       const results = await onSearch(storeId, query);
-      if (version === request.current) setMatches(results);
+      if (version === request.current) {
+        setMatches(results);
+        if (!results.length) showToast("Nessun indirizzo trovato. Controlla via, civico e città.", "info");
+      }
     } catch {
-      if (version === request.current) setError(true);
+      if (version === request.current) showToast("Ricerca indirizzi non disponibile. Riprova tra poco.", "error");
     } finally {
       if (version === request.current) setPending(false);
     }
@@ -61,18 +62,16 @@ export function StoreAddressField({ storeId, address, savedAddress, needsConfirm
       </button>}
     </div>
     {pending && <p role="status">Ricerca in corso…</p>}
-    {error && <p role="alert">Ricerca indirizzi non disponibile. Riprova tra poco.</p>}
-    {matches?.length === 0 && <p role="status">Nessun indirizzo trovato. Controlla via, civico e città.</p>}
     {!!matches?.length && <fieldset className={styles.addressResults}>
       <legend>Seleziona l’indirizzo corretto</legend>
       <ul>{matches.map(candidate => <li key={candidate.confirmation}>
         <button type="button" className={styles.secondary} onClick={() => {
           setMatches(null);
           onConfirm(candidate);
+          showToast("Indirizzo confermato. Salva per applicarlo alla sede.", "success");
         }}>Conferma {candidate.address}</button>
       </li>)}</ul>
     </fieldset>}
-    {confirmed && <p role="status">Indirizzo confermato. Salva per applicarlo alla sede.</p>}
     <p>
       Ricerca con <a href="https://www.geoapify.com/" target="_blank" rel="noreferrer">Geoapify</a>
       {" · © "}<a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">OpenStreetMap</a>
