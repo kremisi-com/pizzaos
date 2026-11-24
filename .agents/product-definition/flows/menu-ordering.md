@@ -1,5 +1,7 @@
 # Menu, composizione e preferenze alimentari
 
+D85 rimuove la sezione manuale **Allergeni · verificati/da verificare** dalle schede prodotto, dalle opzioni e dai componenti pizza. L’operatore dichiara gli allergeni nelle schede ingredienti del Magazzino. Ogni pizza/prodotto eredita l’unione senza duplicati di allergeni e tracce degli ingredienti della composizione effettiva; rimuovere o aggiungere ingredienti aggiorna il risultato. Se una scheda ingrediente non è verificata, la composizione rimane da verificare. La [suite allergeni del Menu](../../../apps/admin/src/test/menu-allergen-inheritance.test.tsx) verifica assenza dei campi manuali, unione e aggiornamento della ricetta, mantenendo la dichiarazione nel Magazzino.
+
 Nella bozza, **+ Categoria** precede la prima voce nella barra categorie e ha un bordo evidenziato per distinguerlo come azione di creazione. È disponibile anche senza categorie e aggiunge una sezione vuota alla bozza, con il normale salvataggio e pubblicazione.
 
 Decisione D79. L'operatore apre **Admin → Menu** nella sede, modifica o duplica una bozza, verifica l'anteprima e pubblica. Il menu pubblico mantiene ordine delle categorie e delle voci, foto statiche e disponibilità. Le bozze si possono eliminare. Pubblicando una bozza il menu precedente torna tra le bozze. Per una sede esistente il pannello parte dal catalogo in uso. Se due persone lavorano sullo stesso workspace, chi salva da una revisione superata ricarica prima di riprovare.

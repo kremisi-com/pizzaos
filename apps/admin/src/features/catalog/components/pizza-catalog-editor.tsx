@@ -1,7 +1,7 @@
 import { materializePizzaMenu, PIZZA_EXTRA_OFFERS } from "@pizzaos/domain";
 import type { IndividualIngredient, MenuDraft, PizzaCatalog, PizzaComponent, PizzaEntry, PizzaFormula, PizzaTaste, PizzaTopping } from "@pizzaos/domain";
 import { Button } from "@pizzaos/ui";
-import { MenuFoodFields, MenuPriceField, MenuRecipeFields } from "./catalog-form-fields";
+import { MenuPriceField, MenuRecipeFields } from "./catalog-form-fields";
 import styles from "./operational-catalog.module.css";
 
 const emptyCatalog: PizzaCatalog = { doughs: [], bases: [], formats: [], toppings: [], tastes: [], formulas: [] };
@@ -27,7 +27,6 @@ function ComponentEditor({ component, ingredients, onChange, onRemove, canRemove
       onChange={event => onChange({ available: event.target.checked })} />Disponibile</label>
     <MenuRecipeFields label={`Ricetta ${component.name || "componente"}`} ingredients={ingredients} recipe={component.ingredients}
       onChange={recipe => onChange({ ingredients: recipe })} />
-    <MenuFoodFields food={component.food} onChange={food => onChange({ food })} />
     <Button type="button" variant="ghost" disabled={!canRemove} onClick={onRemove}>Rimuovi componente</Button>
   </div>;
 }
