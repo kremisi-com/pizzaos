@@ -316,11 +316,13 @@
 .ingredientOptions small { color: var(--pizzaos-color-foreground-muted); }
 .chips { display: flex; flex-wrap: wrap; gap: .35rem; }
 .chips button { border: 1px solid var(--pizzaos-color-border); border-radius: 1rem; padding: .3rem .6rem; background: var(--pizzaos-color-background); color: inherit; font: inherit; font-size: .8rem; cursor: pointer; }
-.menuMain .productRow { align-items: start; flex-wrap: wrap; }
+.menuMain .productRow { position: relative; align-items: start; flex-wrap: wrap; }
 .menuMain .productRow > div:first-child { flex: 1; min-width: 8rem; }
-.menuMain .productRow .actions { gap: .1rem; }
+.menuMain .productRow .actions { position: relative; z-index: 1; gap: .1rem; }
 .menuMain .productRow button { padding: .35rem; min-width: 1.75rem; font-size: .75rem; }
 .menuMain .productRow .productNameButton { padding: 0; min-width: 0; min-height: 2rem; text-align: left; justify-content: flex-start; font-size: 1rem; font-weight: 700; }
+.productNameButton::after { content: ""; position: absolute; inset: 0; border-radius: .6rem; cursor: pointer; }
+.productNameButton:focus-visible::after { outline: 2px solid var(--pizzaos-color-primary); outline-offset: 2px; }
 .ingredientSummary { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 .rowPrice { white-space: nowrap; padding-top: .25rem; }
 .selectedRow { background: var(--pizzaos-color-background); border-radius: .6rem; box-shadow: inset 3px 0 var(--pizzaos-color-primary); padding-inline: .65rem; }
