@@ -127,7 +127,11 @@ export function MenuDraftEditor({ draft, storeId, ingredients, onChange, onUploa
         onChange={event => onChange({ ...draft, kitchenNotice: event.target.value || undefined })} /></label>
       </details>
     </div>
-    <nav className={styles.categoryTabs} aria-label="Categorie del menu">{draft.sections.map(section => <Button type="button" key={section.id}
+    <nav className={styles.categoryTabs} aria-label="Categorie del menu">
+      <Button type="button" variant="secondary" style={{ borderColor: "var(--pizzaos-color-primary)" }} onClick={() => onChange({
+        ...draft, sections: [...draft.sections, { id: crypto.randomUUID(), name: "Nuova sezione", productIds: [] }]
+      })}>+ Categoria</Button>
+      {draft.sections.map(section => <Button type="button" key={section.id}
       variant={activeSection?.id === section.id ? "primary" : "ghost"} onClick={() => setActiveSectionId(section.id)}>{section.name || "Nuova sezione"}</Button>)}</nav>
     {draft.sections.filter(section => section.id === activeSection?.id).map(section => { const index = draft.sections.findIndex(item => item.id === section.id); return <section key={section.id} className={`${styles.section} ${styles.menuCategory}`} aria-label={section.name || "Nuova sezione"}>
       <div className={styles.header}>
@@ -191,9 +195,6 @@ export function MenuDraftEditor({ draft, storeId, ingredients, onChange, onUploa
       <div className={styles.actions}><Button type="button" variant="secondary" onClick={() => addProduct(section)}>Aggiungi prodotto</Button>
         <Button type="button" variant="secondary" onClick={() => addPizza(section, "taste")}>Aggiungi pizza</Button></div>
     </section>; })}
-    <div><Button type="button" variant="secondary" onClick={() => onChange({
-      ...draft, sections: [...draft.sections, { id: crypto.randomUUID(), name: "Nuova sezione", productIds: [] }]
-    })}>+ Categoria</Button></div>
     <button type="button" className={`${styles.settingsCard} ${settings ? styles.selectedCard : ""}`} onClick={() => {
       setConfigurationStart(structuredClone(draft.pizzaCatalog)); setSettings(true); setEditingId("");
     }}><strong>Impasti, basi e formati</strong><span>{settings ? "In modifica" : "Personalizza"}</span>

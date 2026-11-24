@@ -1,5 +1,7 @@
 # Menu, composizione e preferenze alimentari
 
+Nella bozza, **+ Categoria** precede la prima voce nella barra categorie e ha un bordo evidenziato per distinguerlo come azione di creazione. È disponibile anche senza categorie e aggiunge una sezione vuota alla bozza, con il normale salvataggio e pubblicazione.
+
 Decisione D79. L'operatore apre **Admin → Menu** nella sede, modifica o duplica una bozza, verifica l'anteprima e pubblica. Il menu pubblico mantiene ordine delle categorie e delle voci, foto statiche e disponibilità. Le bozze si possono eliminare. Pubblicando una bozza il menu precedente torna tra le bozze. Per una sede esistente il pannello parte dal catalogo in uso. Se due persone lavorano sullo stesso workspace, chi salva da una revisione superata ricarica prima di riprovare.
 
 Se un gruppo di scelte impedisce il salvataggio o la pubblicazione, l'errore indica il campo da correggere. Per pubblicare, ogni gruppo deve contenere almeno una scelta; se non consente ripetizioni, la quantità massima non può superare il numero di scelte disponibili. Il gestore può correggere la bozza e riprovare; le modifiche restano nell'editor finché non ricarica il menu.
