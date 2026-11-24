@@ -3,7 +3,6 @@ import type { IndividualIngredient, MenuDraft, PizzaCatalog, PizzaComponent, Piz
 import { Button } from "@pizzaos/ui";
 import { useState } from "react";
 import { MenuPriceField, MenuRecipeFields } from "./catalog-form-fields";
-import { PizzaEntryEditor } from "./pizza-catalog-editor";
 import styles from "./operational-catalog.module.css";
 
 export const blankPizzaCatalog = (): PizzaCatalog => ({ doughs: [], bases: [], formats: [], toppings: [], tastes: [], formulas: [] });
@@ -70,7 +69,19 @@ export function PizzaTastePanel({ draft, taste, ingredients, onChange, onClose, 
       <p className={styles.small}>Le dosi sconosciute vanno verificate prima di pubblicare. Gli ingredienti già presenti nella base non vanno aggiunti nuovamente.</p>
       {included.map(item => <MenuRecipeFields key={item.id} label={`Dosi ${item.name}`} ingredients={ingredients} recipe={item.ingredients}
         onChange={recipe => update({}, { ...catalog, toppings: catalog.toppings.map(topping => topping.id === item.id ? { ...topping, ingredients: recipe } : topping) })} />)}
-      <PizzaEntryEditor draft={draft} entry={taste} kind="taste" onChange={onChange} onClose={onClose} onRemove={onRemove} onUpload={onUpload} />
+      <label className={styles.check}><input type="checkbox" checked={taste.available}
+        onChange={event => update({ available: event.target.checked })} />Disponibile per l’ordinazione</label>
+      <label>Foto<input type="file" accept="image/jpeg,image/png,image/webp" onChange={event => {
+        const file = event.currentTarget.files?.[0]; if (file) onUpload(file); event.currentTarget.value = "";
+      }} /></label>
+      {taste.imageId && <Button type="button" variant="ghost" onClick={() => update({ imageId: undefined })}>Rimuovi foto</Button>}
+      <fieldset className={styles.inner}><legend>Abbinamenti consigliati</legend>
+        {draft.products.filter(product => product.id !== taste.id).map(product => <label key={product.id} className={styles.check}>
+          <input type="checkbox" checked={taste.pairingProductIds?.includes(product.id) ?? false} onChange={event => update({ pairingProductIds: event.target.checked
+            ? [...taste.pairingProductIds ?? [], product.id] : taste.pairingProductIds?.filter(id => id !== product.id) })} />{product.name || "Senza nome"}
+        </label>)}
+      </fieldset>
+      <Button type="button" variant="ghost" onClick={onRemove}>Rimuovi gusto dalla bozza</Button>
     </details>
     <Button type="button" onClick={onSave}>Salva pizza</Button>
   </section>;

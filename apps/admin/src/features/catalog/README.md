@@ -1,10 +1,12 @@
 # Gestione catalogo
 
+**Foto, allergeni e altre opzioni** espone direttamente dosi, disponibilità, foto, abbinamenti e rimozione della pizza, senza una seconda card né campi duplicati per nome, prezzo, sezione e descrizione. Non contiene configurazioni di anteprima PoC, impasti, basi, formati o topping consentiti; le associazioni già salvate vengono conservate. Gli allergeni restano nelle schede ingredienti del Magazzino.
+
 **+ Categoria** si trova all’inizio della barra categorie, prima della prima voce, con bordo evidenziato. Aggiunge una sezione vuota alla bozza anche quando non sono ancora presenti categorie.
 
 L’editor operativo presenta categorie e prodotti a sinistra e una scheda di modifica a destra. Il selettore **Menu da modificare**, accanto a **Pubblica menu**, sceglie la bozza senza perdere le modifiche locali delle altre. **Impasti, basi e formati → Personalizza** apre la configurazione nella scheda destra: gli standard sono comuni a tutte le pizze e i supplementi sono differenze rispetto allo standard incluso, anche negative. Ricette e dosi restano accessibili nella sezione avanzata. Prezzi commerciali e ricette non si deducono dai nomi.
 
-**Aggiungi pizza** apre nome, descrizione, ingredienti dal Magazzino con ricerca e selezione multipla, e prezzo. Gli ingredienti già nella base non sono aggiunti nuovamente alla ricetta del gusto. Foto, ricette, allergeni e abbinamenti rimangono nelle opzioni avanzate. I salvataggi delle schede salvano la bozza sul servizio; il menu cliente cambia soltanto alla pubblicazione. Il menu pubblicato si modifica duplicandolo.
+**Aggiungi pizza** apre nome, descrizione, ingredienti dal Magazzino con ricerca e selezione multipla, e prezzo. Gli ingredienti già nella base non sono aggiunti nuovamente alla ricetta del gusto. Foto, ricette e abbinamenti rimangono nelle opzioni avanzate. I salvataggi delle schede salvano la bozza sul servizio; il menu cliente cambia soltanto alla pubblicazione. Il menu pubblicato si modifica duplicandolo.
 
 La card **Pizza custom** conserva combinazioni con nome libero, prezzo base, quota di extra scontati e percentuale. La quota conta le unità più costose, non limita le scelte e non sconta il prezzo base. Disattivare la card conserva le combinazioni e le nasconde dal Client alla pubblicazione. Prezzi e dosi degli extra si gestiscono nella scheda ingrediente del Magazzino, con **Possibile extra**. Le combinazioni precedenti conservano le scelte: **Collega gli extra al Magazzino** mostra le sostituzioni e richiede conferma esplicita. Dati incompleti richiedono verifica prima della pubblicazione. [Regole e casi limite](../../../../../.agents/product-definition/flows/menu-ordering.md#gusti-e-formule-di-composizione).
 

@@ -1,10 +1,11 @@
 import "@testing-library/jest-dom/vitest";
 import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { useState } from "react";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { materializePizzaMenu } from "@pizzaos/domain";
 import type { IndividualIngredient, MenuDraft, PizzaEntry } from "@pizzaos/domain";
 import { MenuDraftEditor } from "../features/catalog/components/menu-draft-editor";
+import { PizzaTastePanel } from "../features/catalog/components/menu-pizza-panels";
 
 afterEach(cleanup);
 const entry: PizzaEntry = {
@@ -28,6 +29,52 @@ function Editor({ initialDraft, ingredients = [] }: { initialDraft?: MenuDraft; 
 const current = () => JSON.parse(screen.getByLabelText("Bozza corrente").textContent ?? "{}") as MenuDraft;
 
 describe("Catalogo pizza nel pannello", () => {
+  it("mantiene operative le opzioni avanzate senza duplicare la scheda pizza o alterare le scelte salvate", () => {
+    const candidate = initial();
+    candidate.pizzaCatalog!.tastes = [{ ...entry, id: "margherita", name: "Margherita", imageId: "foto",
+      includedToppingIds: ["olive"], previewImages: [{ doughId: "classico", baseId: "rossa", imagePath: "/pizza.png" }] }];
+    candidate.pizzaCatalog!.toppings[0].ingredients = { olive: 1 };
+    candidate.sections[0].productIds.push("margherita");
+    const onUpload = vi.fn(), onSave = vi.fn(), onRemove = vi.fn(), onClose = vi.fn();
+    function Panel() {
+      const [draft, setDraft] = useState(materializePizzaMenu(candidate));
+      return <><PizzaTastePanel draft={draft} taste={draft.pizzaCatalog!.tastes[0]}
+        ingredients={[{ id: "olive", name: "Olive", stock: 30 }]} onChange={setDraft}
+        onUpload={onUpload} onSave={onSave} onRemove={onRemove} onClose={onClose} />
+        <output aria-label="Bozza corrente">{JSON.stringify(draft)}</output></>;
+    }
+    render(<Panel />);
+    fireEvent.click(screen.getByText("Foto, allergeni e altre opzioni"));
+    const editor = within(screen.getByRole("region", { name: "Modifica pizza" }));
+    expect(editor.getAllByRole("heading", { name: "Margherita" })).toHaveLength(1);
+    expect(editor.getAllByLabelText("Descrizione")).toHaveLength(1);
+    expect(editor.queryByRole("region", { name: "Modifica gusto" })).toBeNull();
+    for (const label of ["Nome gusto", "Prezzo completo in euro", "Sezione"]) expect(editor.queryByLabelText(label)).toBeNull();
+    expect(editor.queryByText("Anteprima pizza come nel PoC")).toBeNull();
+    for (const name of ["Impasti", "Basi", "Formati", "Topping consentiti e ingredienti inclusi"]) {
+      expect(editor.queryByRole("group", { name })).toBeNull();
+    }
+    fireEvent.change(editor.getByLabelText("Unità di Olive"), { target: { value: "2" } });
+    fireEvent.click(editor.getByLabelText("Disponibile per l’ordinazione"));
+    fireEvent.click(within(editor.getByRole("group", { name: "Abbinamenti consigliati" })).getByLabelText("Simple"));
+    const file = new File(["foto"], "pizza.png", { type: "image/png" });
+    fireEvent.change(editor.getByLabelText("Foto"), { target: { files: [file] } });
+    expect(onUpload).toHaveBeenCalledWith(file);
+    fireEvent.click(editor.getByRole("button", { name: "Rimuovi foto" }));
+    fireEvent.click(editor.getByRole("button", { name: "Salva pizza" }));
+    expect(onSave).toHaveBeenCalledOnce();
+    const taste = current().pizzaCatalog!.tastes[0];
+    expect(taste).toMatchObject({ available: false, pairingProductIds: ["simple"],
+      doughIds: entry.doughIds, baseIds: entry.baseIds, formatIds: entry.formatIds, toppingIds: entry.toppingIds,
+      includedToppingIds: ["olive"], previewImages: candidate.pizzaCatalog!.tastes[0].previewImages });
+    expect(taste.imageId).toBeUndefined();
+    expect(current().pizzaCatalog!.toppings[0].ingredients).toEqual({ olive: 2 });
+    expect(current().sections).toEqual(candidate.sections);
+    fireEvent.click(editor.getByRole("button", { name: "Rimuovi gusto dalla bozza" }));
+    expect(onRemove).toHaveBeenCalledOnce();
+    expect(onClose).not.toHaveBeenCalled();
+  });
+
   it("disattiva e riattiva Pizza custom mantenendo combinazioni e riferimenti", () => {
     render(<Editor />);
     const before = structuredClone(current());

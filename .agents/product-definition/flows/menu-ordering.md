@@ -16,7 +16,9 @@ Le combinazioni Pizza custom hanno nome, prezzo base, quota e percentuale config
 
 ### Gusti e formule di composizione
 
-D80 distingue gusti e formule senza gusto predefinito. D82 estende le formule a combinazioni con nomi liberi. L'editor mostra categorie e prodotti a sinistra e una sola scheda attiva a destra: pizza oppure **Impasti, basi e formati**. Il selettore accanto a **Pubblica menu** sceglie la bozza. Nome, descrizione, ingredienti ricercabili e prezzo sono immediatamente accessibili; foto, ricette, allergeni e abbinamenti restano nelle opzioni avanzate.
+Nella scheda pizza, **Foto, allergeni e altre opzioni** contiene direttamente dosi degli ingredienti, disponibilità, caricamento/rimozione foto, abbinamenti e rimozione dalla bozza. Nome, descrizione, ingredienti e prezzo si modificano una sola volta nella scheda principale. Le opzioni avanzate non ripetono titolo, chiusura o selezione della sezione e non espongono anteprime PoC, impasti, basi, formati o topping consentiti. Aprirle e modificare i campi rimasti conserva le associazioni e le anteprime già salvate; gli allergeni si gestiscono nelle schede ingredienti del Magazzino. La suite `apps/admin/src/test/pizza-catalog-editor.test.tsx` verifica le azioni rimaste e la conservazione dei dati.
+
+D80 distingue gusti e formule senza gusto predefinito. D82 estende le formule a combinazioni con nomi liberi. L'editor mostra categorie e prodotti a sinistra e una sola scheda attiva a destra: pizza oppure **Impasti, basi e formati**. Il selettore accanto a **Pubblica menu** sceglie la bozza. Nome, descrizione, ingredienti ricercabili e prezzo sono immediatamente accessibili; foto, ricette e abbinamenti restano nelle opzioni avanzate.
 
 Gli standard e le alternative comuni valgono per tutte le pizze e combinazioni, senza eccezioni per prodotto. Cambiare standard conserva i prezzi commerciali e ricalcola i supplementi. I cataloghi precedenti mantengono le associazioni fino alla configurazione esplicita in bozza. Disattivare **Pizza custom** conserva formule e riferimenti nelle sezioni, ma le esclude dalla proiezione pubblicata.
 
