@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { BRAND_ASSETS } from "@pizzaos/brand";
+import { BrandLogo } from "@pizzaos/ui";
 import styles from "./sign-in.module.css";
 
 export function SignInScreen({ returnTo, demoOnly = false }: { returnTo: string; demoOnly?: boolean }) {
@@ -33,6 +35,7 @@ export function SignInScreen({ returnTo, demoOnly = false }: { returnTo: string;
   }, [demoOnly]);
   if (demoOnly) return <div className={styles.page}><a href={returnTo}>← Torna agli ordini</a>
     <section className={styles.card}>
+      <div className={styles.brand}><BrandLogo src={BRAND_ASSETS.logo} width={172} height={43} /></div>
       <h1>Accedi alla demo PizzaOS</h1>
       <p>Esplora la demo con dati fittizi e pagamenti simulati.</p>
       {demoEnabled === null && <p role="status">Caricamento dell’accesso demo…</p>}
@@ -47,7 +50,7 @@ export function SignInScreen({ returnTo, demoOnly = false }: { returnTo: string;
       {error && <p className={styles.error} role="alert">{error}</p>}
     </section>
   </div>;
-  return <div className={styles.page}><a href={returnTo}>← Torna a PizzaOS</a><section className={styles.card}><span className={styles.brand}>PizzaOS</span>
+  return <div className={styles.page}><a href={returnTo}>← Torna a PizzaOS</a><section className={styles.card}><div className={styles.brand}><BrandLogo src={BRAND_ASSETS.logo} width={172} height={43} /></div>
     <h1>{verification ? "Controlla la tua email" : "Accedi e continua"}</h1>
     {verification ? <><p>Ti abbiamo inviato un link per accedere. Aprilo sullo stesso dispositivo per ritrovare il carrello.</p><p>Se non arriva, controlla la cartella spam oppure richiedi un nuovo link.</p><a href="/accesso">Richiedi un altro link</a></> : <>
       <p>Usa Google oppure ricevi un link sicuro via email. Il carrello resta su questo dispositivo.</p>

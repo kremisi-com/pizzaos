@@ -1,9 +1,9 @@
 .scroll {
   max-height: 40rem;
   overflow: auto;
-  border: 1px solid #dce3ef;
+  border: 1px solid var(--pizzaos-color-border);
   border-radius: 0.75rem;
-  background: #f6f8fc;
+  background: var(--pizzaos-color-info-soft);
 }
 
 .grid {
@@ -25,16 +25,16 @@
   align-content: center;
   gap: 0.25rem;
   padding: 0.5rem;
-  background: #f6f8fc;
+  background: var(--pizzaos-color-info-soft);
 }
 
 .grid .heading button,
 .controls button,
 .grid .windowActions button {
   cursor: pointer;
-  border: 1px solid #becbdd;
-  color: #182840;
-  background: #fff;
+  border: 1px solid var(--pizzaos-color-border);
+  color: var(--pizzaos-color-info-foreground);
+  background: var(--pizzaos-color-background-accent);
   border-radius: 0.4rem;
 }
 
@@ -47,7 +47,7 @@
   padding: 0.1rem 0.35rem;
   font-size: 0.75rem;
   font-variant-numeric: tabular-nums;
-  color: #43536d;
+  color: var(--pizzaos-color-info-foreground);
 }
 
 .window {
@@ -57,9 +57,9 @@
   gap: 0.3rem;
   margin: 1px 0;
   padding: 0.25rem 0.4rem;
-  background: #edf4ff;
-  border-inline: 1px solid #b7ccee;
-  color: #182840;
+  background: var(--pizzaos-color-info-soft);
+  border-inline: 1px solid var(--pizzaos-color-border);
+  color: var(--pizzaos-color-info-foreground);
 }
 
 .grid .window label {
@@ -100,18 +100,18 @@
   transform: translateY(-50%);
   cursor: pointer;
   border: 0;
-  background: linear-gradient(to bottom, transparent 4px, #7193c4 4px, #7193c4 6px, transparent 6px);
+  background: linear-gradient(to bottom, transparent 4px, var(--pizzaos-brand-navy) 4px, var(--pizzaos-brand-navy) 6px, transparent 6px);
 }
 
 .grid .separator:hover,
 .grid .separator:focus-visible {
-  background: #274f91;
+  background: var(--pizzaos-brand-navy);
 }
 
 .separator:focus-visible,
 .controls button:focus-visible,
 .windowActions button:focus-visible {
-  outline: 2px solid #214c9a;
+  outline: 2px solid var(--pizzaos-color-focus);
   outline-offset: 2px;
 }
 
@@ -131,7 +131,7 @@
   display: grid;
   gap: 0.5rem;
   padding: 0.75rem;
-  border: 1px solid #becbdd;
+  border: 1px solid var(--pizzaos-color-border);
   border-radius: 0.5rem;
 }
 
@@ -141,7 +141,7 @@
 }
 
 .error {
-  color: #a02020;
+  color: var(--pizzaos-color-critical-foreground);
 }
 
 .visuallyHidden {

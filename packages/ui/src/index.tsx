@@ -7,6 +7,20 @@ import type {
   TableHTMLAttributes
 } from "react";
 
+export interface BrandLogoProps {
+  readonly src: string;
+  readonly decorative?: boolean;
+  readonly className?: string;
+  readonly width?: number;
+  readonly height?: number;
+}
+
+/** Render an original brand asset, named PizzaOS unless explicitly decorative. */
+export function BrandLogo({ src, decorative = false, className, width, height }: BrandLogoProps): ReactElement {
+  return <img src={src} alt={decorative ? "" : "PizzaOS"} className={className}
+    width={width} height={height} style={{ maxWidth: "100%", height: "auto", objectFit: "contain" }} />;
+}
+
 const CARD_STYLE = {
   border: "1px solid var(--pizzaos-color-border)",
   borderRadius: "var(--pizzaos-radius-card)",
@@ -29,7 +43,7 @@ const BUTTON_VARIANT_STYLE: Record<ButtonVariant, Readonly<Record<string, string
     boxShadow: "0 10px 20px rgba(var(--pizzaos-color-primary-rgb), 0.18)"
   },
   secondary: {
-    backgroundColor: "#ffffff",
+    backgroundColor: "var(--pizzaos-color-background-accent)",
     color: "var(--pizzaos-color-foreground)",
     border: "1px solid var(--pizzaos-color-border)"
   },
@@ -42,28 +56,28 @@ const BUTTON_VARIANT_STYLE: Record<ButtonVariant, Readonly<Record<string, string
 
 const BADGE_TONE_STYLE: Record<BadgeTone, Readonly<Record<string, string>>> = {
   neutral: {
-    backgroundColor: "rgba(79, 90, 106, 0.14)",
+    backgroundColor: "var(--pizzaos-color-info-soft)",
     color: "var(--pizzaos-color-foreground)"
   },
   success: {
-    backgroundColor: "rgba(22, 163, 74, 0.14)",
-    color: "#166534"
+    backgroundColor: "var(--pizzaos-color-success-soft)",
+    color: "var(--pizzaos-color-success-foreground)"
   },
   warning: {
-    backgroundColor: "rgba(202, 138, 4, 0.2)",
-    color: "#854d0e"
+    backgroundColor: "var(--pizzaos-color-warning-soft)",
+    color: "var(--pizzaos-color-warning-foreground)"
   },
   critical: {
-    backgroundColor: "rgba(220, 38, 38, 0.16)",
-    color: "#991b1b"
+    backgroundColor: "var(--pizzaos-color-critical-soft)",
+    color: "var(--pizzaos-color-critical-foreground)"
   }
 };
 
 const STATUS_INDICATOR_COLOR: Record<StatusTone, string> = {
-  idle: "#64748b",
-  active: "#16a34a",
-  warning: "#ca8a04",
-  error: "#dc2626"
+  idle: "var(--pizzaos-color-foreground-muted)",
+  active: "var(--pizzaos-color-success)",
+  warning: "var(--pizzaos-color-warning)",
+  error: "var(--pizzaos-color-critical)"
 };
 
 const NETWORK_STATE_COPY: Record<NetworkStateKind, Readonly<{ title: string; message: string }>> = {
@@ -121,6 +135,7 @@ export function Button(props: ButtonProps): ReactElement
       type={type}
       style={{
         padding: "10px 14px",
+        fontFamily: "inherit",
         borderRadius: "var(--pizzaos-radius-control)",
         cursor: "pointer",
         fontWeight: 700,
@@ -239,7 +254,7 @@ export function Dialog(props: DialogProps): ReactElement | null
           maxHeight: "85vh",
           overflowY: "auto",
           borderRadius: "28px",
-          backgroundColor: "#ffffff",
+          backgroundColor: "var(--pizzaos-color-background-accent)",
           boxShadow: "0 24px 48px -8px rgba(0, 0, 0, 0.18), 0 0 0 1px rgba(0,0,0,0.04)",
           padding: "32px 28px 28px",
           position: "relative",
@@ -661,7 +676,7 @@ export function BottomNavigation(props: BottomNavigationProps): ReactElement
                 height: "64px",
                 borderRadius: "50%",
                 marginTop: "-32px",
-                boxShadow: "0 4px 12px rgba(209, 73, 46, 0.4)",
+                boxShadow: "0 4px 12px rgba(var(--pizzaos-color-primary-rgb), 0.4)",
                 transform: isActive ? "scale(1.1)" : "scale(1)"
               }}
             >

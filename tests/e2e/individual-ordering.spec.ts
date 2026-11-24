@@ -199,15 +199,15 @@ test("the live admin sidebar switches tools and restricts store management to su
   const navigation = page.getByRole("navigation", { name: "Navigazione admin" });
   const sections = ["Dashboard", "Ordini", "Menu", "Magazzino", "Marketing", "Analytics & AI", "Consegne", "Integrazioni", "Profilo"];
   await expect(page.getByRole("heading", { name: "Dashboard", exact: true })).toBeVisible();
-  await expect(navigation.getByRole("button")).toHaveText(sections);
+  await expect(navigation.getByRole("link")).toHaveText(sections);
 
   await page.getByRole("button", { name: "Nascondi sidebar", exact: true }).click();
   await expect(page.getByRole("button", { name: "Mostra sidebar", exact: true })).toBeVisible();
   await page.getByRole("button", { name: "Mostra sidebar", exact: true }).click();
-  await expect(navigation.getByRole("button")).toHaveText(sections);
+  await expect(navigation.getByRole("link")).toHaveText(sections);
 
   for (const section of sections.slice(2)) {
-    await navigation.getByRole("button", { name: section, exact: true }).click();
+    await navigation.getByRole("link", { name: section, exact: true }).click();
     await expect(page.getByRole("heading", { name: section, exact: true })).toBeVisible();
     if (section === "Menu") {
       await expect(page.getByRole("heading", { name: "Menu pubblicato", exact: true })).toBeVisible();

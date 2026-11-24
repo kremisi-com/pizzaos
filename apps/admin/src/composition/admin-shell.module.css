@@ -1,5 +1,11 @@
 .shell
 {
+  --admin-icon-navy: brightness(0) saturate(100%) invert(17%) sepia(27%) saturate(1304%) hue-rotate(157deg) brightness(91%) contrast(97%);
+  --admin-icon-primary: brightness(0) saturate(100%) invert(32%) sepia(70%) saturate(1025%) hue-rotate(338deg) brightness(89%) contrast(92%);
+  --admin-icon-warning: brightness(0) saturate(100%) invert(38%) sepia(76%) saturate(959%) hue-rotate(8deg) brightness(91%) contrast(95%);
+  --admin-icon-success: brightness(0) saturate(100%) invert(32%) sepia(35%) saturate(1112%) hue-rotate(94deg) brightness(92%) contrast(90%);
+  --admin-icon-critical: brightness(0) saturate(100%) invert(20%) sepia(64%) saturate(2724%) hue-rotate(347deg) brightness(91%) contrast(97%);
+
   position: fixed;
   inset: 0;
   display: grid;
@@ -12,12 +18,21 @@
   overflow: hidden;
   background:
     radial-gradient(circle at 86% 8%, rgba(var(--pizzaos-color-primary-rgb), 0.06), transparent 30%),
-    linear-gradient(180deg, #ffffff 0%, var(--pizzaos-color-background) 100%);
+    linear-gradient(180deg, var(--pizzaos-color-background-accent) 0%, var(--pizzaos-color-background) 100%);
 }
 
 .shellSidebarCollapsed
 {
   grid-template-columns: 0 1fr;
+}
+
+.shell.shellDemo
+{
+  position: relative;
+  inset: auto;
+  flex: 1;
+  height: auto;
+  min-height: 0;
 }
 
 .sidebar
@@ -32,7 +47,7 @@
   display: flex;
   flex-direction: column;
   gap: 30px;
-  box-shadow: 16px 0 42px rgba(32, 25, 20, 0.035);
+  box-shadow: 16px 0 42px color-mix(in srgb, var(--pizzaos-brand-navy) 3.5%, transparent);
   transition:
     padding var(--pizzaos-motion-duration-fast) var(--pizzaos-motion-ease-standard),
     border-color var(--pizzaos-motion-duration-fast) var(--pizzaos-motion-ease-standard),
@@ -60,23 +75,28 @@
 {
   position: absolute;
   top: 22px;
-  right: -16px;
+  left: 270px;
   z-index: 3;
   display: inline-flex;
   width: 32px;
   height: 32px;
   align-items: center;
   justify-content: center;
-  border: 1px solid rgba(24, 24, 27, 0.12);
+  border: 1px solid color-mix(in srgb, var(--pizzaos-brand-navy) 12%, transparent);
   border-radius: 999px;
-  color: #18181b;
-  background: #ffffff;
-  box-shadow: 0 10px 22px rgba(24, 24, 27, 0.1);
+  color: var(--pizzaos-color-foreground);
+  background: var(--pizzaos-color-background-accent);
+  box-shadow: 0 10px 22px color-mix(in srgb, var(--pizzaos-brand-navy) 10%, transparent);
   cursor: pointer;
   transition:
     border-color var(--pizzaos-motion-duration-fast) var(--pizzaos-motion-ease-standard),
     box-shadow var(--pizzaos-motion-duration-fast) var(--pizzaos-motion-ease-standard),
     transform var(--pizzaos-motion-duration-fast) var(--pizzaos-motion-ease-standard);
+}
+
+.sidebarToggleCollapsed
+{
+  left: 12px;
 }
 
 .sidebarToggle:hover
@@ -91,7 +111,7 @@
   display: block;
   color: inherit;
   font-size: 1.35rem;
-  font-weight: 900;
+  font-weight: 800;
   line-height: 1;
   transform: translateY(-1px);
 }
@@ -110,6 +130,9 @@
 {
   margin: 0;
   line-height: 1;
+  padding: 16px;
+  border-radius: var(--pizzaos-radius-control);
+  background: var(--pizzaos-brand-navy);
 }
 
 .logoImage
@@ -139,7 +162,7 @@
 
 .navItem:hover
 {
-  background-color: rgba(0, 0, 0, 0.04);
+  background-color: color-mix(in srgb, var(--pizzaos-brand-navy) 4%, transparent);
   color: var(--pizzaos-color-foreground);
 }
 
@@ -168,7 +191,7 @@
 }
 
 .navButton:hover {
-  background-color: rgba(0, 0, 0, 0.04);
+  background-color: color-mix(in srgb, var(--pizzaos-brand-navy) 4%, transparent);
   color: var(--pizzaos-color-foreground);
 }
 
@@ -184,6 +207,10 @@
   flex: 0 0 18px;
   align-items: center;
   justify-content: center;
+  background: currentColor;
+  mask-size: contain;
+  mask-repeat: no-repeat;
+  mask-position: center;
 }
 
 .navIcon img {
@@ -194,11 +221,11 @@
 }
 
 .navButton:hover .navIcon img {
-  filter: brightness(0) saturate(100%) invert(8%) sepia(9%) saturate(1407%) hue-rotate(176deg) brightness(92%) contrast(91%);
+  filter: var(--admin-icon-navy);
 }
 
 .navItemActive .navIcon img {
-  filter: invert(24%) sepia(96%) saturate(3697%) hue-rotate(351deg) brightness(104%) contrast(102%);
+  filter: var(--admin-icon-primary);
 }
 
 .sidebarFooter
@@ -209,7 +236,7 @@
   border-radius: 16px;
   background:
     radial-gradient(circle at 100% 0%, rgba(var(--pizzaos-color-primary-rgb), 0.08), transparent 42%),
-    #fffaf8;
+    var(--pizzaos-color-background-accent);
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -263,7 +290,7 @@
   padding: 20px;
   border: 1px solid var(--pizzaos-color-border);
   border-radius: 8px;
-  background: #fff;
+  background: var(--pizzaos-color-background-accent);
 }
 
 .operationalInvite h2 {
@@ -283,7 +310,7 @@
   padding: 10px;
   border: 1px solid var(--pizzaos-color-border);
   border-radius: 8px;
-  background: #fff;
+  background: var(--pizzaos-color-background-accent);
   color: var(--pizzaos-color-foreground);
   font: inherit;
   font-weight: 700;
@@ -298,22 +325,22 @@
 }
 
 .operationalError {
-  background: #fff2f0;
-  color: #a43223;
+  background: var(--pizzaos-color-critical-soft);
+  color: var(--pizzaos-color-critical-foreground);
 }
 
 .operationalNotice {
-  background: #ecfdf3;
-  color: #166534;
+  background: var(--pizzaos-color-success-soft);
+  color: var(--pizzaos-color-success-foreground);
 }
 
 .liveOrdersPanel {
   min-width: 0;
-  border: 1px solid rgba(24, 24, 27, 0.11);
+  border: 1px solid color-mix(in srgb, var(--pizzaos-brand-navy) 11%, transparent);
   border-radius: 8px;
   padding: 22px 22px 18px;
-  background: #ffffff;
-  box-shadow: 0 14px 32px rgba(24, 24, 27, 0.08);
+  background: var(--pizzaos-color-background-accent);
+  box-shadow: 0 14px 32px color-mix(in srgb, var(--pizzaos-brand-navy) 8%, transparent);
 }
 
 .liveOrdersHeader {
@@ -326,9 +353,9 @@
 
 .liveOrdersHeader h3 {
   margin: 0;
-  color: #18181b;
+  color: var(--pizzaos-color-foreground);
   font-size: 1.05rem;
-  font-weight: 900;
+  font-weight: 800;
   line-height: 1.1;
 }
 
@@ -336,7 +363,7 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  color: #52525b;
+  color: var(--pizzaos-color-foreground-muted);
   font-size: 0.78rem;
   font-weight: 650;
   white-space: nowrap;
@@ -346,8 +373,8 @@
   width: 7px;
   height: 7px;
   border-radius: 999px;
-  background: #ff2d20;
-  box-shadow: 0 0 0 3px rgba(255, 45, 32, 0.08);
+  background: var(--pizzaos-color-primary);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--pizzaos-color-primary) 8%, transparent);
 }
 
 .liveOrdersKpis {
@@ -355,10 +382,10 @@
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 0;
   margin-bottom: 22px;
-  border: 1px solid rgba(24, 24, 27, 0.1);
+  border: 1px solid color-mix(in srgb, var(--pizzaos-brand-navy) 10%, transparent);
   border-radius: 8px;
-  background: #ffffff;
-  box-shadow: 0 10px 22px rgba(24, 24, 27, 0.04);
+  background: var(--pizzaos-color-background-accent);
+  box-shadow: 0 10px 22px color-mix(in srgb, var(--pizzaos-brand-navy) 4%, transparent);
 }
 
 .liveOrdersKpi {
@@ -379,7 +406,7 @@
   justify-content: center;
   border-radius: 999px;
   font-size: 1.05rem;
-  font-weight: 900;
+  font-weight: 800;
   line-height: 1;
 }
 
@@ -392,9 +419,9 @@
 
 .liveOrdersKpi strong {
   display: block;
-  color: #09090b;
+  color: var(--pizzaos-color-foreground);
   font-size: 1.72rem;
-  font-weight: 950;
+  font-weight: 800;
   line-height: 0.95;
 }
 
@@ -402,61 +429,61 @@
   display: block;
   margin-top: 6px;
   font-size: 0.68rem;
-  font-weight: 900;
+  font-weight: 800;
   line-height: 1;
   white-space: nowrap;
 }
 
 .liveOrdersKpired .liveOrdersKpiIcon {
-  color: #ff2d20;
-  background: rgba(255, 45, 32, 0.1);
+  color: var(--pizzaos-color-primary);
+  background: color-mix(in srgb, var(--pizzaos-color-primary) 10%, transparent);
 }
 
 .liveOrdersKpired .liveOrdersKpiIcon img {
-  filter: invert(24%) sepia(96%) saturate(3697%) hue-rotate(351deg) brightness(104%) contrast(102%);
+  filter: var(--admin-icon-primary);
 }
 
 .liveOrdersKpired span:last-child {
-  color: #ff2d20;
+  color: var(--pizzaos-color-primary);
 }
 
 .liveOrdersKpiorange .liveOrdersKpiIcon {
-  color: #ff4f1f;
-  background: rgba(255, 79, 31, 0.12);
+  color: var(--pizzaos-color-primary);
+  background: color-mix(in srgb, var(--pizzaos-color-primary) 12%, transparent);
 }
 
 .liveOrdersKpiorange .liveOrdersKpiIcon img {
-  filter: invert(39%) sepia(97%) saturate(2502%) hue-rotate(352deg) brightness(104%) contrast(104%);
+  filter: var(--admin-icon-primary);
 }
 
 .liveOrdersKpiorange span:last-child {
-  color: #ff2d20;
+  color: var(--pizzaos-color-primary);
 }
 
 .liveOrdersKpiamber .liveOrdersKpiIcon {
-  color: #f59e0b;
-  background: rgba(245, 158, 11, 0.14);
+  color: var(--pizzaos-color-warning-foreground);
+  background: var(--pizzaos-color-warning-soft);
 }
 
 .liveOrdersKpiamber .liveOrdersKpiIcon img {
-  filter: invert(68%) sepia(77%) saturate(2093%) hue-rotate(359deg) brightness(101%) contrast(93%);
+  filter: var(--admin-icon-warning);
 }
 
 .liveOrdersKpiamber span:last-child {
-  color: #d88a00;
+  color: var(--pizzaos-color-warning-foreground);
 }
 
 .liveOrdersKpigreen .liveOrdersKpiIcon {
-  color: #16a34a;
-  background: rgba(22, 163, 74, 0.14);
+  color: var(--pizzaos-color-success-foreground);
+  background: color-mix(in srgb, var(--pizzaos-color-success) 14%, transparent);
 }
 
 .liveOrdersKpigreen .liveOrdersKpiIcon img {
-  filter: invert(44%) sepia(59%) saturate(845%) hue-rotate(97deg) brightness(91%) contrast(91%);
+  filter: var(--admin-icon-success);
 }
 
 .liveOrdersKpigreen span:last-child {
-  color: #16a34a;
+  color: var(--pizzaos-color-success-foreground);
 }
 
 .liveOrdersBottom {
@@ -472,26 +499,26 @@
   flex-direction: column;
   justify-content: center;
   padding-right: 16px;
-  border-right: 1px solid rgba(24, 24, 27, 0.1);
+  border-right: 1px solid color-mix(in srgb, var(--pizzaos-brand-navy) 10%, transparent);
 }
 
 .liveOrdersAverage span {
-  color: #52525b;
+  color: var(--pizzaos-color-foreground-muted);
   font-size: 0.78rem;
   font-weight: 800;
 }
 
 .liveOrdersAverage strong {
   margin-top: 6px;
-  color: #18181b;
+  color: var(--pizzaos-color-foreground);
   font-size: 2.05rem;
-  font-weight: 950;
+  font-weight: 800;
   line-height: 1;
 }
 
 .liveOrdersAverage small {
   margin-top: 11px;
-  color: #16a34a;
+  color: var(--pizzaos-color-success-foreground);
   font-size: 0.78rem;
   font-weight: 800;
 }
@@ -508,7 +535,7 @@
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  color: #71717a;
+  color: var(--pizzaos-color-foreground-muted);
   font-size: 0.68rem;
   line-height: 1;
   text-align: right;
@@ -526,7 +553,7 @@
   display: flex;
   justify-content: space-between;
   padding-top: 4px;
-  color: #71717a;
+  color: var(--pizzaos-color-foreground-muted);
   font-size: 0.68rem;
 }
 
@@ -547,7 +574,7 @@
   gap: 10px;
   border-radius: 8px;
   font-size: 0.84rem;
-  font-weight: 900;
+  font-weight: 800;
   cursor: pointer;
   transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
 }
@@ -564,10 +591,10 @@
 }
 
 .liveOrdersPrimaryAction {
-  border: 1px solid #ff2d20;
-  color: #ffffff;
-  background: linear-gradient(180deg, #ff3328 0%, #ff1810 100%);
-  box-shadow: 0 10px 20px rgba(255, 45, 32, 0.24);
+  border: 1px solid var(--pizzaos-color-border);
+  color: var(--pizzaos-color-primary-foreground);
+  background: linear-gradient(180deg, var(--pizzaos-color-primary) 0%, var(--pizzaos-color-primary) 100%);
+  box-shadow: 0 10px 20px color-mix(in srgb, var(--pizzaos-color-primary) 24%, transparent);
 }
 
 .liveOrdersPrimaryAction img {
@@ -575,14 +602,14 @@
 }
 
 .liveOrdersSecondaryAction {
-  border: 1px solid rgba(24, 24, 27, 0.12);
-  color: #18181b;
-  background: #ffffff;
-  box-shadow: 0 8px 18px rgba(24, 24, 27, 0.04);
+  border: 1px solid color-mix(in srgb, var(--pizzaos-brand-navy) 12%, transparent);
+  color: var(--pizzaos-color-foreground);
+  background: var(--pizzaos-color-background-accent);
+  box-shadow: 0 8px 18px color-mix(in srgb, var(--pizzaos-brand-navy) 4%, transparent);
 }
 
 .liveOrdersSecondaryAction img {
-  filter: invert(8%) sepia(7%) saturate(1227%) hue-rotate(202deg) brightness(98%) contrast(91%);
+  filter: var(--admin-icon-navy);
 }
 
 .quickActionsCard {
@@ -591,18 +618,18 @@
 
 .quickActionsPanel {
   min-width: 0;
-  border: 1px solid rgba(24, 24, 27, 0.1);
+  border: 1px solid color-mix(in srgb, var(--pizzaos-brand-navy) 10%, transparent);
   border-radius: 8px;
   padding: 22px 18px 18px;
-  background: #ffffff;
-  box-shadow: 0 14px 32px rgba(24, 24, 27, 0.07);
+  background: var(--pizzaos-color-background-accent);
+  box-shadow: 0 14px 32px color-mix(in srgb, var(--pizzaos-brand-navy) 7%, transparent);
 }
 
 .quickActionsPanel h3 {
   margin: 0 0 18px;
-  color: #18181b;
+  color: var(--pizzaos-color-foreground);
   font-size: 1.08rem;
-  font-weight: 900;
+  font-weight: 800;
   line-height: 1.1;
 }
 
@@ -620,13 +647,13 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-  border: 1px solid rgba(24, 24, 27, 0.12);
+  border: 1px solid color-mix(in srgb, var(--pizzaos-brand-navy) 12%, transparent);
   border-radius: 8px;
-  color: #18181b;
-  background: #ffffff;
-  box-shadow: 0 8px 18px rgba(24, 24, 27, 0.04);
+  color: var(--pizzaos-color-foreground);
+  background: var(--pizzaos-color-background-accent);
+  box-shadow: 0 8px 18px color-mix(in srgb, var(--pizzaos-brand-navy) 4%, transparent);
   font-size: 0.75rem;
-  font-weight: 900;
+  font-weight: 800;
   line-height: 1.1;
   text-align: center;
   cursor: pointer;
@@ -634,8 +661,8 @@
 }
 
 .quickActionButton:hover {
-  border-color: rgba(255, 45, 32, 0.38);
-  box-shadow: 0 12px 22px rgba(255, 45, 32, 0.08);
+  border-color: color-mix(in srgb, var(--pizzaos-color-primary) 38%, transparent);
+  box-shadow: 0 12px 22px color-mix(in srgb, var(--pizzaos-color-primary) 8%, transparent);
   transform: translateY(-1px);
 }
 
@@ -644,9 +671,9 @@
   height: 22px;
   align-items: center;
   justify-content: center;
-  color: #ff2d20;
+  color: var(--pizzaos-color-primary);
   font-size: 1.45rem;
-  font-weight: 950;
+  font-weight: 800;
   line-height: 1;
 }
 
@@ -655,7 +682,7 @@
   width: 22px;
   height: 22px;
   object-fit: contain;
-  filter: invert(24%) sepia(96%) saturate(3697%) hue-rotate(351deg) brightness(104%) contrast(102%);
+  filter: var(--admin-icon-navy);
 }
 
 .quickActionButtonWide {
@@ -672,13 +699,13 @@
 .attentionCard {
   grid-column: span 1;
   min-width: 0;
-  border: 1px solid rgba(255, 61, 48, 0.45);
+  border: 1px solid color-mix(in srgb, var(--pizzaos-color-primary) 45%, transparent);
   border-radius: 8px;
   padding: 28px 22px 20px;
   background:
-    radial-gradient(circle at 84% 18%, rgba(255, 61, 48, 0.08), transparent 35%),
-    linear-gradient(180deg, #fff9f8 0%, #fffefe 100%);
-  box-shadow: 0 16px 34px rgba(255, 61, 48, 0.08);
+    radial-gradient(circle at 84% 18%, color-mix(in srgb, var(--pizzaos-color-primary) 8%, transparent), transparent 35%),
+    linear-gradient(180deg, var(--pizzaos-color-background-accent) 0%, var(--pizzaos-color-background-accent) 100%);
+  box-shadow: 0 16px 34px color-mix(in srgb, var(--pizzaos-color-primary) 8%, transparent);
 }
 
 .attentionHeader {
@@ -691,8 +718,8 @@
 .attentionHeader h3 {
   margin: 0;
   font-size: 1rem;
-  font-weight: 900;
-  color: #18181b;
+  font-weight: 800;
+  color: var(--pizzaos-color-foreground);
 }
 
 .attentionHeaderIcon {
@@ -709,14 +736,14 @@
   width: 18px;
   height: 18px;
   object-fit: contain;
-  filter: invert(24%) sepia(96%) saturate(3697%) hue-rotate(351deg) brightness(104%) contrast(102%);
+  filter: var(--admin-icon-primary);
 }
 
 .attentionAlertBox {
-  border: 1px solid rgba(24, 24, 27, 0.12);
+  border: 1px solid color-mix(in srgb, var(--pizzaos-brand-navy) 12%, transparent);
   border-radius: 6px;
   background: rgba(255, 255, 255, 0.82);
-  box-shadow: 0 10px 22px rgba(24, 24, 27, 0.04);
+  box-shadow: 0 10px 22px color-mix(in srgb, var(--pizzaos-brand-navy) 4%, transparent);
 }
 
 .attentionAlertRow {
@@ -737,13 +764,13 @@
 }
 
 .attentionAlertIconWarning {
-  border: 1px solid rgba(245, 158, 11, 0.7);
-  background: rgba(245, 158, 11, 0.12);
+  border: 1px solid var(--pizzaos-color-warning);
+  background: var(--pizzaos-color-warning-soft);
 }
 
 .attentionAlertIconDanger {
-  border: 1px solid rgba(255, 61, 48, 0.72);
-  background: rgba(255, 61, 48, 0.1);
+  border: 1px solid var(--pizzaos-color-critical);
+  background: var(--pizzaos-color-critical-soft);
 }
 
 .attentionAlertIcon img {
@@ -754,24 +781,24 @@
 }
 
 .attentionAlertIconWarning img {
-  filter: invert(66%) sepia(91%) saturate(1492%) hue-rotate(353deg) brightness(100%) contrast(93%);
+  filter: var(--admin-icon-warning);
 }
 
 .attentionAlertIconDanger img {
-  filter: invert(38%) sepia(96%) saturate(3024%) hue-rotate(339deg) brightness(103%) contrast(105%);
+  filter: var(--admin-icon-critical);
 }
 
 .attentionAlertTitle {
   margin: 0;
-  color: #18181b;
+  color: var(--pizzaos-color-foreground);
   font-size: 0.83rem;
-  font-weight: 900;
+  font-weight: 800;
   line-height: 1.25;
 }
 
 .attentionAlertDetail {
   margin: 3px 0 0;
-  color: #52525b;
+  color: var(--pizzaos-color-foreground-muted);
   font-size: 0.72rem;
   line-height: 1.25;
 }
@@ -779,7 +806,7 @@
 .attentionDivider {
   height: 1px;
   margin: 0 16px 0 62px;
-  background: rgba(24, 24, 27, 0.12);
+  background: color-mix(in srgb, var(--pizzaos-brand-navy) 12%, transparent);
 }
 
 .attentionStaticAction {
@@ -788,12 +815,12 @@
   align-items: center;
   justify-content: center;
   margin-top: 14px;
-  border: 1px solid #ff3d30;
+  border: 1px solid var(--pizzaos-color-border);
   border-radius: 7px;
-  color: #ff1f1f;
+  color: var(--pizzaos-color-primary);
   background: rgba(255, 255, 255, 0.5);
   font-size: 0.84rem;
-  font-weight: 900;
+  font-weight: 800;
 }
 
 .dashboardInsightRow {
@@ -806,19 +833,19 @@
 
 .dashboardInsightCard {
   min-width: 0;
-  border: 1px solid rgba(24, 24, 27, 0.1);
+  border: 1px solid color-mix(in srgb, var(--pizzaos-brand-navy) 10%, transparent);
   border-radius: 8px;
   padding: 20px 18px 18px;
-  background: #ffffff;
-  box-shadow: 0 14px 32px rgba(24, 24, 27, 0.06);
+  background: var(--pizzaos-color-background-accent);
+  box-shadow: 0 14px 32px color-mix(in srgb, var(--pizzaos-brand-navy) 6%, transparent);
 }
 
 .dashboardInsightEyebrow {
   display: block;
   margin-bottom: 10px;
-  color: #71717a;
+  color: var(--pizzaos-color-foreground-muted);
   font-size: 0.7rem;
-  font-weight: 900;
+  font-weight: 800;
   letter-spacing: 0.08em;
   line-height: 1;
   text-transform: uppercase;
@@ -826,16 +853,16 @@
 
 .dashboardInsightCard h3 {
   margin: 0;
-  color: #18181b;
+  color: var(--pizzaos-color-foreground);
   font-size: 1rem;
-  font-weight: 950;
+  font-weight: 800;
   line-height: 1.1;
 }
 
 .dashboardInsightCard p {
   min-height: 40px;
   margin: 10px 0 16px;
-  color: #52525b;
+  color: var(--pizzaos-color-foreground-muted);
   font-size: 0.82rem;
   font-weight: 650;
   line-height: 1.35;
@@ -843,16 +870,16 @@
 
 .dashboardInsightCard strong {
   display: block;
-  color: #09090b;
+  color: var(--pizzaos-color-foreground);
   font-size: 1.7rem;
-  font-weight: 950;
+  font-weight: 800;
   line-height: 1;
 }
 
 .dashboardInsightCard small {
   display: block;
   margin-top: 8px;
-  color: #71717a;
+  color: var(--pizzaos-color-foreground-muted);
   font-size: 0.74rem;
   font-weight: 800;
   line-height: 1.25;
@@ -864,11 +891,11 @@
   min-height: 224px;
   flex-direction: column;
   overflow: hidden;
-  border: 1px solid rgba(24, 24, 27, 0.09);
+  border: 1px solid color-mix(in srgb, var(--pizzaos-brand-navy) 9%, transparent);
   border-radius: 8px;
-  background: #ffffff;
+  background: var(--pizzaos-color-background-accent);
   box-shadow:
-    0 16px 34px rgba(24, 24, 27, 0.08),
+    0 16px 34px color-mix(in srgb, var(--pizzaos-brand-navy) 8%, transparent),
     inset 0 1px 0 rgba(255, 255, 255, 0.9);
 }
 
@@ -881,9 +908,9 @@
 
 .revenueTodayHeader h3 {
   margin: 0;
-  color: #18181b;
+  color: var(--pizzaos-color-foreground);
   font-size: 0.94rem;
-  font-weight: 900;
+  font-weight: 800;
   letter-spacing: -0.01em;
   line-height: 1.1;
 }
@@ -894,7 +921,7 @@
   height: 16px;
   align-items: center;
   justify-content: center;
-  color: #71717a;
+  color: var(--pizzaos-color-foreground-muted);
 }
 
 .revenueTodayIcon svg {
@@ -916,9 +943,9 @@
 .revenueTodayValue {
   display: block;
   padding: 7px 16px 0;
-  color: #111113;
+  color: var(--pizzaos-color-foreground);
   font-size: 1.56rem;
-  font-weight: 950;
+  font-weight: 800;
   letter-spacing: -0.045em;
   line-height: 1;
 }
@@ -929,9 +956,9 @@
   gap: 5px;
   margin: 8px 0 0;
   padding: 0 16px;
-  color: #16a34a;
+  color: var(--pizzaos-color-success-foreground);
   font-size: 0.72rem;
-  font-weight: 850;
+  font-weight: 800;
   line-height: 1;
 }
 
@@ -960,15 +987,15 @@
 
 .revenueTodayLine {
   fill: none;
-  stroke: #ff2d20;
+  stroke: var(--pizzaos-color-primary);
   stroke-linecap: round;
   stroke-linejoin: round;
   stroke-width: 3;
 }
 
 .revenueTodayDot {
-  fill: #ff2d20;
-  stroke: #ffffff;
+  fill: var(--pizzaos-color-primary);
+  stroke: var(--pizzaos-color-primary-foreground);
   stroke-width: 2;
 }
 
@@ -977,7 +1004,7 @@
   grid-template-columns: repeat(5, max-content);
   justify-content: space-between;
   margin-top: 2px;
-  color: #71717a;
+  color: var(--pizzaos-color-foreground-muted);
   font-size: 0.55rem;
   font-weight: 750;
   line-height: 1;
@@ -987,7 +1014,7 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   margin-top: auto;
-  border-top: 1px solid rgba(24, 24, 27, 0.08);
+  border-top: 1px solid color-mix(in srgb, var(--pizzaos-brand-navy) 8%, transparent);
 }
 
 .revenueTodayMetrics > div {
@@ -996,12 +1023,12 @@
 }
 
 .revenueTodayMetrics > div + div {
-  border-left: 1px solid rgba(24, 24, 27, 0.08);
+  border-left: 1px solid color-mix(in srgb, var(--pizzaos-brand-navy) 8%, transparent);
 }
 
 .revenueTodayMetrics > div > span {
   display: block;
-  color: #52525b;
+  color: var(--pizzaos-color-foreground-muted);
   font-size: 0.7rem;
   font-weight: 800;
   line-height: 1.1;
@@ -1010,9 +1037,9 @@
 .revenueTodayMetrics strong {
   display: inline-block;
   margin-top: 8px;
-  color: #111113;
+  color: var(--pizzaos-color-foreground);
   font-size: 1.1rem;
-  font-weight: 950;
+  font-weight: 800;
   letter-spacing: -0.035em;
   line-height: 1;
 }
@@ -1022,9 +1049,9 @@
   align-items: center;
   gap: 4px;
   margin-left: 7px;
-  color: #16a34a;
+  color: var(--pizzaos-color-success-foreground);
   font-size: 0.66rem;
-  font-weight: 900;
+  font-weight: 800;
   line-height: 1;
   vertical-align: baseline;
 }
@@ -1035,12 +1062,12 @@
   min-height: 224px;
   flex-direction: column;
   overflow: hidden;
-  border: 1px solid rgba(24, 24, 27, 0.09);
+  border: 1px solid color-mix(in srgb, var(--pizzaos-brand-navy) 9%, transparent);
   border-radius: 8px;
   padding: 19px 19px 15px;
-  background: #ffffff;
+  background: var(--pizzaos-color-background-accent);
   box-shadow:
-    0 16px 34px rgba(24, 24, 27, 0.08),
+    0 16px 34px color-mix(in srgb, var(--pizzaos-brand-navy) 8%, transparent),
     inset 0 1px 0 rgba(255, 255, 255, 0.9);
 }
 
@@ -1052,9 +1079,9 @@
 
 .deliveryFleetHeader h3 {
   margin: 0;
-  color: #18181b;
+  color: var(--pizzaos-color-foreground);
   font-size: 0.95rem;
-  font-weight: 950;
+  font-weight: 800;
   letter-spacing: -0.01em;
   line-height: 1.1;
 }
@@ -1072,7 +1099,7 @@
   display: block;
   width: 16px;
   height: 16px;
-  filter: brightness(0) saturate(100%);
+  filter: var(--admin-icon-navy);
   object-fit: contain;
 }
 
@@ -1097,15 +1124,15 @@
 }
 
 .deliveryFleetGaugeTrack {
-  stroke: rgba(24, 24, 27, 0.08);
+  stroke: color-mix(in srgb, var(--pizzaos-brand-navy) 8%, transparent);
 }
 
 .deliveryFleetGaugeAvailable {
-  stroke: #49c56e;
+  stroke: var(--pizzaos-color-success-foreground);
 }
 
 .deliveryFleetGaugeBusy {
-  stroke: #ffb01f;
+  stroke: var(--pizzaos-color-warning-foreground);
 }
 
 .deliveryFleetGaugeCenter {
@@ -1118,18 +1145,18 @@
 }
 
 .deliveryFleetGaugeCenter strong {
-  color: #18181b;
+  color: var(--pizzaos-color-foreground);
   font-size: 1.55rem;
-  font-weight: 950;
+  font-weight: 800;
   letter-spacing: -0.04em;
   line-height: 1;
 }
 
 .deliveryFleetGaugeCenter span {
   margin-top: 4px;
-  color: #71717a;
+  color: var(--pizzaos-color-foreground-muted);
   font-size: 0.62rem;
-  font-weight: 850;
+  font-weight: 800;
   line-height: 1;
 }
 
@@ -1139,7 +1166,7 @@
   justify-content: center;
   gap: 18px;
   margin-top: 0;
-  color: #52525b;
+  color: var(--pizzaos-color-foreground-muted);
   font-size: 0.62rem;
   font-weight: 800;
   line-height: 1;
@@ -1160,11 +1187,11 @@
 }
 
 .deliveryFleetLegendAvailable {
-  background: #49c56e;
+  background: var(--pizzaos-color-success);
 }
 
 .deliveryFleetLegendBusy {
-  background: #ffb01f;
+  background: var(--pizzaos-color-warning);
 }
 
 .deliveryFleetAction {
@@ -1174,20 +1201,20 @@
   align-items: center;
   justify-content: center;
   margin-top: auto;
-  border: 1px solid rgba(24, 24, 27, 0.18);
+  border: 1px solid color-mix(in srgb, var(--pizzaos-brand-navy) 18%, transparent);
   border-radius: 7px;
-  color: #18181b;
-  background: #ffffff;
-  box-shadow: 0 1px 2px rgba(24, 24, 27, 0.03);
+  color: var(--pizzaos-color-foreground);
+  background: var(--pizzaos-color-background-accent);
+  box-shadow: 0 1px 2px color-mix(in srgb, var(--pizzaos-brand-navy) 3%, transparent);
   font-size: 0.79rem;
-  font-weight: 900;
+  font-weight: 800;
   line-height: 1;
   cursor: pointer;
 }
 
 .deliveryFleetAction:hover {
-  border-color: rgba(24, 24, 27, 0.28);
-  background: #fafafa;
+  border-color: color-mix(in srgb, var(--pizzaos-brand-navy) 28%, transparent);
+  background: var(--pizzaos-color-background-accent);
 }
 
 .operationalTimelineHeader {
@@ -1199,9 +1226,9 @@
 
 .operationalTimelineHeader h3 {
   margin: 0;
-  color: #18181b;
+  color: var(--pizzaos-color-foreground);
   font-size: 0.96rem;
-  font-weight: 950;
+  font-weight: 800;
   line-height: 1;
 }
 
@@ -1238,7 +1265,7 @@
 
 .operationalTimelineTime {
   padding-top: 1px;
-  color: #52525b;
+  color: var(--pizzaos-color-foreground-muted);
   font-size: 0.72rem;
   font-weight: 750;
   line-height: 1.2;
@@ -1253,19 +1280,19 @@
 }
 
 .operationalTimelineDotred {
-  background: #ff2d20;
+  background: var(--pizzaos-color-primary);
 }
 
 .operationalTimelineDotorange {
-  background: #ff6a1a;
+  background: var(--pizzaos-color-primary);
 }
 
 .operationalTimelineDotgreen {
-  background: #35c759;
+  background: var(--pizzaos-color-success);
 }
 
 .operationalTimelineDotamber {
-  background: #f5b51b;
+  background: var(--pizzaos-color-warning);
 }
 
 .operationalTimelineContent {
@@ -1275,9 +1302,9 @@
 .operationalTimelineContent strong {
   display: block;
   overflow-wrap: anywhere;
-  color: #18181b;
+  color: var(--pizzaos-color-foreground);
   font-size: 0.78rem;
-  font-weight: 950;
+  font-weight: 800;
   line-height: 1.2;
 }
 
@@ -1285,7 +1312,7 @@
   display: block;
   margin-top: 3px;
   overflow-wrap: anywhere;
-  color: #71717a;
+  color: var(--pizzaos-color-foreground-muted);
   font-size: 0.72rem;
   font-weight: 750;
   line-height: 1.2;
@@ -1298,10 +1325,10 @@
   margin-top: 20px;
   padding: 0;
   border: 0;
-  color: #ff1f1f;
+  color: var(--pizzaos-color-primary);
   background: transparent;
   font-size: 0.78rem;
-  font-weight: 950;
+  font-weight: 800;
   line-height: 1;
   cursor: pointer;
 }
@@ -1309,7 +1336,7 @@
 .operationalTimelineAction span {
   color: inherit;
   font-size: 1.25rem;
-  font-weight: 850;
+  font-weight: 800;
   line-height: 0.8;
 }
 
@@ -1317,12 +1344,12 @@
   position: relative;
   overflow: hidden;
   padding: 24px 24px 22px;
-  border-color: rgba(109, 40, 217, 0.12);
+  border-color: color-mix(in srgb, var(--pizzaos-brand-navy) 12%, transparent);
   background:
-    radial-gradient(circle at 83% 50%, rgba(124, 58, 237, 0.08), transparent 32%),
-    #ffffff;
+    radial-gradient(circle at 83% 50%, color-mix(in srgb, var(--pizzaos-brand-navy) 8%, transparent), transparent 32%),
+    var(--pizzaos-color-background-accent);
   box-shadow:
-    0 18px 38px rgba(24, 24, 27, 0.08),
+    0 18px 38px color-mix(in srgb, var(--pizzaos-brand-navy) 8%, transparent),
     inset 0 0 0 1px rgba(255, 255, 255, 0.7);
 }
 
@@ -1335,8 +1362,8 @@
   background:
     repeating-radial-gradient(
       ellipse at center,
-      rgba(124, 58, 237, 0.16) 0,
-      rgba(124, 58, 237, 0.16) 1px,
+      color-mix(in srgb, var(--pizzaos-brand-navy) 16%, transparent) 0,
+      color-mix(in srgb, var(--pizzaos-brand-navy) 16%, transparent) 1px,
       transparent 1px,
       transparent 5px
     );
@@ -1355,9 +1382,9 @@
 
 .aiInsightHeader h3 {
   margin: 0;
-  color: #171717;
+  color: var(--pizzaos-color-foreground);
   font-size: 1rem;
-  font-weight: 950;
+  font-weight: 800;
   line-height: 1;
 }
 
@@ -1367,9 +1394,9 @@
   height: 18px;
   align-items: center;
   justify-content: center;
-  color: #6d28d9;
+  color: var(--pizzaos-color-info-foreground);
   font-size: 1.05rem;
-  font-weight: 950;
+  font-weight: 800;
   line-height: 1;
 }
 
@@ -1378,9 +1405,9 @@
   z-index: 1;
   min-height: 0;
   margin: 18px 0 8px;
-  color: #18181b;
+  color: var(--pizzaos-color-foreground);
   font-size: 0.89rem;
-  font-weight: 950;
+  font-weight: 800;
   line-height: 1.25;
 }
 
@@ -1390,7 +1417,7 @@
   min-height: 0;
   margin: 0;
   max-width: 190px;
-  color: #71717a;
+  color: var(--pizzaos-color-foreground-muted);
   font-size: 0.82rem;
   font-weight: 700;
   line-height: 1.38;
@@ -1404,17 +1431,17 @@
 
 .aiInsightConfidence span {
   display: block;
-  color: #52525b;
+  color: var(--pizzaos-color-foreground-muted);
   font-size: 0.72rem;
-  font-weight: 850;
+  font-weight: 800;
   line-height: 1;
 }
 
 .aiInsightConfidence strong {
   margin-top: 6px;
-  color: #6d28d9;
+  color: var(--pizzaos-color-info-foreground);
   font-size: 1.7rem;
-  font-weight: 950;
+  font-weight: 800;
   line-height: 1;
 }
 
@@ -1423,14 +1450,14 @@
   height: 3px;
   margin-top: 9px;
   border-radius: 999px;
-  background: rgba(109, 40, 217, 0.14);
+  background: color-mix(in srgb, var(--pizzaos-brand-navy) 14%, transparent);
 }
 
 .aiInsightProgress span {
   display: block;
   height: 100%;
   border-radius: inherit;
-  background: linear-gradient(90deg, #7c3aed 0%, #a855f7 100%);
+  background: linear-gradient(90deg, var(--pizzaos-brand-navy) 0%, var(--pizzaos-color-info-soft) 100%);
 }
 
 .aiInsightAction {
@@ -1444,16 +1471,16 @@
   margin-top: 18px;
   border: 0;
   border-radius: 7px;
-  color: #ffffff;
-  background: linear-gradient(180deg, #7c3aed 0%, #6728e8 100%);
-  box-shadow: 0 12px 24px rgba(109, 40, 217, 0.24);
+  color: var(--pizzaos-color-primary-foreground);
+  background: linear-gradient(180deg, var(--pizzaos-brand-navy) 0%, var(--pizzaos-brand-navy) 100%);
+  box-shadow: 0 12px 24px color-mix(in srgb, var(--pizzaos-brand-navy) 24%, transparent);
   font-size: 0.84rem;
-  font-weight: 950;
+  font-weight: 800;
   cursor: pointer;
 }
 
 .aiInsightAction:hover {
-  background: linear-gradient(180deg, #8b5cf6 0%, #6d28d9 100%);
+  background: var(--pizzaos-color-primary-hover);
 }
 
 .dashboardMarketingRow {
@@ -1469,10 +1496,10 @@
   position: relative;
   min-width: 0;
   overflow: hidden;
-  border: 1px solid rgba(24, 24, 27, 0.1);
+  border: 1px solid color-mix(in srgb, var(--pizzaos-brand-navy) 10%, transparent);
   border-radius: 8px;
-  background: #ffffff;
-  box-shadow: 0 14px 32px rgba(24, 24, 27, 0.06);
+  background: var(--pizzaos-color-background-accent);
+  box-shadow: 0 14px 32px color-mix(in srgb, var(--pizzaos-brand-navy) 6%, transparent);
 }
 
 .marketingActiveCard {
@@ -1493,9 +1520,9 @@
 
 .dashboardMarketingHeader h3 {
   margin: 0;
-  color: #18181b;
+  color: var(--pizzaos-color-foreground);
   font-size: 1rem;
-  font-weight: 950;
+  font-weight: 800;
   letter-spacing: -0.01em;
   line-height: 1;
 }
@@ -1517,11 +1544,11 @@
 }
 
 .marketingActiveCard .dashboardMarketingTitleIcon img {
-  filter: brightness(0) saturate(100%);
+  filter: var(--admin-icon-primary);
 }
 
 .automatedOpportunitiesCard .dashboardMarketingTitleIcon img {
-  filter: invert(24%) sepia(96%) saturate(3697%) hue-rotate(351deg) brightness(104%) contrast(102%);
+  filter: var(--admin-icon-navy);
 }
 
 .marketingActiveBody {
@@ -1539,7 +1566,7 @@
 .marketingActiveMetric span,
 .opportunityCopy small {
   display: block;
-  color: #71717a;
+  color: var(--pizzaos-color-foreground-muted);
   font-size: 0.72rem;
   font-weight: 800;
   line-height: 1.2;
@@ -1548,9 +1575,9 @@
 .marketingActiveMetric strong {
   display: inline-block;
   margin-top: 6px;
-  color: #09090b;
+  color: var(--pizzaos-color-foreground);
   font-size: 1.86rem;
-  font-weight: 950;
+  font-weight: 800;
   letter-spacing: -0.04em;
   line-height: 1;
 }
@@ -1560,16 +1587,16 @@
   align-items: center;
   gap: 4px;
   margin-left: 9px;
-  color: #16a34a;
+  color: var(--pizzaos-color-success-foreground);
   font-size: 0.72rem;
-  font-weight: 900;
+  font-weight: 800;
   line-height: 1;
 }
 
 .marketingActiveDivider {
   width: 1px;
   height: 44px;
-  background: rgba(24, 24, 27, 0.12);
+  background: color-mix(in srgb, var(--pizzaos-brand-navy) 12%, transparent);
 }
 
 .marketingActiveAction,
@@ -1583,10 +1610,10 @@
   margin-bottom: 4px;
   padding: 0;
   border: 0;
-  color: #ff1f1f;
+  color: var(--pizzaos-color-primary);
   background: transparent;
   font-size: 0.72rem;
-  font-weight: 950;
+  font-weight: 800;
   line-height: 1;
 }
 
@@ -1600,7 +1627,7 @@
   align-items: center;
   justify-content: center;
   border-radius: 999px;
-  background: #ffe3e3;
+  background: var(--pizzaos-color-primary-soft);
 }
 
 .marketingActiveBadge img {
@@ -1608,7 +1635,7 @@
   width: 28px;
   height: 28px;
   object-fit: contain;
-  filter: invert(24%) sepia(96%) saturate(3697%) hue-rotate(351deg) brightness(104%) contrast(102%);
+  filter: var(--admin-icon-primary);
 }
 
 .opportunitiesViewAll {
@@ -1618,18 +1645,18 @@
   margin-left: auto;
   padding: 0;
   border: 0;
-  color: #ff1f1f;
+  color: var(--pizzaos-color-primary);
   background: transparent;
   font-size: 0.72rem;
-  font-weight: 950;
+  font-weight: 800;
   line-height: 1;
 }
 
 .opportunitiesViewAll span,
 .opportunityChevron {
-  color: #ff1f1f;
+  color: var(--pizzaos-color-primary);
   font-size: 1.32rem;
-  font-weight: 850;
+  font-weight: 800;
   line-height: 0.8;
 }
 
@@ -1670,28 +1697,28 @@
 }
 
 .opportunityIconred {
-  color: #ff2d20;
-  background: #ffe3e3;
+  color: var(--pizzaos-color-primary);
+  background: var(--pizzaos-color-primary-soft);
 }
 
 .opportunityIconred img {
-  filter: invert(24%) sepia(96%) saturate(3697%) hue-rotate(351deg) brightness(104%) contrast(102%);
+  filter: var(--admin-icon-primary);
 }
 
 .opportunityIconpurple {
-  background: #efe7ff;
+  background: var(--pizzaos-color-info-soft);
 }
 
 .opportunityIconpurple img {
-  filter: invert(35%) sepia(87%) saturate(2712%) hue-rotate(245deg) brightness(101%) contrast(101%);
+  filter: var(--admin-icon-primary);
 }
 
 .opportunityIcongreen {
-  background: #daf7df;
+  background: var(--pizzaos-color-success-soft);
 }
 
 .opportunityIcongreen img {
-  filter: invert(56%) sepia(46%) saturate(827%) hue-rotate(82deg) brightness(91%) contrast(87%);
+  filter: var(--admin-icon-success);
 }
 
 .opportunityCustomerIcon {
@@ -1733,9 +1760,9 @@
 .opportunityCopy strong {
   display: block;
   overflow-wrap: anywhere;
-  color: #18181b;
+  color: var(--pizzaos-color-foreground);
   font-size: 0.78rem;
-  font-weight: 950;
+  font-weight: 800;
   line-height: 1.18;
 }
 
@@ -1761,19 +1788,19 @@
 
 .statItemValue {
   font-size: 1.85rem;
-  font-weight: 900;
+  font-weight: 800;
   line-height: 1.05;
   margin-top: 5px;
 }
 
 .statItemValueSmall {
   font-size: 1.15rem;
-  font-weight: 900;
+  font-weight: 800;
   margin-top: 5px;
 }
 
 .statWarning {
-  color: #f59e0b;
+  color: var(--pizzaos-color-warning-foreground);
 }
 
 .statDanger {
@@ -1781,7 +1808,7 @@
 }
 
 .insightTitle {
-  font-weight: 900;
+  font-weight: 800;
   margin-bottom: 4px;
 }
 
@@ -1823,32 +1850,32 @@
   gap: 12px;
   align-items: start;
   padding: 16px;
-  color: #18181b;
-  background: #ffffff;
-  border: 1px solid rgba(239, 29, 29, 0.22);
+  color: var(--pizzaos-color-foreground);
+  background: var(--pizzaos-color-background-accent);
+  border: 1px solid color-mix(in srgb, var(--pizzaos-color-primary) 22%, transparent);
   border-radius: 8px;
-  box-shadow: 0 18px 45px rgba(15, 23, 42, 0.16);
+  box-shadow: 0 18px 45px color-mix(in srgb, var(--pizzaos-brand-navy) 16%, transparent);
 }
 
 .orderToastPulse {
   width: 10px;
   height: 10px;
   margin-top: 5px;
-  background: #ef1d1d;
+  background: var(--pizzaos-color-primary);
   border-radius: 999px;
-  box-shadow: 0 0 0 6px rgba(239, 29, 29, 0.12);
+  box-shadow: 0 0 0 6px color-mix(in srgb, var(--pizzaos-color-primary) 12%, transparent);
 }
 
 .orderToast strong {
   display: block;
   margin-bottom: 4px;
   font-size: 0.94rem;
-  font-weight: 900;
+  font-weight: 800;
 }
 
 .orderToast p {
   margin: 0;
-  color: #52525b;
+  color: var(--pizzaos-color-foreground-muted);
   font-size: 0.86rem;
   font-weight: 700;
 }
@@ -1856,7 +1883,7 @@
 .orderToast small {
   display: block;
   margin-top: 6px;
-  color: #71717a;
+  color: var(--pizzaos-color-foreground-muted);
   font-size: 0.78rem;
 }
 
@@ -1889,6 +1916,17 @@
 }
 
 @media (max-width: 760px) {
+  .sidebarToggle {
+    left: auto;
+    right: 16px;
+  }
+
+  .shell.shellDemo {
+    overflow-y: auto;
+    grid-template-rows: auto auto;
+    align-content: start;
+  }
+
   .shell {
     position: relative;
     inset: auto;
@@ -1960,7 +1998,7 @@
 
   .liveOrdersAverage {
     border-right: 0;
-    border-bottom: 1px solid rgba(24, 24, 27, 0.1);
+    border-bottom: 1px solid color-mix(in srgb, var(--pizzaos-brand-navy) 10%, transparent);
     padding: 0 0 16px;
   }
 }

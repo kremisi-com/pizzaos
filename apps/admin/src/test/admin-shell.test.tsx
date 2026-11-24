@@ -65,8 +65,8 @@ describe("admin shell", () =>
     const markup = renderToString(createElement(AdminShell));
 
     expect(markup).toContain("PizzaOS");
-    expect(markup).toContain("%2Fimages%2Flogo.png");
-    expect(markup).toContain('alt="PizzaOS Admin"');
+    expect(markup).toContain("data:image/svg+xml");
+    expect(markup).toContain('alt="PizzaOS"');
     expect(markup).not.toContain("Dashboard operativa desktop-first.");
     expect(markup).toContain("Dashboard");
     expect(markup).toContain("Ordini");

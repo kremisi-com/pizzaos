@@ -4,7 +4,7 @@
   padding: 0 0 var(--pizzaos-spacing-page-y);
   display: flex;
   flex-direction: column;
-  background: white;
+  background: var(--pizzaos-color-background-accent);
 }
 
 
@@ -12,7 +12,7 @@
 {
   position: relative;
   margin-top: -32px;
-  background: white;
+  background: var(--pizzaos-color-background-accent);
   border-radius: 32px 32px 0 0;
   padding: 32px 0 8px;
   z-index: 10;
@@ -32,9 +32,9 @@
   border-radius: 999px;
   text-decoration: none;
   font-size: 1.4rem;
-  background: rgba(248, 250, 252, 0.92);
-  border: 1px solid rgba(15, 23, 42, 0.08);
-  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+  background: color-mix(in srgb, var(--pizzaos-color-surface-muted) 92%, transparent);
+  border: 1px solid color-mix(in srgb, var(--pizzaos-brand-navy) 8%, transparent);
+  box-shadow: 0 10px 24px color-mix(in srgb, var(--pizzaos-brand-navy) 8%, transparent);
   transition:
     transform var(--pizzaos-motion-duration-slow) var(--pizzaos-motion-ease-standard),
     box-shadow var(--pizzaos-motion-duration-slow) var(--pizzaos-motion-ease-standard),
@@ -44,8 +44,8 @@
 .profileLink:hover
 {
   transform: translateY(-1px);
-  background: white;
-  box-shadow: 0 14px 28px rgba(15, 23, 42, 0.12);
+  background: var(--pizzaos-color-background-accent);
+  box-shadow: 0 14px 28px color-mix(in srgb, var(--pizzaos-brand-navy) 12%, transparent);
 }
 
 .profileLink:focus-visible
@@ -99,7 +99,7 @@
 .ratingText
 {
   font-weight: 700;
-  color: #0f766e;
+  color: var(--pizzaos-brand-navy);
 }
 
 .ratingCount
@@ -121,7 +121,7 @@
 {
   background-color: var(--pizzaos-color-primary);
   color: var(--pizzaos-color-primary-foreground);
-  box-shadow: 0 8px 20px -6px rgba(209, 73, 46, 0.4);
+  box-shadow: 0 8px 20px -6px rgba(var(--pizzaos-color-primary-rgb), 0.4);
   width: 100%;
   display: flex;
   justify-content: center;
@@ -135,9 +135,9 @@
 
 .secondaryActionLink
 {
-  background-color: #f8fafc;
+  background-color: var(--pizzaos-color-surface-muted);
   color: var(--pizzaos-color-foreground);
-  border: 1px solid rgba(0, 0, 0, 0.1);
+  border: 1px solid color-mix(in srgb, var(--pizzaos-brand-navy) 10%, transparent);
   width: 100%;
   display: flex;
   justify-content: center;
@@ -152,11 +152,11 @@
 
 .secondaryActionLink:hover
 {
-  background-color: white;
+  background-color: var(--pizzaos-color-background-accent);
   border-color: var(--pizzaos-color-primary);
   color: var(--pizzaos-color-primary);
   transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 8px 20px color-mix(in srgb, var(--pizzaos-brand-navy) 5%, transparent);
 }
 
 .contentGrid
@@ -185,8 +185,8 @@
   padding: 14px 20px;
   text-decoration: none;
   background: transparent;
-  border-top: 1px solid rgba(15, 118, 110, 0.12);
-  border-bottom: 1px solid rgba(15, 118, 110, 0.12);
+  border-top: 1px solid color-mix(in srgb, var(--pizzaos-brand-navy) 12%, transparent);
+  border-bottom: 1px solid color-mix(in srgb, var(--pizzaos-brand-navy) 12%, transparent);
   overflow: hidden;
   transition: background var(--pizzaos-motion-duration-slow) var(--pizzaos-motion-ease-standard);
 }
@@ -196,13 +196,13 @@
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(90deg, rgba(13, 148, 136, 0.05) 0%, transparent 60%);
+  background: linear-gradient(90deg, color-mix(in srgb, var(--pizzaos-brand-navy) 5%, transparent) 0%, transparent 60%);
   pointer-events: none;
 }
 
 .activeOrderStrip:hover
 {
-  background: rgba(13, 148, 136, 0.04);
+  background: color-mix(in srgb, var(--pizzaos-brand-navy) 4%, transparent);
 }
 
 .activeOrderAccent
@@ -211,7 +211,7 @@
   width: 3px;
   height: 36px;
   border-radius: 99px;
-  background: #0d9488;
+  background: var(--pizzaos-brand-navy);
 }
 
 .activeOrderPulse
@@ -220,16 +220,16 @@
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: #0d9488;
-  box-shadow: 0 0 0 0 rgba(13, 148, 136, 0.4);
+  background: var(--pizzaos-brand-navy);
+  box-shadow: 0 0 0 0 color-mix(in srgb, var(--pizzaos-brand-navy) 40%, transparent);
   animation: pulseRing 1.8s ease-out infinite;
 }
 
 @keyframes pulseRing
 {
-  0%   { box-shadow: 0 0 0 0 rgba(13, 148, 136, 0.4); }
-  70%  { box-shadow: 0 0 0 8px rgba(13, 148, 136, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(13, 148, 136, 0); }
+  0%   { box-shadow: 0 0 0 0 color-mix(in srgb, var(--pizzaos-brand-navy) 40%, transparent); }
+  70%  { box-shadow: 0 0 0 8px color-mix(in srgb, var(--pizzaos-brand-navy) 0%, transparent); }
+  100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--pizzaos-brand-navy) 0%, transparent); }
 }
 
 .activeOrderBody
@@ -245,7 +245,7 @@
 {
   font-weight: 800;
   font-size: 0.9rem;
-  color: #0d9488;
+  color: var(--pizzaos-brand-navy);
   letter-spacing: 0.01em;
   text-transform: uppercase;
 }
@@ -264,7 +264,7 @@
   flex-shrink: 0;
   font-weight: 800;
   font-size: 0.9rem;
-  color: #0d9488;
+  color: var(--pizzaos-brand-navy);
   opacity: 0.7;
   transition: opacity var(--pizzaos-motion-duration-slow) var(--pizzaos-motion-ease-standard);
 }
@@ -285,8 +285,8 @@
   align-items: center;
   justify-content: space-between;
   padding: 20px;
-  background: #fafafa;
-  border: 1px solid rgba(0, 0, 0, 0.04);
+  background: var(--pizzaos-color-surface-muted);
+  border: 1px solid color-mix(in srgb, var(--pizzaos-brand-navy) 4%, transparent);
   border-radius: 20px;
   margin: 0 20px;
 }
@@ -382,16 +382,16 @@
   align-items: center;
   justify-content: space-between;
   padding: 12px 16px;
-  background: #f0fdf4;
+  background: var(--pizzaos-color-success-soft);
   border-radius: 12px;
   font-size: 0.95rem;
   font-weight: 700;
-  color: #166534;
+  color: var(--pizzaos-color-success-foreground);
 }
 
 .cartLink
 {
-  color: #16a34a;
+  color: var(--pizzaos-color-success-foreground);
   text-decoration: underline;
   font-weight: 800;
 }
@@ -419,20 +419,20 @@
   align-items: center;
   justify-content: center;
   padding: 24px 16px;
-  background: #fafafa;
-  border: 1px solid rgba(0, 0, 0, 0.04);
+  background: var(--pizzaos-color-surface-muted);
+  border: 1px solid color-mix(in srgb, var(--pizzaos-brand-navy) 4%, transparent);
   border-radius: 24px;
   text-decoration: none;
   transition: all var(--pizzaos-motion-duration-slow) var(--pizzaos-motion-ease-standard);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+  box-shadow: 0 4px 12px color-mix(in srgb, var(--pizzaos-brand-navy) 3%, transparent);
 }
 
 .categoryTab:hover
 {
   border-color: var(--pizzaos-color-primary);
-  background: white;
+  background: var(--pizzaos-color-background-accent);
   transform: translateY(-4px);
-  box-shadow: 0 12px 24px rgba(209, 73, 46, 0.1);
+  box-shadow: 0 12px 24px rgba(var(--pizzaos-color-primary-rgb), 0.1);
 }
 
 .categoryTab:active
@@ -444,7 +444,7 @@
 {
   font-size: 2.2rem;
   margin-bottom: 12px;
-  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1));
+  filter: drop-shadow(0 4px 8px color-mix(in srgb, var(--pizzaos-brand-navy) 10%, transparent));
 }
 
 .categoryLabel
@@ -467,10 +467,10 @@
   align-items: center;
   gap: 20px;
   padding: 24px 20px;
-  background: linear-gradient(135deg, #1f2530, #2c3444);
-  color: white;
+  background: linear-gradient(135deg, var(--pizzaos-color-foreground), var(--pizzaos-color-foreground));
+  color: var(--pizzaos-color-primary-foreground);
   border-radius: 20px;
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 12px 32px color-mix(in srgb, var(--pizzaos-brand-navy) 12%, transparent);
 }
 
 .loyaltyPoints
@@ -513,7 +513,7 @@
 .rewardsLink
 {
   font-size: 0.9rem;
-  color: #fbbf24; /* Golden color for awards */
+  color: var(--pizzaos-brand-sand); /* Dettaglio sabbia sui premi */
   font-weight: 800;
   text-decoration: none;
   display: flex;
@@ -531,7 +531,7 @@
   text-align: center;
   margin-top: 40px;
   padding: 20px;
-  border-top: 1px solid rgba(0, 0, 0, 0.05);
+  border-top: 1px solid color-mix(in srgb, var(--pizzaos-brand-navy) 5%, transparent);
 }
 
 .resetButton
@@ -548,9 +548,9 @@
 
 .secondaryActionButton
 {
-  background-color: #f8fafc;
+  background-color: var(--pizzaos-color-surface-muted);
   color: var(--pizzaos-color-foreground);
-  border: 1px solid rgba(0, 0, 0, 0.1);
+  border: 1px solid color-mix(in srgb, var(--pizzaos-brand-navy) 10%, transparent);
   width: 100%;
   display: flex;
   justify-content: center;
@@ -565,11 +565,11 @@
 
 .secondaryActionButton:hover
 {
-  background-color: white;
+  background-color: var(--pizzaos-color-background-accent);
   border-color: var(--pizzaos-color-primary);
   color: var(--pizzaos-color-primary);
   transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 8px 20px color-mix(in srgb, var(--pizzaos-brand-navy) 5%, transparent);
 }
 
 

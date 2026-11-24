@@ -1,0 +1,3 @@
+- [x] **brand-foundation**: Asset ufficiali, palette, token semantici e logo accessibile condiviso.
+- [x] **admin-surface**: Allineare pannello, login, demo e rider al kit ufficiale.
+- [x] **client-surface**: Allineare ordinazione, login, demo, navigazione e checkout al kit ufficiale.

@@ -191,3 +191,9 @@ Dopo accesso corretto e diagnosi della quota rete Neon, l'utente ha scelto espli
 
 
 - Conferma utente in chat del 2026-11-05: fonte per D49-D55 e aggiornamento delle decisioni richiamate.
+
+## Identità grafica admin e client
+
+| ID | Decisione | Stato | Fonte |
+|---|---|---|---|
+| D81 | Allineare completamente admin e client al kit ufficiale PizzaOS fornito in external: logo geometrico, palette sabbia/arancio/blu, tipografia coerente, componenti e icone browser; incluse demo, accessi e area rider. Espressioni operative e ordinazione restano distinte. Attuazione tramite SDD, test indipendenti, verifica locale e commit/push; nessun nuovo rilascio online attestato da questa decisione. | DECISO | Conferma utente 2026-11-24: «ok procedi con tutto usando SDD», riferita al piano di audit del brand. [SDD](../design/2026-11-24-brand-alignment/design.md) |

@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { BRAND_ASSETS } from "@pizzaos/brand";
+import { BrandLogo } from "@pizzaos/ui";
 import styles from "./sign-in.module.css";
 import { useAdminToast } from "../../../composition/admin-toast";
 
@@ -36,6 +38,7 @@ export function SignInScreen({ returnTo, area = "admin", demoOnly = false }: { r
   }, [area, demoOnly]);
   if (demoOnly) return <div className={styles.page}><a href={returnTo}>← Torna all’area ristorante</a>
     <section className={styles.card}>
+      <div className={styles.brand}><BrandLogo src={BRAND_ASSETS.logo} width={180} /></div>
       <h1>Accedi alla demo PizzaOS</h1>
       <p>Esplora la demo con dati fittizi e pagamenti simulati.</p>
       {demoEnabled === null && <p role="status">Caricamento dell’accesso demo…</p>}
@@ -50,7 +53,7 @@ export function SignInScreen({ returnTo, area = "admin", demoOnly = false }: { r
     </section>
   </div>;
   const rider = area === "rider";
-  return <div className={styles.page}><a href={returnTo}>← Torna all&apos;area {rider ? "rider" : "ristorante"}</a><section className={styles.card}><span className={styles.brand}>PizzaOS</span>
+  return <div className={styles.page}><a href={returnTo}>← Torna all&apos;area {rider ? "rider" : "ristorante"}</a><section className={styles.card}><div className={styles.brand}><BrandLogo src={BRAND_ASSETS.logo} width={180} /></div>
     <h1>{verification ? "Controlla la tua email" : rider ? "Accesso rider" : "Accesso ristorante"}</h1>
     {verification ? <><p>Ti abbiamo inviato un link per accedere all&apos;area {rider ? "rider" : "ristorante"}. Aprilo sullo stesso dispositivo.</p><p>Se non arriva, controlla la cartella spam oppure richiedi un nuovo link.</p><a href={rider ? "/accesso?area=rider" : "/accesso"}>Richiedi un altro link</a></> : <>
       <p>{rider ? "Accedi con l'email abilitata dal ristorante per vedere le tue consegne." : "Accedi con l'email abilitata per gestire il ristorante."} Usa Google oppure ricevi un link sicuro via email.</p>

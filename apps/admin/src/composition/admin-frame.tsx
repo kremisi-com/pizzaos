@@ -1,6 +1,7 @@
 "use client";
 
-import Image from "next/image";
+import { BRAND_ASSETS } from "@pizzaos/brand";
+import { BrandLogo } from "@pizzaos/ui";
 import { useState, type ReactNode } from "react";
 import { adminHref, type AdminTab } from "./admin-navigation";
 import styles from "./admin-shell.module.css";
@@ -49,40 +50,37 @@ export function AdminFrame({ activeTab, onTabChange, storeSelector, sidebarFoote
 
   return (
     <div
-      className={`${styles.shell} ${
+      className={`${styles.shell} ${demo ? styles.shellDemo : ""} ${
         isSidebarCollapsed ? styles.shellSidebarCollapsed : ""
       }`}
     >
+      <button
+        aria-controls="admin-sidebar-content"
+        aria-expanded={!isSidebarCollapsed}
+        aria-label={
+          isSidebarCollapsed ? "Mostra sidebar" : "Nascondi sidebar"
+        }
+        className={`${styles.sidebarToggle} ${isSidebarCollapsed ? styles.sidebarToggleCollapsed : ""}`}
+        onClick={() => setIsSidebarCollapsed((current) => !current)}
+        type="button"
+      >
+        <span aria-hidden="true">
+          {isSidebarCollapsed ? <>&rsaquo;</> : <>&lsaquo;</>}
+        </span>
+      </button>
+
       <aside
         className={`${styles.sidebar} ${
           isSidebarCollapsed ? styles.sidebarCollapsed : ""
         }`}
       >
-        <button
-          aria-controls="admin-sidebar-content"
-          aria-expanded={!isSidebarCollapsed}
-          aria-label={
-            isSidebarCollapsed ? "Mostra sidebar" : "Nascondi sidebar"
-          }
-          className={styles.sidebarToggle}
-          onClick={() => setIsSidebarCollapsed((current) => !current)}
-          type="button"
-        >
-          <span aria-hidden="true">
-            {isSidebarCollapsed ? <>&rsaquo;</> : <>&lsaquo;</>}
-          </span>
-        </button>
-
         {!isSidebarCollapsed ? (
           <div className={styles.sidebarContent} id="admin-sidebar-content">
             <div className={styles.logo}>
-              <Image
+              <BrandLogo
                 className={styles.logoImage}
-                src="/images/logo.png"
-                alt="PizzaOS Admin"
+                src={BRAND_ASSETS.logo}
                 width={180}
-                height={52}
-                priority
               />
             </div>
 
@@ -104,9 +102,7 @@ export function AdminFrame({ activeTab, onTabChange, storeSelector, sidebarFoote
                     activeTab === item.id ? styles.navItemActive : ""
                   }`}
                 >
-                  <span aria-hidden="true" className={styles.navIcon}>
-                    <Image alt="" height={18} src={item.iconSrc} width={18} />
-                  </span>
+                  <span aria-hidden="true" className={styles.navIcon} style={{ maskImage: `url(${item.iconSrc})` }} />
                   <span>{item.label}</span>
                 </a>
               ))}

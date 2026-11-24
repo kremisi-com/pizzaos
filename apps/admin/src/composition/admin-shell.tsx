@@ -135,8 +135,8 @@ function RevenueTodayCard(): ReactElement {
         <svg viewBox="0 0 220 82" focusable="false" aria-hidden="true">
           <defs>
             <linearGradient id="revenue-today-fill" x1="0" x2="0" y1="0" y2="1">
-              <stop offset="0%" stopColor="#ff2d20" stopOpacity="0.18" />
-              <stop offset="100%" stopColor="#ff2d20" stopOpacity="0" />
+              <stop offset="0%" stopColor="var(--pizzaos-color-primary)" stopOpacity="0.18" />
+              <stop offset="100%" stopColor="var(--pizzaos-color-primary)" stopOpacity="0" />
             </linearGradient>
           </defs>
           <path className={styles.revenueTodayArea} d={REVENUE_TODAY_AREA_PATH} />
@@ -192,6 +192,7 @@ function DeliveryFleetCard({
       <header className={styles.deliveryFleetHeader}>
         <span className={styles.deliveryFleetIcon} aria-hidden="true">
           <Image
+                loading="eager"
             alt=""
             height={16}
             src="/images/sidebar/scooter.png"
@@ -275,6 +276,7 @@ function DashboardMarketingRow({
       tone: "purple",
       icon: (
         <Image
+                loading="eager"
           alt=""
           height={21}
           src="/images/dashboard/gift.png"
@@ -290,6 +292,7 @@ function DashboardMarketingRow({
       tone: "green",
       icon: (
         <Image
+                loading="eager"
           alt=""
           height={21}
           src="/images/dashboard/clock.png"
@@ -309,6 +312,7 @@ function DashboardMarketingRow({
         <header className={styles.dashboardMarketingHeader}>
           <span className={styles.dashboardMarketingTitleIcon} aria-hidden="true">
             <Image
+                loading="eager"
               alt=""
               height={18}
               src="/images/sidebar/megaphone.png"
@@ -346,6 +350,7 @@ function DashboardMarketingRow({
 
         <span className={styles.marketingActiveBadge} aria-hidden="true">
           <Image
+                loading="eager"
             alt=""
             height={28}
             src="/images/dashboard/star.png"
@@ -361,6 +366,7 @@ function DashboardMarketingRow({
             aria-hidden="true"
           >
             <Image
+                loading="eager"
               alt=""
               height={18}
               src="/images/dashboard/star.png"
@@ -753,6 +759,7 @@ export function AdminShell(): ReactElement {
               <header className={styles.attentionHeader}>
                 <span className={styles.attentionHeaderIcon} aria-hidden="true">
                   <Image
+                loading="eager"
                     alt=""
                     height={18}
                     src="/images/attention/warning.png"
@@ -769,6 +776,7 @@ export function AdminShell(): ReactElement {
                     aria-hidden="true"
                   >
                     <Image
+                loading="eager"
                       alt=""
                       height={18}
                       src="/images/attention/exclamation.png"
@@ -793,6 +801,7 @@ export function AdminShell(): ReactElement {
                     aria-hidden="true"
                   >
                     <Image
+                loading="eager"
                       alt=""
                       height={18}
                       src="/images/attention/danger.png"
@@ -877,6 +886,7 @@ export function AdminShell(): ReactElement {
                     aria-hidden="true"
                   >
                     <Image
+                loading="eager"
                       alt=""
                       height={18}
                       src="/images/dashboard/clock.png"

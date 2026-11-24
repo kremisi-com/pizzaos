@@ -3,11 +3,11 @@
   flex-direction: column;
   gap: 10px;
   padding: 14px;
-  border: 1px solid #eef0f4;
+  border: 1px solid var(--pizzaos-color-border);
   border-radius: 8px;
-  background: #ffffff;
-  box-shadow: 0 14px 32px rgba(15, 23, 42, 0.06);
-  color: #111827;
+  background: var(--pizzaos-color-background-accent);
+  box-shadow: 0 14px 32px color-mix(in srgb, var(--pizzaos-brand-navy) 6%, transparent);
+  color: var(--pizzaos-color-info-foreground);
   font-size: 0.78rem;
 }
 
@@ -24,7 +24,7 @@
 
 .cardHeader strong {
   font-size: 0.84rem;
-  font-weight: 900;
+  font-weight: 800;
 }
 
 .closeButton {
@@ -36,9 +36,9 @@
   border: 0;
   border-radius: 999px;
   background: transparent;
-  color: #64748b;
+  color: var(--pizzaos-color-foreground-muted);
   font-size: 0.84rem;
-  font-weight: 900;
+  font-weight: 800;
   cursor: pointer;
 }
 
@@ -56,10 +56,10 @@
 
 .orderTitleRow h2 {
   margin: 0;
-  color: #111827;
+  color: var(--pizzaos-color-info-foreground);
   font-size: 1.55rem;
   line-height: 1;
-  font-weight: 950;
+  font-weight: 800;
   letter-spacing: 0;
 }
 
@@ -69,10 +69,10 @@
   min-height: 22px;
   padding: 0 8px;
   border-radius: 6px;
-  background: #fee2e2;
-  color: #ef1d1d;
+  background: var(--pizzaos-color-primary-soft);
+  color: var(--pizzaos-color-primary);
   font-size: 0.66rem;
-  font-weight: 950;
+  font-weight: 800;
   white-space: nowrap;
 }
 
@@ -83,31 +83,31 @@
   flex-wrap: wrap;
   gap: 6px;
   margin: 0;
-  color: #64748b;
+  color: var(--pizzaos-color-foreground-muted);
   font-size: 0.72rem;
-  font-weight: 850;
+  font-weight: 800;
 }
 
 .orderMeta span + span::before {
   content: "-";
   margin-right: 6px;
-  color: #cbd5e1;
+  color: var(--pizzaos-color-info-foreground);
 }
 
 .orderMeta span:last-child {
-  color: #ef1d1d;
+  color: var(--pizzaos-color-primary);
 }
 
 .demoRef {
-  color: #ef1d1d;
+  color: var(--pizzaos-color-primary);
 }
 
 .customerInfo {
   display: grid;
   gap: 10px;
   padding: 10px 0;
-  border-top: 1px solid #f1f5f9;
-  border-bottom: 1px solid #f1f5f9;
+  border-top: 1px solid var(--pizzaos-color-border);
+  border-bottom: 1px solid var(--pizzaos-color-border);
 }
 
 .infoSection {
@@ -116,9 +116,9 @@
 }
 
 .label {
-  color: #64748b;
+  color: var(--pizzaos-color-foreground-muted);
   font-size: 0.66rem;
-  font-weight: 950;
+  font-weight: 800;
 }
 
 .contactRow {
@@ -131,16 +131,16 @@
 .contactRow strong,
 .paymentSummary strong {
   display: block;
-  color: #111827;
+  color: var(--pizzaos-color-info-foreground);
   font-size: 0.78rem;
   line-height: 1.25;
-  font-weight: 950;
+  font-weight: 800;
 }
 
 .contactRow small {
   display: block;
   margin-top: 2px;
-  color: #64748b;
+  color: var(--pizzaos-color-foreground-muted);
   font-size: 0.7rem;
   font-weight: 750;
 }
@@ -152,10 +152,10 @@
   width: 18px;
   height: 18px;
   border-radius: 999px;
-  border: 1px solid #e5e7eb;
-  color: #64748b;
+  border: 1px solid var(--pizzaos-color-border);
+  color: var(--pizzaos-color-foreground-muted);
   font-size: 0.62rem;
-  font-weight: 900;
+  font-weight: 800;
 }
 
 .contactRow button {
@@ -164,12 +164,12 @@
   justify-content: center;
   min-width: 28px;
   height: 28px;
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--pizzaos-color-border);
   border-radius: 8px;
-  background: #ffffff;
-  color: #111827;
+  background: var(--pizzaos-color-background-accent);
+  color: var(--pizzaos-color-info-foreground);
   font-size: 0.62rem;
-  font-weight: 900;
+  font-weight: 800;
   cursor: pointer;
 }
 
@@ -183,22 +183,22 @@
   grid-template-columns: 22px minmax(0, 1fr) auto;
   align-items: center;
   gap: 8px;
-  color: #111827;
+  color: var(--pizzaos-color-info-foreground);
   font-size: 0.76rem;
-  font-weight: 850;
+  font-weight: 800;
 }
 
 .lineItem strong {
   font-size: 0.76rem;
-  font-weight: 950;
+  font-weight: 800;
 }
 
 .lineItem span:first-child {
-  color: #64748b;
+  color: var(--pizzaos-color-foreground-muted);
 }
 
 .lineItem span:last-child {
-  font-weight: 950;
+  font-weight: 800;
 }
 
 .notes {
@@ -206,12 +206,12 @@
   gap: 5px;
   padding: 9px 10px;
   border-radius: 8px;
-  background: #f8fafc;
+  background: var(--pizzaos-color-background-accent);
 }
 
 .notes p {
   margin: 0;
-  color: #64748b;
+  color: var(--pizzaos-color-foreground-muted);
   font-size: 0.72rem;
   line-height: 1.35;
   font-weight: 750;
@@ -230,9 +230,9 @@
 
 .paymentSummary div:last-child span {
   display: block;
-  color: #64748b;
+  color: var(--pizzaos-color-foreground-muted);
   font-size: 0.66rem;
-  font-weight: 950;
+  font-weight: 800;
 }
 
 .paymentSummary div:last-child strong {
@@ -245,14 +245,14 @@
   display: grid;
   gap: 4px;
   padding: 9px 0;
-  border-top: 1px solid #f1f5f9;
-  border-bottom: 1px solid #f1f5f9;
+  border-top: 1px solid var(--pizzaos-color-border);
+  border-bottom: 1px solid var(--pizzaos-color-border);
 }
 
 .allergens strong {
-  color: #f97316;
+  color: var(--pizzaos-color-primary);
   font-size: 0.74rem;
-  font-weight: 950;
+  font-weight: 800;
 }
 
 .slaStrip {
@@ -260,14 +260,14 @@
   grid-template-columns: minmax(0, 1fr) auto auto;
   align-items: center;
   gap: 8px;
-  color: #64748b;
+  color: var(--pizzaos-color-foreground-muted);
   font-size: 0.72rem;
-  font-weight: 850;
+  font-weight: 800;
 }
 
 .slaStrip strong {
-  color: #111827;
-  font-weight: 950;
+  color: var(--pizzaos-color-info-foreground);
+  font-weight: 800;
 }
 
 .footer {
@@ -285,7 +285,7 @@
   min-height: 28px;
   border-radius: 7px;
   font-size: 0.72rem;
-  font-weight: 950;
+  font-weight: 800;
   cursor: pointer;
 }
 
@@ -295,27 +295,27 @@
 }
 
 .primaryAction {
-  border: 1px solid #ef1d1d;
-  background: #ef1d1d;
-  color: #ffffff;
+  border: 1px solid var(--pizzaos-color-border);
+  background: var(--pizzaos-color-primary);
+  color: var(--pizzaos-color-primary-foreground);
 }
 
 .secondaryAction {
-  border: 1px solid #f97316;
-  background: #fff7ed;
-  color: #f97316;
+  border: 1px solid var(--pizzaos-color-border);
+  background: var(--pizzaos-color-warning-soft);
+  color: var(--pizzaos-color-primary);
 }
 
 .tertiaryAction {
-  border: 1px solid #e5e7eb;
-  background: #ffffff;
-  color: #111827;
+  border: 1px solid var(--pizzaos-color-border);
+  background: var(--pizzaos-color-background-accent);
+  color: var(--pizzaos-color-info-foreground);
 }
 
 .moreAction {
-  border: 1px solid #e5e7eb;
-  background: #ffffff;
-  color: #64748b;
+  border: 1px solid var(--pizzaos-color-border);
+  background: var(--pizzaos-color-background-accent);
+  color: var(--pizzaos-color-foreground-muted);
   letter-spacing: 2px;
 }
 
@@ -323,13 +323,13 @@
   display: grid;
   gap: 8px;
   padding: 10px;
-  border: 1px solid #eef0f4;
+  border: 1px solid var(--pizzaos-color-border);
   border-radius: 8px;
-  background: #ffffff;
+  background: var(--pizzaos-color-background-accent);
 }
 
 .stationTitle {
-  font-weight: 950;
+  font-weight: 800;
 }
 
 .riderSelect {
@@ -343,17 +343,17 @@
   justify-content: space-between;
   gap: 8px;
   padding: 8px;
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--pizzaos-color-border);
   border-radius: 8px;
-  background: #ffffff;
-  color: #111827;
+  background: var(--pizzaos-color-background-accent);
+  color: var(--pizzaos-color-info-foreground);
   text-align: left;
   cursor: pointer;
 }
 
 .riderOptionActive {
-  border-color: #ef1d1d;
-  box-shadow: 0 0 0 1px #ef1d1d;
+  border-color: var(--pizzaos-color-border);
+  box-shadow: 0 0 0 1px var(--pizzaos-color-primary);
 }
 
 .riderOptionDisabled {
@@ -362,12 +362,12 @@
 }
 
 .riderName {
-  font-weight: 950;
+  font-weight: 800;
 }
 
 .assignmentHint {
   margin: 0;
-  color: #64748b;
+  color: var(--pizzaos-color-foreground-muted);
   font-size: 0.72rem;
   font-weight: 750;
 }

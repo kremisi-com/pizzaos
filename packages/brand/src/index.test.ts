@@ -80,14 +80,16 @@ describe("@pizzaos/brand", () =>
     expect(SURFACE_THEME_TOKENS.landing.color.foreground).toBe("#0A384F");
     expect(SURFACE_THEME_TOKENS.landing.color.border).toBe("#E9DED0");
     expect(getThemeStyleVariables("landing")["--pizzaos-color-primary-rgb"]).toBe("10, 56, 79");
+    expect(getThemeStyleVariables("landing")["--pizzaos-color-warning"]).toBe("#f59e0b");
+    expect(getThemeStyleVariables("landing")["--pizzaos-color-critical"]).toBe("#dc2626");
   });
 
-  it("keeps the admin theme aligned to the landing dashboard preview", () =>
+  it("keeps the admin theme aligned to the official accessible brand", () =>
   {
-    expect(SURFACE_THEME_TOKENS.admin.color.primary).toBe("#f43a26");
-    expect(SURFACE_THEME_TOKENS.admin.color.background).toBe("#faf8f7");
-    expect(SURFACE_THEME_TOKENS.admin.color.backgroundAccent).toBe("#ffffff");
-    expect(SURFACE_THEME_TOKENS.admin.type).toEqual(SURFACE_THEME_TOKENS.landing.type);
-    expect(getThemeStyleVariables("admin")["--pizzaos-color-primary-rgb"]).toBe("244, 58, 38");
+    expect(SURFACE_THEME_TOKENS.admin.color.primary).toBe("#B74424");
+    expect(SURFACE_THEME_TOKENS.admin.color.background).toBe("#FAF7F1");
+    expect(SURFACE_THEME_TOKENS.admin.color.backgroundAccent).toBe("#FFFFFF");
+    expect(SURFACE_THEME_TOKENS.admin.type.family).toContain("Poppins");
+    expect(getThemeStyleVariables("admin")["--pizzaos-color-primary-rgb"]).toBe("183, 68, 36");
   });
 });

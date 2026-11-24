@@ -5,12 +5,12 @@
 }
 
 .page a {
-  color: #984021;
+  color: var(--pizzaos-color-primary);
   font-weight: 650;
 }
 
 .page fieldset {
-  border: 1px solid #e7dfd4;
+  border: 1px solid var(--pizzaos-color-border);
   border-radius: 12px;
   margin: 14px 0;
   padding: 10px 14px;
@@ -28,8 +28,8 @@
   border: 0;
   border-radius: 11px;
   padding: 8px 14px;
-  background: #a64529;
-  color: #fff;
+  background: var(--pizzaos-color-primary);
+  color: var(--pizzaos-color-primary-foreground);
   font: inherit;
   cursor: pointer;
 }

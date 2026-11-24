@@ -8,6 +8,8 @@ export default defineConfig({
   },
   resolve: {
     alias: {
+      "react": fileURLToPath(new URL("./packages/ui/node_modules/react", import.meta.url)),
+      "react-dom": fileURLToPath(new URL("./packages/ui/node_modules/react-dom", import.meta.url)),
       "@pizzaos/domain": fileURLToPath(new URL("./packages/domain/src/index.ts", import.meta.url)),
       "@pizzaos/brand": fileURLToPath(new URL("./packages/brand/src/index.ts", import.meta.url)),
       "@pizzaos/mock-data": fileURLToPath(new URL("./packages/mock-data/src/index.ts", import.meta.url)),

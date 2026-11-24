@@ -68,6 +68,7 @@ export function LiveOrdersSummaryCard(
           >
             <span className={styles.liveOrdersKpiIcon} aria-hidden="true">
               <Image
+                loading="eager"
                 alt=""
                 height={22}
                 src={stat.iconSrc}
@@ -102,8 +103,8 @@ export function LiveOrdersSummaryCard(
           <svg viewBox="0 0 220 82" role="img" aria-label="Trend ordini">
             <defs>
               <linearGradient id="live-orders-fill" x1="0" x2="0" y1="0" y2="1">
-                <stop offset="0%" stopColor="#ff2d20" stopOpacity="0.18" />
-                <stop offset="100%" stopColor="#ff2d20" stopOpacity="0" />
+                <stop offset="0%" stopColor="var(--pizzaos-color-primary)" stopOpacity="0.18" />
+                <stop offset="100%" stopColor="var(--pizzaos-color-primary)" stopOpacity="0" />
               </linearGradient>
             </defs>
             <path
@@ -113,11 +114,11 @@ export function LiveOrdersSummaryCard(
             <path
               d="M0 66 C14 58 22 70 34 58 C45 42 56 43 69 54 C83 66 93 42 106 46 C120 50 123 18 140 24 C154 29 157 44 170 36 C183 27 189 45 200 32 C209 23 215 30 220 25"
               fill="none"
-              stroke="#ff2d20"
+              stroke="var(--pizzaos-color-primary)"
               strokeLinecap="round"
               strokeWidth="3"
             />
-            <circle cx="220" cy="25" fill="#ff2d20" r="5" />
+            <circle cx="220" cy="25" fill="var(--pizzaos-color-primary)" r="5" />
           </svg>
           <div className={styles.liveOrdersChartLabels} aria-hidden="true">
             <span>08:00</span>
@@ -135,6 +136,7 @@ export function LiveOrdersSummaryCard(
             type="button"
           >
             <Image
+                loading="eager"
               alt=""
               aria-hidden="true"
               height={16}
@@ -151,6 +153,7 @@ export function LiveOrdersSummaryCard(
             type="button"
           >
             <Image
+                loading="eager"
               alt=""
               aria-hidden="true"
               height={16}
@@ -228,6 +231,7 @@ export function QuickActionsCard(props: QuickActionsCardProps): ReactElement {
           >
             <span aria-hidden="true">
               <Image
+                loading="eager"
                 alt=""
                 height={22}
                 src={action.iconSrc}

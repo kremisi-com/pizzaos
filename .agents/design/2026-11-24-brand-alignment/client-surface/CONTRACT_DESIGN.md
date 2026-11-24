@@ -1,0 +1,2 @@
+# Contratto pubblico
+Route e API dell'app invariate. OrderingCover resta senza parametri obbligatori e offre ora un logo accessibile PizzaOS. Login ordinario e demo espongono un logo con nome PizzaOS. La copertina conserva il ruolo decorativo della fotografia senza nascondere il logo agli screen reader. Asset via BRAND_ASSETS e BrandLogo pubblici; token del contratto brand-foundation. Il nome della sede e i contenuti commerciali restano dati del servizio.

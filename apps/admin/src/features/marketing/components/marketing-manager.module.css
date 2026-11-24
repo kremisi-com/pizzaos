@@ -21,7 +21,7 @@
 
 /* Coupon Card */
 .couponCard {
-  background: #ffffff;
+  background: var(--pizzaos-color-background-accent);
   border: 1px solid var(--pizzaos-color-border);
   border-radius: var(--pizzaos-radius-card);
   padding: 1.25rem;
@@ -41,7 +41,7 @@
   font-family: monospace;
   font-weight: 700;
   font-size: 1.125rem;
-  background: #fff2ef;
+  background: var(--pizzaos-color-primary-soft);
   color: var(--pizzaos-color-primary);
   padding: 0.25rem 0.5rem;
   border-radius: 4px;
@@ -55,9 +55,9 @@
   text-transform: uppercase;
 }
 
-.statusActive { background: #dcfce7; color: #166534; }
-.statusInactive { background: #fffaf8; color: var(--pizzaos-color-foreground-muted); }
-.statusExpired { background: #fee2e2; color: #991b1b; }
+.statusActive { background: var(--pizzaos-color-success-soft); color: var(--pizzaos-color-success-foreground); }
+.statusInactive { background: var(--pizzaos-color-background-accent); color: var(--pizzaos-color-foreground-muted); }
+.statusExpired { background: var(--pizzaos-color-primary-soft); color: var(--pizzaos-color-primary); }
 
 .couponDetails {
   display: flex;
@@ -75,7 +75,7 @@
 
 /* Automation Card */
 .automationCard {
-  background: #ffffff;
+  background: var(--pizzaos-color-background-accent);
   border: 1px solid var(--pizzaos-color-border);
   border-radius: var(--pizzaos-radius-card);
   padding: 1.25rem;
@@ -117,7 +117,7 @@
 }
 
 .tierCard {
-  background: #ffffff;
+  background: var(--pizzaos-color-background-accent);
   border: 1px solid var(--pizzaos-color-border);
   border-radius: var(--pizzaos-radius-card);
   padding: 1.5rem;
@@ -146,7 +146,7 @@
   font-size: 0.875rem;
   font-weight: 600;
   color: var(--pizzaos-color-primary);
-  background: #fff2ef;
+  background: var(--pizzaos-color-primary-soft);
   padding: 0.25rem 0.5rem;
   border-radius: 4px;
 }
@@ -174,7 +174,7 @@
 }
 
 .editButton {
-  background: #ffffff;
+  background: var(--pizzaos-color-background-accent);
   border: 1px solid var(--pizzaos-color-border);
   color: var(--pizzaos-color-foreground);
   padding: 0.5rem;
@@ -186,7 +186,7 @@
 }
 
 .editButton:hover {
-  background: #fffaf8;
+  background: var(--pizzaos-color-background-accent);
   border-color: rgba(var(--pizzaos-color-primary-rgb), 0.22);
 }
 
@@ -197,7 +197,7 @@
   font-size: 0.875rem;
   font-weight: 600;
   color: var(--pizzaos-color-foreground-muted);
-  background: #fffaf8;
+  background: var(--pizzaos-color-background-accent);
   padding: 0.5rem 0.75rem;
   border-radius: 8px;
 }
@@ -239,8 +239,8 @@
 
 /* Loyalty Panel - Keep for reference or potential removal later */
 .loyaltyPanel {
-  background: linear-gradient(135deg, #18110f 0%, #3a1712 100%);
-  color: white;
+  background: linear-gradient(135deg, var(--pizzaos-color-foreground) 0%, var(--pizzaos-color-foreground) 100%);
+  color: var(--pizzaos-color-background-accent);
   border-radius: 16px;
   padding: 2rem;
   display: grid;
@@ -262,9 +262,13 @@
 
 .statLabel {
   font-size: 0.875rem;
-  color: #9ca3af;
+  color: var(--pizzaos-color-foreground-muted);
   text-transform: uppercase;
   letter-spacing: 0.05em;
+}
+
+.loyaltyPanel .statLabel {
+  color: var(--pizzaos-brand-sand);
 }
 
 .statValue {
@@ -280,9 +284,9 @@
   text-transform: capitalize;
 }
 
-.tier-gold { background: #fbbf24; color: #78350f; }
-.tier-silver { background: #9ca3af; color: #1f2937; }
-.tier-bronze { background: #b45309; color: #fff; }
+.tier-gold { background: var(--pizzaos-brand-sand); color: var(--pizzaos-brand-navy); }
+.tier-silver { background: var(--pizzaos-color-surface-muted); color: var(--pizzaos-brand-navy); }
+.tier-bronze { background: var(--pizzaos-color-primary); color: var(--pizzaos-color-primary-foreground); }
 
 .rewardsList {
   display: flex;
@@ -300,7 +304,7 @@
 
 .createButton {
   background: var(--pizzaos-color-primary);
-  color: white;
+  color: var(--pizzaos-color-background-accent);
   padding: 0.5rem 1rem;
   border-radius: 8px;
   font-weight: 600;
@@ -310,5 +314,5 @@
 }
 
 .createButton:hover {
-  background: #d92918;
+  background: var(--pizzaos-color-primary);
 }

@@ -5,7 +5,7 @@
   padding: 0;
   max-width: 520px;
   width: 100%;
-  background: #ffffff;
+  background: var(--pizzaos-color-background-accent);
   padding-bottom: 120px;
   overflow-x: hidden;
 }
@@ -32,16 +32,16 @@
   font-size: 0.85rem;
   padding: 8px 16px;
   border-radius: 20px;
-  background: #ffffff;
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+  background: var(--pizzaos-color-background-accent);
+  border: 1px solid color-mix(in srgb, var(--pizzaos-brand-navy) 8%, transparent);
+  box-shadow: 0 2px 4px color-mix(in srgb, var(--pizzaos-brand-navy) 2%, transparent);
   transition: all 0.2s ease;
 }
 
 .backButton:hover {
-  background: #f8f9fa;
+  background: var(--pizzaos-color-surface-muted);
   transform: translateX(-2px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 4px 8px color-mix(in srgb, var(--pizzaos-brand-navy) 4%, transparent);
 }
 
 .backIcon {
@@ -61,15 +61,15 @@
   height: 46px;
   border-radius: 16px;
   text-decoration: none;
-  background: linear-gradient(135deg, rgba(209, 73, 46, 0.14), rgba(209, 73, 46, 0.06));
-  border: 1px solid rgba(209, 73, 46, 0.18);
-  box-shadow: 0 10px 22px rgba(209, 73, 46, 0.12);
+  background: linear-gradient(135deg, rgba(var(--pizzaos-color-primary-rgb), 0.14), rgba(var(--pizzaos-color-primary-rgb), 0.06));
+  border: 1px solid rgba(var(--pizzaos-color-primary-rgb), 0.18);
+  box-shadow: 0 10px 22px rgba(var(--pizzaos-color-primary-rgb), 0.12);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .cartButton:hover {
   transform: translateY(-1px);
-  box-shadow: 0 14px 24px rgba(209, 73, 46, 0.16);
+  box-shadow: 0 14px 24px rgba(var(--pizzaos-color-primary-rgb), 0.16);
 }
 
 .actionIcon {
@@ -104,8 +104,8 @@
   align-items: center;
   gap: 5px;
   padding: 6px 14px;
-  background: #f8f9fa;
-  border: 1px solid rgba(0, 0, 0, 0.06);
+  background: var(--pizzaos-color-surface-muted);
+  border: 1px solid color-mix(in srgb, var(--pizzaos-brand-navy) 6%, transparent);
   border-radius: 20px;
   font-size: 0.82rem;
   font-weight: 700;
@@ -117,15 +117,15 @@
 }
 
 .heroBadge:hover {
-  background: #f0f1f2;
-  border-color: rgba(0, 0, 0, 0.12);
+  background: var(--pizzaos-color-surface-muted);
+  border-color: color-mix(in srgb, var(--pizzaos-brand-navy) 12%, transparent);
 }
 
 .heroBadgeActive {
   background: var(--pizzaos-color-primary);
-  color: #ffffff;
+  color: var(--pizzaos-color-primary-foreground);
   border-color: var(--pizzaos-color-primary);
-  box-shadow: 0 4px 12px rgba(209, 73, 46, 0.22);
+  box-shadow: 0 4px 12px rgba(var(--pizzaos-color-primary-rgb), 0.22);
 }
 
 .heroBadgeActive:hover {
@@ -147,7 +147,7 @@
 }
 
 .sectionGroup {
-  border-top: 1px solid rgba(0, 0, 0, 0.05);
+  border-top: 1px solid color-mix(in srgb, var(--pizzaos-brand-navy) 5%, transparent);
 }
 
 .sectionTitle {
@@ -166,9 +166,9 @@
 
 /* ── Product Card ── */
 .productCard {
-  background: white;
+  background: var(--pizzaos-color-background-accent);
   padding: 18px 20px;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  border-bottom: 1px solid color-mix(in srgb, var(--pizzaos-brand-navy) 5%, transparent);
   display: block;
   width: 100%;
   text-align: left;
@@ -179,7 +179,7 @@
   overflow: hidden;
   /* button reset */
   border: none;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  border-bottom: 1px solid color-mix(in srgb, var(--pizzaos-brand-navy) 5%, transparent);
   font-family: inherit;
   outline: none;
   box-sizing: border-box;
@@ -190,11 +190,11 @@
 }
 
 .productCard:hover {
-  background: #fafafa;
+  background: var(--pizzaos-color-surface-muted);
 }
 
 .productCard:active {
-  background: #f5f5f5;
+  background: var(--pizzaos-color-surface-muted);
 }
 
 .productInside {
@@ -221,7 +221,7 @@
 .productDescription {
   margin: 0 0 12px;
   font-size: 0.87rem;
-  color: #64748b;
+  color: var(--pizzaos-color-foreground-muted);
   line-height: 1.4;
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -245,7 +245,7 @@
 }
 
 .popularTag {
-  color: #ea580c;
+  color: var(--pizzaos-color-primary);
   font-weight: 600;
   display: flex;
   align-items: center;
@@ -259,7 +259,7 @@
 }
 
 .soldOutTag {
-  color: #94a3b8;
+  color: var(--pizzaos-color-foreground-muted);
   font-weight: 600;
   font-size: 0.82rem;
 }
@@ -281,12 +281,12 @@
 .productEmojiFrame {
   width: 80px;
   height: 80px;
-  background: #f8fafc;
+  background: var(--pizzaos-color-surface-muted);
   border-radius: 20px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid rgba(0, 0, 0, 0.05);
+  border: 1px solid color-mix(in srgb, var(--pizzaos-brand-navy) 5%, transparent);
   flex-shrink: 0;
   transition: transform 0.3s ease;
 }
@@ -299,7 +299,7 @@
   font-size: 2.4rem;
   line-height: 1;
   display: block;
-  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.08));
+  filter: drop-shadow(0 4px 8px color-mix(in srgb, var(--pizzaos-brand-navy) 8%, transparent));
 }
 
 .productAddButton {
@@ -308,8 +308,8 @@
   right: -4px;
   width: 28px;
   height: 28px;
-  background: white;
-  border: 1px solid rgba(0, 0, 0, 0.08);
+  background: var(--pizzaos-color-background-accent);
+  border: 1px solid color-mix(in srgb, var(--pizzaos-brand-navy) 8%, transparent);
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -317,7 +317,7 @@
   color: var(--pizzaos-color-primary);
   font-size: 1.2rem;
   font-weight: 500;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 12px color-mix(in srgb, var(--pizzaos-brand-navy) 10%, transparent);
   transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   z-index: 2;
 }
@@ -325,9 +325,9 @@
 .productCard:hover .productAddButton {
   transform: scale(1.1);
   background: var(--pizzaos-color-primary);
-  color: white;
+  color: var(--pizzaos-color-primary-foreground);
   border-color: var(--pizzaos-color-primary);
-  box-shadow: 0 6px 16px rgba(209, 73, 46, 0.3);
+  box-shadow: 0 6px 16px rgba(var(--pizzaos-color-primary-rgb), 0.3);
 }
 
 .productCardMuted {
@@ -337,7 +337,7 @@
 }
 
 .productCardMuted:hover {
-  background: white;
+  background: var(--pizzaos-color-background-accent);
 }
 
 /* ── Empty State ── */
@@ -382,17 +382,17 @@
   align-items: flex-end;
   justify-content: center;
   padding: 0 16px 32px;
-  background: rgba(0, 0, 0, 0.35);
+  background: color-mix(in srgb, var(--pizzaos-brand-navy) 35%, transparent);
   backdrop-filter: blur(4px);
 }
 
 .toastCard {
   width: 100%;
   max-width: 400px;
-  background: #ffffff;
+  background: var(--pizzaos-color-background-accent);
   border-radius: 20px;
   padding: 20px 20px 16px;
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.18);
+  box-shadow: 0 24px 60px color-mix(in srgb, var(--pizzaos-brand-navy) 18%, transparent);
   animation: toastSlideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -424,7 +424,7 @@
 
 .toastMessage {
   font-size: 0.9rem;
-  color: #64748b;
+  color: var(--pizzaos-color-foreground-muted);
   margin: 0 0 16px;
   font-weight: 500;
   line-height: 1.5;
@@ -459,11 +459,11 @@
 
 .toastLink {
   background: var(--pizzaos-color-primary);
-  color: #ffffff;
-  box-shadow: 0 6px 16px rgba(209, 73, 46, 0.28);
+  color: var(--pizzaos-color-primary-foreground);
+  box-shadow: 0 6px 16px rgba(var(--pizzaos-color-primary-rgb), 0.28);
 }
 
 .toastLinkSecondary {
-  background: #f1f5f9;
+  background: var(--pizzaos-color-surface-muted);
   color: var(--pizzaos-color-foreground);
 }

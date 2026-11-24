@@ -1,4 +1,8 @@
 import type { AppSurface } from "@pizzaos/domain";
+import { BRAND_ASSETS } from "./assets";
+export { BRAND_ASSETS } from "./assets";
+
+export const BRAND_PALETTE = { sand: "#DDB785", orange: "#CF5430", navy: "#0A384F", action: "#B74424" } as const;
 
 export const SURFACE_THEME_CLASS: Record<AppSurface, string> = {
   landing: "pizzaos-theme-landing",
@@ -106,16 +110,16 @@ export const SURFACE_THEME_TOKENS: Record<AppSurface, SurfaceThemeTokens> = {
   client: {
     ...BASE_THEME_TOKENS,
     color: {
-      background: "#ffffff",
-      backgroundAccent: "#ffffff",
-      foreground: "#1f2530",
-      foregroundMuted: "#4f5a6a",
-      border: "rgba(31, 37, 48, 0.18)",
-      primary: "#d1492e",
-      primaryForeground: "#fff8f3"
+      background: "#FAF7F1",
+      backgroundAccent: "#FFFFFF",
+      foreground: "#0A384F",
+      foregroundMuted: "#526975",
+      border: "#E9DED0",
+      primary: "#B74424",
+      primaryForeground: "#FFFFFF"
     },
     type: {
-      family: "\"Nunito Sans\", \"Segoe UI\", sans-serif",
+      family: "\"Poppins\", \"Segoe UI\", sans-serif",
       headingWeight: "700",
       bodyWeight: "500"
     }
@@ -131,16 +135,16 @@ export const SURFACE_THEME_TOKENS: Record<AppSurface, SurfaceThemeTokens> = {
       overlay: "0 25px 60px rgba(32, 25, 20, 0.12)"
     },
     color: {
-      background: "#faf8f7",
-      backgroundAccent: "#ffffff",
-      foreground: "#111318",
-      foregroundMuted: "#5f6672",
-      border: "rgba(31, 28, 25, 0.1)",
-      primary: "#f43a26",
-      primaryForeground: "#ffffff"
+      background: "#FAF7F1",
+      backgroundAccent: "#FFFFFF",
+      foreground: "#0A384F",
+      foregroundMuted: "#526975",
+      border: "#E9DED0",
+      primary: "#B74424",
+      primaryForeground: "#FFFFFF"
     },
     type: {
-      family: "\"Google Sans\", \"Segoe UI\", sans-serif",
+      family: "\"Poppins\", \"Segoe UI\", sans-serif",
       headingWeight: "800",
       bodyWeight: "400"
     }
@@ -182,8 +186,26 @@ export function getThemeStyleVariables(surface: AppSurface): SurfaceThemeStyleVa
     "--pizzaos-color-primary": surfaceThemeTokens.color.primary,
     "--pizzaos-color-primary-rgb": getHexColorRgb(surfaceThemeTokens.color.primary),
     "--pizzaos-color-primary-foreground": surfaceThemeTokens.color.primaryForeground,
-    "--pizzaos-color-warning": "#f59e0b",
-    "--pizzaos-color-critical": "#dc2626",
+    "--pizzaos-brand-sand": BRAND_PALETTE.sand,
+    "--pizzaos-brand-orange": BRAND_PALETTE.orange,
+    "--pizzaos-brand-navy": BRAND_PALETTE.navy,
+    "--pizzaos-brand-pattern": `url("${BRAND_ASSETS.pattern}")`,
+    "--pizzaos-color-primary-hover": surface === "landing" ? "#072B3D" : "#983719",
+    "--pizzaos-color-primary-soft": "#F8E8DF",
+    "--pizzaos-color-surface-muted": "#F3E9DA",
+    "--pizzaos-color-focus": "#0A384F",
+    "--pizzaos-color-success": "#15803D",
+    "--pizzaos-color-success-soft": "#EDF7EF",
+    "--pizzaos-color-success-foreground": "#166534",
+    "--pizzaos-color-warning": surface === "landing" ? "#f59e0b" : "#A16207",
+    "--pizzaos-color-warning-soft": "#FFF5D6",
+    "--pizzaos-color-warning-foreground": "#713F12",
+    "--pizzaos-color-critical": surface === "landing" ? "#dc2626" : "#B91C1C",
+    "--pizzaos-color-critical-soft": "#FFF0ED",
+    "--pizzaos-color-critical-foreground": "#991B1B",
+    "--pizzaos-color-info": "#0A384F",
+    "--pizzaos-color-info-soft": "#EAF1F4",
+    "--pizzaos-color-info-foreground": "#0A384F",
     "--pizzaos-font-family": surfaceThemeTokens.type.family,
     "--pizzaos-font-weight-heading": surfaceThemeTokens.type.headingWeight,
     "--pizzaos-font-weight-body": surfaceThemeTokens.type.bodyWeight,

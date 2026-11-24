@@ -105,7 +105,7 @@ export function AnalyticsManager({
               style={{
                 width: "150px",
                 height: "150px",
-                background: "#ff4d4d",
+                background: "var(--pizzaos-color-primary)",
                 top: "20%",
                 left: "30%"
               }}
@@ -115,7 +115,7 @@ export function AnalyticsManager({
               style={{
                 width: "100px",
                 height: "100px",
-                background: "#ff9900",
+                background: "var(--pizzaos-color-warning-foreground)",
                 top: "50%",
                 left: "60%"
               }}
@@ -125,12 +125,12 @@ export function AnalyticsManager({
               style={{
                 width: "80px",
                 height: "80px",
-                background: "#ffd633",
+                background: "var(--pizzaos-color-warning-foreground)",
                 top: "10%",
                 left: "70%"
               }}
             />
-            <span style={{ position: "relative", zIndex: 1, fontWeight: 600, color: "#666" }}>
+            <span style={{ position: "relative", zIndex: 1, fontWeight: 600, color: "var(--pizzaos-color-foreground-muted)" }}>
               Visualizzazione Densità Ordini Real-time
             </span>
           </div>
@@ -189,7 +189,7 @@ export function AnalyticsManager({
               <div key={insight.id} className={styles.insightCard}>
                 <div className={styles.insightTitle}>{insight.title}</div>
                 <div className={styles.insightSummary}>{insight.summary}</div>
-                <div style={{ marginTop: "0.5rem", fontSize: "0.7rem", color: "#888" }}>
+                <div style={{ marginTop: "0.5rem", fontSize: "0.7rem", color: "var(--pizzaos-color-foreground-muted)" }}>
                   Confidenza: {(insight.confidenceScore * 100).toFixed(0)}% •{" "}
                   {new Date(insight.generatedAtIso).toLocaleTimeString("it-IT", {
                     hour: "2-digit",
@@ -199,7 +199,7 @@ export function AnalyticsManager({
               </div>
             ))}
             {insights.length === 0 && (
-              <p style={{ fontSize: "0.85rem", color: "#888", fontStyle: "italic" }}>
+              <p style={{ fontSize: "0.85rem", color: "var(--pizzaos-color-foreground-muted)", fontStyle: "italic" }}>
                 Nessun insight AI disponibile al momento.
               </p>
             )}

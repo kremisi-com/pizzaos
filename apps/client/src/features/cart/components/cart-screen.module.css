@@ -8,8 +8,8 @@
   width: 100%;
   background: var(--pizzaos-color-background);
   background-image:
-    radial-gradient(circle at top right, rgba(209, 73, 46, 0.06), transparent 40%),
-    radial-gradient(circle at bottom left, rgba(238, 248, 255, 0.5), transparent 50%);
+    radial-gradient(circle at top right, rgba(var(--pizzaos-color-primary-rgb), 0.06), transparent 40%),
+    radial-gradient(circle at bottom left, color-mix(in srgb, var(--pizzaos-brand-sand) 50%, transparent), transparent 50%);
   overflow-x: hidden;
 }
 
@@ -38,14 +38,14 @@
   font-size: 0.9rem;
   padding: 6px 12px 6px 8px;
   border-radius: 12px;
-  background: rgba(255, 255, 255, 0.6);
-  border: 1px solid rgba(0, 0, 0, 0.06);
+  background: color-mix(in srgb, var(--pizzaos-color-background-accent) 60%, transparent);
+  border: 1px solid color-mix(in srgb, var(--pizzaos-brand-navy) 6%, transparent);
   transition: background 0.2s ease;
 }
 
 .backButton:hover
 {
-  background: rgba(255, 255, 255, 0.9);
+  background: color-mix(in srgb, var(--pizzaos-color-background-accent) 90%, transparent);
 }
 
 .backIcon
@@ -80,7 +80,7 @@
   font-size: 0.8rem;
   font-weight: 700;
   color: var(--pizzaos-color-primary);
-  background: rgba(209, 73, 46, 0.08);
+  background: rgba(var(--pizzaos-color-primary-rgb), 0.08);
   border-radius: 999px;
   letter-spacing: 0.01em;
 }
@@ -178,8 +178,8 @@
   display: inline-flex;
   align-items: center;
   gap: 0;
-  background: rgba(241, 245, 249, 0.8);
-  border: 1px solid rgba(0, 0, 0, 0.06);
+  background: color-mix(in srgb, var(--pizzaos-color-surface-muted) 80%, transparent);
+  border: 1px solid color-mix(in srgb, var(--pizzaos-brand-navy) 6%, transparent);
   border-radius: 12px;
   padding: 2px;
 }
@@ -204,13 +204,13 @@
 
 .quantityButton:hover
 {
-  background: rgba(0, 0, 0, 0.04);
+  background: color-mix(in srgb, var(--pizzaos-brand-navy) 4%, transparent);
 }
 
 .quantityButton:active
 {
   transform: scale(0.92);
-  background: rgba(0, 0, 0, 0.08);
+  background: color-mix(in srgb, var(--pizzaos-brand-navy) 8%, transparent);
 }
 
 .quantityValue
@@ -244,8 +244,8 @@
 
 .removeButton:hover
 {
-  color: #dc2626;
-  background: rgba(220, 38, 38, 0.06);
+  color: var(--pizzaos-color-critical);
+  background: color-mix(in srgb, var(--pizzaos-color-critical) 6%, transparent);
 }
 
 .removeButton:active
@@ -265,9 +265,9 @@
   margin-top: 18px;
   padding: 26px 20px calc(24px + env(safe-area-inset-bottom, 0px));
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.96) 20%, #fff 100%),
-    radial-gradient(circle at top right, rgba(209, 73, 46, 0.12), transparent 42%);
-  box-shadow: 0 -18px 32px rgba(15, 23, 42, 0.08);
+    linear-gradient(180deg, color-mix(in srgb, var(--pizzaos-color-background-accent) 18%, transparent), color-mix(in srgb, var(--pizzaos-color-background-accent) 96%, transparent) 20%, var(--pizzaos-color-background-accent) 100%),
+    radial-gradient(circle at top right, rgba(var(--pizzaos-color-primary-rgb), 0.12), transparent 42%);
+  box-shadow: 0 -18px 32px color-mix(in srgb, var(--pizzaos-brand-navy) 8%, transparent);
   backdrop-filter: blur(16px);
 }
 
@@ -288,7 +288,7 @@
   gap: 12px 16px;
   padding: 16px 18px;
   margin-bottom: 16px;
-  background: rgba(255, 255, 255, 0.72);
+  background: color-mix(in srgb, var(--pizzaos-color-background-accent) 72%, transparent);
   border-radius: 18px;
 }
 
@@ -349,7 +349,7 @@
   height: 56px;
   padding: 0 24px;
   background: var(--pizzaos-color-primary);
-  color: white;
+  color: var(--pizzaos-color-primary-foreground);
   border: none;
   border-radius: 16px;
   text-decoration: none;
@@ -358,7 +358,7 @@
   font-weight: 800;
   letter-spacing: -0.01em;
   cursor: pointer;
-  box-shadow: 0 4px 20px rgba(209, 73, 46, 0.3);
+  box-shadow: 0 4px 20px rgba(var(--pizzaos-color-primary-rgb), 0.3);
   transition:
     transform 0.15s cubic-bezier(0.4, 0, 0.2, 1),
     filter 0.2s ease,
@@ -394,7 +394,7 @@
   padding: 0 20px;
   background: transparent;
   color: var(--pizzaos-color-foreground-muted);
-  border: 1px solid rgba(0, 0, 0, 0.08);
+  border: 1px solid color-mix(in srgb, var(--pizzaos-brand-navy) 8%, transparent);
   border-radius: 12px;
   font-family: inherit;
   font-size: 0.88rem;
@@ -406,8 +406,8 @@
 
 .clearCartButton:hover
 {
-  background: rgba(0, 0, 0, 0.02);
-  border-color: rgba(0, 0, 0, 0.12);
+  background: color-mix(in srgb, var(--pizzaos-brand-navy) 2%, transparent);
+  border-color: color-mix(in srgb, var(--pizzaos-brand-navy) 12%, transparent);
   color: var(--pizzaos-color-foreground);
 }
 
@@ -460,7 +460,7 @@
   margin-top: 8px;
   padding: 10px 20px;
   background: var(--pizzaos-color-foreground);
-  color: white;
+  color: var(--pizzaos-color-primary-foreground);
   text-decoration: none;
   border-radius: 12px;
   font-weight: 700;
