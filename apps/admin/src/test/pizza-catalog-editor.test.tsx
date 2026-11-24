@@ -35,12 +35,12 @@ describe("Catalogo pizza nel pannello", () => {
       includedToppingIds: ["olive"], previewImages: [{ doughId: "classico", baseId: "rossa", imagePath: "/pizza.png" }] }];
     candidate.pizzaCatalog!.toppings[0].ingredients = { olive: 1 };
     candidate.sections[0].productIds.push("margherita");
-    const onUpload = vi.fn(), onSave = vi.fn(), onRemove = vi.fn(), onClose = vi.fn();
+    const onUpload = vi.fn(), onRemove = vi.fn(), onClose = vi.fn();
     function Panel() {
       const [draft, setDraft] = useState(materializePizzaMenu(candidate));
       return <><PizzaTastePanel draft={draft} taste={draft.pizzaCatalog!.tastes[0]}
         ingredients={[{ id: "olive", name: "Olive", stock: 30 }]} onChange={setDraft}
-        onUpload={onUpload} onSave={onSave} onRemove={onRemove} onClose={onClose} />
+        onUpload={onUpload} onRemove={onRemove} onClose={onClose} />
         <output aria-label="Bozza corrente">{JSON.stringify(draft)}</output></>;
     }
     render(<Panel />);
@@ -61,8 +61,7 @@ describe("Catalogo pizza nel pannello", () => {
     fireEvent.change(editor.getByLabelText("Foto"), { target: { files: [file] } });
     expect(onUpload).toHaveBeenCalledWith(file);
     fireEvent.click(editor.getByRole("button", { name: "Rimuovi foto" }));
-    fireEvent.click(editor.getByRole("button", { name: "Salva pizza" }));
-    expect(onSave).toHaveBeenCalledOnce();
+    expect(editor.queryByRole("button", { name: "Salva pizza" })).toBeNull();
     const taste = current().pizzaCatalog!.tastes[0];
     expect(taste).toMatchObject({ available: false, pairingProductIds: ["simple"],
       doughIds: entry.doughIds, baseIds: entry.baseIds, formatIds: entry.formatIds, toppingIds: entry.toppingIds,
@@ -100,6 +99,10 @@ describe("Catalogo pizza nel pannello", () => {
     expect(current().pizzaCatalog?.defaults?.doughId).toBe("integrale");
     expect(current().pizzaCatalog?.formulas[0]).toMatchObject({ priceCents: 600, standardDoughId: "integrale", doughIds: ["classico", "integrale"] });
     expect(current().products.find(({ id }) => id === "simple")).toMatchObject({ priceCents: 600 });
+    expect(screen.queryByRole("button", { name: "Salva configurazione" })).toBeNull();
+    fireEvent.click(screen.getAllByRole("button", { name: "Chiudi configurazione" })[0]);
+    expect(current().pizzaCatalog?.defaults?.doughId).toBe("integrale");
+    expect(screen.queryByRole("region", { name: "Impasti, basi e formati" })).toBeNull();
   });
 
   it("modifica nome e regola libera senza scegliere preset né configurare ingredienti nella card", () => {

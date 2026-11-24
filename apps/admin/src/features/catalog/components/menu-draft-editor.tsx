@@ -31,13 +31,12 @@ function MoveButtons({ label, index, count, onMove }: {
   </>;
 }
 
-export function MenuDraftEditor({ draft, storeId, ingredients, onChange, onUpload, onSave, onInventory }: {
+export function MenuDraftEditor({ draft, storeId, ingredients, onChange, onUpload, onInventory }: {
   draft: MenuDraft;
   storeId: string;
   ingredients: readonly IndividualIngredient[];
   onChange: (draft: MenuDraft) => void;
   onUpload: (productId: string, file: File) => void;
-  onSave?: () => void;
   onInventory?: () => void;
 }) {
   const [editingId, setEditingId] = useState("");
@@ -45,7 +44,6 @@ export function MenuDraftEditor({ draft, storeId, ingredients, onChange, onUploa
   const [editingSectionId, setEditingSectionId] = useState("");
   const [settings, setSettings] = useState(false);
   const [activeSectionId, setActiveSectionId] = useState("");
-  const [configurationStart, setConfigurationStart] = useState(draft.pizzaCatalog);
   const [classification, setClassification] = useState<{ productId: string; pizza: boolean } | null>(null);
   const [newProductIds, setNewProductIds] = useState<string[]>([]);
   const productIndex = draft.products.findIndex(product => product.id === editingId);
@@ -190,7 +188,7 @@ export function MenuDraftEditor({ draft, storeId, ingredients, onChange, onUploa
             </div>
             {removingId === id && <fieldset className={styles.confirm}>
               <legend>Eliminare {product.name || "questo prodotto"} dal menu?</legend>
-              <p>Il prodotto e i suoi abbinamenti saranno rimossi dalla bozza. Salva e pubblica il menu per aggiornare quello visibile ai clienti.</p>
+              <p>Il prodotto e i suoi abbinamenti saranno rimossi dalla bozza. Pubblica il menu per aggiornare quello visibile ai clienti.</p>
               <div className={styles.actions}>
                 <Button type="button" variant="secondary" onClick={() => confirmRemoveProduct(id)}>Conferma eliminazione prodotto</Button>
                 <Button type="button" variant="ghost" onClick={() => setRemovingId("")}>Annulla</Button>
@@ -202,7 +200,7 @@ export function MenuDraftEditor({ draft, storeId, ingredients, onChange, onUploa
       <div className={styles.actions}><Button type="button" variant="secondary" onClick={() => addProduct(section)}>Aggiungi prodotto</Button></div>
     </section>; })}
     <button type="button" className={`${styles.settingsCard} ${settings ? styles.selectedCard : ""}`} onClick={() => {
-      setConfigurationStart(structuredClone(draft.pizzaCatalog)); setSettings(true); setEditingId("");
+      setSettings(true); setEditingId("");
     }}><strong>Impasti, basi e formati</strong><span>{settings ? "In modifica" : "Personalizza"}</span>
       <small>{catalog.doughs.find(item => item.id === catalog.defaults?.doughId)?.name ?? catalog.doughs[0]?.name ?? "Configura impasto"} · {catalog.bases.find(item => item.id === catalog.defaults?.baseId)?.name ?? catalog.bases[0]?.name ?? "base"} · {catalog.formats.find(item => item.id === catalog.defaults?.formatId)?.name ?? catalog.formats[0]?.name ?? "formato"}</small>
       <small>Valgono per tutte le pizze. Cambiali solo se offri alternative.</small></button>
@@ -216,12 +214,12 @@ export function MenuDraftEditor({ draft, storeId, ingredients, onChange, onUploa
         {item.stock === null ? " · Scorta da verificare" : item.stock === 0 ? " · Esaurito" : ""}
       </li>)}</ul>
       {!ingredients.some(item => item.extra?.enabled) && <p>Nessun ingrediente ha la spunta Possibile extra.</p>}
-      {extrasChanged && <p role="status">Gli extra della bozza sono da aggiornare. Controlla le scelte e salva prima di pubblicare.</p>}
+      {extrasChanged && <p role="status">Gli extra della bozza sono da aggiornare. Controlla le scelte prima di pubblicare.</p>}
       {extrasChanged && <Button type="button" variant="secondary" onClick={() => onChange(syncPizzaInventory(draft, ingredients))}>Aggiorna extra della bozza</Button>}
       {onInventory && <Button type="button" variant="ghost" onClick={onInventory}>Apri Magazzino</Button>}
       <p className={styles.small}>Prezzi e dosi diventano visibili ai clienti solo dopo la pubblicazione del menu.</p>
     </section>}
-    <PizzaCustomCard draft={draft} ingredients={ingredients} onChange={onChange} onSave={onSave} onInventory={onInventory}
+    <PizzaCustomCard draft={draft} ingredients={ingredients} onChange={onChange} onInventory={onInventory}
       onRemove={removeProduct} onAdd={() => {
         const section = activeSection ?? { id: crypto.randomUUID(), name: "Pizza custom", productIds: [] };
         if (!activeSection) {
@@ -254,24 +252,10 @@ export function MenuDraftEditor({ draft, storeId, ingredients, onChange, onUploa
           </div>
         </fieldset>}
       </div>}
-      {settings ? <PizzaSettingsPanel draft={draft} ingredients={ingredients} onChange={onChange} onSave={() => { onSave?.(); setSettings(false); }} onClose={() => {
-        const original = configurationStart ?? blankPizzaCatalog();
-        const restoreChoices = <T extends PizzaEntry>(entry: T): T => {
-          const previous = [...original.tastes, ...original.formulas].find(item => item.id === entry.id);
-          return { ...entry, standardDoughId: previous?.standardDoughId ?? original.defaults?.doughId ?? original.doughs[0]?.id ?? "",
-            standardBaseId: previous?.standardBaseId ?? original.defaults?.baseId ?? original.bases[0]?.id ?? "",
-            standardFormatId: previous?.standardFormatId ?? original.defaults?.formatId ?? original.formats[0]?.id ?? "",
-            doughIds: previous?.doughIds ?? original.doughs.map(item => item.id), baseIds: previous?.baseIds ?? original.bases.map(item => item.id),
-            formatIds: previous?.formatIds ?? original.formats.map(item => item.id) };
-        };
-        onChange(materializePizzaMenu({ ...draft, pizzaCatalog: { ...catalog, defaults: original.defaults,
-          doughs: original.doughs, bases: original.bases, formats: original.formats,
-          tastes: catalog.tastes.map(restoreChoices), formulas: catalog.formulas.map(restoreChoices) } }));
-        setSettings(false);
-      }} /> : taste ? <PizzaTastePanel key={taste.id} draft={draft} taste={taste} ingredients={ingredients} onChange={onChange}
+      {settings ? <PizzaSettingsPanel draft={draft} ingredients={ingredients} onChange={onChange} onClose={() => setSettings(false)} /> : taste ? <PizzaTastePanel key={taste.id} draft={draft} taste={taste} ingredients={ingredients} onChange={onChange}
         headerActions={<label className={styles.check}><input type="checkbox" checked={Boolean(editing?.pizza)}
-          onChange={event => setClassification({ productId: editingId, pizza: event.target.checked })} />Pizza</label>} onSave={onSave} onClose={() => setEditingId("")} onRemove={() => removeProduct(taste.id)} onUpload={file => onUpload(taste.id, file)} />
-      : editing && !editing.pizza ? <><MenuProductForm key={editing.id} storeId={storeId} product={editing} index={productIndex}
+          onChange={event => setClassification({ productId: editingId, pizza: event.target.checked })} />Pizza</label>} onClose={() => setEditingId("")} onRemove={() => removeProduct(taste.id)} onUpload={file => onUpload(taste.id, file)} />
+      : editing && !editing.pizza ? <MenuProductForm key={editing.id} storeId={storeId} product={editing} index={productIndex}
         ingredients={ingredients} products={draft.products} sections={draft.sections} sectionId={editingSection?.id}
         headerActions={<label className={styles.check}><input type="checkbox" checked={Boolean(editing?.pizza)}
           onChange={event => setClassification({ productId: editingId, pizza: event.target.checked })} />Pizza</label>}
@@ -279,7 +263,6 @@ export function MenuDraftEditor({ draft, storeId, ingredients, onChange, onUploa
         onMove={sectionId => onChange({ ...draft, sections: draft.sections.map(section => ({ ...section,
           productIds: section.id === sectionId ? [...section.productIds.filter(id => id !== editing.id), editing.id] : section.productIds.filter(id => id !== editing.id)
         })) })} onRemove={() => removeProduct(editing.id)} onClose={() => setEditingId("")} onUpload={file => onUpload(editing.id, file)} />
-        <Button type="button" onClick={onSave}>Salva prodotto</Button></>
       : <section className={styles.productEditor}><h3>Il tuo menu, una pizza alla volta</h3><p>Scegli una pizza da modificare oppure personalizza impasti, basi e formati.</p></section>}
     </aside>
   </div>;

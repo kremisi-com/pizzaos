@@ -8,11 +8,11 @@ import styles from "./operational-catalog.module.css";
 
 export const blankPizzaCatalog = (): PizzaCatalog => ({ doughs: [], bases: [], formats: [], toppings: [], tastes: [], formulas: [] });
 
-export function PizzaTastePanel({ draft, taste, ingredients, onChange, onClose, onRemove, onUpload, onSave, headerActions }: {
+export function PizzaTastePanel({ draft, taste, ingredients, onChange, onClose, onRemove, onUpload, headerActions }: {
   headerActions?: ReactNode;
   draft: MenuDraft; taste: PizzaTaste; ingredients: readonly IndividualIngredient[];
   onChange: (draft: MenuDraft) => void; onClose: () => void; onRemove: () => void;
-  onUpload: (file: File) => void; onSave?: () => void;
+  onUpload: (file: File) => void;
 }) {
   const [search, setSearch] = useState("");
   const [open, setOpen] = useState(false);
@@ -96,7 +96,6 @@ export function PizzaTastePanel({ draft, taste, ingredients, onChange, onClose, 
       </details>}
       <Button type="button" variant="ghost" onClick={onRemove}>Rimuovi gusto dalla bozza</Button>
     </details>
-    <Button type="button" onClick={onSave}>Salva pizza</Button>
   </section>;
 }
 
@@ -106,8 +105,8 @@ const dimensions = [
   { key: "formats", title: "Formati", singular: "formato", defaultKey: "formatId" }
 ] as const;
 
-export function PizzaSettingsPanel({ draft, ingredients, onChange, onClose, onSave }: {
-  draft: MenuDraft; ingredients: readonly IndividualIngredient[]; onChange: (draft: MenuDraft) => void; onClose: () => void; onSave?: () => void;
+export function PizzaSettingsPanel({ draft, ingredients, onChange, onClose }: {
+  draft: MenuDraft; ingredients: readonly IndividualIngredient[]; onChange: (draft: MenuDraft) => void; onClose: () => void;
 }) {
   const catalog = draft.pizzaCatalog ?? blankPizzaCatalog();
   const defaults = catalog.defaults ?? { doughId: catalog.tastes[0]?.standardDoughId ?? catalog.formulas[0]?.standardDoughId ?? catalog.doughs[0]?.id ?? "",
@@ -154,13 +153,13 @@ export function PizzaSettingsPanel({ draft, ingredients, onChange, onClose, onSa
         <label>Anteprima {component.name}<input value={component.imagePath ?? ""} placeholder="/images/pizza/…" onChange={event => changeComponent(dimension.key, component.id, { imagePath: event.target.value || undefined })} /></label>
       </div>))}
     </details>
-    <Button type="button" onClick={onSave}>Salva configurazione</Button><Button type="button" variant="ghost" onClick={onClose}>Annulla</Button>
+    <Button type="button" variant="ghost" onClick={onClose}>Chiudi configurazione</Button>
   </section>;
 }
 
-export function PizzaCustomCard({ draft, ingredients, onChange, onAdd, onRemove, onSave }: {
+export function PizzaCustomCard({ draft, ingredients, onChange, onAdd, onRemove }: {
   draft: MenuDraft; ingredients: readonly IndividualIngredient[]; onChange: (draft: MenuDraft) => void;
-  onAdd: () => void; onRemove: (id: string) => void; onSave?: () => void; onInventory?: () => void;
+  onAdd: () => void; onRemove: (id: string) => void; onInventory?: () => void;
 }) {
   const [selectedId, setSelectedId] = useState("");
   const catalog = draft.pizzaCatalog ?? blankPizzaCatalog();
@@ -188,7 +187,6 @@ export function PizzaCustomCard({ draft, ingredients, onChange, onAdd, onRemove,
         <p><strong>{offer.percent}% di sconto sui {offer.quota} extra più costosi.</strong><br /><span className={styles.small}>Gli altri extra restano a prezzo pieno. Il prezzo base non viene scontato.</span></p>
         <p className={styles.small}>Usa gli stessi extra comuni dal Magazzino di tutte le pizze, anche quando Pizza custom è disattivata.</p>
         <div className={styles.actions}>
-          <Button type="button" onClick={onSave}>Salva combinazione</Button>
           <Button type="button" variant="ghost" onClick={() => onRemove(selected.id)}>Elimina combinazione</Button>
         </div>
       </>}
