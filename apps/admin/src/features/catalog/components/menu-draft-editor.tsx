@@ -37,6 +37,7 @@ export function MenuDraftEditor({ draft, storeId, ingredients, onChange, onUploa
   onUpload: (productId: string, file: File) => void;
 }) {
   const [editingId, setEditingId] = useState("");
+  const [removingId, setRemovingId] = useState("");
   const [editingSectionId, setEditingSectionId] = useState("");
   const productIndex = draft.products.findIndex(product => product.id === editingId);
   const editing = draft.products[productIndex];
@@ -61,6 +62,10 @@ export function MenuDraftEditor({ draft, storeId, ingredients, onChange, onUploa
   }
 
   function removeProduct(id: string) {
+    setRemovingId(id);
+  }
+
+  function confirmRemoveProduct(id: string) {
     onChange({
       ...draft,
       products: draft.products.filter(item => item.id !== id).map(product => product.pairingProductIds?.includes(id)
@@ -68,7 +73,8 @@ export function MenuDraftEditor({ draft, storeId, ingredients, onChange, onUploa
         : product),
       sections: draft.sections.map(section => ({ ...section, productIds: section.productIds.filter(reference => reference !== id) }))
     });
-    setEditingId("");
+    if (editingId === id) setEditingId("");
+    setRemovingId("");
   }
 
   return <div className={styles.stack}>
@@ -120,8 +126,19 @@ export function MenuDraftEditor({ draft, storeId, ingredients, onChange, onUploa
                   aria-label={`Duplica ${product.name || "prodotto"}`}>Duplica</Button>
                 <Button type="button" variant={editingId === id ? "primary" : "secondary"} onClick={() => setEditingId(id)}
                   aria-label={`Modifica ${product.name || "prodotto"}`}>Modifica</Button>
+                <Button type="button" variant="ghost" onClick={() => removeProduct(id)}
+                  aria-label={`Elimina ${product.name || "prodotto"} dal menu`}
+                  aria-expanded={removingId === id}>Elimina</Button>
               </div>
             </div>
+            {removingId === id && <fieldset className={styles.confirm}>
+              <legend>Eliminare {product.name || "questo prodotto"} dal menu?</legend>
+              <p>Il prodotto e i suoi abbinamenti saranno rimossi dalla bozza. Salva e pubblica il menu per aggiornare quello visibile ai clienti.</p>
+              <div className={styles.actions}>
+                <Button type="button" variant="secondary" onClick={() => confirmRemoveProduct(id)}>Conferma eliminazione prodotto</Button>
+                <Button type="button" variant="ghost" onClick={() => setRemovingId("")}>Annulla</Button>
+              </div>
+            </fieldset>}
             {editing && editingId === id && editingSection?.id === section.id && <MenuProductForm key={editing.id} storeId={storeId} product={editing} index={productIndex}
               ingredients={ingredients} products={draft.products} sections={draft.sections} sectionId={editingSection?.id}
               onChange={change => onChange({ ...draft, products: draft.products.map(product => product.id === editing.id ? { ...product, ...change } : product) })}
