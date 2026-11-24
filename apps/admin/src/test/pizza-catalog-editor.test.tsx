@@ -105,11 +105,12 @@ describe("Catalogo pizza nel pannello", () => {
   it("modifica nome e regola libera senza scegliere preset né configurare ingredienti nella card", () => {
     render(<Editor />);
     fireEvent.change(screen.getByLabelText("Nome combinazione"), { target: { value: "La mia pizza" } });
+    fireEvent.change(within(screen.getByRole("region", { name: "Pizza custom" })).getByLabelText("Descrizione"), { target: { value: "La combinazione della casa" } });
     fireEvent.change(screen.getByLabelText("Prezzo base in euro"), { target: { value: "9" } });
     fireEvent.change(screen.getByLabelText("Numero di extra scontati"), { target: { value: "2" } });
     fireEvent.change(screen.getByLabelText("Sconto sugli extra %"), { target: { value: "40" } });
-    expect(current().pizzaCatalog?.formulas[0]).toMatchObject({ name: "La mia pizza", priceCents: 900, extraOffer: { quota: 2, percent: 40 } });
-    expect(current().products[0]).toMatchObject({ name: "La mia pizza", priceCents: 900, extraOffer: { quota: 2, percent: 40 }, pizza: { kind: "formula" } });
+    expect(current().pizzaCatalog?.formulas[0]).toMatchObject({ name: "La mia pizza", description: "La combinazione della casa", priceCents: 900, extraOffer: { quota: 2, percent: 40 } });
+    expect(current().products[0]).toMatchObject({ name: "La mia pizza", description: "La combinazione della casa", priceCents: 900, extraOffer: { quota: 2, percent: 40 }, pizza: { kind: "formula" } });
     expect(screen.queryByLabelText("Formula sconto extra")).toBeNull();
   });
 
@@ -137,7 +138,6 @@ describe("Catalogo pizza nel pannello", () => {
     expect(current().pizzaCatalog?.formulas).toHaveLength(2);
     expect(current().products[1].pizza?.kind).toBe("formula");
     expect(current().sections[0].productIds).toHaveLength(2);
-    fireEvent.click(screen.getByText("Descrizione e disponibilità"));
     fireEvent.click(screen.getByRole("button", { name: "Elimina combinazione" }));
     fireEvent.click(screen.getByRole("button", { name: "Conferma eliminazione prodotto" }));
     expect(current().pizzaCatalog?.formulas).toHaveLength(1);

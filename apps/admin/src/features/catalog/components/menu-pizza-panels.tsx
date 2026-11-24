@@ -180,6 +180,7 @@ export function PizzaCustomCard({ draft, ingredients, onChange, onAdd, onRemove,
       </div>}
       {selected && <>
         <label>Nome combinazione<input value={selected.name} required maxLength={200} onChange={event => update({ name: event.target.value })} /></label>
+        <label>Descrizione<textarea value={selected.description} maxLength={2000} onChange={event => update({ description: event.target.value })} /></label>
         <div className={styles.threeFields}>
           <MenuPriceField label="Prezzo base in euro" cents={selected.priceCents} onChange={priceCents => update({ priceCents })} />
           <label>Numero di extra scontati<input type="number" min={0} max={100} step={1} value={offer.quota} onChange={event => update({ extraOffer: { ...offer, quota: Number(event.target.value) } })} /></label>
@@ -188,12 +189,10 @@ export function PizzaCustomCard({ draft, ingredients, onChange, onAdd, onRemove,
         <p><strong>{offer.percent}% di sconto sui {offer.quota} extra più costosi.</strong><br /><span className={styles.small}>Gli altri extra restano a prezzo pieno. Il prezzo base non viene scontato.</span></p>
         <div className={styles.notice}><strong>{legacy ? "Extra da collegare" : "Extra dal Magazzino"}</strong><p className={styles.small}>{legacy ? "Collega il Magazzino per usare gli ingredienti con la spunta “Possibile extra”." : "Solo ingredienti con la spunta “Possibile extra”. Prezzi e dosi gestiti nel Magazzino."}</p>
           {onInventory && <Button type="button" variant="ghost" onClick={onInventory}>Apri Magazzino</Button>}</div>
-        <details className={styles.food}><summary>Descrizione e disponibilità</summary>
-          <label>Descrizione combinazione<textarea value={selected.description} maxLength={2000} onChange={event => update({ description: event.target.value })} /></label>
-          <label className={styles.check}><input type="checkbox" checked={selected.available} onChange={event => update({ available: event.target.checked })} />Disponibile</label>
+        <div className={styles.actions}>
+          <Button type="button" onClick={onSave}>Salva combinazione</Button>
           <Button type="button" variant="ghost" onClick={() => onRemove(selected.id)}>Elimina combinazione</Button>
-        </details>
-        <Button type="button" onClick={onSave}>Salva combinazione</Button>
+        </div>
       </>}
     </>}
   </section>;
