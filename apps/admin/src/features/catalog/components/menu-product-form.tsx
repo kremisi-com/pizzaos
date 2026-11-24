@@ -1,3 +1,4 @@
+import { MenuPairingSelect } from "./menu-pairing-select";
 import { menuImagePath, PIZZA_EXTRA_OFFERS } from "@pizzaos/domain";
 import type { IndividualIngredient, IndividualOption, IndividualProduct, MenuOptionGroup, OrderingMenuSection } from "@pizzaos/domain";
 import { Button } from "@pizzaos/ui";
@@ -147,7 +148,6 @@ export function MenuProductForm({ storeId, product, index, ingredients, products
   const selectedOffer = currentOffer
     ? presets.find(([, offer]) => offer.quota === currentOffer.quota && offer.percent === currentOffer.percent)?.[0] ?? "personalizzata"
     : "";
-  const otherProducts = products.filter(item => item.id !== product.id);
 
   function changeRecipe(ingredients: Record<string, number | null>) {
     onChange({
@@ -202,18 +202,8 @@ export function MenuProductForm({ storeId, product, index, ingredients, products
         {presets.map(([name, offer]) => <option key={name} value={name}>{name} · {offer.quota} extra al −{offer.percent}%</option>)}
       </select>
     </label>}
-    {otherProducts.length > 0 && <details className={styles.food}>
-      <summary>Abbinamenti consigliati</summary>
-      <div className={styles.checkGrid}>
-        {otherProducts.map(item => <label className={styles.check} key={item.id}>
-          <input type="checkbox" checked={product.pairingProductIds?.includes(item.id) ?? false} onChange={event => {
-            const remaining = product.pairingProductIds?.filter(id => id !== item.id) ?? [];
-            onChange({ pairingProductIds: event.target.checked ? [...remaining, item.id] : remaining });
-          }} />
-          {item.name || "Senza nome"}
-        </label>)}
-      </div>
-    </details>}
+    <MenuPairingSelect productId={product.id} products={products} selectedIds={product.pairingProductIds}
+      onChange={pairingProductIds => onChange({ pairingProductIds })} />
     <div><Button type="button" variant="ghost" onClick={onRemove}>Rimuovi prodotto dalla bozza</Button></div>
   </section>;
 }

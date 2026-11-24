@@ -1,3 +1,4 @@
+import { MenuPairingSelect } from "./menu-pairing-select";
 import { applyPizzaDefaults, materializePizzaMenu, PIZZA_EXTRA_OFFERS, syncPizzaInventory } from "@pizzaos/domain";
 import type { IndividualIngredient, MenuDraft, PizzaCatalog, PizzaComponent, PizzaEntry, PizzaFormula, PizzaTaste } from "@pizzaos/domain";
 import { Button } from "@pizzaos/ui";
@@ -79,12 +80,8 @@ export function PizzaTastePanel({ draft, taste, ingredients, onChange, onClose, 
         const file = event.currentTarget.files?.[0]; if (file) onUpload(file); event.currentTarget.value = "";
       }} /></label>
       {taste.imageId && <Button type="button" variant="ghost" onClick={() => update({ imageId: undefined })}>Rimuovi foto</Button>}
-      <fieldset className={styles.inner}><legend>Abbinamenti consigliati</legend>
-        {draft.products.filter(product => product.id !== taste.id).map(product => <label key={product.id} className={styles.check}>
-          <input type="checkbox" checked={taste.pairingProductIds?.includes(product.id) ?? false} onChange={event => update({ pairingProductIds: event.target.checked
-            ? [...taste.pairingProductIds ?? [], product.id] : taste.pairingProductIds?.filter(id => id !== product.id) })} />{product.name || "Senza nome"}
-        </label>)}
-      </fieldset>
+      <MenuPairingSelect productId={taste.id} products={draft.products} selectedIds={taste.pairingProductIds}
+        onChange={pairingProductIds => update({ pairingProductIds })} />
       {projected && taste.customizations && hasMenuProductChoices(taste.customizations) && <details className={styles.food}><summary>Scelte specifiche del prodotto</summary>
         <p>Qui puoi modificare le scelte già configurate. Gestisci le nuove aggiunte con abbinamenti consigliati o categorie dedicate.</p>
         <MenuProductChoices product={{ ...projected, options: taste.customizations?.options ?? [], groups: taste.customizations?.groups }}

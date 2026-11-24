@@ -1,5 +1,7 @@
 # Gestione catalogo
 
+**Abbinamenti consigliati** usa lo stesso multiselect filtrabile nelle schede prodotto e pizza. Il gestore cerca per nome, seleziona più prodotti e rimuove le selezioni tramite checkbox o chip; il prodotto corrente è escluso. Il filtro conserva le selezioni non visibili. Escape chiude il controllo e riporta il focus al pulsante. Senza alternative o risultati compare un messaggio dedicato; eventuali riferimenti mancanti restano rimovibili. Le modifiche seguono il salvataggio automatico della bozza. Verifica locale: `src/test/menu-pairing-select.test.tsx` e `src/test/pizza-catalog-editor.test.tsx`.
+
 I controlli dei gruppi precedenti **Scegli l'impasto** e **Scegli la pizza** non compaiono più nell'editor; gruppi e opzioni salvati restano nei dati, in attesa della scelta sull'eliminazione. Le altre scelte restano modificabili. Verifica: `src/test/menu-previous-choices.test.tsx`.
 
 **Ricetta base** nella scheda prodotto usa una selezione multipla ricercabile dal Magazzino, con rimozione tramite chip e una unità per ingrediente selezionato. Le dosi numeriche precedenti si uniformano a una unità alla modifica della selezione; quelle sconosciute restano da verificare finché l'ingrediente non viene rimosso e riselezionato. Anche gli ingredienti del gusto pizza si aggiungono con una unità, senza un secondo editor numerico nelle opzioni avanzate. Le dosi dei componenti comuni restano nella configurazione di impasti, basi e formati. Verifica: `src/test/menu-base-recipe.test.tsx` e `src/test/pizza-catalog-editor.test.tsx`.

@@ -1,3 +1,4 @@
+import { MenuPairingSelect } from "./menu-pairing-select";
 import { materializePizzaMenu, PIZZA_EXTRA_OFFERS } from "@pizzaos/domain";
 import type { IndividualIngredient, MenuDraft, PizzaCatalog, PizzaComponent, PizzaEntry, PizzaFormula, PizzaTaste, PizzaTopping } from "@pizzaos/domain";
 import { Button } from "@pizzaos/ui";
@@ -124,12 +125,8 @@ export function PizzaEntryEditor({ draft, entry, kind, onChange, onRemove, onClo
           onChange={event => update({ includedToppingIds: event.target.checked ? [...taste.includedToppingIds, topping.id] : taste.includedToppingIds.filter(id => id !== topping.id) })} />Incluso nel gusto</label>}
       </div>)}
     </fieldset>
-    <fieldset className={styles.inner}><legend>Abbinamenti consigliati</legend>
-      {draft.products.filter(product => product.id !== entry.id).map(product => <label key={product.id} className={styles.check}>
-        <input type="checkbox" checked={entry.pairingProductIds?.includes(product.id) ?? false} onChange={event => update({ pairingProductIds: event.target.checked
-          ? [...entry.pairingProductIds ?? [], product.id] : entry.pairingProductIds?.filter(id => id !== product.id) })} />{product.name || "Senza nome"}
-      </label>)}
-    </fieldset>
+    <MenuPairingSelect productId={entry.id} products={draft.products} selectedIds={entry.pairingProductIds}
+        onChange={pairingProductIds => update({ pairingProductIds })} />
     <Button type="button" variant="ghost" onClick={onRemove}>Rimuovi {key === "tastes" ? "gusto" : "formula"} dalla bozza</Button>
   </section>;
 }

@@ -56,6 +56,7 @@ describe("Catalogo pizza nel pannello", () => {
     }
     expect(editor.queryByLabelText("Unità di Olive")).toBeNull();
     fireEvent.click(editor.getByLabelText("Disponibile per l’ordinazione"));
+    fireEvent.click(editor.getByRole("button", { name: "Seleziona abbinamenti consigliati" }));
     fireEvent.click(within(editor.getByRole("group", { name: "Abbinamenti consigliati" })).getByLabelText("Simple"));
     const file = new File(["foto"], "pizza.png", { type: "image/png" });
     fireEvent.change(editor.getByLabelText("Foto"), { target: { files: [file] } });
