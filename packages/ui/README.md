@@ -38,3 +38,7 @@ Current exports from `src/index.tsx`:
 - Must not import from any `apps/*` path.
 - May depend on platform libraries and shared package public APIs.
 - Consumers must import from `@pizzaos/ui` only, never `@pizzaos/ui/src/*`.
+
+## Logo accessibile
+
+`BrandLogo({ src, decorative?, className?, width?, height? })` rende un asset fornito dal chiamante con nome accessibile `PizzaOS`; `decorative: true` produce alt vuoto. Mantiene proporzioni e dimensione massima del contenitore, senza dipendere da Next.js o da un'app. Gli asset ufficiali sono esposti da `@pizzaos/brand`. Badge e indicatori consumano i token semantici del tema invece di palette locali.

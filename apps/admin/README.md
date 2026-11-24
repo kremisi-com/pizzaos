@@ -40,9 +40,13 @@ La mappa seguente riguarda le feature della demo autenticata. Le superfici opera
 - `@pizzaos/mock-data`
 - `@pizzaos/ui`
 
+## Identità visiva
+
+Admin, demo e area rider usano logo e pittogramma ufficiali da `@pizzaos/brand` e il componente accessibile `BrandLogo` di `@pizzaos/ui`. La palette condivisa è blu #0A384F, sabbia #DDB785 e arancio #CF5430; le azioni con testo bianco usano la variante accessibile #B74424. I moduli CSS consumano token condivisi, distinguendo errori, avvisi e successi. Il pannello mantiene densità desktop e il rider il layout mobile. Poppins è distribuito localmente con l'icona browser ufficiale, senza richieste a Google Fonts.
+
 ## Feedback nell'interfaccia
 
-Gli esiti temporanei delle azioni (errori, successi e informazioni) vengono mostrati dal provider condiviso `src/composition/admin-toast.tsx` come toast ancorati in basso, accessibili da tastiera e con annunci screen reader. Stati di caricamento e dati operativi persistenti restano nel contesto della schermata.
+Gli esiti temporanei delle azioni (errori, successi e informazioni) vengono mostrati dal provider condiviso `src/composition/admin-toast.tsx` come toast ancorati in basso, accessibili da tastiera e con annunci screen reader. Le feature richiedono notifiche tramite il contratto pubblico di [`src/features/notifications`](src/features/notifications/README.md), senza dipendere dalla composizione. Stati di caricamento e dati operativi persistenti restano nel contesto della schermata.
 
 ## Analytics e consegne del pilota
 
@@ -114,7 +118,7 @@ Verifica dei due host: `pnpm exec vitest run tests/operational-domains.test.ts` 
 
 Il flusso operativo `/operazioni` usa il contratto pubblico `IndividualApi` di `@pizzaos/domain`, fornito dalla composizione attraverso un adapter HTTP same-origin. Le superfici operative sono l'esperienza predefinita della home. Il POC si apre solo con la sessione demo verificata dal servizio; `PIZZAOS_MODE` non seleziona più la modalità.
 
-L'admin operativo condivide con il POC la sidebar, il selettore sede e la struttura della dashboard. Ogni sezione ha un URL `/operazioni/<sezione>` (demo: `/poc/<sezione>`), ripristinato al ricaricamento e navigabile con la cronologia. La sede attiva � ricordata in localStorage e riutilizzata soltanto se ancora autorizzata. [Navigazione e persistenza](src/composition/README.md#navigazione-e-sede-attiva). **Ordini** mostra la coda persistente della sede con elenco e dettaglio. **Menu** gestisce bozze e pubblicazione per sede. **Magazzino** gestisce scorte e schede allergeni degli ingredienti. **Profilo** raccoglie indirizzo, contatti, apertura ordini, fasce orarie e zone di consegna. L'operatore cerca e conferma l'indirizzo, poi salva la configurazione. Il superadmin trova in Profilo anche la creazione sede e l'invito operatore.
+L'admin operativo condivide con il POC la sidebar, il selettore sede e la struttura della dashboard. Ogni sezione ha un URL `/operazioni/<sezione>` (demo: `/poc/<sezione>`), ripristinato al ricaricamento e navigabile con la cronologia. La sede attiva è ricordata in localStorage e riutilizzata soltanto se ancora autorizzata. [Navigazione e persistenza](src/composition/README.md#navigazione-e-sede-attiva). **Ordini** mostra la coda persistente della sede con elenco e dettaglio. **Menu** gestisce bozze e pubblicazione per sede. **Magazzino** gestisce scorte e schede allergeni degli ingredienti. **Profilo** raccoglie indirizzo, contatti, apertura ordini, fasce orarie e zone di consegna. L'operatore cerca e conferma l'indirizzo, poi salva la configurazione. Il superadmin trova in Profilo anche la creazione sede e l'invito operatore.
 
 Con `PIZZAOS_ORDERING_DOMAIN` configurata, il superadmin può assegnare **Sottodominio ordini** da Profilo. Il salvataggio mostra il link pubblico della sede. [Regole e configurazione hosting](../../.agents/product-definition/architecture/pilot-deployment.md#sottodomini-delle-sedi).
 

@@ -4,6 +4,112 @@
   min-width: 0;
 }
 
+.hero {
+  padding: 18px 4px 0;
+}
+
+.hero h2 {
+  margin: 8px 0;
+  font-size: clamp(1.9rem, 5vw, 2.6rem);
+  line-height: 1.15;
+  letter-spacing: -.04em;
+}
+
+.hero > p:last-of-type {
+  margin: 0;
+  color: var(--pizzaos-color-foreground-muted);
+  line-height: 1.6;
+}
+
+.heroPreview {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-height: 250px;
+  padding: 22px 16px 8px;
+  isolation: isolate;
+}
+
+.heroPreview > img {
+  width: min(100%, 320px);
+  height: auto;
+  max-height: 340px;
+  object-fit: contain;
+  border-radius: 24px;
+  filter: drop-shadow(0 14px 24px color-mix(in srgb, var(--pizzaos-brand-navy) 12%, transparent));
+}
+
+.heroPreview > .heroOverlay {
+  position: absolute;
+  width: min(85%, 294px);
+  filter: none;
+  pointer-events: none;
+  clip-path: circle(48%);
+}
+
+.emptyPreview {
+  display: grid;
+  place-items: center;
+  text-align: center;
+  min-height: 220px;
+  width: min(100%, 320px);
+  border-radius: 50%;
+  background: var(--pizzaos-color-surface-muted);
+  color: var(--pizzaos-color-foreground-muted);
+}
+
+.emptyPreview > span { font-size: 4rem; }
+.emptyPreview p { margin: 0 16px 24px; font-size: .875rem; }
+
+.menu .initialChoice {
+  min-width: 0;
+  border: 0;
+  margin: 0;
+  padding: 0;
+}
+
+.menu .initialChoice legend { padding: 0 0 10px; font-weight: 750; }
+.choiceList { display: flex; flex-wrap: wrap; gap: 8px; }
+.menu .choice {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-height: 44px;
+  padding: 10px 14px;
+  border: 1px solid var(--pizzaos-color-border);
+  border-radius: 16px;
+  cursor: pointer;
+  background: var(--pizzaos-color-background-accent);
+  margin: 0;
+}
+
+.menu .choice input { width: 18px; height: 18px; margin: 0; padding: 0; accent-color: var(--pizzaos-color-primary); }
+.choice:has(input:checked) { border-color: var(--pizzaos-color-primary); background: var(--pizzaos-color-primary-soft); }
+.choice:has(input:disabled) { opacity: .6; cursor: default; }
+.choice:has(input:focus-visible) { outline: 2px solid var(--pizzaos-color-primary); outline-offset: 3px; }
+.choice small { color: var(--pizzaos-color-foreground-muted); }
+.choice small.unavailable { color: var(--pizzaos-color-critical-foreground); }
+.categoryPicker h3 { margin: 4px 0 14px; font-size: 1rem; }
+.categoryCards { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); }
+.categoryCards a {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  border: 1px solid var(--pizzaos-color-border);
+  border-radius: 22px;
+  padding: 18px 20px;
+  min-height: 72px;
+  text-decoration: none;
+  color: var(--pizzaos-color-foreground);
+  background: var(--pizzaos-color-background-accent);
+  font-weight: 750;
+}
+.categoryCards a[aria-current] { color: var(--pizzaos-color-primary-foreground); border-color: var(--pizzaos-color-primary); background: var(--pizzaos-color-primary); }
+.categoryCards small { display: block; margin-top: 4px; font-size: .75rem; font-weight: 400; }
+.menu :is(button, a):focus-visible { outline: 2px solid var(--pizzaos-color-primary); outline-offset: 3px; }
+
 .menuName {
   color: var(--pizzaos-color-foreground);
   font-size: 1.2rem;
@@ -21,7 +127,7 @@
   overflow-x: auto;
   scrollbar-width: thin;
   padding: 12px 2px;
-  background: #fff;
+  background: var(--pizzaos-color-background-accent);
 }
 
 .categoryBar a {
@@ -31,19 +137,19 @@
   min-height: 42px;
   padding: 7px 14px;
   border-radius: 24px;
-  border: 1px solid #eaded3;
+  border: 1px solid var(--pizzaos-color-border);
   font-size: .875rem;
   font-weight: 700;
   color: var(--pizzaos-color-foreground);
-  background: #fffaf5;
+  background: var(--pizzaos-color-surface-muted);
   text-decoration: none;
   white-space: nowrap;
 }
 
 .categoryBar a[aria-current] {
-  background: #a64529;
-  border-color: #a64529;
-  color: #fff;
+  background: var(--pizzaos-color-primary);
+  border-color: var(--pizzaos-color-primary);
+  color: var(--pizzaos-color-primary-foreground);
 }
 
 .category, .items > div {
@@ -62,6 +168,7 @@
 
 .items {
   display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
   gap: 12px;
 }
 
@@ -70,11 +177,17 @@
   align-items: flex-start;
   gap: 14px;
   min-width: 0;
-  background: #fffdf8;
-  border: 1px solid #e9e1d6;
+  height: 100%;
+  box-sizing: border-box;
+  background: var(--pizzaos-color-background-accent);
+  border: 1px solid var(--pizzaos-color-border);
   padding: 14px;
-  border-radius: 17px;
+  border-radius: 22px;
+  box-shadow: 0 4px 16px color-mix(in srgb, var(--pizzaos-brand-navy) 4%, transparent);
 }
+
+.itemUnavailable { background: var(--pizzaos-color-surface-muted); }
+.productVisual { position: relative; align-self: center; flex: 0 0 clamp(70px, 20vw, 112px); }
 
 .itemBody {
   min-width: 0;
@@ -95,10 +208,14 @@
   width: clamp(64px, 19vw, 108px);
   height: auto;
   aspect-ratio: 1;
-  object-fit: cover;
+  object-fit: contain;
   border-radius: 12px;
-  background: #eee5d8;
+  background: var(--pizzaos-color-surface-muted);
 }
+
+.photoOverlay { position: absolute; width: 92%; height: auto; inset: 4% 0 0 4%; object-fit: contain; pointer-events: none; clip-path: circle(48%); }
+.menu .itemActions > button { display: grid; place-items: center; width: 44px; height: 44px; min-height: 44px; padding: 0; border-radius: 14px; font-size: 1.5rem; }
+.menu .itemActions > button.textButton { width: auto; padding: 8px; font-size: .8rem; }
 
 .itemActions, .foodActions {
   display: flex;
@@ -110,15 +227,15 @@
 
 .itemActions > strong {
   margin-right: auto;
-  color: #a64529;
+  color: var(--pizzaos-color-primary);
   white-space: nowrap;
 }
 
 .foodControls {
   padding: 13px 15px;
-  border: 1px solid #e9e1d6;
+  border: 1px solid var(--pizzaos-color-border);
   border-radius: 13px;
-  background: #fffaf5;
+  background: var(--pizzaos-color-surface-muted);
 }
 
 .foodControls summary, .pairings summary {
@@ -148,7 +265,7 @@
   width: 18px;
   height: 18px;
   margin: 0;
-  accent-color: #a64529;
+  accent-color: var(--pizzaos-color-primary);
 }
 
 .food p, .ingredients, .stock, .unavailable, .warning {
@@ -158,7 +275,7 @@
 }
 
 .unavailable, .warning, .food .warning {
-  color: #8e291e;
+  color: var(--pizzaos-color-critical-foreground);
   font-weight: 650;
 }
 
@@ -174,15 +291,15 @@
   overflow: hidden;
   width: min(100% - 24px, 545px);
   max-height: min(86dvh, 780px);
-  border: 1px solid #e9e1d6;
+  border: 1px solid var(--pizzaos-color-border);
   border-radius: 22px;
   color: var(--pizzaos-color-foreground);
-  background: #fffaf5;
-  box-shadow: 0 20px 68px #26140d44;
+  background: var(--pizzaos-color-surface-muted);
+  box-shadow: 0 20px 68px color-mix(in srgb, var(--pizzaos-brand-navy) 27%, transparent);
 }
 
 .dialog::backdrop {
-  background: #21140e99;
+  background: color-mix(in srgb, var(--pizzaos-brand-navy) 60%, transparent);
 }
 
 .dialog form {
@@ -199,11 +316,11 @@
   align-items: center;
   gap: 12px;
   padding: 14px 18px;
-  background: #fff;
+  background: var(--pizzaos-color-background-accent);
 }
 
-.dialogHead { border-bottom: 1px solid #e9e1d6; }
-.dialogFoot { border-top: 1px solid #e9e1d6; }
+.dialogHead { border-bottom: 1px solid var(--pizzaos-color-border); }
+.dialogFoot { border-top: 1px solid var(--pizzaos-color-border); }
 
 .dialogHead h2, .dialogHead p {
   margin: 0;
@@ -238,7 +355,7 @@
 }
 
 .offer {
-  color: #a64529;
+  color: var(--pizzaos-color-primary);
   font-weight: 700;
 }
 
@@ -246,8 +363,8 @@
   display: flex;
   align-items: center;
   gap: 9px;
-  border: 1px solid #eaded3;
-  background: #fff;
+  border: 1px solid var(--pizzaos-color-border);
+  background: var(--pizzaos-color-background-accent);
   border-radius: 11px;
   padding: 9px 10px;
   margin: 6px 0;
@@ -255,8 +372,8 @@
 }
 
 .option:has(input:checked) {
-  border-color: #be6146;
-  background: #fff4ec;
+  border-color: var(--pizzaos-color-primary);
+  background: var(--pizzaos-color-primary-soft);
 }
 
 .optionName {
@@ -279,9 +396,9 @@
 }
 
 .dialog .closeButton, .dialog .stepper button, .menu .textButton, .dialog .textButton {
-  background: #f7f2eb;
-  border-color: #e2d8cc;
-  color: #473d34 !important;
+  background: var(--pizzaos-color-surface-muted);
+  border-color: var(--pizzaos-color-border);
+  color: var(--pizzaos-color-foreground) !important;
 }
 
 .dialog .closeButton, .dialog .stepper button {

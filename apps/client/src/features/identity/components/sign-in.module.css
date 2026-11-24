@@ -1,13 +1,16 @@
 .page { max-width: 500px; margin: 0 auto; padding: 48px 20px; }
-.page a { color: #904126; font-weight: 600; }
-.card { margin-top: 24px; background: #fffdf8; border: 1px solid #e5ded3; padding: 30px; border-radius: 22px; }
-.brand { color: #a64529; font-size: 1rem; font-weight: 800; letter-spacing: -.04em; }
+.page a { color: var(--pizzaos-color-primary); font-weight: 600; }
+.card { margin-top: 24px; background: var(--pizzaos-color-surface-muted); border: 1px solid var(--pizzaos-color-border); padding: 30px; border-radius: 22px; }
+.brand { display: inline-flex; padding: 16px 20px; border-radius: 16px; background: var(--pizzaos-brand-navy); margin-bottom: 12px; max-width: 100%; }
+.brand img { max-width: 100%; }
 .card h1 { font-size: 2rem; letter-spacing: -.04em; }
 .card p { line-height: 1.6; }
 .card label { display: grid; gap: 8px; font-weight: 600; }
-.card input { padding: 13px; border: 1px solid #d9d0c6; background: white; color: #28221f; border-radius: 10px; font: inherit; width: 100%; box-sizing: border-box; }
-.card button { background: #a64529; color: white; border: 0; border-radius: 10px; padding: 14px; width: 100%; font: inherit; font-weight: 650; margin-top: 16px; cursor: pointer; }
+.card input { padding: 13px; border: 1px solid var(--pizzaos-color-border); background: var(--pizzaos-color-background-accent); color: var(--pizzaos-color-foreground); border-radius: 10px; font: inherit; width: 100%; box-sizing: border-box; }
+.card button { background: var(--pizzaos-color-primary); color: var(--pizzaos-color-primary-foreground); border: 0; border-radius: 10px; padding: 14px; width: 100%; font: inherit; font-weight: 650; margin-top: 16px; cursor: pointer; }
 .card button:disabled { opacity: .5; cursor: not-allowed; }
-.card input:focus-visible, .card button:focus-visible { outline: 3px solid #d99058; outline-offset: 3px; }
-.divider { text-align: center; padding: 24px 0; color: #7c7168; font-size: .85rem; }
-.error { background: #fff0ed; padding: 14px; border-radius: 10px; color: #8e291e; }
+.card input:focus-visible, .card button:focus-visible { outline: 3px solid var(--pizzaos-color-focus); outline-offset: 3px; }
+.divider { text-align: center; padding: 24px 0; color: var(--pizzaos-color-foreground-muted); font-size: .85rem; }
+.error { background: var(--pizzaos-color-critical-soft); padding: 14px; border-radius: 10px; color: var(--pizzaos-color-critical-foreground); }
+
+.card button:not(:disabled):hover { background: var(--pizzaos-color-primary-hover); }

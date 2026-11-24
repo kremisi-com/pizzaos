@@ -6,10 +6,10 @@
   padding: 0;
   margin: 0;
   list-style: none;
-  border: 1px solid #d9d3cb;
+  border: 1px solid var(--pizzaos-color-border);
   border-radius: 10px;
   overflow: hidden;
-  background: #fff;
+  background: var(--pizzaos-color-background-accent);
 }
 
 .suggestions li {
@@ -22,19 +22,19 @@
 }
 
 .suggestions li + li {
-  border-top: 1px solid #e7dfd4;
+  border-top: 1px solid var(--pizzaos-color-border);
 }
 
 .suggestions li:hover,
 .suggestions li[aria-selected="true"] {
-  background: #f8e9de;
+  background: var(--pizzaos-color-primary-soft);
 }
 
 .suggestions small,
 .status,
 .credit {
   font-size: .85rem;
-  color: #66564a;
+  color: var(--pizzaos-color-foreground-muted);
 }
 
 .status:not(:empty),

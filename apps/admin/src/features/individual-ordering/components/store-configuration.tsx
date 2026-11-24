@@ -64,6 +64,22 @@ export function StoreConfiguration({ store, isNew, section, busy, orderingDomain
           <label>Scorta {ingredient.name || index + 1}<input type="number" min="0" step="1" placeholder="Da verificare" value={ingredient.stock ?? ""} onChange={event => update("ingredients", draft.ingredients.map((item, i) => i === index ? { ...item, stock: event.target.value === "" ? null : Number(event.target.value) } : item))} /></label>
           <button className={styles.secondary} type="button" onClick={() => update("ingredients", draft.ingredients.filter((_, i) => i !== index))}>Rimuovi ingrediente</button>
         </div>
+        <label className={styles.check}><input type="checkbox" aria-label={`Possibile extra ${ingredient.name || index + 1}`} checked={ingredient.extra?.enabled ?? false}
+          onChange={event => update("ingredients", draft.ingredients.map(item => item.id === ingredient.id ? {
+            ...item, extra: { enabled: event.target.checked, priceCents: item.extra?.priceCents ?? null, dose: item.extra?.dose ?? null }
+          } : item))} />Possibile extra</label>
+        {ingredient.extra?.enabled && <div className={styles.formGrid}>
+          <label>Prezzo extra {ingredient.name || index + 1} in euro<input type="number" min="0" step="0.01" placeholder="Da verificare"
+            value={ingredient.extra.priceCents === null ? "" : ingredient.extra.priceCents / 100}
+            onChange={event => update("ingredients", draft.ingredients.map(item => item.id === ingredient.id ? { ...item,
+              extra: { enabled: true, dose: item.extra?.dose ?? null, priceCents: event.target.value === "" ? null : Math.round(Number(event.target.value) * 100) }
+            } : item))} /></label>
+          <label>Dose per aggiunta {ingredient.name || index + 1}<input type="number" min="1" step="1" placeholder="Da verificare"
+            value={ingredient.extra.dose ?? ""} onChange={event => update("ingredients", draft.ingredients.map(item => item.id === ingredient.id ? { ...item,
+              extra: { enabled: true, priceCents: item.extra?.priceCents ?? null, dose: event.target.value === "" ? null : Number(event.target.value) }
+            } : item))} /></label>
+          <p>La dose usa le unità delle ricette. Prezzi e scelte cambiano nel menu cliente dopo la pubblicazione.</p>
+        </div>}
         <MenuFoodFields food={ingredient.food} onChange={food => update("ingredients", draft.ingredients.map(item =>
           item.id === ingredient.id ? { ...item, food } : item))} />
       </div>)}<button className={styles.secondary} type="button" onClick={() => update("ingredients", [...draft.ingredients, { id: crypto.randomUUID(), name: "", stock: 0 }])}>Aggiungi ingrediente</button>

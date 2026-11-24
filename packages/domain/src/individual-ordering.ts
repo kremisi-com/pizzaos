@@ -6,7 +6,11 @@ import type { PromotionBreakdown, PromotionSelection } from "./promotions-loyalt
 /** Durable pilot contracts. EUR amounts are integer cents, dates are UTC ISO strings. */
 export interface IndividualActor { id: string; email: string; name: string; }
 /** null means the stock has not been verified; it cannot fulfil an order. */
-export interface IndividualIngredient { id: string; name: string; stock: number | null; food?: MenuFoodInformation; }
+export interface IndividualIngredient {
+  id: string; name: string; stock: number | null; food?: MenuFoodInformation;
+  /** Commercial configuration is copied to a draft and becomes public only on publication. */
+  extra?: { enabled: boolean; priceCents: number | null; dose: number | null };
+}
 export interface IndividualOption {
   id: string; name: string; priceCents: number; ingredients: Record<string, number | null>;
   description?: string; food?: MenuFoodInformation; removesIngredientIds?: string[];

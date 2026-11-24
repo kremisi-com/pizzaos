@@ -79,7 +79,161 @@ function draft(): MenuDraft {
   };
 }
 
+function inventoryDraft(): MenuDraft {
+  const candidate = draft();
+  const source = candidate.pizzaCatalog!;
+  source.inventoryExtras = true;
+  source.defaults = { doughId: "classico", baseId: "rossa", formatId: "tonda" };
+  source.tastes = [];
+  source.toppings = [];
+  source.formulas = [{ id: "libera", name: "Pizza a modo mio", description: "", priceCents: 900, available: true,
+    standardDoughId: "classico", standardBaseId: "rossa", standardFormatId: "tonda", doughIds: ["classico", "integrale"],
+    baseIds: ["rossa"], formatIds: ["tonda"], toppingIds: [], extraOffer: { quota: 2, percent: 40 } }];
+  candidate.sections[0].productIds = ["libera"];
+  return candidate;
+}
+
 describe("catalogo pizza autorevole via HTTP", () => {
+  it("pubblica con custom disabilitato mantenendo formule sorgenti riattivabili", async () => {
+    const f = fixture();
+    const candidate = draft();
+    candidate.pizzaCatalog!.formulas = inventoryDraft().pizzaCatalog!.formulas;
+    candidate.pizzaCatalog!.customEnabled = false;
+    candidate.sections[0].productIds.push("libera");
+    candidate.products.push({ id: "acqua", name: "Acqua", description: "", priceCents: 200, available: true,
+      allergens: [], ingredients: {}, options: [], pairingProductIds: ["libera"] });
+    candidate.sections[0].productIds.push("acqua");
+    const saved = await f.save(candidate);
+    expect(saved.statusCode, saved.body).toBe(200);
+    const workspaceDraft = saved.json<MenuWorkspace>().drafts.find(({ id }) => id === candidate.id)!;
+    expect(workspaceDraft.pizzaCatalog?.formulas).toHaveLength(1);
+    expect(workspaceDraft.sections[0].productIds).toContain("libera");
+    const published = await f.publish(candidate.id);
+    expect(published.statusCode, published.body).toBe(200);
+    const publicStore = (await f.request("GET", "/v1/pilot/stores/roma", undefined, "customer")).json<IndividualStore>();
+    expect(publicStore.products.map(({ id }) => id)).toEqual(["acqua", "margherita"]);
+    expect(publicStore.products.find(({ id }) => id === "acqua")?.pairingProductIds).toEqual(["libera"]);
+    const operatorMenu = (await f.workspace()).published;
+    expect(operatorMenu?.pizzaCatalog?.formulas).toHaveLength(1);
+  });
+
+  it.each([
+    { quota: -1, percent: 40 }, { quota: 101, percent: 40 },
+    { quota: 2, percent: -1 }, { quota: 2, percent: 101 },
+  ])("rifiuta regole commerciali fuori limite $quota/$percent atomicamente", async extraOffer => {
+    const f = fixture();
+    const before = await f.workspace();
+    const candidate = inventoryDraft();
+    candidate.pizzaCatalog!.formulas[0].extraOffer = extraOffer;
+    const response = await f.save(candidate);
+    expect(response.statusCode, response.body).toBe(400);
+    expect(response.json()).toMatchObject({ code: "invalid_input" });
+    expect(await f.workspace()).toEqual(before);
+  });
+
+  it.each([
+    { enabled: true, priceCents: -1, dose: 1 },
+    { enabled: true, priceCents: 100.5, dose: 1 },
+    { enabled: true, priceCents: 100, dose: 0 },
+    { enabled: true, priceCents: 100, dose: 1.5 },
+  ])("rifiuta prezzo/dose extra non validi $priceCents/$dose senza modificare il Magazzino", async extra => {
+    const f = fixture();
+    const before = (await f.request("GET", "/v1/pilot/stores/roma")).json<IndividualStore>();
+    const candidate = structuredClone(before);
+    candidate.ingredients[0].extra = extra;
+    const response = await f.request("PUT", "/v1/pilot/stores/roma", { ...candidate });
+    expect(response.statusCode, response.body).toBe(400);
+    expect(response.json()).toMatchObject({ code: "invalid_input" });
+    expect((await f.request("GET", "/v1/pilot/stores/roma")).json<IndividualStore>()).toEqual(before);
+  });
+
+  it("salva lo snapshot degli extra dal Magazzino e quota la formula libera a 1300 centesimi", async () => {
+    const f = fixture();
+    const store = (await f.request("GET", "/v1/pilot/stores/roma")).json<IndividualStore>();
+    store.ingredients.push(...[300, 200, 100].map((priceCents, index) => ({ id: `libero-${index}`, name: `Extra ${index}`, stock: 30,
+      extra: { enabled: true, priceCents, dose: 2 }, food: { contains: [], mayContain: [] } })));
+    const configured = await f.request("PUT", "/v1/pilot/stores/roma", { ...store });
+    expect(configured.statusCode, configured.body).toBe(200);
+    const saved = await f.save(inventoryDraft());
+    expect(saved.statusCode, saved.body).toBe(200);
+    const savedDraft = saved.json<MenuWorkspace>().drafts.find(({ id }) => id === "pizza")!;
+    expect(savedDraft.pizzaCatalog?.inventorySignature).toEqual(expect.any(String));
+    expect(savedDraft.pizzaCatalog!.toppings.filter(({ inventoryIngredientId }) => inventoryIngredientId)).toHaveLength(3);
+    expect((await f.publish("pizza")).statusCode).toBe(200);
+    const customerStore = (await f.request("GET", "/v1/pilot/stores/roma", undefined, "customer")).json<IndividualStore>();
+    expect(customerStore.menu?.pizzaCatalog).toBeUndefined();
+    const product = customerStore.products.find(({ id }) => id === "libera")!;
+    const options = product.options.filter(({ pizza }) => pizza?.kind === "topping");
+    expect(options).toHaveLength(3);
+    const quote = await f.quote(product, [...product.pizza!.defaultSelections, ...options.map(({ id }) => ({ optionId: id, quantity: 1 }))]);
+    expect(quote.statusCode, quote.body).toBe(200);
+    expect(quote.json<IndividualQuote>().totalCents).toBe(1300);
+    const serialized = JSON.stringify(customerStore);
+    expect(serialized).not.toContain("inventoryIngredientId");
+    expect(serialized).not.toContain('"extra":{"enabled"');
+  });
+
+  it("mantiene prezzo e dose pubblicati, blocca la bozza obsoleta e richiede nuovo salvataggio", async () => {
+    const f = fixture();
+    const store = (await f.request("GET", "/v1/pilot/stores/roma")).json<IndividualStore>();
+    store.ingredients.find(({ id }) => id === "latte")!.extra = { enabled: true, priceCents: 300, dose: 2 };
+    expect((await f.request("PUT", "/v1/pilot/stores/roma", { ...store })).statusCode).toBe(200);
+    const saved = await f.save(inventoryDraft());
+    expect(saved.statusCode, saved.body).toBe(200);
+    const candidate = saved.json<MenuWorkspace>().drafts.find(({ id }) => id === "pizza")!;
+    expect((await f.publish(candidate.id)).statusCode).toBe(200);
+    const before = (await f.workspace()).published;
+    const active = (await f.request("GET", "/v1/pilot/stores/roma", undefined, "customer")).json<IndividualStore>().products[0];
+    const topping = active.options.find(({ pizza }) => pizza?.kind === "topping")!;
+    const choices = [...active.pizza!.defaultSelections, { optionId: topping.id, quantity: 1 }];
+    expect((await f.quote(active, choices)).json<IndividualQuote>().totalCents).toBe(1080);
+    candidate.id = "prossima";
+    expect((await f.save(candidate)).statusCode).toBe(200);
+
+    const changed = (await f.request("GET", "/v1/pilot/stores/roma")).json<IndividualStore>();
+    changed.ingredients.find(({ id }) => id === "latte")!.extra = { enabled: true, priceCents: 500, dose: 4 };
+    expect((await f.request("PUT", "/v1/pilot/stores/roma", { ...changed })).statusCode).toBe(200);
+    expect((await f.quote(active, choices)).json<IndividualQuote>().totalCents).toBe(1080);
+    const blocked = await f.publish(candidate.id);
+    expect(blocked.statusCode, blocked.body).toBe(400);
+    expect(blocked.json()).toMatchObject({ code: "invalid_input" });
+    expect((await f.workspace()).published).toEqual(before);
+
+    const updated = await f.save(candidate);
+    expect(updated.statusCode, updated.body).toBe(200);
+    const refreshed = updated.json<MenuWorkspace>().drafts.find(({ id }) => id === candidate.id)!;
+    expect(refreshed.pizzaCatalog!.inventorySignature).not.toBe(candidate.pizzaCatalog!.inventorySignature);
+    expect(refreshed.pizzaCatalog!.toppings.find(({ inventoryIngredientId }) => inventoryIngredientId === "latte")).toMatchObject({ priceCents: 500, ingredients: { latte: 4 } });
+    expect((await f.publish(candidate.id)).statusCode).toBe(200);
+    expect((await f.quote(active, choices)).json<IndividualQuote>().totalCents).toBe(1200);
+    refreshed.id = "solo-scorte";
+    const stockDraft = await f.save(refreshed);
+    expect(stockDraft.statusCode, stockDraft.body).toBe(200);
+
+    const stockChanged = (await f.request("GET", "/v1/pilot/stores/roma")).json<IndividualStore>();
+    stockChanged.ingredients.find(({ id }) => id === "latte")!.stock = 3;
+    expect((await f.request("PUT", "/v1/pilot/stores/roma", { ...stockChanged })).statusCode).toBe(200);
+    expect((await f.publish(refreshed.id)).statusCode).toBe(200);
+    const unavailable = await f.quote(active, choices);
+    expect(unavailable.statusCode, unavailable.body).toBe(409);
+    expect(unavailable.json()).toMatchObject({ code: "inventory_changed" });
+  });
+
+  it.each(["dose", "stock"])("blocca la pubblicazione con %s ignoto di un extra abilitato", async missing => {
+    const f = fixture();
+    const store = (await f.request("GET", "/v1/pilot/stores/roma")).json<IndividualStore>();
+    const ingredient = store.ingredients.find(({ id }) => id === "latte")!;
+    ingredient.extra = { enabled: true, priceCents: 200, dose: missing === "dose" ? null : 2 };
+    if (missing === "stock") ingredient.stock = null;
+    expect((await f.request("PUT", "/v1/pilot/stores/roma", { ...store })).statusCode).toBe(200);
+    const before = (await f.workspace()).published;
+    const saved = await f.save(inventoryDraft());
+    expect(saved.statusCode, saved.body).toBe(200);
+    const blocked = await f.publish("pizza");
+    expect(blocked.statusCode, blocked.body).toBe(400);
+    expect((await f.workspace()).published).toEqual(before);
+  });
+
   it("permette di ordinare un gusto con topping disattivato soltanto dopo averlo rimosso", async () => {
     const f = fixture();
     const candidate = draft();

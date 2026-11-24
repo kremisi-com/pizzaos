@@ -251,10 +251,10 @@ export function IndividualOperationsShell({ riderHref, orderingDomain }: { rider
       <Button type="button" variant="secondary" onClick={() => void load()} disabled={busy || loading}>Ricarica sedi</Button>
       <div className={styles.operationalSignOut}><SignOutButton allowDemo={false} /></div>
     </>}>
-    <header className={styles.operationalHeading}>
+    {tab !== "catalog" && <header className={styles.operationalHeading}>
       <h1>{titles[tab]}</h1>
       {tab === "orders" && <p>Gestione ordini · {connection}</p>}
-    </header>
+    </header>}
     {loadError && <Button type="button" variant="secondary" onClick={() => void load()} disabled={loading}>Riprova caricamento</Button>}
     {loading && <p role="status">Caricamento dell’area operativa…</p>}
     {!loading && !session?.actor && !loadError && <p><a href="/accesso">Accedi all’area ristorante</a></p>}
@@ -270,7 +270,7 @@ export function IndividualOperationsShell({ riderHref, orderingDomain }: { rider
       {tab === "profile" && session.superadmin && !creating &&
         <Button type="button" variant="secondary" disabled={busy} onClick={() => { setCreating(true); setError(""); setNotice(""); }}>Nuova sede</Button>}
       {tab === "catalog" && store && <OperationalCatalog key={storeId} api={api} storeId={storeId}
-        ingredients={store.ingredients} onPublished={refresh} />}
+        ingredients={store.ingredients} onPublished={refresh} onInventory={() => navigate("inventory")} />}
       {tab !== "catalog" && (creating || store) && <StoreConfiguration key={creating ? "new" : `${storeId}:${tab}:${configurationVersion}`}
         store={creating ? emptyStore : store ?? emptyStore} isNew={creating} section={tab} busy={busy}
         orderingDomain={orderingDomain} canPublish={session.superadmin}

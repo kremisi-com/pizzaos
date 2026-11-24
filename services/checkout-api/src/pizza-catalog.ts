@@ -1,4 +1,4 @@
-import { materializePizzaMenu, PIZZA_EXTRA_OFFERS, type MenuDraft, type PizzaCatalog } from "@pizzaos/domain";
+import { materializePizzaMenu, syncPizzaInventory, PIZZA_EXTRA_OFFERS, type IndividualIngredient, type MenuDraft, type PizzaCatalog } from "@pizzaos/domain";
 import { isMenuRecord, validateMenuFood } from "./menu-catalog";
 
 type Invalid = (message: string) => never;
@@ -12,12 +12,22 @@ const only = (value: Record<string, unknown>, fields: string[]) => Object.keys(v
 /** Validate the source catalog before compiling any browser-supplied projections. */
 export function validatePizzaCatalog(value: unknown, ingredientIds: Set<string>, invalid: Invalid, publishing = false, stocks?: Map<string, number | null>): asserts value is PizzaCatalog {
   const collections = ["doughs", "bases", "formats", "toppings", "tastes", "formulas"];
-  if (!isMenuRecord(value) || !only(value, collections) || collections.some(key => !Array.isArray(value[key]) || value[key].length > 100)) invalid("Catalogo pizza non valido.");
+  if (!isMenuRecord(value) || !only(value, [...collections, "defaults", "customEnabled", "inventoryExtras", "inventorySignature"]) || collections.some(key => !Array.isArray(value[key]) || value[key].length > 100)) invalid("Catalogo pizza non valido.");
   const catalog = value as unknown as PizzaCatalog;
+  if ((catalog.customEnabled !== undefined && typeof catalog.customEnabled !== "boolean") ||
+    (catalog.inventoryExtras !== undefined && typeof catalog.inventoryExtras !== "boolean") ||
+    (catalog.inventorySignature !== undefined && (typeof catalog.inventorySignature !== "string" || catalog.inventorySignature.length > 200000))) invalid("Configurazione pizza non valida.");
+  if (catalog.defaults !== undefined) {
+    if (!isMenuRecord(catalog.defaults) || !only(catalog.defaults, ["doughId", "baseId", "formatId"])) invalid("Scelte standard del menu non valide.");
+    for (const [key, items] of [["doughId", catalog.doughs], ["baseId", catalog.bases], ["formatId", catalog.formats]] as const) {
+      const id = catalog.defaults[key];
+      if (typeof id !== "string" || (id !== "" && !items.some(item => isMenuRecord(item) && item.id === id)) || (publishing && !id)) invalid("Verifica impasto, base e formato standard del menu.");
+    }
+  }
   for (const collection of [catalog.doughs, catalog.bases, catalog.formats, catalog.toppings]) {
     const seen = new Set<string>();
     for (const item of collection) {
-      if (!isMenuRecord(item) || !only(item, ["id", "name", "description", "priceCents", "available", "ingredients", "food", "imagePath", "category"]) ||
+      if (!isMenuRecord(item) || !only(item, ["id", "name", "description", "priceCents", "available", "ingredients", "food", "imagePath", "category", "inventoryIngredientId"]) ||
         !safeId(item.id) || seen.has(item.id) || !label(item.name) || typeof item.description !== "string" || item.description.length > 2000 ||
         !cents(item.priceCents) || typeof item.available !== "boolean" || !isMenuRecord(item.ingredients)) invalid("Controlla nome, prezzo e ricetta dei componenti pizza.");
       seen.add(item.id);
@@ -30,10 +40,14 @@ export function validatePizzaCatalog(value: unknown, ingredientIds: Set<string>,
       }
     }
   }
-  for (const topping of catalog.toppings) if (!label(topping.category)) invalid("Indica una categoria per ogni topping.");
+  for (const topping of catalog.toppings) {
+    if (!label(topping.category)) invalid("Indica una categoria per ogni topping.");
+    if (topping.inventoryIngredientId !== undefined && (!ingredientIds.has(topping.inventoryIngredientId)
+      || topping.id !== `inventory:${topping.inventoryIngredientId}`)) invalid("Riferimento extra al Magazzino non valido.");
+  }
   const ids = new Set<string>();
   for (const entry of [...catalog.tastes, ...catalog.formulas]) {
-    if (!isMenuRecord(entry) || !only(entry, ["id", "name", "description", "priceCents", "available", "standardDoughId", "standardBaseId", "standardFormatId", "doughIds", "baseIds", "formatIds", "toppingIds", "imageId", "pairingProductIds", "includedToppingIds", "offer", "previewImages", "toppingImagePath"]) ||
+    if (!isMenuRecord(entry) || !only(entry, ["id", "name", "description", "priceCents", "available", "standardDoughId", "standardBaseId", "standardFormatId", "doughIds", "baseIds", "formatIds", "toppingIds", "imageId", "pairingProductIds", "includedToppingIds", "offer", "extraOffer", "previewImages", "toppingImagePath"]) ||
       !safeId(entry.id) || ids.has(entry.id) || !label(entry.name) || typeof entry.description !== "string" || entry.description.length > 2000 || !cents(entry.priceCents) || typeof entry.available !== "boolean") invalid("Gusto o formula pizza non validi.");
     ids.add(entry.id);
     for (const [items, allowed, standard] of [[catalog.doughs, entry.doughIds, entry.standardDoughId], [catalog.bases, entry.baseIds, entry.standardBaseId], [catalog.formats, entry.formatIds, entry.standardFormatId]] as const) {
@@ -56,15 +70,20 @@ export function validatePizzaCatalog(value: unknown, ingredientIds: Set<string>,
     if (entry.pairingProductIds !== undefined && !strings(entry.pairingProductIds)) invalid("Abbinamenti pizza non validi.");
   }
   for (const taste of catalog.tastes) {
-    if ("offer" in taste || !strings(taste.includedToppingIds) || taste.includedToppingIds.some(id => !catalog.toppings.some(topping => topping.id === id))) invalid("Ingredienti inclusi nel gusto non validi.");
+    if ("offer" in taste || "extraOffer" in taste || !strings(taste.includedToppingIds) || taste.includedToppingIds.some(id => !catalog.toppings.some(topping => topping.id === id))) invalid("Ingredienti inclusi nel gusto non validi.");
   }
   for (const formula of catalog.formulas) {
-    if ("includedToppingIds" in formula || typeof formula.offer !== "string" || !Object.hasOwn(PIZZA_EXTRA_OFFERS, formula.offer)) invalid("Seleziona Simple, Wild o Savage per la formula.");
+    if ("includedToppingIds" in formula || (formula.offer !== undefined && (typeof formula.offer !== "string" || !Object.hasOwn(PIZZA_EXTRA_OFFERS, formula.offer)))) invalid("Regola precedente della formula non valida.");
+    const offer = formula.extraOffer;
+    if (offer !== undefined && (!isMenuRecord(offer) || !only(offer, ["quota", "percent"]) ||
+      !Number.isSafeInteger(offer.quota) || offer.quota < 0 || offer.quota > 100 ||
+      !Number.isSafeInteger(offer.percent) || offer.percent < 0 || offer.percent > 100)) invalid("Controlla numero di extra e percentuale di sconto.");
+    if (formula.offer === undefined && offer === undefined) invalid("Configura lo sconto extra della combinazione.");
   }
 }
 
 /** The source entities, rather than a supplied product price/recipe, own generated pizzas. */
-export function preparePizzaMenu(draft: MenuDraft, ingredientIds: Set<string>, invalid: Invalid, publishing = false, stocks?: Map<string, number | null>): MenuDraft {
+export function preparePizzaMenu(draft: MenuDraft, ingredientIds: Set<string>, invalid: Invalid, publishing = false, stocks?: Map<string, number | null>, inventory?: readonly IndividualIngredient[]): MenuDraft {
   if (draft.products.some(product => !isMenuRecord(product))) invalid("Prodotto del menu non valido.");
   if (draft.pizzaCatalog === undefined) {
     if (draft.products.some(product => product.pizza !== undefined || product.pizzaRecipeSources !== undefined ||
@@ -78,6 +97,17 @@ export function preparePizzaMenu(draft: MenuDraft, ingredientIds: Set<string>, i
       (Array.isArray(product.options) && product.options.some(option => isMenuRecord(option) && option.pizza !== undefined)))) {
       invalid("I metadati pizza devono appartenere a un gusto o a una formula del catalogo.");
     }
+  }
+  if (inventory && draft.pizzaCatalog.inventoryExtras) {
+    const refreshed = syncPizzaInventory(draft, inventory);
+    if (publishing && refreshed.pizzaCatalog?.inventorySignature !== draft.pizzaCatalog.inventorySignature) {
+      invalid("Gli extra del Magazzino sono cambiati. Ricarica gli ingredienti, controlla e salva la bozza prima di pubblicare.");
+    }
+    if (publishing) for (const item of inventory.filter(item => item.extra?.enabled)) {
+      if (item.extra?.priceCents == null || item.extra.dose == null) invalid(`«${item.name}»: verifica prezzo e dose extra nel Magazzino prima di pubblicare.`);
+    }
+    draft = refreshed;
+    validatePizzaCatalog(draft.pizzaCatalog, ingredientIds, invalid, publishing, stocks);
   }
   return materializePizzaMenu(draft);
 }

@@ -2,7 +2,7 @@
 
 import type { OperationalEmailApi, OperationalEmailDelivery, OperationalEmailOverview } from "@pizzaos/domain";
 import { useEffect, useRef, useState } from "react";
-import { useAdminToast } from "../../composition/admin-toast";
+import { useAdminToast } from "../notifications";
 import styles from "./operational-emails.module.css";
 
 const statusLabels: Record<OperationalEmailDelivery["status"], string> = {

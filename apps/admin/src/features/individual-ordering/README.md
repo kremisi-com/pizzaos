@@ -4,7 +4,7 @@ Questa feature espone il modulo di configurazione persistente della sede per Mag
 
 In Profilo l'operatore cerca l'indirizzo con `StoreAddressApi`, conferma una corrispondenza e salva. Il servizio checkout cerca su Geoapify e registra le coordinate della corrispondenza. Il campo mostra i crediti Geoapify e OpenStreetMap. Le sedi precedenti possono salvare le altre impostazioni conservando le coordinate già registrate.
 
-In Magazzino il gestore registra le scorte e dichiara, per ogni ingrediente, gli allergeni presenti e quelli che potrebbero esserlo.
+In Magazzino il gestore registra le scorte e dichiara, per ogni ingrediente, gli allergeni presenti e quelli che potrebbero esserlo. La spunta **Possibile extra** abilita prezzo di vendita in euro e dose per aggiunta nelle unità delle ricette. Prezzo e dose vuoti restano **Da verificare**; non sono valori zero impliciti. Le bozze Pizza custom collegate al Magazzino propongono solo ingredienti abilitati e acquisiscono questi dati al salvataggio. Il menu attivo conserva prezzi e dosi pubblicati fino alla successiva pubblicazione; le scorte correnti continuano a governare le riserve. [Pubblicazione e conflitti](../../../../../.agents/product-definition/flows/menu-ordering.md#gusti-e-formule-di-composizione).
 
 Il Profilo mostra anche la settimana tipo, le capacità per fascia e le date protette. Il servizio genera le disponibilità del checkout nel fuso della sede. Le modifiche del calendario vengono salvate con la configurazione della sede.
 

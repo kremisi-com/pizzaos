@@ -7,7 +7,7 @@
 
 .header {
   padding: 1.5rem 2rem;
-  background: #ffffff;
+  background: var(--pizzaos-color-background-accent);
   border: 1px solid var(--pizzaos-color-border);
   border-radius: var(--pizzaos-radius-card) var(--pizzaos-radius-card) 0 0;
 }
@@ -32,7 +32,7 @@
 
 .sidebar {
   width: 260px;
-  background: #fffaf8;
+  background: var(--pizzaos-color-background-accent);
   border: 1px solid var(--pizzaos-color-border);
   border-top: 0;
   padding: 1.5rem;
@@ -56,7 +56,7 @@
 }
 
 .menuItem {
-  background: #ffffff;
+  background: var(--pizzaos-color-background-accent);
   border: 1px solid var(--pizzaos-color-border);
   padding: 0.75rem 1rem;
   border-radius: 8px;
@@ -91,7 +91,7 @@
   flex: 1;
   padding: 2rem;
   overflow-y: auto;
-  background: #ffffff;
+  background: var(--pizzaos-color-background-accent);
   border: 1px solid var(--pizzaos-color-border);
   border-top: 0;
   border-left: 0;
@@ -167,7 +167,7 @@
 
 .tag {
   font-size: 0.6875rem;
-  background: #fff2ef;
+  background: var(--pizzaos-color-primary-soft);
   padding: 0.25rem 0.5rem;
   border-radius: 999px;
   color: var(--pizzaos-color-primary);
@@ -186,7 +186,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: color-mix(in srgb, var(--pizzaos-brand-navy) 50%, transparent);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -194,11 +194,11 @@
 }
 
 .modal {
-  background: #ffffff;
+  background: var(--pizzaos-color-background-accent);
   width: 500px;
   max-width: 90vw;
   border-radius: 12px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 10px 25px color-mix(in srgb, var(--pizzaos-brand-navy) 20%, transparent);
   overflow: hidden;
 }
 
@@ -258,7 +258,7 @@
   text-align: center;
   color: var(--pizzaos-color-foreground-muted);
   font-size: 0.875rem;
-  background: #fffaf8;
+  background: var(--pizzaos-color-background-accent);
   cursor: pointer;
 }
 

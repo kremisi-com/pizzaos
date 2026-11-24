@@ -17,18 +17,18 @@
   padding: 14px 16px;
   border: 1px solid transparent;
   border-radius: 12px;
-  background: #fff;
+  background: var(--pizzaos-color-background-accent);
   box-shadow: 0 12px 36px rgb(20 23 29 / 18%);
-  color: #24262b;
+  color: var(--pizzaos-color-foreground);
   font-size: 14px;
   line-height: 1.45;
   pointer-events: auto;
   animation: enter 180ms ease-out;
 }
 
-.error { border-color: #f1c1ba; background: #fff5f3; color: #8c2d24; }
-.success { border-color: #b9dfc5; background: #f2fff5; color: #21663b; }
-.info { border-color: #c6d9f4; background: #f3f8ff; color: #244d7d; }
+.error { border-color: var(--pizzaos-color-critical); background: var(--pizzaos-color-critical-soft); color: var(--pizzaos-color-critical-foreground); }
+.success { border-color: var(--pizzaos-color-border); background: var(--pizzaos-color-success-soft); color: var(--pizzaos-color-success-foreground); }
+.info { border-color: var(--pizzaos-color-border); background: var(--pizzaos-color-info-soft); color: var(--pizzaos-color-info-foreground); }
 .dismiss { flex: 0 0 auto; border: 0; background: transparent; color: currentColor; cursor: pointer; font: inherit; font-size: 20px; line-height: 1; }
 
 @keyframes enter { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }

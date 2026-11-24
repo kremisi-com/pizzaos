@@ -18,7 +18,7 @@
   font-size: 0.72rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: #6b7280;
+  color: var(--pizzaos-color-foreground-muted);
   font-weight: 700;
 }
 
@@ -26,7 +26,7 @@
   margin: 0;
   font-size: 1.15rem;
   font-weight: 700;
-  color: #0f172a;
+  color: var(--pizzaos-color-info-foreground);
 }
 
 .planBadge {
@@ -34,8 +34,8 @@
   align-items: center;
   width: fit-content;
   border-radius: 999px;
-  background: #fff3df;
-  color: #9a3412;
+  background: var(--pizzaos-color-warning-soft);
+  color: var(--pizzaos-color-primary);
   padding: 4px 10px;
   font-size: 0.72rem;
   font-weight: 700;
@@ -51,7 +51,7 @@
 
 .metaText {
   margin: 0;
-  color: #334155;
+  color: var(--pizzaos-color-info-foreground);
   line-height: 1.45;
 }
 
@@ -59,7 +59,7 @@
   display: flex;
   justify-content: space-between;
   gap: 16px;
-  border-bottom: 1px solid #e2e8f0;
+  border-bottom: 1px solid var(--pizzaos-color-border);
   padding: 8px 0;
 }
 
@@ -68,10 +68,10 @@
 }
 
 .statusLabel {
-  color: #475569;
+  color: var(--pizzaos-color-info-foreground);
 }
 
 .statusValue {
   font-weight: 700;
-  color: #0f172a;
+  color: var(--pizzaos-color-info-foreground);
 }

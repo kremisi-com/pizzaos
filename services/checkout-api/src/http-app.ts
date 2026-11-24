@@ -64,7 +64,12 @@ const store = { type: "object", additionalProperties: false, required: ["id", "n
   timeZone: { type: "string", minLength: 1, maxLength: 100 },
   id: text, name: text, contactEmail: { anyOf: [{ type: "string", format: "email", maxLength: 254 }, { const: "" }] }, contactPhone: { type: "string", maxLength: 100 }, latitude: { type: "number", minimum: -90, maximum: 90 }, longitude: { type: "number", minimum: -180, maximum: 180 }, acceptingOrders: { type: "boolean" },
   deliveryBands: { type: "array", maxItems: 100, items: { type: "object", additionalProperties: false, required: ["upToKm", "feeCents", "minimumCents"], properties: { upToKm: { type: "number", minimum: 0, maximum: 1000 }, feeCents: cents, minimumCents: cents } } },
-  ingredients: { type: "array", maxItems: 1000, items: { type: "object", additionalProperties: false, required: ["id", "name", "stock"], properties: { id: text, name: text, stock: { type: ["integer", "null"], minimum: 0, maximum: 100000000 }, food } } },
+  ingredients: { type: "array", maxItems: 1000, items: { type: "object", additionalProperties: false, required: ["id", "name", "stock"], properties: { id: text, name: text, stock: { type: ["integer", "null"], minimum: 0, maximum: 100000000 }, food,
+    extra: { type: "object", additionalProperties: false, required: ["enabled", "priceCents", "dose"], properties: {
+      enabled: { type: "boolean" }, priceCents: { type: ["integer", "null"], minimum: 0, maximum: 100000000 },
+      dose: { type: ["integer", "null"], minimum: 1, maximum: 100000000 }
+    } }
+  } } },
   products: { type: "array", maxItems: 1000, items: { type: "object", additionalProperties: false, required: ["id", "name", "description", "priceCents", "available", "allergens", "ingredients", "options"], properties: {
     id: text, name: text, description: notes, priceCents: cents, available: { type: "boolean" }, ingredients: recipe,
     allergens: { type: "array", maxItems: 50, items: text },

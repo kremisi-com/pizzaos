@@ -8,8 +8,8 @@
   width: 100%;
   background: var(--pizzaos-color-background);
   background-image:
-    radial-gradient(circle at top right, rgba(209, 73, 46, 0.06), transparent 40%),
-    radial-gradient(circle at bottom left, rgba(238, 248, 255, 0.5), transparent 50%);
+    radial-gradient(circle at top right, rgba(var(--pizzaos-color-primary-rgb), 0.06), transparent 40%),
+    radial-gradient(circle at bottom left, color-mix(in srgb, var(--pizzaos-brand-sand) 50%, transparent), transparent 50%);
   overflow-x: hidden;
 }
 
@@ -38,14 +38,14 @@
   font-size: 0.9rem;
   padding: 6px 12px 6px 8px;
   border-radius: 12px;
-  background: rgba(255, 255, 255, 0.6);
-  border: 1px solid rgba(0, 0, 0, 0.06);
+  background: color-mix(in srgb, var(--pizzaos-color-background-accent) 60%, transparent);
+  border: 1px solid color-mix(in srgb, var(--pizzaos-brand-navy) 6%, transparent);
   transition: background 0.2s ease;
 }
 
 .backLink:hover
 {
-  background: rgba(255, 255, 255, 0.9);
+  background: color-mix(in srgb, var(--pizzaos-color-background-accent) 90%, transparent);
 }
 
 .heroTitle
@@ -100,8 +100,8 @@
 {
   padding: 14px 16px;
   border-radius: 14px;
-  border: 1.5px solid rgba(31, 37, 48, 0.1);
-  background: rgba(255, 255, 255, 0.9);
+  border: 1.5px solid color-mix(in srgb, var(--pizzaos-brand-navy) 10%, transparent);
+  background: color-mix(in srgb, var(--pizzaos-color-background-accent) 90%, transparent);
   transition: border-color 0.18s ease, background 0.18s ease;
   animation: fadeInUp 0.3s ease both;
 }
@@ -153,8 +153,8 @@
 {
   padding: 16px;
   border-radius: 14px;
-  border: 1.5px solid rgba(31, 37, 48, 0.1);
-  background: rgba(255, 255, 255, 0.9);
+  border: 1.5px solid color-mix(in srgb, var(--pizzaos-brand-navy) 10%, transparent);
+  background: color-mix(in srgb, var(--pizzaos-color-background-accent) 90%, transparent);
   transition: border-color 0.18s ease, background 0.18s ease;
   animation: fadeInUp 0.3s ease both;
 }
@@ -199,7 +199,7 @@
   height: 56px;
   padding: 0 24px;
   background: var(--pizzaos-color-primary);
-  color: white;
+  color: var(--pizzaos-color-primary-foreground);
   border: none;
   border-radius: 16px;
   text-decoration: none;
@@ -208,7 +208,7 @@
   font-weight: 800;
   letter-spacing: -0.01em;
   cursor: pointer;
-  box-shadow: 0 4px 20px rgba(209, 73, 46, 0.3);
+  box-shadow: 0 4px 20px rgba(var(--pizzaos-color-primary-rgb), 0.3);
   transition:
     transform 0.15s cubic-bezier(0.4, 0, 0.2, 1),
     filter 0.2s ease,

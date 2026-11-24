@@ -95,6 +95,12 @@ export function validateStoreConfiguration(store: IndividualStore): void {
     if (!record(ingredient)) fail("invalid_input", "Ingrediente non valido.");
     identifier(ingredient.id); text(ingredient.name); if (ingredient.stock !== null) integer(ingredient.stock);
     if (ingredient.food !== undefined) validateMenuFood(ingredient.food, invalid);
+    if (ingredient.extra !== undefined) {
+      if (!record(ingredient.extra) || Object.keys(ingredient.extra).some(key => !["enabled", "priceCents", "dose"].includes(key))
+        || typeof ingredient.extra.enabled !== "boolean") invalid("Configurazione extra del Magazzino non valida.");
+      if (ingredient.extra.priceCents !== null) integer(ingredient.extra.priceCents);
+      if (ingredient.extra.dose !== null) { integer(ingredient.extra.dose); if (ingredient.extra.dose < 1) invalid("La dose extra deve essere positiva."); }
+    }
   }
   unique(store.ingredients.map(item => item.id)); unique(store.products.map(item => item.id)); unique(store.slots.map(item => item.id));
   const ids = new Set(store.ingredients.map(item => item.id));
@@ -696,7 +702,7 @@ export function createOrderingService(options: OrderingServiceOptions): RiderOrd
           menuRevision(current, revision);
           validateDraftHeader(draft, invalid);
           if (draft.id === current.published.id) invalid("Duplica il menu pubblicato per modificarlo.");
-          draft = preparePizzaMenu(draft, new Set(store.ingredients.map(item => item.id)), invalid);
+          draft = preparePizzaMenu(draft, new Set(store.ingredients.map(item => item.id)), invalid, false, undefined, store.ingredients);
           validateStoreConfiguration({ ...store, products: draft.products });
           validateMenuDraft(draft, store, invalid);
           const previous = current.drafts.findIndex(item => item.id === draft.id);
@@ -728,7 +734,7 @@ export function createOrderingService(options: OrderingServiceOptions): RiderOrd
           menuRevision(current, revision);
           let draft = current.drafts.find(item => item.id === draftId);
           if (!draft) fail("not_found", "Bozza del menu non trovata.");
-          draft = preparePizzaMenu(draft, new Set(store.ingredients.map(item => item.id)), invalid, true, new Map(store.ingredients.map(item => [item.id, item.stock])));
+          draft = preparePizzaMenu(draft, new Set(store.ingredients.map(item => item.id)), invalid, true, new Map(store.ingredients.map(item => [item.id, item.stock])), store.ingredients);
           validateStoreConfiguration({ ...store, products: draft.products });
           validateMenuDraft(draft, store, invalid, true);
           const { products, ...menu } = copy(draft);

@@ -3,7 +3,7 @@
 import type { PilotAnalyticsApi, PilotAnalyticsPeriod, PilotAnalyticsQuery, PilotAnalyticsReport } from "@pizzaos/domain";
 import { type FormEvent, type ReactElement, useEffect, useId, useState } from "react";
 import styles from "./pilot-analytics.module.css";
-import { useAdminToast } from "../../composition/admin-toast";
+import { useAdminToast } from "../notifications";
 
 export interface PilotAnalyticsPanelProps { storeId: string; api: PilotAnalyticsApi; refreshVersion?: number; }
 /** Render authorized analytics through an injected browser port. */

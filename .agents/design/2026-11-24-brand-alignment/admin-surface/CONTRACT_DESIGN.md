@@ -1,0 +1,2 @@
+# Contratto pubblico
+Route, props e API dell'app restano invariati. AdminFrame e schermate di accesso espongono un'immagine con nome accessibile PizzaOS usando BRAND_ASSETS.logo (o variante ufficiale idonea allo sfondo). Demo e area operativa conservano URL, azioni e testi italiani. Per il rider è ammesso il pittogramma con nome PizzaOS. Le variabili visuali sono quelle del contratto brand-foundation; non introdurre import da altre app.

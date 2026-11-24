@@ -1,0 +1,5 @@
+# Requisiti osservabili
+
+Standard impasto/base/formato comuni a tutte le pizze, con differenze di prezzo anche negative rispetto allo standard; prezzi commerciali invariati cambiando standard. Formule con nome libero e sconto sui primi N extra più costosi per unità. Esempio: base 900, extra 300/200/100, quota 2 percentuale 40 => 1300 centesimi. Quota non è massimo selezionabile; ripetizioni contano unità.
+
+Magazzino: Possibile extra, prezzo per aggiunta e dose positiva nelle unità delle ricette. Dato ignoto resta null, non zero. Solo ingredienti abilitati sono proposti nelle nuove formule gestite dal Magazzino. Salvataggio bozza sincronizza dati del Magazzino; modifica successiva impone revisione e nuovo salvataggio prima di pubblicare. Menu pubblicato mantiene snapshot commerciale fino alla pubblicazione; scorte restano correnti. Disabilitare Pizza custom mantiene formule sorgenti e riferimenti, ma non le proietta tra i prodotti pubblici. Preservare ordini e dati legacy, senza dedurre associazioni da nomi. Con dosi/scorte sconosciute pubblicazione bloccata. Ricette base e gusto non devono duplicare la stessa porzione.

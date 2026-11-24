@@ -9,7 +9,7 @@
   gap: 8px 16px;
   padding: 12px 20px;
   background: var(--pizzaos-color-primary);
-  color: white;
+  color: var(--pizzaos-color-primary-foreground);
   font-size: 14px;
 }
 .banner p { margin: 0; color: inherit; }

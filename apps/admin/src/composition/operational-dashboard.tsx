@@ -49,7 +49,7 @@ export function OperationalDashboard({ storeId, orders, connection, refreshVersi
     </div>
     <article className={styles.attentionCard}>
       <header className={styles.attentionHeader}>
-        <span className={styles.attentionHeaderIcon} aria-hidden="true"><Image alt="" width={18} height={18} src="/images/live-orders/writing.png" /></span>
+        <span className={styles.attentionHeaderIcon} aria-hidden="true"><Image loading="eager" alt="" width={18} height={18} src="/images/live-orders/writing.png" /></span>
         <h3>Richiede attenzione</h3>
       </header>
       <div className={styles.attentionAlertBox}>
@@ -72,7 +72,7 @@ export function OperationalDashboard({ storeId, orders, connection, refreshVersi
       </article>
       <article className={styles.dashboardInsightCard}>
         <header className={styles.operationalTimelineHeader}>
-          <span className={styles.operationalTimelineIcon} aria-hidden="true"><Image alt="" width={18} height={18} src="/images/dashboard/clock.png" /></span>
+          <span className={styles.operationalTimelineIcon} aria-hidden="true"><Image loading="eager" alt="" width={18} height={18} src="/images/dashboard/clock.png" /></span>
           <h3>Timeline operativa</h3>
         </header>
         {orders.length === 0 ? <p>Non ci sono ordini per questa sede.</p> : <ol className={styles.operationalTimelineList}>
@@ -96,7 +96,7 @@ export function OperationalDashboard({ storeId, orders, connection, refreshVersi
       </article>
       <article className={styles.deliveryFleetCard}>
         <header className={styles.deliveryFleetHeader}>
-          <span className={styles.deliveryFleetIcon} aria-hidden="true"><Image alt="" width={16} height={16} src="/images/sidebar/scooter.png" /></span>
+          <span className={styles.deliveryFleetIcon} aria-hidden="true"><Image loading="eager" alt="" width={16} height={16} src="/images/sidebar/scooter.png" /></span>
           <h3>Flotta Consegne</h3>
         </header>
         {typeof activeRiders === "number" && <p><strong>{activeRiders}</strong> rider abilitati</p>}

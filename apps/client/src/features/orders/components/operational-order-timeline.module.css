@@ -4,7 +4,7 @@
   gap: 10px 14px;
   padding: 13px 0;
   margin: 12px 0;
-  border-block: 1px solid #e9e1d6;
+  border-block: 1px solid var(--pizzaos-color-border);
   list-style: none;
 }
 
@@ -12,7 +12,7 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  color: #6c635b;
+  color: var(--pizzaos-color-foreground-muted);
   font-size: .82rem;
 }
 
@@ -22,10 +22,10 @@
   min-width: 18px;
   min-height: 18px;
   border-radius: 50%;
-  background: #eee6db;
+  background: var(--pizzaos-color-border);
   font-size: .75rem;
 }
 
-.timeline [aria-current] { color: #984021; font-weight: 750; }
-.timeline [aria-current] .dot { background: #a64529; color: white; }
-.timeline [data-complete] .dot { background: #e1ecd8; color: #345326; }
+.timeline [aria-current] { color: var(--pizzaos-color-primary); font-weight: 750; }
+.timeline [aria-current] .dot { background: var(--pizzaos-color-primary); color: var(--pizzaos-color-primary-foreground); }
+.timeline [data-complete] .dot { background: var(--pizzaos-color-success-soft); color: var(--pizzaos-color-success-foreground); }

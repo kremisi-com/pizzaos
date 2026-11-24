@@ -64,7 +64,7 @@ Current exports from `src/index.ts`:
 
 `MenuAdminApi`, `FoodPreferencesApi`, sezioni, gruppi, scelte e composizione estendono il catalogo operativo. `resolveMenuComposition` calcola un riepilogo da una configurazione, usato come anteprima dal client e dal servizio durante il preventivo. Le scorte, la validazione della richiesta e la pubblicazione appartengono al servizio.
 
-`PizzaCatalog` distingue impasti, basi, formati, topping, gusti e formule. `materializePizzaMenu` produce le voci ordinabili dai rispettivi ID espliciti: un gusto conserva i topping inclusi, mentre Simple, Wild e Savage partono senza gusto. Ogni prezzo completo include i componenti standard; le alternative applicano la differenza rispetto allo standard. Le formule usano le regole di `PIZZA_EXTRA_OFFERS`. Nessun prezzo o tipo si deduce dai nomi.
+`PizzaCatalog` distingue impasti, basi, formati, topping, gusti e formule. `materializePizzaMenu` produce le voci ordinabili dai rispettivi ID espliciti: un gusto conserva i topping inclusi, mentre Simple, Wild e Savage partono senza gusto. Ogni prezzo completo include i componenti standard; le alternative applicano la differenza rispetto allo standard. Le formule accettano `extraOffer` configurabile; `PIZZA_EXTRA_OFFERS` mantiene la compatibilità delle vecchie formule. Nessun prezzo o tipo si deduce dai nomi.
 
 La proiezione `IndividualProduct.pizza` distingue gusto e formula, espone le selezioni standard, i riferimenti dei topping inclusi e le eventuali anteprime locali per coppia impasto/base con sovrapposizione del gusto. `IndividualOption.pizza` identifica componente, topping o rimozione e categoria degli extra. Le rimozioni eliminano solo il contributo del topping incluso, preservando ingredienti condivisi con altri topping, impasti o basi. `IndividualLine.kind` è opzionale per compatibilità con carrelli storici e viene verificato dal servizio quando presente. Lo snapshot della composizione acquistata conserva l'identità della pizza.
 
@@ -79,3 +79,9 @@ Pilot extensions are public through this package entry point: `PilotAnalyticsApi
 - Consumers must import from `@pizzaos/domain` only.
 
 `PromotionsApi` owns coupon/program administration and the authenticated own wallet. `PromotionSelection` extends individual carts and group host fulfillment; authoritative `PromotionBreakdown` extends quotes. Browser inputs carry only codes/reward selection, never discounts, points or customer identity.
+
+## Standard comuni ed extra Magazzino
+
+`PizzaCatalog.defaults` applica standard e alternative comuni tramite `applyPizzaDefaults`. `customEnabled=false` conserva formule e collocazione sorgente ma esclude i prodotti proiettati. `PizzaFormula.extraOffer` definisce quota e percentuale senza deduzioni dal nome; `offer` legge le vecchie regole.
+
+`IndividualIngredient.extra` contiene abilitazione, prezzo e dose per aggiunta (null resta da verificare). `syncPizzaInventory` copia gli extra abilitati per i cataloghi `inventoryExtras`, con riferimenti `inventoryIngredientId` e firma commerciale indipendente dalle scorte. Le formule usano solo questi extra. La pubblicazione è responsabilità del servizio; dosi e scorte non sono esposte al cliente.

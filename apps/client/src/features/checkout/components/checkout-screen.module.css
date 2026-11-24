@@ -8,8 +8,8 @@
   width: 100%;
   background: var(--pizzaos-color-background);
   background-image:
-    radial-gradient(circle at top right, rgba(209, 73, 46, 0.06), transparent 40%),
-    radial-gradient(circle at bottom left, rgba(238, 248, 255, 0.5), transparent 50%);
+    radial-gradient(circle at top right, rgba(var(--pizzaos-color-primary-rgb), 0.06), transparent 40%),
+    radial-gradient(circle at bottom left, color-mix(in srgb, var(--pizzaos-brand-sand) 50%, transparent), transparent 50%);
   overflow-x: hidden;
 }
 
@@ -55,14 +55,14 @@
   font-size: 0.9rem;
   padding: 6px 12px 6px 8px;
   border-radius: 12px;
-  background: rgba(255, 255, 255, 0.6);
-  border: 1px solid rgba(0, 0, 0, 0.06);
+  background: color-mix(in srgb, var(--pizzaos-color-background-accent) 60%, transparent);
+  border: 1px solid color-mix(in srgb, var(--pizzaos-brand-navy) 6%, transparent);
   transition: background 0.2s ease;
 }
 
 .backLink:hover
 {
-  background: rgba(255, 255, 255, 0.9);
+  background: color-mix(in srgb, var(--pizzaos-color-background-accent) 90%, transparent);
 }
 
 .heroTitle
@@ -122,22 +122,22 @@
   gap: 12px;
   padding: 14px 16px;
   border-radius: 14px;
-  border: 1.5px solid rgba(31, 37, 48, 0.1);
-  background: rgba(255, 255, 255, 0.9);
+  border: 1.5px solid color-mix(in srgb, var(--pizzaos-brand-navy) 10%, transparent);
+  background: color-mix(in srgb, var(--pizzaos-color-background-accent) 90%, transparent);
   cursor: pointer;
   transition: border-color 0.18s ease, background 0.18s ease;
 }
 
 .slotOption:hover:not(.slotOptionDisabled)
 {
-  border-color: rgba(209, 73, 46, 0.3);
-  background: #fff;
+  border-color: rgba(var(--pizzaos-color-primary-rgb), 0.3);
+  background: var(--pizzaos-color-background-accent);
 }
 
 .slotOptionActive
 {
-  border-color: rgba(209, 73, 46, 0.55) !important;
-  background: linear-gradient(120deg, rgba(209, 73, 46, 0.07), rgba(255, 255, 255, 0.98)) !important;
+  border-color: rgba(var(--pizzaos-color-primary-rgb), 0.55) !important;
+  background: linear-gradient(120deg, rgba(var(--pizzaos-color-primary-rgb), 0.07), color-mix(in srgb, var(--pizzaos-color-background-accent) 98%, transparent)) !important;
 }
 
 .slotOptionDisabled
@@ -172,8 +172,8 @@
 {
   min-height: 44px;
   border-radius: 12px;
-  border: 1.5px solid rgba(31, 37, 48, 0.1);
-  background: rgba(255, 255, 255, 0.9);
+  border: 1.5px solid color-mix(in srgb, var(--pizzaos-brand-navy) 10%, transparent);
+  background: color-mix(in srgb, var(--pizzaos-color-background-accent) 90%, transparent);
   color: var(--pizzaos-color-foreground);
   font-weight: 700;
   font-size: 0.95rem;
@@ -184,8 +184,8 @@
 
 .tipOption:hover
 {
-  border-color: rgba(209, 73, 46, 0.3);
-  background: #fff;
+  border-color: rgba(var(--pizzaos-color-primary-rgb), 0.3);
+  background: var(--pizzaos-color-background-accent);
 }
 
 .tipOption:active
@@ -195,8 +195,8 @@
 
 .tipOptionActive
 {
-  border-color: rgba(209, 73, 46, 0.55);
-  background: rgba(209, 73, 46, 0.1);
+  border-color: rgba(var(--pizzaos-color-primary-rgb), 0.55);
+  background: rgba(var(--pizzaos-color-primary-rgb), 0.1);
   color: var(--pizzaos-color-foreground);
 }
 
@@ -228,11 +228,11 @@
 {
   min-height: 44px;
   border-radius: 12px;
-  border: 1.5px solid rgba(31, 37, 48, 0.12);
+  border: 1.5px solid color-mix(in srgb, var(--pizzaos-brand-navy) 12%, transparent);
   padding: 0 14px;
   color: var(--pizzaos-color-foreground);
   font-size: 0.95rem;
-  background: rgba(255, 255, 255, 0.9);
+  background: color-mix(in srgb, var(--pizzaos-color-background-accent) 90%, transparent);
   font-family: inherit;
   transition: border-color 0.18s ease;
   width: 100%;
@@ -242,7 +242,7 @@
 .textInput:focus
 {
   outline: none;
-  border-color: rgba(209, 73, 46, 0.5);
+  border-color: rgba(var(--pizzaos-color-primary-rgb), 0.5);
 }
 
 .couponFeedback
@@ -297,8 +297,8 @@
   gap: 12px;
   padding: 14px 16px;
   border-radius: 14px;
-  border: 1.5px solid rgba(31, 37, 48, 0.1);
-  background: rgba(255, 255, 255, 0.9);
+  border: 1.5px solid color-mix(in srgb, var(--pizzaos-brand-navy) 10%, transparent);
+  background: color-mix(in srgb, var(--pizzaos-color-background-accent) 90%, transparent);
   cursor: pointer;
   font-weight: 600;
   font-size: 0.95rem;
@@ -307,8 +307,8 @@
 
 .paymentMethod:has(input:checked)
 {
-  border-color: rgba(209, 73, 46, 0.55);
-  background: rgba(209, 73, 46, 0.06);
+  border-color: rgba(var(--pizzaos-color-primary-rgb), 0.55);
+  background: rgba(var(--pizzaos-color-primary-rgb), 0.06);
 }
 
 .cardFields
@@ -326,7 +326,7 @@
   gap: 12px 16px;
   padding: 16px 18px;
   margin-bottom: 16px;
-  background: rgba(255, 255, 255, 0.72);
+  background: color-mix(in srgb, var(--pizzaos-color-background-accent) 72%, transparent);
   border-radius: 18px;
 }
 
@@ -374,7 +374,7 @@
   font-size: 1rem;
   font-weight: 800;
   letter-spacing: -0.01em;
-  box-shadow: 0 4px 20px rgba(209, 73, 46, 0.3);
+  box-shadow: 0 4px 20px rgba(var(--pizzaos-color-primary-rgb), 0.3);
   transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1), filter 0.2s ease, box-shadow 0.3s ease;
 }
 
@@ -392,7 +392,7 @@
 .errorMessage
 {
   margin: 8px 0 0;
-  color: #9f1239;
+  color: var(--pizzaos-color-critical-foreground);
   font-size: 0.88rem;
   font-weight: 600;
 }
@@ -403,7 +403,7 @@
   width: 56px;
   height: 56px;
   margin-bottom: 20px;
-  color: #22a861;
+  color: var(--pizzaos-color-success-foreground);
   animation: confirmFadeUp 0.5s cubic-bezier(0.22, 1, 0.36, 1) 0.05s both;
 }
 
@@ -420,8 +420,8 @@
   gap: 6px;
   padding: 4px 12px;
   border-radius: 999px;
-  background: rgba(34, 168, 97, 0.12);
-  color: #16803c;
+  background: color-mix(in srgb, var(--pizzaos-color-success) 12%, transparent);
+  color: var(--pizzaos-color-success-foreground);
   font-size: 0.78rem;
   font-weight: 800;
   letter-spacing: 0.04em;
@@ -470,8 +470,8 @@
 
 .confirmationPointsBadge
 {
-  color: #b45309 !important;
-  background: rgba(251, 191, 36, 0.12);
+  color: var(--pizzaos-color-warning-foreground) !important;
+  background: color-mix(in srgb, var(--pizzaos-color-warning) 12%, transparent);
   padding: 3px 10px;
   border-radius: 999px;
   font-size: 0.82rem !important;
@@ -518,7 +518,7 @@
   height: 56px;
   padding: 0 24px;
   background: var(--pizzaos-color-primary);
-  color: white;
+  color: var(--pizzaos-color-primary-foreground);
   border: none;
   border-radius: 16px;
   text-decoration: none;
@@ -527,7 +527,7 @@
   font-weight: 800;
   letter-spacing: -0.01em;
   cursor: pointer;
-  box-shadow: 0 4px 20px rgba(209, 73, 46, 0.28);
+  box-shadow: 0 4px 20px rgba(var(--pizzaos-color-primary-rgb), 0.28);
   transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1), filter 0.2s ease;
   -webkit-tap-highlight-color: transparent;
 }
@@ -552,7 +552,7 @@
   padding: 0 24px;
   background: transparent;
   color: var(--pizzaos-color-foreground);
-  border: 1.5px solid rgba(31, 37, 48, 0.14);
+  border: 1.5px solid color-mix(in srgb, var(--pizzaos-brand-navy) 14%, transparent);
   border-radius: 16px;
   text-decoration: none;
   font-family: inherit;
@@ -566,8 +566,8 @@
 
 .outlineLink:hover
 {
-  border-color: rgba(209, 73, 46, 0.3);
-  background: rgba(209, 73, 46, 0.04);
+  border-color: rgba(var(--pizzaos-color-primary-rgb), 0.3);
+  background: rgba(var(--pizzaos-color-primary-rgb), 0.04);
 }
 
 .outlineLink:active

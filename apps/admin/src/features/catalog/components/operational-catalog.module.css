@@ -1,7 +1,7 @@
 .catalog {
   display: grid;
   gap: var(--space-4, 1rem);
-  color: var(--pizzaos-color-foreground, #24211e);
+  color: var(--pizzaos-color-foreground);
 }
 
 .layout {
@@ -19,9 +19,9 @@
 .optionGroup {
   min-width: 0;
   padding: 1rem;
-  border: 1px solid var(--pizzaos-color-border, #e5dfda);
+  border: 1px solid var(--pizzaos-color-border);
   border-radius: 0.85rem;
-  background: var(--pizzaos-color-surface, white);
+  background: var(--pizzaos-color-background-accent);
 }
 
 .side,
@@ -119,10 +119,10 @@
   width: 100%;
   color: inherit;
   font: inherit;
-  border: 1px solid var(--pizzaos-color-border, #dcd3cb);
+  border: 1px solid var(--pizzaos-color-border);
   border-radius: 0.5rem;
   padding: 0.55rem;
-  background: var(--pizzaos-color-surface, white);
+  background: var(--pizzaos-color-background-accent);
 }
 
 .form input:not([type="checkbox"]):not([type="file"]),
@@ -145,7 +145,7 @@
 .food {
   margin: 0;
   padding: 0.75rem;
-  border: 1px solid var(--pizzaos-color-border, #e5dfda);
+  border: 1px solid var(--pizzaos-color-border);
   border-radius: 0.6rem;
 }
 
@@ -200,7 +200,7 @@
   justify-content: space-between;
   gap: 0.55rem;
   padding: 0.65rem 0;
-  border-top: 1px solid var(--pizzaos-color-border, #e5dfda);
+  border-top: 1px solid var(--pizzaos-color-border);
 }
 
 .productRow strong {
@@ -213,7 +213,7 @@
   align-items: start;
   gap: 0.7rem;
   padding: 0.6rem 0;
-  border-top: 1px solid var(--pizzaos-color-border, #e5dfda);
+  border-top: 1px solid var(--pizzaos-color-border);
 }
 
 .productPreview img,
@@ -232,18 +232,18 @@
 }
 
 .small {
-  color: var(--pizzaos-color-foreground-muted, #68615d);
+  color: var(--pizzaos-color-foreground-muted);
   font-size: 0.84rem;
 }
 
 .error {
-  color: var(--pizzaos-color-danger, #a32820);
+  color: var(--pizzaos-color-critical-foreground);
 }
 
 .confirm {
   margin: 0;
   padding: 0.8rem;
-  border: 1px solid var(--pizzaos-color-border, #e5dfda);
+  border: 1px solid var(--pizzaos-color-border);
   border-radius: 0.65rem;
 }
 
@@ -284,4 +284,78 @@
 .catalog :focus-visible {
   outline: 2px solid var(--pizzaos-color-primary);
   outline-offset: 3px;
+}
+
+.catalogPage { display: grid; gap: 1rem; min-width: 0; }
+.catalogPage h2 { margin: 0; font-size: clamp(1.5rem, 2.2vw, 2.2rem); }
+.catalogPage > .header { align-items: end; }
+.menuSelect { display: grid; gap: .3rem; font-size: .8rem; font-weight: 600; }
+.menuSelect select { max-width: 16rem; min-height: 2.75rem; border: 1px solid var(--pizzaos-color-border); border-radius: .5rem; padding: .55rem; color: inherit; background: var(--pizzaos-color-background-accent); font: inherit; }
+.menuWorkspace { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 1.25rem; align-items: start; }
+.menuMain, .menuDetail { min-width: 0; display: grid; gap: 1rem; align-content: start; }
+.menuDetail { position: sticky; top: 1rem; }
+.categoryTabs { display: flex; flex-wrap: wrap; gap: .35rem; }
+.threeFields { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .75rem; align-items: end; }
+.threeFields label { display: grid; grid-template-rows: minmax(2.5em, auto) auto; align-items: end; }
+.settingsCard { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: .4rem .75rem; text-align: left; border: 1px solid var(--pizzaos-color-border); border-radius: .85rem; padding: 1rem; color: inherit; background: var(--pizzaos-color-background-accent); font: inherit; cursor: pointer; }
+.settingsCard small { grid-column: 1 / -1; color: var(--pizzaos-color-foreground-muted); }
+.settingsCard > span { color: var(--pizzaos-color-primary); font-size: .85rem; }
+.selectedCard { border-color: var(--pizzaos-color-primary); box-shadow: inset 3px 0 var(--pizzaos-color-primary); }
+.notice { background: var(--pizzaos-color-background); border-radius: .6rem; padding: .8rem; font-size: .85rem; }
+.notice p { margin: .3rem 0; }
+.dimension { display: grid; gap: .5rem; border-bottom: 1px solid var(--pizzaos-color-border); padding-bottom: .8rem; }
+.dimension h4 { margin: .5rem 0; font-size: 1.1rem; }
+.componentRow { display: grid; grid-template-columns: 1.4rem minmax(0, 1fr) minmax(5rem, .5fr); gap: .5rem; align-items: end; }
+.componentRow .standardChoice { display: flex; align-items: center; min-height: 2.75rem; }
+.form .standardChoice input[type="radio"] { width: 1.1rem; min-height: 1.1rem; height: 1.1rem; accent-color: var(--pizzaos-color-primary); }
+.ingredientSelect { display: grid; gap: .4rem; min-width: 0; }
+.fieldLabel { font-size: .9rem; font-weight: 600; }
+.selectTrigger { display: flex; justify-content: space-between; gap: .5rem; padding: .65rem; border: 1px solid var(--pizzaos-color-border); border-radius: .5rem; color: inherit; background: var(--pizzaos-color-background-accent); text-align: left; font: inherit; cursor: pointer; }
+.ingredientOptions { display: grid; gap: .6rem; padding: .6rem; border: 1px solid var(--pizzaos-color-border); border-radius: .5rem; max-height: 20rem; overflow-y: auto; }
+.ingredientOptions .check { display: flex; font-weight: 400; }
+.ingredientOptions small { color: var(--pizzaos-color-foreground-muted); }
+.chips { display: flex; flex-wrap: wrap; gap: .35rem; }
+.chips button { border: 1px solid var(--pizzaos-color-border); border-radius: 1rem; padding: .3rem .6rem; background: var(--pizzaos-color-background); color: inherit; font: inherit; font-size: .8rem; cursor: pointer; }
+.menuMain .productRow { align-items: start; flex-wrap: wrap; }
+.menuMain .productRow > div:first-child { flex: 1; min-width: 8rem; }
+.menuMain .productRow .actions { gap: .1rem; }
+.menuMain .productRow button { padding: .35rem; min-width: 1.75rem; font-size: .75rem; }
+.menuMain .productRow .productNameButton { padding: 0; min-width: 0; min-height: 2rem; text-align: left; justify-content: flex-start; font-size: 1rem; font-weight: 700; }
+.ingredientSummary { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.rowPrice { white-space: nowrap; padding-top: .25rem; }
+.selectedRow { background: var(--pizzaos-color-background); border-radius: .6rem; box-shadow: inset 3px 0 var(--pizzaos-color-primary); padding-inline: .65rem; }
+.catalogHeader { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: start; gap: 1rem; }
+.catalogTitle { min-width: 0; }
+.catalogTitle h1 { margin: 0; font-size: clamp(1.6rem, 2.1vw, 2.1rem); line-height: 1.15; }
+.catalogTitle p { margin: .4rem 0 0; font-size: .9rem; line-height: 1.45; }
+.headerActions { display: flex; gap: .5rem; align-items: flex-end; }
+.headerActions > span { align-self: center; max-width: 6rem; font-size: .75rem; }
+.headerActions button { white-space: nowrap; padding-inline: .75rem; font-size: .85rem; }
+.headerActions .menuSelect select { width: 12rem; max-width: 12rem; }
+.menuTools { display: flex; flex-wrap: wrap; gap: .35rem .6rem; align-items: center; }
+.menuTools button { min-height: 2rem; padding: .3rem .5rem; font-size: .8rem; }
+.menuTools p { margin: 0; }
+.menuMetadata { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: .75rem; align-items: start; }
+.menuMetadata .food { padding: .45rem .6rem; }
+.menuMetadata .food[open] { grid-column: 1 / -1; }
+.form .menuNameInput { min-height: 2.25rem; font-size: 1.15rem; font-weight: 700; padding: .3rem .5rem; }
+.menuMain { gap: .65rem; }
+.menuCategory { padding: .75rem; gap: .5rem; }
+.menuCategory .header button { min-height: 1.75rem; padding: .25rem .4rem; font-size: .75rem; }
+.menuCategory .header h3 { font-size: 1rem; }
+.menuCategory > label { grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: .6rem; font-size: .8rem; }
+.menuCategory > label textarea { min-height: 2.25rem; height: 2.25rem; padding: .35rem .5rem; }
+.categoryTabs button { min-height: 2.25rem; padding: .3rem .65rem; font-size: .9rem; }
+@media (max-width: 1150px) { .catalogHeader { grid-template-columns: minmax(0, 1fr); } .headerActions { flex-wrap: wrap; } }
+@media (max-width: 520px) { .menuMetadata { grid-template-columns: minmax(0, 1fr); } .headerActions .menuSelect select { width: 100%; max-width: 100%; } }
+.menuMain textarea { min-height: 3.5rem; }
+@media (max-width: 1050px) {
+  .menuWorkspace { grid-template-columns: minmax(0, 1fr); }
+  .menuDetail { position: static; }
+}
+@media (max-width: 520px) {
+  .threeFields { grid-template-columns: minmax(0, 1fr); }
+  .threeFields label { grid-template-rows: auto auto; }
+  .componentRow { grid-template-columns: 1.2rem minmax(0, 1fr); }
+  .componentRow > label:last-child { grid-column: 2; }
 }

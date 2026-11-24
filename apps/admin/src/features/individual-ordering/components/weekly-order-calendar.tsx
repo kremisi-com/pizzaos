@@ -2,7 +2,7 @@
 
 import type { WeeklyOrderDay, WeeklyOrderSchedule, WeeklyOrderWindow } from "@pizzaos/domain";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useAdminToast } from "../../../composition/admin-toast";
+import { useAdminToast } from "../../notifications";
 import styles from "./weekly-order-calendar.module.css";
 
 const dayNames = ["Lunedì", "Martedì", "Mercoledì", "Giovedì", "Venerdì", "Sabato", "Domenica"];

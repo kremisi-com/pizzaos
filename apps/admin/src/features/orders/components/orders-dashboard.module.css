@@ -2,7 +2,7 @@
     display: flex;
     flex-direction: column;
     gap: 18px;
-    color: #111827;
+    color: var(--pizzaos-color-info-foreground);
 }
 
 .dashboard button,
@@ -27,7 +27,7 @@
 
 .pageHeader p {
     margin: 8px 0 0;
-    color: #64748b;
+    color: var(--pizzaos-color-foreground-muted);
     font-weight: 600;
 }
 
@@ -45,9 +45,9 @@
 .toolbarDateFilter,
 .rowActions button,
 .pagination button {
-    border: 1px solid #e5e7eb;
-    background: #ffffff;
-    color: #111827;
+    border: 1px solid var(--pizzaos-color-border);
+    background: var(--pizzaos-color-background-accent);
+    color: var(--pizzaos-color-info-foreground);
     border-radius: 8px;
     font-weight: 800;
     cursor: pointer;
@@ -76,8 +76,8 @@
     min-width: 18px;
     height: 18px;
     border-radius: 999px;
-    background: #ef1d1d;
-    color: #ffffff;
+    background: var(--pizzaos-color-primary);
+    color: var(--pizzaos-color-primary-foreground);
     font-size: 0.68rem;
     line-height: 18px;
 }
@@ -97,16 +97,16 @@
     gap: 10px;
     width: 260px;
     padding: 14px;
-    border: 1px solid #e5e7eb;
+    border: 1px solid var(--pizzaos-color-border);
     border-radius: 8px;
-    background: #ffffff;
-    box-shadow: 0 18px 40px rgba(15, 23, 42, 0.14);
+    background: var(--pizzaos-color-background-accent);
+    box-shadow: 0 18px 40px color-mix(in srgb, var(--pizzaos-brand-navy) 14%, transparent);
 }
 
 .calendarPanel label {
     display: grid;
     gap: 8px;
-    color: #475569;
+    color: var(--pizzaos-color-info-foreground);
     font-size: 0.76rem;
     font-weight: 800;
 }
@@ -114,16 +114,16 @@
 .calendarPanel input {
     width: 100%;
     min-height: 38px;
-    border: 1px solid #e5e7eb;
+    border: 1px solid var(--pizzaos-color-border);
     border-radius: 8px;
-    color: #111827;
+    color: var(--pizzaos-color-info-foreground);
     font: inherit;
     font-weight: 600;
     padding: 0 10px;
 }
 
 .calendarPanel span {
-    color: #64748b;
+    color: var(--pizzaos-color-foreground-muted);
     font-size: 0.72rem;
     font-weight: 700;
     line-height: 1.35;
@@ -147,10 +147,10 @@
 
 .operationalToolbar select {
     min-height: 34px;
-    border: 1px solid #e5e7eb;
+    border: 1px solid var(--pizzaos-color-border);
     border-radius: 8px;
-    background: #fff;
-    color: #111827;
+    background: var(--pizzaos-color-background-accent);
+    color: var(--pizzaos-color-info-foreground);
     font-size: 0.76rem;
     padding: 0 8px;
 }
@@ -176,10 +176,10 @@
     gap: 12px;
     min-width: 0;
     padding: 16px;
-    border: 1px solid #eef0f4;
+    border: 1px solid var(--pizzaos-color-border);
     border-radius: 8px;
-    background: #ffffff;
-    box-shadow: 0 12px 28px rgba(15, 23, 42, 0.05);
+    background: var(--pizzaos-color-background-accent);
+    box-shadow: 0 12px 28px color-mix(in srgb, var(--pizzaos-brand-navy) 5%, transparent);
 }
 
 .kpiIcon {
@@ -190,7 +190,7 @@
     height: 44px;
     flex: 0 0 auto;
     border-radius: 999px;
-    font-weight: 900;
+    font-weight: 800;
 }
 
 .kpiIcon img {
@@ -201,36 +201,36 @@
 }
 
 .kpiCard[data-tone="purple"] .kpiIcon {
-    color: #7c3aed;
-    background: #f3e8ff;
+    color: var(--pizzaos-color-info-foreground);
+    background: var(--pizzaos-color-info-soft);
 }
 
 .kpiCard[data-tone="red"] .kpiIcon {
-    color: #ef1d1d;
-    background: #fee2e2;
+    color: var(--pizzaos-color-primary);
+    background: var(--pizzaos-color-primary-soft);
 }
 
 .kpiCard[data-tone="orange"] .kpiIcon,
 .kpiCard[data-tone="amber"] .kpiIcon {
-    color: #f97316;
-    background: #ffedd5;
+    color: var(--pizzaos-color-warning-foreground);
+    background: var(--pizzaos-color-warning-soft);
 }
 
 .kpiCard[data-tone="green"] .kpiIcon {
-    color: #16a34a;
-    background: #dcfce7;
+    color: var(--pizzaos-color-success-foreground);
+    background: var(--pizzaos-color-success-soft);
 }
 
 .kpiCard[data-tone="gray"] .kpiIcon {
-    color: #475569;
-    background: #f1f5f9;
+    color: var(--pizzaos-color-info-foreground);
+    background: var(--pizzaos-color-info-soft);
 }
 
 .kpiLabel {
     display: block;
-    color: #475569;
+    color: var(--pizzaos-color-info-foreground);
     font-size: 0.72rem;
-    font-weight: 900;
+    font-weight: 800;
 }
 
 .kpiCard strong {
@@ -243,7 +243,7 @@
 .kpiCard small {
     display: block;
     margin-top: 6px;
-    color: #16a34a;
+    color: var(--pizzaos-color-success-foreground);
     font-weight: 800;
 }
 
@@ -274,9 +274,9 @@
     align-items: center;
     gap: 8px;
     padding: 12px;
-    border: 1px solid #eef0f4;
+    border: 1px solid var(--pizzaos-color-border);
     border-radius: 8px 8px 0 0;
-    background: #ffffff;
+    background: var(--pizzaos-color-background-accent);
 }
 
 .searchField {
@@ -292,7 +292,7 @@
     left: 11px;
     width: 8px;
     height: 8px;
-    border: 1.5px solid #94a3b8;
+    border: 1.5px solid var(--pizzaos-color-border);
     border-radius: 999px;
     transform: translateY(-58%);
     pointer-events: none;
@@ -306,7 +306,7 @@
     width: 5px;
     height: 1.5px;
     border-radius: 999px;
-    background: #94a3b8;
+    background: var(--pizzaos-color-info-soft);
     transform: rotate(45deg);
     pointer-events: none;
 }
@@ -316,10 +316,10 @@
 .tableFooter select {
     width: 100%;
     min-height: 34px;
-    border: 1px solid #e5e7eb;
+    border: 1px solid var(--pizzaos-color-border);
     border-radius: 8px;
-    background: #ffffff;
-    color: #111827;
+    background: var(--pizzaos-color-background-accent);
+    color: var(--pizzaos-color-info-foreground);
     font-size: 0.76rem;
     font-weight: 600;
     line-height: 1;
@@ -335,7 +335,7 @@
 }
 
 .searchField input::placeholder {
-    color: #667085;
+    color: var(--pizzaos-color-foreground-muted);
     opacity: 1;
     font-size: 0.68rem;
     font-weight: 600;
@@ -381,18 +381,18 @@
 
 .primaryAction {
     padding: 0 14px;
-    border-color: #ff3b30;
-    background: #ff3b30;
-    color: #ffffff;
+    border-color: var(--pizzaos-color-border);
+    background: var(--pizzaos-color-primary);
+    color: var(--pizzaos-color-primary-foreground);
     font-weight: 700;
-    box-shadow: 0 8px 16px rgba(255, 59, 48, 0.18);
+    box-shadow: 0 8px 16px color-mix(in srgb, var(--pizzaos-color-primary) 18%, transparent);
 }
 
 .tableShell {
     overflow-x: auto;
-    border-right: 1px solid #eef0f4;
-    border-left: 1px solid #eef0f4;
-    background: #ffffff;
+    border-right: 1px solid var(--pizzaos-color-border);
+    border-left: 1px solid var(--pizzaos-color-border);
+    background: var(--pizzaos-color-background-accent);
 }
 
 .ordersTable {
@@ -404,16 +404,16 @@
 
 .ordersTable th {
     padding: 13px 12px;
-    border-bottom: 1px solid #e5e7eb;
-    color: #64748b;
+    border-bottom: 1px solid var(--pizzaos-color-border);
+    color: var(--pizzaos-color-foreground-muted);
     font-size: 0.72rem;
-    font-weight: 900;
+    font-weight: 800;
     text-align: left;
 }
 
 .ordersTable td {
     padding: 12px;
-    border-bottom: 1px solid #f1f5f9;
+    border-bottom: 1px solid var(--pizzaos-color-border);
     vertical-align: middle;
 }
 
@@ -422,42 +422,42 @@
 }
 
 .ordersTable tbody tr:hover {
-    background: #fff7f4;
+    background: var(--pizzaos-color-primary-soft);
 }
 
 .selectedRow {
-    background: #fff7f4;
-    box-shadow: inset 3px 0 0 #ef1d1d;
+    background: var(--pizzaos-color-primary-soft);
+    box-shadow: inset 3px 0 0 var(--pizzaos-color-primary);
 }
 
 .ordersTable strong {
     display: block;
-    color: #111827;
+    color: var(--pizzaos-color-info-foreground);
 }
 
 .ordersTable small {
     display: block;
     margin-top: 4px;
-    color: #64748b;
+    color: var(--pizzaos-color-foreground-muted);
     font-weight: 700;
 }
 
 .lateText {
-    color: #ef1d1d !important;
+    color: var(--pizzaos-color-critical-foreground) !important;
 }
 
 .checkbox {
     display: inline-flex;
     width: 16px;
     height: 16px;
-    border: 1px solid #e5e7eb;
+    border: 1px solid var(--pizzaos-color-border);
     border-radius: 4px;
-    background: #ffffff;
+    background: var(--pizzaos-color-background-accent);
 }
 
 .channel,
 .payment {
-    color: #334155;
+    color: var(--pizzaos-color-info-foreground);
     font-weight: 800;
 }
 
@@ -467,42 +467,42 @@
     border-radius: 7px;
     padding: 6px 9px;
     font-size: 0.72rem;
-    font-weight: 900;
+    font-weight: 800;
 }
 
 .statusBadge[data-tone="red"] {
-    color: #ef1d1d;
-    background: #fee2e2;
+    color: var(--pizzaos-color-primary);
+    background: var(--pizzaos-color-primary-soft);
 }
 
 .statusBadge[data-tone="orange"] {
-    color: #ea580c;
-    background: #ffedd5;
+    color: var(--pizzaos-color-primary);
+    background: var(--pizzaos-color-warning-soft);
 }
 
 .statusBadge[data-tone="green"] {
-    color: #15803d;
-    background: #dcfce7;
+    color: var(--pizzaos-color-success-foreground);
+    background: var(--pizzaos-color-success-soft);
 }
 
 .statusBadge[data-tone="gray"] {
-    color: #475569;
-    background: #f1f5f9;
+    color: var(--pizzaos-color-info-foreground);
+    background: var(--pizzaos-color-info-soft);
 }
 
 .priority[data-priority="Alta"] {
-    color: #ef1d1d;
-    background: #fee2e2;
+    color: var(--pizzaos-color-warning-foreground);
+    background: var(--pizzaos-color-warning-soft);
 }
 
 .priority[data-priority="Normale"] {
-    color: #475569;
-    background: #f8fafc;
+    color: var(--pizzaos-color-info-foreground);
+    background: var(--pizzaos-color-background-accent);
 }
 
 .priority[data-priority="Bassa"] {
-    color: #16a34a;
-    background: #dcfce7;
+    color: var(--pizzaos-color-success-foreground);
+    background: var(--pizzaos-color-success-soft);
 }
 
 .rowActions {
@@ -530,7 +530,7 @@
     display: grid;
     gap: 6px;
     padding: 38px;
-    color: #64748b;
+    color: var(--pizzaos-color-foreground-muted);
     text-align: center;
 }
 
@@ -540,10 +540,10 @@
     justify-content: space-between;
     gap: 16px;
     padding: 14px;
-    border: 1px solid #eef0f4;
+    border: 1px solid var(--pizzaos-color-border);
     border-radius: 0 0 8px 8px;
-    background: #ffffff;
-    color: #64748b;
+    background: var(--pizzaos-color-background-accent);
+    color: var(--pizzaos-color-foreground-muted);
     font-size: 0.78rem;
     font-weight: 800;
 }
@@ -564,9 +564,9 @@
 }
 
 .activePage {
-    background: #ef1d1d !important;
-    color: #ffffff !important;
-    border-color: #ef1d1d !important;
+    background: var(--pizzaos-color-primary) !important;
+    color: var(--pizzaos-color-primary-foreground) !important;
+    border-color: var(--pizzaos-color-border) !important;
 }
 
 .pagination button:disabled {
@@ -608,10 +608,10 @@
     display: grid;
     gap: 7px;
     padding: 11px;
-    border: 1px solid #eef0f4;
+    border: 1px solid var(--pizzaos-color-border);
     border-radius: 8px;
-    background: #ffffff;
-    box-shadow: 0 12px 28px rgba(15, 23, 42, 0.04);
+    background: var(--pizzaos-color-background-accent);
+    box-shadow: 0 12px 28px color-mix(in srgb, var(--pizzaos-brand-navy) 4%, transparent);
 }
 
 .routingCards div,
@@ -625,20 +625,20 @@
 .routingCards button {
     border: 0;
     background: transparent;
-    color: #ef1d1d;
+    color: var(--pizzaos-color-primary);
     font-size: 0.72rem;
-    font-weight: 900;
+    font-weight: 800;
     cursor: pointer;
 }
 
 .routingCards span {
-    color: #64748b;
+    color: var(--pizzaos-color-foreground-muted);
     font-size: 0.7rem;
     font-weight: 800;
 }
 
 .routingCards span strong {
-    color: #111827;
+    color: var(--pizzaos-color-info-foreground);
 }
 
 .barQueue {
@@ -647,10 +647,10 @@
 
 .noSelection {
     padding: 28px;
-    border: 1px dashed #e5e7eb;
+    border: 1px dashed var(--pizzaos-color-border);
     border-radius: 8px;
-    background: #ffffff;
-    color: #64748b;
+    background: var(--pizzaos-color-background-accent);
+    color: var(--pizzaos-color-foreground-muted);
     font-weight: 800;
 }
 

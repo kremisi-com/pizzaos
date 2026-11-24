@@ -139,3 +139,9 @@ La [copertina del menu](src/features/menu/components/ordering-cover.tsx) è cond
 `src/composition/session-mode.ts` verifica la modalità con il servizio usando cookie e credenziali server; errori o cookie falsi non attivano il POC. Il middleware limita i vecchi URL POC alla demo e reindirizza gli altri utenti a `/ordina`. Una sessione demo che apre `/ordina` torna alla home POC. Il servizio blocca ogni API operativa per le sessioni demo. Cookie e carrelli POC restano distinti dal draft reale; logout non cancella il carrello reale.
 
 Eseguire `pnpm exec playwright test --config playwright.session-demo.config.ts` dalla root per accesso, isolamento, checkout carta simulato e logout.
+
+## Identità visiva
+
+L'ordinazione reale e la demo condividono la palette e gli asset ufficiali esposti da `@pizzaos/brand`. La copertina del menu conserva la fotografia decorativa e presenta il logo PizzaOS su supporto blu; nome della pizzeria, stato e contenuti del menu continuano a provenire dal servizio. Anche accesso ordinario e demo usano il logo ufficiale tramite `BrandLogo` di `@pizzaos/ui`.
+
+Il tema client usa Poppins, superfici calde, testo blu, accenti sabbia/arancio e un arancio scuro accessibile per le azioni con testo bianco. Colori di successo, avviso ed errore sono semantici e distinti dal brand. I moduli del client consumano i token condivisi anche nei flussi gruppo, personalizzazione, carrello, checkout e post-ordine. Contratti e verifiche dell'allineamento: [SDD del brand](../../.agents/design/2026-11-24-brand-alignment/design.md).
