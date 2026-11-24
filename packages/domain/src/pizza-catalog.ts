@@ -28,23 +28,44 @@ export function applyPizzaDefaults(catalog: PizzaCatalog): PizzaCatalog {
 /** Snapshot eligible warehouse extras; never infer links from names or alter the supplied draft. */
 export function syncPizzaInventory(draft: MenuDraft, ingredients: readonly IndividualIngredient[]): MenuDraft {
   const catalog = draft.pizzaCatalog;
-  if (!catalog?.inventoryExtras) return draft;
+  if (!catalog) return draft;
   const eligible = ingredients.filter(item => item.extra?.enabled).slice().sort((a, b) => a.id.localeCompare(b.id));
   const inventorySignature = JSON.stringify(eligible.map(item => [item.id, item.name, item.extra, item.food ?? null]));
-  const generated = eligible.map(item => ({ id: `inventory:${item.id}`, name: item.name, description: "",
-    priceCents: item.extra?.priceCents ?? 0, available: true, ingredients: { [item.id]: item.extra?.dose ?? null },
-    ...(item.food ? { food: copyFood(item.food) } : {}), category: "Extra", inventoryIngredientId: item.id }));
+  const allocatedIds = new Set(catalog.toppings.map(item => item.id));
+  const generated = eligible.map((item, index) => {
+    const previous = catalog.toppings.find(topping => topping.inventoryIngredientId === item.id && topping.id.length <= 100);
+    const stem = item.id.length <= 90 ? `inventory:${item.id}` : `inventory:extra:${index}`;
+    let id = previous?.id ?? stem;
+    let suffix = 0;
+    if (!previous) while (allocatedIds.has(id)) id = `${stem}:${++suffix}`;
+    allocatedIds.add(id);
+    return { id, name: item.name, description: "", priceCents: item.extra?.priceCents ?? 0,
+      available: true, ingredients: { [item.id]: item.extra?.dose ?? null },
+      ...(item.food ? { food: copyFood(item.food) } : {}), category: "Extra", inventoryIngredientId: item.id };
+  });
   const activeIds = generated.map(item => item.id);
   // Keep recipes referenced by tastes even when an ingredient is no longer an offered extra.
   const included = new Set(catalog.tastes.flatMap(entry => entry.includedToppingIds));
   const existing = new Set(generated.map(item => item.id));
-  const preserved = catalog.toppings.filter(item => !existing.has(item.id)
-    && (!item.inventoryIngredientId || included.has(item.id)));
-  const next = { ...catalog, inventorySignature, toppings: [...preserved, ...generated],
+  const preserved = catalog.toppings.filter(item => !existing.has(item.id) && included.has(item.id));
+  // Keep an included recipe stable even when its warehouse extra changes commercially.
+  const reservedIds = new Set([...catalog.toppings.map(item => item.id), ...activeIds]);
+  const copiedIds = new Map<string, string>();
+  const recipeCopies = catalog.toppings.filter(item => included.has(item.id) && existing.has(item.id)).map(item => {
+    const stem = `recipe:${item.id}`.slice(0, 100);
+    let id = stem;
+    let suffix = 0;
+    while (reservedIds.has(id)) id = `${stem}:${++suffix}`;
+    reservedIds.add(id);
+    copiedIds.set(item.id, id);
+    const recipe = { ...item };
+    delete recipe.inventoryIngredientId;
+    return { ...recipe, id };
+  });
+  const next = { ...catalog, inventoryExtras: true, inventorySignature, toppings: [...preserved, ...recipeCopies, ...generated],
     formulas: catalog.formulas.map(entry => ({ ...entry, toppingIds: activeIds })),
-    tastes: catalog.tastes.map(entry => ({ ...entry, toppingIds: [...new Set([
-      ...entry.toppingIds.filter(id => preserved.some(item => item.id === id && !item.inventoryIngredientId)), ...activeIds
-    ])] })) };
+    tastes: catalog.tastes.map(entry => ({ ...entry, toppingIds: activeIds,
+      includedToppingIds: entry.includedToppingIds.map(id => copiedIds.get(id) ?? id) })) };
   return materializePizzaMenu({ ...draft, pizzaCatalog: next });
 }
 
@@ -103,8 +124,17 @@ function projectPizza(catalog: PizzaCatalog, entry: PizzaTaste | PizzaFormula, k
   }
   const extraIds = options.filter(option => option.pizza?.kind === "topping").map(option => option.id);
   if (extraIds.length) groups.push({ id: "extras", name: "Extra", kind: "extras", min: 0, max: 100, allowRepeat: true, optionIds: extraIds });
+  const taste = "includedToppingIds" in entry ? entry : undefined;
+  const customizations = taste?.customizations;
+  if (customizations) {
+    options.push(...structuredClone(customizations.options));
+    groups.push(...structuredClone(customizations.groups ?? (customizations.options.length
+      ? [{ id: "product-choices", name: "Scelte del prodotto", kind: "selection" as const, min: 0,
+        max: customizations.options.length, optionIds: customizations.options.map(option => option.id) }] : [])));
+  }
   return { id: entry.id, name: entry.name, description: entry.description, priceCents: entry.priceCents,
-    available: entry.available, ingredients, allergens: [], options, groups,
+    available: entry.available, ingredients, allergens: taste?.allergens ? [...taste.allergens] : [], options, groups,
+    ...(taste?.food ? { food: copyFood(taste.food) } : {}),
     pizza: { kind, sourceId: entry.id, defaultSelections, ...(entry.previewImages ? { previewImages: entry.previewImages.map(image => ({ ...image })) } : {}), ...(entry.toppingImagePath ? { toppingImagePath: entry.toppingImagePath } : {}), includedToppings: catalog.toppings.filter(item => included.includes(item.id)).map(item => ({ sourceId: item.id, ingredientIds: Object.keys(item.ingredients), available: item.available, ...(item.food ? { food: copyFood(item.food) } : {}) })) },
     pizzaRecipeSources: catalog.toppings.filter(item => included.includes(item.id)).map(item => ({ sourceId: item.id, ingredients: { ...item.ingredients } })),
     ...("extraOffer" in entry && entry.extraOffer ? { extraOffer: { ...entry.extraOffer } }

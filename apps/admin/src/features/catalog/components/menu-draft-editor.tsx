@@ -1,4 +1,4 @@
-import { materializePizzaMenu, PIZZA_EXTRA_OFFERS, syncPizzaInventory } from "@pizzaos/domain";
+import { materializePizzaMenu, planProductClassification, PIZZA_EXTRA_OFFERS, syncPizzaInventory } from "@pizzaos/domain";
 import type { IndividualIngredient, IndividualProduct, MenuDraft, OrderingMenuSection, PizzaEntry } from "@pizzaos/domain";
 import { Button } from "@pizzaos/ui";
 import { useState } from "react";
@@ -46,6 +46,8 @@ export function MenuDraftEditor({ draft, storeId, ingredients, onChange, onUploa
   const [settings, setSettings] = useState(false);
   const [activeSectionId, setActiveSectionId] = useState("");
   const [configurationStart, setConfigurationStart] = useState(draft.pizzaCatalog);
+  const [classification, setClassification] = useState<{ productId: string; pizza: boolean } | null>(null);
+  const [newProductIds, setNewProductIds] = useState<string[]>([]);
   const productIndex = draft.products.findIndex(product => product.id === editingId);
   const editing = draft.products[productIndex];
   const editingSection = draft.sections.find(section => section.productIds.includes(editingId));
@@ -53,6 +55,10 @@ export function MenuDraftEditor({ draft, storeId, ingredients, onChange, onUploa
   const activeSection = draft.sections.find(section => section.id === activeSectionId) ?? draft.sections[0];
   const catalog = draft.pizzaCatalog ?? blankPizzaCatalog();
   const taste = catalog.tastes.find(item => item.id === editingId);
+  const classificationPlan = classification?.productId === editingId
+    ? planProductClassification(draft, editingId, classification.pizza, ingredients, { newProduct: newProductIds.includes(editingId) }) : undefined;
+  const refreshedCatalog = draft.pizzaCatalog ? syncPizzaInventory(draft, ingredients).pizzaCatalog : undefined;
+  const extrasChanged = refreshedCatalog?.inventorySignature !== draft.pizzaCatalog?.inventorySignature;
 
   function ingredientSummary(product: IndividualProduct) {
     const entry = catalog.tastes.find(item => item.id === product.id);
@@ -71,6 +77,7 @@ export function MenuDraftEditor({ draft, storeId, ingredients, onChange, onUploa
   function addProduct(section: OrderingMenuSection, source?: IndividualProduct) {
     if (source?.pizza) { addPizza(section, source.pizza.kind, source.id); return; }
     const id = crypto.randomUUID();
+    if (!source) setNewProductIds(current => [...current, id]);
     const product: IndividualProduct = source
       ? { ...structuredClone(source), id, name: `Copia di ${source.name}` }
       : { id, name: "", description: "", priceCents: 0, available: true, allergens: [], ingredients: {}, options: [] };
@@ -192,14 +199,28 @@ export function MenuDraftEditor({ draft, storeId, ingredients, onChange, onUploa
           </li>;
         })}
       </ul>
-      <div className={styles.actions}><Button type="button" variant="secondary" onClick={() => addProduct(section)}>Aggiungi prodotto</Button>
-        <Button type="button" variant="secondary" onClick={() => addPizza(section, "taste")}>Aggiungi pizza</Button></div>
+      <div className={styles.actions}><Button type="button" variant="secondary" onClick={() => addProduct(section)}>Aggiungi prodotto</Button></div>
     </section>; })}
     <button type="button" className={`${styles.settingsCard} ${settings ? styles.selectedCard : ""}`} onClick={() => {
       setConfigurationStart(structuredClone(draft.pizzaCatalog)); setSettings(true); setEditingId("");
     }}><strong>Impasti, basi e formati</strong><span>{settings ? "In modifica" : "Personalizza"}</span>
       <small>{catalog.doughs.find(item => item.id === catalog.defaults?.doughId)?.name ?? catalog.doughs[0]?.name ?? "Configura impasto"} · {catalog.bases.find(item => item.id === catalog.defaults?.baseId)?.name ?? catalog.bases[0]?.name ?? "base"} · {catalog.formats.find(item => item.id === catalog.defaults?.formatId)?.name ?? catalog.formats[0]?.name ?? "formato"}</small>
       <small>Valgono per tutte le pizze. Cambiali solo se offri alternative.</small></button>
+    {(catalog.tastes.length > 0 || catalog.formulas.length > 0) && <section className={styles.section} aria-label="Extra comuni dal Magazzino">
+      <h3>Extra comuni dal Magazzino</h3>
+      <p>Tutte le pizze propongono gli ingredienti con la spunta “Possibile extra”. Prezzi e dosi si gestiscono una sola volta nel Magazzino; le scorte determinano la disponibilità.</p>
+      <p>{ingredients.filter(item => item.extra?.enabled).length} extra abilitati. Le aggiunte possono essere ripetute.</p>
+      <ul>{ingredients.filter(item => item.extra?.enabled).map(item => <li key={item.id}>
+        {item.name} · {item.extra?.priceCents == null ? "Prezzo da verificare" : money.format(item.extra.priceCents / 100)}
+        {item.extra?.dose == null ? " · Dose da verificare" : ` · Dose ${item.extra.dose}`}
+        {item.stock === null ? " · Scorta da verificare" : item.stock === 0 ? " · Esaurito" : ""}
+      </li>)}</ul>
+      {!ingredients.some(item => item.extra?.enabled) && <p>Nessun ingrediente ha la spunta Possibile extra.</p>}
+      {extrasChanged && <p role="status">Gli extra della bozza sono da aggiornare. Controlla le scelte e salva prima di pubblicare.</p>}
+      {extrasChanged && <Button type="button" variant="secondary" onClick={() => onChange(syncPizzaInventory(draft, ingredients))}>Aggiorna extra della bozza</Button>}
+      {onInventory && <Button type="button" variant="ghost" onClick={onInventory}>Apri Magazzino</Button>}
+      <p className={styles.small}>Prezzi e dosi diventano visibili ai clienti solo dopo la pubblicazione del menu.</p>
+    </section>}
     <PizzaCustomCard draft={draft} ingredients={ingredients} onChange={onChange} onSave={onSave} onInventory={onInventory}
       onRemove={removeProduct} onAdd={() => {
         const section = activeSection ?? { id: crypto.randomUUID(), name: "Pizza custom", productIds: [] };
@@ -216,6 +237,25 @@ export function MenuDraftEditor({ draft, storeId, ingredients, onChange, onUploa
     </fieldset>}
     </div>
     <aside className={styles.menuDetail} aria-label="Scheda di modifica">
+      {!settings && editing && editing.pizza?.kind !== "formula" && <div className={styles.stack}>
+        <label className={styles.check}><input type="checkbox" checked={Boolean(editing.pizza)}
+          onChange={event => setClassification({ productId: editing.id, pizza: event.target.checked })} />Pizza</label>
+        <p className={styles.small}>{editing.pizza ? "Impasti, basi, formati ed extra comuni; ingredienti della ricetta rimovibili." : "Prodotto normale. Puoi aggiungere gruppi specifici, per esempio le salse."}</p>
+        {classificationPlan && <fieldset className={styles.confirm}>
+          <legend>Cambiare tipo di prodotto?</legend>
+          <ul>{classificationPlan.changes.map(change => <li key={change}>{change}</li>)}</ul>
+          {classificationPlan.errors.map(error => <p key={error} role="alert">{error}</p>)}
+          <p>La modifica riguarda questa bozza. Il menu cliente cambia soltanto alla pubblicazione.</p>
+          <div className={styles.actions}>
+            <Button type="button" disabled={!classificationPlan.draft} onClick={() => {
+              if (!classification) return;
+              const plan = planProductClassification(draft, editingId, classification.pizza, ingredients, { newProduct: newProductIds.includes(editingId) });
+              if (plan.draft) { onChange(plan.draft); setClassification(null); }
+            }}>Conferma cambio tipo</Button>
+            <Button type="button" variant="ghost" onClick={() => setClassification(null)}>Annulla cambio tipo</Button>
+          </div>
+        </fieldset>}
+      </div>}
       {settings ? <PizzaSettingsPanel draft={draft} ingredients={ingredients} onChange={onChange} onSave={() => { onSave?.(); setSettings(false); }} onClose={() => {
         const original = configurationStart ?? blankPizzaCatalog();
         const restoreChoices = <T extends PizzaEntry>(entry: T): T => {

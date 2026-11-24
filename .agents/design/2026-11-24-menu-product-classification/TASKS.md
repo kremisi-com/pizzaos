@@ -1,0 +1,1 @@
+- [x] **product-classification**: Scheda unica, riclassificazione verificabile, extra comuni autorevoli e percorsi cliente coerenti.

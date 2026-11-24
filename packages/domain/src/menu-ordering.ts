@@ -1,7 +1,5 @@
-export interface MenuFoodInformation {
-  contains: string[];
-  mayContain: string[];
-}
+import type { MenuFoodInformation, MenuExtraOffer } from "./menu-choice-types";
+export type { MenuFoodInformation, MenuOptionGroup, MenuExtraOffer, MenuSpecificOption } from "./menu-choice-types";
 
 export interface MenuFoodIngredient {
   id: string;
@@ -23,21 +21,6 @@ export interface PublishedMenu {
   kitchenNotice?: string;
   /** Operator-owned source catalog; omitted from public storefront responses. */
   pizzaCatalog?: import("./pizza-types").PizzaCatalog;
-}
-
-export interface MenuOptionGroup {
-  id: string;
-  name: string;
-  kind: "dough" | "base" | "format" | "ingredients" | "extras" | "recipe" | "selection";
-  min: number;
-  max: number;
-  allowRepeat?: boolean;
-  optionIds: string[];
-}
-
-export interface MenuExtraOffer {
-  quota: number;
-  percent: number;
 }
 
 export const PIZZA_EXTRA_OFFERS = {

@@ -61,8 +61,10 @@ export function LivePizzaEditor({ store, product, line, quantity = 1, disabled, 
   const [openCategory, setOpenCategory] = useState<string | null>(null);
   const [showFood, setShowFood] = useState(false);
   const [pairingMessage, setPairingMessage] = useState("");
-  const groups = product.groups ?? [];
   const options = new Map(product.options.map(option => [option.id, option]));
+  const allGroups = product.groups ?? [];
+  const groups = allGroups.filter(group => group.optionIds.some(id => options.get(id)?.pizza));
+  const specificGroups = allGroups.filter(group => !group.optionIds.some(id => options.get(id)?.pizza));
   const preview = resolveMenuComposition(product, selections);
   const lineQuantity = line?.quantity ?? quantity;
   const canSave = !disabled && product.available && preview.valid;
@@ -265,6 +267,36 @@ export function LivePizzaEditor({ store, product, line, quantity = 1, disabled, 
             </div> : matching.map(group => <div key={group.id}>{renderOptions(group)}</div>)}
           </CollapsibleSection>;
         })}
+        {specificGroups.map(group => <fieldset key={group.id} className={live.specificChoices} disabled={disabled}>
+          <legend>{group.name}</legend>
+          <p>{group.min === group.max ? `${group.min} scelte richieste` : `Da ${group.min} a ${group.max} scelte`}</p>
+          <div className={styles.optionList}>{group.optionIds.map(id => {
+            const option = options.get(id);
+            if (!option) return null;
+            const count = selected(id);
+            const total = selectionCount(group, selections);
+            return <div key={id} className={`${styles.ingredientRow} ${live.ingredientRow}`}>
+              <div><strong>{option.name}</strong> · {delta(option.priceCents)}
+                {option.description && <p>{option.description}</p>}
+                {option.available === false && <p>Esaurito</p>}
+              </div>
+              {group.allowRepeat ? <div className={live.ingredientActions}>
+                <button type="button" className={live.ingredientExtra} aria-label={`Riduci ${option.name}`}
+                  disabled={count === 0} onClick={() => choose(option, count - 1, group)}>−</button>
+                <output aria-label={`Quantità ${option.name}`}>{count}</output>
+                <button type="button" className={live.ingredientExtra} aria-label={`Aggiungi ${option.name}`}
+                  disabled={option.available === false || total >= group.max}
+                  onClick={() => choose(option, count + 1, group)}>+</button>
+              </div> : <label>
+                <input type={group.max === 1 && group.min > 0 ? "radio" : "checkbox"}
+                  name={`${titleId}-${group.id}`} checked={count > 0} aria-label={option.name}
+                  disabled={option.available === false || count === 0 && group.max !== 1 && total >= group.max}
+                  onChange={() => choose(option, count > 0 && (group.min === 0 || group.max > 1) ? 0 : 1, group)} />
+                {count ? "Selezionato" : "Scegli"}
+              </label>}
+            </div>;
+          })}</div>
+        </fieldset>)}
       </div>
       <section className={styles.noteSection} aria-labelledby={`${titleId}-notes`}>
         <div className={styles.noteHeader}><span className={styles.noteIcon} aria-hidden="true">📝</span>

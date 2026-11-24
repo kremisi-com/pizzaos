@@ -32,6 +32,19 @@ test("gusti e formule usano la scheda PoC, il prezzo server e l'ordine cucina", 
   await context.addCookies([{ name: "pizzaos-e2e-actor", value: "alice", url: clientOrigin }]);
   await page.setViewportSize({ width: 390, height: 844 });
   try {
+    const storeResponse = await operator.request.get(`${adminOrigin}/api/pilot/v1/pilot/stores/roma`);
+    expect(storeResponse.ok(), await storeResponse.text()).toBe(true);
+    const store = await storeResponse.json() as IndividualStore;
+    const configured = await operator.request.put(`${adminOrigin}/api/pilot/v1/pilot/stores/roma`, {
+      headers: { origin: adminOrigin },
+      data: { ...store, ingredients: [
+        ...store.ingredients.filter((ingredient) => ingredient.id !== "browser-olive-extra"),
+        { id: "browser-olive-extra", name: "Olive", stock: 100, food: { contains: [], mayContain: [] }, extra: { enabled: true, priceCents: 100, dose: 1 } }
+      ] }
+    });
+    expect(configured.ok(), await configured.text()).toBe(true);
+    const updatedStore = await (await operator.request.get(`${adminOrigin}/api/pilot/v1/pilot/stores/roma`)).json() as IndividualStore;
+    expect(updatedStore.ingredients.find((ingredient) => ingredient.id === "browser-olive-extra")?.extra).toEqual({ enabled: true, priceCents: 100, dose: 1 });
     const workspace = await operator.request.get(`${adminOrigin}${menuPath}`);
     const { revision } = await workspace.json() as MenuWorkspace;
     const saved = await operator.request.put(`${adminOrigin}${menuPath}/drafts`, { headers: { origin: adminOrigin }, data: { revision, draft } });
@@ -44,14 +57,15 @@ test("gusti e formule usano la scheda PoC, il prezzo server e l'ordine cucina", 
     await admin.getByRole("button", { name: "Pubblica menu", exact: true }).click();
     const publishing = admin.waitForResponse(response => response.url().endsWith(`${menuPath}/publish`));
     await admin.getByRole("button", { name: "Conferma pubblicazione", exact: true }).click();
-    expect((await publishing).ok()).toBe(true);
+    const published = await publishing;
+    expect(published.ok(), await published.text()).toBe(true);
     await page.goto(`${clientOrigin}/ordina`);
     for (const name of ["Simple", "Wild", "Savage", "Margherita"]) {
       await page.getByRole("button", { name: `Aggiungi ${name}`, exact: true }).click();
       const dialog = page.getByRole("dialog", { name, exact: true });
       await expect(dialog).toBeVisible();
       for (const section of ["Impasto", "Base", "Formato", "Ingredienti", "Extra"]) {
-        await expect(dialog.getByRole("heading", { name: section, exact: true })).toBeVisible();
+        await expect(dialog.getByRole("heading", { name: section, exact: true, level: 2 })).toBeVisible();
       }
       await expect(dialog.getByRole("heading", { name: "Note per la cucina" })).toBeVisible();
       await dialog.screenshot({ path: testInfo.outputPath(`${name.toLowerCase()}-mobile.png`) });

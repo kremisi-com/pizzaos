@@ -126,11 +126,17 @@ describe("contratto pubblico del catalogo pizza", () => {
     expect(result.recipe).not.toHaveProperty("latte");
   });
 
-  it("non sincronizza cataloghi legacy senza scelta esplicita del Magazzino", () => {
+  it("sincronizza anche cataloghi legacy senza scelta esplicita del Magazzino", () => {
     const candidate = draft();
     const before = structuredClone(candidate);
     const ingredients: IndividualIngredient[] = [{ id: "olive", name: "Olive", stock: 10, extra: { enabled: true, priceCents: 999, dose: 8 } }];
-    expect(syncPizzaInventory(candidate, ingredients)).toEqual(before);
+    const result = syncPizzaInventory(candidate, ingredients);
+    const managed = result.pizzaCatalog!.toppings.find(({ inventoryIngredientId }) => inventoryIngredientId === "olive");
+    expect(managed).toMatchObject({ priceCents: 999, ingredients: { olive: 8 } });
+    for (const entry of [...result.pizzaCatalog!.tastes, ...result.pizzaCatalog!.formulas]) {
+      expect(entry.toppingIds).toContain(managed!.id);
+    }
+    expect(syncPizzaInventory(result, ingredients)).toEqual(result);
     expect(candidate).toEqual(before);
   });
 

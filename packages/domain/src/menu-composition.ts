@@ -33,7 +33,7 @@ export function resolveMenuComposition(product: IndividualProduct, selections: r
     if (count < group.min || count > group.max) valid = false;
   }
 
-  const removed = new Set(selected.flatMap(({ option }) => option.removesIngredientIds ?? []));
+  const removed = new Set(selected.filter(({ option }) => !option.pizza).flatMap(({ option }) => option.removesIngredientIds ?? []));
   const recipe = new Map<string, number>();
   const removedToppings = new Set(selected.filter(({ option }) => option.pizza?.kind === "removal").map(({ option }) => option.pizza?.sourceId));
   const pizzaBase = product.pizzaRecipeSources?.filter(source => !removedToppings.has(source.sourceId)).flatMap(source => Object.entries(source.ingredients))
@@ -41,7 +41,7 @@ export function resolveMenuComposition(product: IndividualProduct, selections: r
   const base = pizzaBase ?? product.baseIngredientIds?.map(id => [id, 1] as const) ?? Object.entries(product.ingredients);
   for (const [id, units] of base) {
     if (units === null) { valid = false; continue; }
-    if (product.pizza || !removed.has(id)) recipe.set(id, (recipe.get(id) ?? 0) + units);
+    if (!removed.has(id)) recipe.set(id, (recipe.get(id) ?? 0) + units);
   }
   const contains = new Map<string, string>();
   const mayContain = new Map<string, string>();
@@ -50,7 +50,7 @@ export function resolveMenuComposition(product: IndividualProduct, selections: r
     for (const label of food.mayContain) mayContain.set(menuAllergenKey(label), label);
   }
   if (product.food) includeFood(product.food);
-  else if (!product.groups) includeFood({ contains: product.allergens, mayContain: [] });
+  else if (!product.groups || product.pizza) includeFood({ contains: product.allergens, mayContain: [] });
 
   let foodComplete = true;
   let identifiedFood = Boolean(product.food || base.length);
@@ -64,7 +64,7 @@ export function resolveMenuComposition(product: IndividualProduct, selections: r
     const ownRemovals = new Set(option.removesIngredientIds);
     for (const [id, units] of references) {
       if (units === null) { valid = false; continue; }
-      if (product.pizza || !removed.has(id) || ownRemovals.has(id)) recipe.set(id, (recipe.get(id) ?? 0) + units * quantity);
+      if (!removed.has(id) || ownRemovals.has(id)) recipe.set(id, (recipe.get(id) ?? 0) + units * quantity);
     }
     if (option.food) { includeFood(option.food); identifiedFood = true; }
     else if (!references.length && !ownRemovals.size && ["recipe", "extras", "selection"].includes(groupByOption.get(option.id)?.kind ?? "")) foodComplete = false;

@@ -175,14 +175,20 @@ function describeFood(product: IndividualProduct, store: IndividualStore): Indiv
 function publicProduct(product: IndividualProduct, store: IndividualStore, reserved: Record<string, number>): IndividualProduct {
   const remaining = new Map(store.ingredients.map(item => [item.id, (item.stock ?? 0) - (reserved[item.id] ?? 0)]));
   const removable = new Set(product.options.flatMap(option => option.removesIngredientIds ?? []));
+  const specificRemovable = new Set(product.options.filter(option => !option.pizza).flatMap(option => option.removesIngredientIds ?? []));
   const possible = (recipe: Record<string, number | null>, allowRemovals = false) => Object.entries(recipe).every(([id, units]) => units !== null && ((allowRemovals && removable.has(id)) || (remaining.get(id) ?? 0) >= units));
   const base = Object.entries(product.ingredients).filter(([id]) => !removable.has(id));
   const managed = Boolean(store.menu || product.groups);
   const maxAvailable = managed && base.length ? Math.max(0, Math.min(...base.map(([id, units]) => units === null ? 0 : Math.floor((remaining.get(id) ?? 0) / units)))) : undefined;
+  function optionPossible(option: IndividualProduct["options"][number]) {
+    const component = option.pizza && ["dough", "base", "format"].includes(option.pizza.kind);
+    return Object.entries(option.ingredients).every(([id, units]) => units !== null
+      && (component && specificRemovable.has(id) || (remaining.get(id) ?? 0) >= units));
+  }
   return { ...(managed ? describeFood(product, store) : product), available: product.available && possible(product.ingredients, true),
     ...(managed ? { baseIngredientIds: Object.keys(product.ingredients), ...(maxAvailable !== undefined ? { maxAvailable } : {}) } : {}),
     pizzaRecipeSources: undefined, ingredients: {}, options: product.options.map(option => ({ ...option, ingredients: {},
-      ...(managed ? { ingredientIds: Object.keys(option.ingredients), available: option.available !== false && possible(option.ingredients) } : {}) })) };
+      ...(managed ? { ingredientIds: Object.keys(option.ingredients), available: option.available !== false && optionPossible(option) } : {}) })) };
 }
 
 function distanceKm(a: { latitude: number; longitude: number }, b: { latitude: number; longitude: number }): number {

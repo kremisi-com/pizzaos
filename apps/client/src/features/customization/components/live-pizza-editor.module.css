@@ -16,6 +16,9 @@
 .dialog::backdrop { background: color-mix(in srgb, var(--pizzaos-brand-navy) 45%, transparent); }
 .back { border: 0; background: transparent; cursor: pointer; }
 .feedback { padding: 0 20px; }
+.specificChoices { min-width: 0; margin: 0; padding: 20px; border: 0; border-bottom: 1px solid var(--pizzaos-color-border); }
+.specificChoices legend { padding: 0; font-weight: 700; overflow-wrap: anywhere; }
+.specificChoices > p { margin: 0 0 12px; font-size: .875rem; color: var(--pizzaos-color-foreground-muted); }
 .status { color: var(--pizzaos-color-critical); }
 .ingredientActions { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 8px; min-width: 0; }
 .ingredientRow { gap: 8px; }

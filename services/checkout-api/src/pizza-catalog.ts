@@ -14,6 +14,8 @@ export function validatePizzaCatalog(value: unknown, ingredientIds: Set<string>,
   const collections = ["doughs", "bases", "formats", "toppings", "tastes", "formulas"];
   if (!isMenuRecord(value) || !only(value, [...collections, "defaults", "customEnabled", "inventoryExtras", "inventorySignature"]) || collections.some(key => !Array.isArray(value[key]) || value[key].length > 100)) invalid("Catalogo pizza non valido.");
   const catalog = value as unknown as PizzaCatalog;
+  // A menu containing only ordinary products does not require pizza standards or recipe readiness.
+  publishing = publishing && (catalog.tastes.length > 0 || catalog.formulas.length > 0);
   if ((catalog.customEnabled !== undefined && typeof catalog.customEnabled !== "boolean") ||
     (catalog.inventoryExtras !== undefined && typeof catalog.inventoryExtras !== "boolean") ||
     (catalog.inventorySignature !== undefined && (typeof catalog.inventorySignature !== "string" || catalog.inventorySignature.length > 200000))) invalid("Configurazione pizza non valida.");
@@ -40,14 +42,18 @@ export function validatePizzaCatalog(value: unknown, ingredientIds: Set<string>,
       }
     }
   }
+  const inventoryReferences = new Set<string>();
   for (const topping of catalog.toppings) {
     if (!label(topping.category)) invalid("Indica una categoria per ogni topping.");
-    if (topping.inventoryIngredientId !== undefined && (!ingredientIds.has(topping.inventoryIngredientId)
-      || topping.id !== `inventory:${topping.inventoryIngredientId}`)) invalid("Riferimento extra al Magazzino non valido.");
+    if (topping.inventoryIngredientId !== undefined) {
+      if (!ingredientIds.has(topping.inventoryIngredientId) || !topping.id.startsWith("inventory:")
+        || inventoryReferences.has(topping.inventoryIngredientId)) invalid("Riferimento extra al Magazzino non valido.");
+      inventoryReferences.add(topping.inventoryIngredientId);
+    }
   }
   const ids = new Set<string>();
   for (const entry of [...catalog.tastes, ...catalog.formulas]) {
-    if (!isMenuRecord(entry) || !only(entry, ["id", "name", "description", "priceCents", "available", "standardDoughId", "standardBaseId", "standardFormatId", "doughIds", "baseIds", "formatIds", "toppingIds", "imageId", "pairingProductIds", "includedToppingIds", "offer", "extraOffer", "previewImages", "toppingImagePath"]) ||
+    if (!isMenuRecord(entry) || !only(entry, ["id", "name", "description", "priceCents", "available", "standardDoughId", "standardBaseId", "standardFormatId", "doughIds", "baseIds", "formatIds", "toppingIds", "imageId", "pairingProductIds", "includedToppingIds", "offer", "extraOffer", "previewImages", "toppingImagePath", "customizations", "food", "allergens"]) ||
       !safeId(entry.id) || ids.has(entry.id) || !label(entry.name) || typeof entry.description !== "string" || entry.description.length > 2000 || !cents(entry.priceCents) || typeof entry.available !== "boolean") invalid("Gusto o formula pizza non validi.");
     ids.add(entry.id);
     for (const [items, allowed, standard] of [[catalog.doughs, entry.doughIds, entry.standardDoughId], [catalog.bases, entry.baseIds, entry.standardBaseId], [catalog.formats, entry.formatIds, entry.standardFormatId]] as const) {
@@ -71,9 +77,22 @@ export function validatePizzaCatalog(value: unknown, ingredientIds: Set<string>,
   }
   for (const taste of catalog.tastes) {
     if ("offer" in taste || "extraOffer" in taste || !strings(taste.includedToppingIds) || taste.includedToppingIds.some(id => !catalog.toppings.some(topping => topping.id === id))) invalid("Ingredienti inclusi nel gusto non validi.");
+    if (taste.food !== undefined) validateMenuFood(taste.food, invalid);
+    if (taste.allergens !== undefined && (!Array.isArray(taste.allergens) || taste.allergens.length > 100 || taste.allergens.some(item => !label(item)))) invalid("Allergeni del gusto non validi.");
+    const custom = taste.customizations;
+    if (custom !== undefined) {
+      if (!isMenuRecord(custom) || !only(custom, ["options", "groups"]) || !Array.isArray(custom.options)
+        || custom.options.length > 100
+        || custom.options.some(option => !isMenuRecord(option) || option.pizza !== undefined
+          || !safeId(option.id) || /^(dough|base|format|extra|remove):/.test(option.id))
+        || custom.groups !== undefined && (!Array.isArray(custom.groups) || custom.groups.some(group => !isMenuRecord(group)
+          || ["dough", "base", "format", "ingredients", "extras", "product-choices"].includes(group.id)))) {
+        invalid("Verifica i gruppi specifici della pizza: contengono dati o identificativi riservati.");
+      }
+    }
   }
   for (const formula of catalog.formulas) {
-    if ("includedToppingIds" in formula || (formula.offer !== undefined && (typeof formula.offer !== "string" || !Object.hasOwn(PIZZA_EXTRA_OFFERS, formula.offer)))) invalid("Regola precedente della formula non valida.");
+    if ("includedToppingIds" in formula || "customizations" in formula || "food" in formula || "allergens" in formula || (formula.offer !== undefined && (typeof formula.offer !== "string" || !Object.hasOwn(PIZZA_EXTRA_OFFERS, formula.offer)))) invalid("Regola precedente della formula non valida.");
     const offer = formula.extraOffer;
     if (offer !== undefined && (!isMenuRecord(offer) || !only(offer, ["quota", "percent"]) ||
       !Number.isSafeInteger(offer.quota) || offer.quota < 0 || offer.quota > 100 ||
@@ -98,7 +117,7 @@ export function preparePizzaMenu(draft: MenuDraft, ingredientIds: Set<string>, i
       invalid("I metadati pizza devono appartenere a un gusto o a una formula del catalogo.");
     }
   }
-  if (inventory && draft.pizzaCatalog.inventoryExtras) {
+  if (inventory && (draft.pizzaCatalog.tastes.length > 0 || draft.pizzaCatalog.formulas.length > 0)) {
     const refreshed = syncPizzaInventory(draft, inventory);
     if (publishing && refreshed.pizzaCatalog?.inventorySignature !== draft.pizzaCatalog.inventorySignature) {
       invalid("Gli extra del Magazzino sono cambiati. Ricarica gli ingredienti, controlla e salva la bozza prima di pubblicare.");

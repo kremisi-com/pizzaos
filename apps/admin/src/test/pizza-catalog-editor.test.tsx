@@ -81,7 +81,7 @@ describe("Catalogo pizza nel pannello", () => {
     fireEvent.click(screen.getByRole("switch", { name: "Pizza custom" }));
     expect(current().pizzaCatalog?.customEnabled).toBe(false);
     expect(current().pizzaCatalog?.formulas).toHaveLength(1);
-    expect(current().pizzaCatalog?.formulas[0]).toMatchObject({ id: "simple", name: "Simple", priceCents: 600, toppingIds: ["olive"],
+    expect(current().pizzaCatalog?.formulas[0]).toMatchObject({ id: "simple", name: "Simple", priceCents: 600, toppingIds: [],
       standardDoughId: "classico", standardBaseId: "rossa", standardFormatId: "standard" });
     expect(current().sections).toEqual(before.sections);
     expect(current().products.some(({ pizza }) => pizza?.kind === "formula")).toBe(false);

@@ -2,6 +2,7 @@ import type {
   MenuComposition, MenuExtraOffer, MenuFoodInformation, MenuFoodIngredient, MenuOptionGroup, MenuSelection, PublishedMenu
 } from "./menu-ordering";
 import type { PromotionBreakdown, PromotionSelection } from "./promotions-loyalty";
+import type { MenuSpecificOption } from "./menu-choice-types";
 
 /** Durable pilot contracts. EUR amounts are integer cents, dates are UTC ISO strings. */
 export interface IndividualActor { id: string; email: string; name: string; }
@@ -11,12 +12,10 @@ export interface IndividualIngredient {
   /** Commercial configuration is copied to a draft and becomes public only on publication. */
   extra?: { enabled: boolean; priceCents: number | null; dose: number | null };
 }
-export interface IndividualOption {
-  id: string; name: string; priceCents: number; ingredients: Record<string, number | null>;
-  description?: string; food?: MenuFoodInformation; removesIngredientIds?: string[];
+export interface IndividualOption extends MenuSpecificOption {
   pizza?: import("./pizza-types").PizzaOptionIdentity;
   /** Public projection of recipe references and current availability. */
-  ingredientIds?: string[]; available?: boolean;
+  ingredientIds?: string[];
 }
 export interface IndividualProduct {
   id: string; name: string; description: string; priceCents: number; available: boolean;

@@ -3,6 +3,7 @@ import type { IndividualIngredient, MenuDraft, PizzaCatalog, PizzaComponent, Piz
 import { Button } from "@pizzaos/ui";
 import { useState } from "react";
 import { MenuPriceField, MenuRecipeFields } from "./catalog-form-fields";
+import { MenuProductChoices } from "./menu-product-form";
 import styles from "./operational-catalog.module.css";
 
 export const blankPizzaCatalog = (): PizzaCatalog => ({ doughs: [], bases: [], formats: [], toppings: [], tastes: [], formulas: [] });
@@ -21,6 +22,7 @@ export function PizzaTastePanel({ draft, taste, ingredients, onChange, onClose, 
   }
   const base = catalog.bases.find(item => item.id === (catalog.defaults?.baseId ?? taste.standardBaseId));
   const included = catalog.toppings.filter(item => taste.includedToppingIds.includes(item.id));
+  const projected = draft.products.find(product => product.id === taste.id);
   function toggle(ingredient: IndividualIngredient, checked: boolean) {
     if (checked && base && Object.hasOwn(base.ingredients, ingredient.id)) return;
     const candidates = catalog.toppings.filter(item => !item.inventoryIngredientId
@@ -81,6 +83,14 @@ export function PizzaTastePanel({ draft, taste, ingredients, onChange, onClose, 
             ? [...taste.pairingProductIds ?? [], product.id] : taste.pairingProductIds?.filter(id => id !== product.id) })} />{product.name || "Senza nome"}
         </label>)}
       </fieldset>
+      {projected && <details className={styles.food}><summary>Scelte specifiche del prodotto</summary>
+        <p>Impasti, basi, formati ed extra sono comuni. Aggiungi qui soltanto eventuali scelte particolari di questa pizza.</p>
+        <MenuProductChoices product={{ ...projected, options: taste.customizations?.options ?? [], groups: taste.customizations?.groups }}
+          ingredients={ingredients} onChange={change => update({ customizations: {
+            options: change.options ?? taste.customizations?.options ?? [],
+            ...(change.groups ?? taste.customizations?.groups ? { groups: change.groups ?? taste.customizations?.groups } : {})
+          } })} />
+      </details>}
       <Button type="button" variant="ghost" onClick={onRemove}>Rimuovi gusto dalla bozza</Button>
     </details>
     <Button type="button" onClick={onSave}>Salva pizza</Button>
@@ -145,16 +155,14 @@ export function PizzaSettingsPanel({ draft, ingredients, onChange, onClose, onSa
   </section>;
 }
 
-export function PizzaCustomCard({ draft, ingredients, onChange, onAdd, onRemove, onSave, onInventory }: {
+export function PizzaCustomCard({ draft, ingredients, onChange, onAdd, onRemove, onSave }: {
   draft: MenuDraft; ingredients: readonly IndividualIngredient[]; onChange: (draft: MenuDraft) => void;
   onAdd: () => void; onRemove: (id: string) => void; onSave?: () => void; onInventory?: () => void;
 }) {
   const [selectedId, setSelectedId] = useState("");
-  const [linkingInventory, setLinkingInventory] = useState(false);
   const catalog = draft.pizzaCatalog ?? blankPizzaCatalog();
   const selected = catalog.formulas.find(item => item.id === selectedId) ?? (selectedId === "latest" ? catalog.formulas.at(-1) : catalog.formulas[0]);
   const enabled = catalog.customEnabled ?? catalog.formulas.length > 0;
-  const legacy = catalog.formulas.length > 0 && !catalog.inventoryExtras;
   function updateCatalog(next: PizzaCatalog) { onChange(materializePizzaMenu(syncPizzaInventory({ ...draft, pizzaCatalog: next }, ingredients))); }
   function update(change: Partial<PizzaFormula>) {
     if (selected) updateCatalog({ ...catalog, formulas: catalog.formulas.map(item => item.id === selected.id ? { ...item, ...change } : item) });
@@ -165,19 +173,7 @@ export function PizzaCustomCard({ draft, ingredients, onChange, onAdd, onRemove,
     <p className={styles.small}>{enabled ? "Crea le tue combinazioni, con il nome che preferisci." : "Attiva le pizze personalizzabili e crea le tue combinazioni."}</p>
     {enabled && <>
       <div className={styles.actions}>{catalog.formulas.map(formula => <Button key={formula.id} type="button" variant={selected?.id === formula.id ? "primary" : "secondary"} onClick={() => setSelectedId(formula.id)}>{formula.name || "Nuova combinazione"}</Button>)}
-        <Button type="button" variant="ghost" disabled={legacy} onClick={() => { setSelectedId("latest"); onAdd(); }}>+ Aggiungi combinazione</Button></div>
-      {legacy && <div className={styles.notice}>
-        <p>Le combinazioni esistenti conservano i loro extra. Collega gli extra al Magazzino prima di aggiungere nuove combinazioni.</p>
-        <Button type="button" variant="secondary" aria-expanded={linkingInventory} onClick={() => setLinkingInventory(value => !value)}>Collega gli extra al Magazzino</Button>
-        {linkingInventory && <div className={styles.stack}>
-          <p>Questi extra sostituiranno le scelte disponibili nelle combinazioni. Gli ingredienti inclusi nelle pizze restano invariati.</p>
-          <ul>{ingredients.filter(item => item.extra?.enabled).map(item => <li key={item.id}>{item.name}{item.extra?.priceCents == null || item.extra?.dose == null ? " · Da verificare" : ""}</li>)}</ul>
-          {!ingredients.some(item => item.extra?.enabled) && <p>Nessun ingrediente ha la spunta Possibile extra.</p>}
-          <p className={styles.small}>Completa prezzi, dosi e scorte prima della pubblicazione. Il menu attivo non cambia fino alla pubblicazione.</p>
-          <Button type="button" onClick={() => { updateCatalog({ ...catalog, inventoryExtras: true }); setLinkingInventory(false); }}>Conferma collegamento al Magazzino</Button>
-          <Button type="button" variant="ghost" onClick={() => setLinkingInventory(false)}>Annulla collegamento</Button>
-        </div>}
-      </div>}
+        <Button type="button" variant="ghost" onClick={() => { setSelectedId("latest"); onAdd(); }}>+ Aggiungi combinazione</Button></div>
       {selected && <>
         <label>Nome combinazione<input value={selected.name} required maxLength={200} onChange={event => update({ name: event.target.value })} /></label>
         <label>Descrizione<textarea value={selected.description} maxLength={2000} onChange={event => update({ description: event.target.value })} /></label>
@@ -187,8 +183,7 @@ export function PizzaCustomCard({ draft, ingredients, onChange, onAdd, onRemove,
           <label>Sconto sugli extra %<input type="number" min={0} max={100} step={1} value={offer.percent} onChange={event => update({ extraOffer: { ...offer, percent: Number(event.target.value) } })} /></label>
         </div>
         <p><strong>{offer.percent}% di sconto sui {offer.quota} extra più costosi.</strong><br /><span className={styles.small}>Gli altri extra restano a prezzo pieno. Il prezzo base non viene scontato.</span></p>
-        <div className={styles.notice}><strong>{legacy ? "Extra da collegare" : "Extra dal Magazzino"}</strong><p className={styles.small}>{legacy ? "Collega il Magazzino per usare gli ingredienti con la spunta “Possibile extra”." : "Solo ingredienti con la spunta “Possibile extra”. Prezzi e dosi gestiti nel Magazzino."}</p>
-          {onInventory && <Button type="button" variant="ghost" onClick={onInventory}>Apri Magazzino</Button>}</div>
+        <p className={styles.small}>Usa gli stessi extra comuni dal Magazzino di tutte le pizze, anche quando Pizza custom è disattivata.</p>
         <div className={styles.actions}>
           <Button type="button" onClick={onSave}>Salva combinazione</Button>
           <Button type="button" variant="ghost" onClick={() => onRemove(selected.id)}>Elimina combinazione</Button>

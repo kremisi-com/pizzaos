@@ -1,3 +1,5 @@
+import type { MenuFoodInformation, MenuOptionGroup, MenuSpecificOption } from "./menu-choice-types";
+
 /** All amounts are integer cents. Component prices establish differences from the included standard. */
 export interface PizzaComponent {
   id: string; name: string; description: string; priceCents: number; available: boolean;
@@ -11,7 +13,13 @@ export interface PizzaEntry {
   doughIds: string[]; baseIds: string[]; formatIds: string[]; toppingIds: string[];
   imageId?: string; pairingProductIds?: string[]; previewImages?: PizzaPreviewImage[]; toppingImagePath?: string;
 }
-export interface PizzaTaste extends PizzaEntry { includedToppingIds: string[]; }
+export interface PizzaTaste extends PizzaEntry {
+  includedToppingIds: string[];
+  /** Specific product choices remain separate from automatically supplied pizza choices. */
+  customizations?: { options: MenuSpecificOption[]; groups?: MenuOptionGroup[] };
+  food?: MenuFoodInformation;
+  allergens?: string[];
+}
 export interface PizzaFormula extends PizzaEntry {
   /** Legacy rules remain readable; new formulas use explicit extraOffer. */
   offer?: "Simple" | "Wild" | "Savage";

@@ -105,6 +105,27 @@ function MenuGroupForm({ group, product, ingredients, onChange }: {
   </details>;
 }
 
+export function MenuProductChoices({ product, ingredients, onChange }: {
+  product: IndividualProduct;
+  ingredients: readonly IndividualIngredient[];
+  onChange: (change: Partial<IndividualProduct>) => void;
+}) {
+  const groups = product.groups ?? [];
+  return <>
+    {groups.map(group => <MenuGroupForm key={group.id} group={group} product={product} ingredients={ingredients} onChange={onChange} />)}
+    {!product.groups && product.options.map(option => <MenuOptionForm key={option.id} option={option} baseRecipe={product.ingredients} ingredients={ingredients}
+      onChange={change => onChange({ options: product.options.map(item => item.id === option.id ? { ...item, ...change } : item) })}
+      onRemove={() => onChange({ options: product.options.filter(item => item.id !== option.id) })} />)}
+    <div><Button type="button" variant="secondary" onClick={() => {
+      const legacyOptions = !product.groups ? product.options : [];
+      const group: MenuOptionGroup = legacyOptions.length
+        ? { id: crypto.randomUUID(), name: "Personalizzazioni", kind: "selection", min: 0, max: legacyOptions.length, optionIds: legacyOptions.map(option => option.id) }
+        : { id: crypto.randomUUID(), name: "Nuovo gruppo", kind: "selection", min: 0, max: 1, optionIds: [] };
+      onChange({ groups: [...groups, group] });
+    }}>{!product.groups && product.options.length ? "Organizza le scelte in un gruppo" : "Aggiungi gruppo di scelte"}</Button></div>
+  </>;
+}
+
 export function MenuProductForm({ storeId, product, index, ingredients, products, sections, sectionId, onChange, onMove, onRemove, onClose, onUpload }: {
   storeId: string;
   product: IndividualProduct;
@@ -134,15 +155,6 @@ export function MenuProductForm({ storeId, product, index, ingredients, products
         ? { ...option, removesIngredientIds: option.removesIngredientIds.filter(id => Object.hasOwn(ingredients, id)) }
         : option)
     });
-  }
-
-  function addGroup() {
-    const legacyOptions = !product.groups ? product.options : [];
-    const newGroup: MenuOptionGroup = legacyOptions.length > 0
-      ? { id: crypto.randomUUID(), name: "Personalizzazioni", kind: "selection", min: 0, max: legacyOptions.length,
-          optionIds: legacyOptions.map(option => option.id) }
-      : { id: crypto.randomUUID(), name: "Nuovo gruppo", kind: "selection", min: 0, max: 1, optionIds: [] };
-    onChange({ groups: [...groups, newGroup] });
   }
 
   return <section className={styles.productEditor} aria-label="Modifica prodotto">
@@ -180,17 +192,7 @@ export function MenuProductForm({ storeId, product, index, ingredients, products
       <Button type="button" variant="ghost" onClick={() => onChange({ allergens: [] })}>Rimuovi diciture precedenti</Button>
     </div>}
     <MenuFoodFields food={product.food} onChange={food => onChange({ food })} />
-    {groups.map(group =>
-      <MenuGroupForm key={group.id} group={group} product={product} ingredients={ingredients} onChange={onChange} />
-    )}
-    {!product.groups && product.options.map(option =>
-      <MenuOptionForm key={option.id} option={option} baseRecipe={{}} ingredients={ingredients}
-        onChange={change => onChange({ options: product.options.map(item => item.id === option.id ? { ...item, ...change } : item) })}
-        onRemove={() => onChange({ options: product.options.filter(item => item.id !== option.id) })} />
-    )}
-    <div><Button type="button" variant="secondary" onClick={addGroup}>
-      {!product.groups && product.options.length > 0 ? "Organizza le scelte in un gruppo" : "Aggiungi gruppo di scelte"}
-    </Button></div>
+    <MenuProductChoices product={product} ingredients={ingredients} onChange={onChange} />
     {(groups.some(group => group.kind === "extras") || currentOffer) && <label>Formula sconto extra
       <select value={selectedOffer} onChange={event => onChange({ extraOffer: presets.find(([name]) => name === event.target.value)?.[1] })}>
         <option value="">Nessuna formula</option>

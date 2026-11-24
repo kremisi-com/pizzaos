@@ -1,0 +1,16 @@
+import type { IndividualIngredient, MenuDraft } from "@pizzaos/domain";
+
+export interface ProductClassificationPlan {
+  draft?: MenuDraft;
+  changes: string[];
+  errors: string[];
+}
+
+/** Prepare a classification for review; preserve input and return actionable errors on incompatibility. */
+export declare function planProductClassification(
+  draft: MenuDraft, productId: string, pizza: boolean,
+  ingredients: readonly IndividualIngredient[], options?: { newProduct?: boolean }
+): ProductClassificationPlan;
+
+/** Snapshot all enabled warehouse extras onto all pizza entries without changing ordinary products. */
+export declare function syncPizzaInventory(draft: MenuDraft, ingredients: readonly IndividualIngredient[]): MenuDraft;
