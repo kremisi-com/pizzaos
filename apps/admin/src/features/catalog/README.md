@@ -6,4 +6,6 @@ La composizione fornisce `MenuAdminApi`. Il servizio verifica permessi, revision
 
 La demo autenticata usa invece `CatalogManager` con il dataset dimostrativo e callback aggiornate dalla composizione.
 
+Nell’editor della bozza ogni sezione mostra sempre il campo **Descrizione**. **Modifica nome**, accanto alle frecce di riordino, rende modificabile il titolo nell’intestazione; Invio o l’uscita dal campo ripristinano la visualizzazione del titolo. Le modifiche seguono il normale salvataggio della bozza.
+
 Verifica locale con `pnpm --filter @pizzaos/admin test`. I requisiti e i contratti del catalogo persistente sono in [.agents/design/2026-11-23-menu-ordering](../../../../../.agents/design/2026-11-23-menu-ordering/design.md).

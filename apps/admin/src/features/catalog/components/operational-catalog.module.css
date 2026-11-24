@@ -73,6 +73,12 @@
   justify-content: space-between;
 }
 
+.sectionTitle {
+  flex: 1;
+  min-width: min(100%, 13rem);
+  overflow-wrap: anywhere;
+}
+
 .row {
   justify-content: flex-start;
 }

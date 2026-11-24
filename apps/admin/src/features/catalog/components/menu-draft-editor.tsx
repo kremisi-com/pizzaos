@@ -37,6 +37,7 @@ export function MenuDraftEditor({ draft, storeId, ingredients, onChange, onUploa
   onUpload: (productId: string, file: File) => void;
 }) {
   const [editingId, setEditingId] = useState("");
+  const [editingSectionId, setEditingSectionId] = useState("");
   const productIndex = draft.products.findIndex(product => product.id === editingId);
   const editing = draft.products[productIndex];
   const editingSection = draft.sections.find(section => section.productIds.includes(editingId));
@@ -78,8 +79,21 @@ export function MenuDraftEditor({ draft, storeId, ingredients, onChange, onUploa
     </div>
     {draft.sections.map((section, index) => <section key={section.id} className={styles.section} aria-label={section.name || "Nuova sezione"}>
       <div className={styles.header}>
-        <h3>{section.name || "Nuova sezione"}</h3>
+        <div className={styles.sectionTitle}>
+          {editingSectionId === section.id ? <input aria-label={`Nome sezione ${index + 1}`}
+            value={section.name} required maxLength={200} autoFocus
+            onFocus={event => event.target.select()}
+            onChange={event => updateSection(section.id, { name: event.target.value })}
+            onBlur={() => setEditingSectionId("")}
+            onKeyDown={event => {
+              if (event.key === "Enter") {
+                event.preventDefault();
+                if (event.currentTarget.reportValidity()) setEditingSectionId("");
+              }
+            }} /> : <h3>{section.name || "Nuova sezione"}</h3>}
+        </div>
         <div className={styles.actions}>
+          <Button type="button" variant="ghost" onClick={() => setEditingSectionId(section.id)}>Modifica nome</Button>
           <MoveButtons label={section.name || "sezione"} index={index} count={draft.sections.length}
             onMove={offset => onChange({ ...draft, sections: move(draft.sections, index, offset) })} />
           {section.productIds.length === 0 && <Button type="button" variant="ghost" onClick={() => onChange({
@@ -87,15 +101,8 @@ export function MenuDraftEditor({ draft, storeId, ingredients, onChange, onUploa
           })}>Rimuovi sezione</Button>}
         </div>
       </div>
-      <details className={styles.food}>
-        <summary>Impostazioni sezione</summary>
-        <div className={styles.formGrid}>
-          <label>Nome sezione {index + 1}<input value={section.name} required maxLength={200}
-            onChange={event => updateSection(section.id, { name: event.target.value })} /></label>
-          <label>Descrizione sezione {index + 1}<textarea value={section.description ?? ""} maxLength={1000}
-            onChange={event => updateSection(section.id, { description: event.target.value || undefined })} /></label>
-        </div>
-      </details>
+      <label>Descrizione<textarea value={section.description ?? ""} maxLength={1000}
+        onChange={event => updateSection(section.id, { description: event.target.value || undefined })} /></label>
       <ul className={styles.productList}>
         {section.productIds.map((id, position) => {
           const product = products.get(id);
