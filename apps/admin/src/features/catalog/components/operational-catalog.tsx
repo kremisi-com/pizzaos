@@ -1,6 +1,7 @@
 "use client";
 
 import type { IndividualIngredient, MenuAdminApi, MenuDraft, MenuWorkspace } from "@pizzaos/domain";
+import { materializePizzaMenu } from "@pizzaos/domain";
 import { Button } from "@pizzaos/ui";
 import { useEffect, useState } from "react";
 import { useAdminToast } from "../../../composition/admin-toast";
@@ -126,10 +127,14 @@ export function OperationalCatalog({ api, storeId, ingredients, onPublished }: {
     await perform(async () => {
       if (file.size > 2 * 1024 * 1024) throw new Error("Scegli una foto da 2 MB o meno.");
       const image = await api.uploadImage(storeId, file);
-      change({
+      change(materializePizzaMenu({
         ...selectedDraft,
+        ...(selectedDraft.pizzaCatalog ? { pizzaCatalog: { ...selectedDraft.pizzaCatalog,
+          tastes: selectedDraft.pizzaCatalog.tastes.map(entry => entry.id === productId ? { ...entry, imageId: image.id } : entry),
+          formulas: selectedDraft.pizzaCatalog.formulas.map(entry => entry.id === productId ? { ...entry, imageId: image.id } : entry)
+        } } : {}),
         products: selectedDraft.products.map(product => product.id === productId ? { ...product, imageId: image.id } : product)
-      });
+      }));
       showToast("Foto caricata. Salva la bozza per confermarla.", "info");
     });
   }

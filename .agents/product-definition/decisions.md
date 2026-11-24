@@ -176,6 +176,7 @@ Dopo accesso corretto e diagnosi della quota rete Neon, l'utente ha scelto espli
 | ID | Decisione | Stato | Fonte |
 |---|---|---|---|
 | D79 | Il gestore configura bozze per sede e pubblica manualmente un menu. Il cliente usa la composizione e gli sconti sugli extra del PoC con foto statiche, allergeni e preferenze salvabili, incluso il flusso di gruppo e il post-ordine. La mancia è rinviata. Nel pilota, il menu da screenshot viene salvato in bozza prima della validazione del gestore. | DECISO | Conferme utente in chat del 2026-11-23. [Flusso](flows/menu-ordering.md) |
+| D80 | Il catalogo distingue impasti, basi Rossa/Bianca, formati, topping, gusti e formule. Le pizze da gusto partono dalla ricetta inclusa; Simple, Wild e Savage partono tutte senza gusto predefinito. Il prezzo completo include impasto/base/formato standard, con differenziali per alternative e nessuna riduzione per rimozioni. Il frontend mantiene UX/UI del PoC. Il modello esplicito resta nello snapshot PostgreSQL; migrazione fisica relazionale esclusa da questo incremento. | DECISO | Conferme utente in chat del 2026-11-24. [Disegno](../design/2026-11-24-pizza-composition/design.md) |
 
 ## Decisioni che richiedono una ricerca o conferma esterna
 

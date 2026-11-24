@@ -18,6 +18,8 @@ This package does not own app-specific rendering concerns.
 
 Entry point: `@pizzaos/domain`
 
+`IndividualIngredient.stock` e le dosi di `IndividualProduct.ingredients` / `IndividualOption.ingredients` ammettono `null` per dati importati da verificare. La chiave resta l'ID del magazzino; il dato ignoto non equivale a zero. Riserve e composizioni ordinabili conservano quantità numeriche positive. Il servizio blocca pubblicazione e ordinazione delle composizioni incomplete; l'editor permette di completarle.
+
 `src/index.ts` is the stable public entry. The entity and status model lives in `src/model.ts`; client API contracts import that model directly, so the entry point has no internal dependency cycle.
 
 `IndividualErrorCode` include `internal_error` per HTTP 500; `service_unavailable` resta per indisponibilità temporanea (503). Le risposte HTTP possono aggiungere `requestId`, senza modificare oggetti di dominio o stati di recupero dei pagamenti.
@@ -61,6 +63,12 @@ Current exports from `src/index.ts`:
 ## Menu e composizione
 
 `MenuAdminApi`, `FoodPreferencesApi`, sezioni, gruppi, scelte e composizione estendono il catalogo operativo. `resolveMenuComposition` calcola un riepilogo da una configurazione, usato come anteprima dal client e dal servizio durante il preventivo. Le scorte, la validazione della richiesta e la pubblicazione appartengono al servizio.
+
+`PizzaCatalog` distingue impasti, basi, formati, topping, gusti e formule. `materializePizzaMenu` produce le voci ordinabili dai rispettivi ID espliciti: un gusto conserva i topping inclusi, mentre Simple, Wild e Savage partono senza gusto. Ogni prezzo completo include i componenti standard; le alternative applicano la differenza rispetto allo standard. Le formule usano le regole di `PIZZA_EXTRA_OFFERS`. Nessun prezzo o tipo si deduce dai nomi.
+
+La proiezione `IndividualProduct.pizza` distingue gusto e formula, espone le selezioni standard, i riferimenti dei topping inclusi e le eventuali anteprime locali per coppia impasto/base con sovrapposizione del gusto. `IndividualOption.pizza` identifica componente, topping o rimozione e categoria degli extra. Le rimozioni eliminano solo il contributo del topping incluso, preservando ingredienti condivisi con altri topping, impasti o basi. `IndividualLine.kind` è opzionale per compatibilità con carrelli storici e viene verificato dal servizio quando presente. Lo snapshot della composizione acquistata conserva l'identità della pizza.
+
+Le dosi di `pizzaRecipeSources` e il catalogo sorgente completo sono riservati al servizio e al workspace operatore; il catalogo pubblico contiene soltanto riferimenti agli ingredienti e informazioni alimentari, senza scorte o dosi.
 
 ## Import Rules
 

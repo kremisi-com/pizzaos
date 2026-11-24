@@ -57,11 +57,11 @@ export function StoreConfiguration({ store, isNew, section, busy, orderingDomain
       onConfirm={candidate => { setAddress(candidate.address); setConfirmedAddress(candidate); }} />
     <label className={styles.check}><input type="checkbox" checked={draft.acceptingOrders} onChange={event => update("acceptingOrders", event.target.checked)} />Accetta nuovi ordini</label></fieldset>}
 
-    {(isNew || section === "inventory") && <fieldset disabled={busy}><legend>Magazzino ingredienti</legend><p>Le quantità sono espresse nelle stesse unità delle ricette. La disponibilità per nuovi ordini tiene conto delle riserve.</p>
+    {(isNew || section === "inventory") && <fieldset disabled={busy}><legend>Magazzino ingredienti</legend><p>Le quantità sono espresse nelle stesse unità delle ricette. La disponibilità per nuovi ordini tiene conto delle riserve. Una scorta vuota è da verificare; inserisci zero solo se l’ingrediente è esaurito.</p>
       {draft.ingredients.map((ingredient, index) => <div className={styles.productEditor} key={ingredient.id}>
         <div className={styles.repeatRow}>
           <label>Nome ingrediente {index + 1}<input required value={ingredient.name} onChange={event => update("ingredients", draft.ingredients.map((item, i) => i === index ? { ...item, name: event.target.value } : item))} /></label>
-          <label>Scorta {ingredient.name || index + 1}<input required type="number" min="0" step="1" value={ingredient.stock} onChange={event => update("ingredients", draft.ingredients.map((item, i) => i === index ? { ...item, stock: Number(event.target.value) } : item))} /></label>
+          <label>Scorta {ingredient.name || index + 1}<input type="number" min="0" step="1" placeholder="Da verificare" value={ingredient.stock ?? ""} onChange={event => update("ingredients", draft.ingredients.map((item, i) => i === index ? { ...item, stock: event.target.value === "" ? null : Number(event.target.value) } : item))} /></label>
           <button className={styles.secondary} type="button" onClick={() => update("ingredients", draft.ingredients.filter((_, i) => i !== index))}>Rimuovi ingrediente</button>
         </div>
         <MenuFoodFields food={ingredient.food} onChange={food => update("ingredients", draft.ingredients.map(item =>

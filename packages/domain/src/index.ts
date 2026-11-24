@@ -11,3 +11,5 @@ export * from "./operational-emails";
 
 export * from "./menu-ordering";
 export * from "./menu-composition";
+
+export * from "./pizza-catalog";

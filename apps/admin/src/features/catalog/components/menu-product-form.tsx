@@ -127,7 +127,7 @@ export function MenuProductForm({ storeId, product, index, ingredients, products
     : "";
   const otherProducts = products.filter(item => item.id !== product.id);
 
-  function changeRecipe(ingredients: Record<string, number>) {
+  function changeRecipe(ingredients: Record<string, number | null>) {
     onChange({
       ingredients,
       options: product.options.map(option => option.removesIngredientIds

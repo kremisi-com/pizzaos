@@ -45,7 +45,7 @@ test("la pubblicazione rende ordinabile la pizza componibile e la cucina riceve 
     const admin = await operatorContext.newPage();
     await admin.goto(`${adminOrigin}/operazioni`);
     const operations = admin.getByRole("navigation", { name: "Navigazione admin" });
-    await operations.getByRole("button", { name: "Menu", exact: true }).click();
+    await operations.getByRole("link", { name: "Menu", exact: true }).click();
     await admin.getByRole("button", { name: draft.name, exact: true }).click();
     await admin.getByRole("button", { name: "Pubblica menu", exact: true }).click();
     const publishing = admin.waitForResponse((response) => response.url().endsWith(`${workspacePath}/publish`) && response.request().method() === "POST");
@@ -79,7 +79,7 @@ test("la pubblicazione rende ordinabile la pizza componibile e la cucina riceve 
     const { order } = await confirmed.json() as IndividualCheckoutResult;
     await expect(page.getByRole("heading", { name: "In attesa del ristorante", exact: true })).toBeVisible();
 
-    await operations.getByRole("button", { name: "Ordini", exact: true }).click();
+    await operations.getByRole("link", { name: "Ordini", exact: true }).click();
     await admin.getByRole("button", { name: `Apri ordine ${order.id} di Alice`, exact: true }).click();
     const detail = admin.getByRole("article").filter({ hasText: order.id });
     await expect(detail).toContainText("Pizza al taglio");

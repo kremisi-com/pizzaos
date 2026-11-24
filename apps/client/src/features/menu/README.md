@@ -11,3 +11,5 @@ Run `pnpm --filter @pizzaos/client test` for menu screen and view-model coverage
 L'ordine individuale e di gruppo ricevono lo stesso catalogo pubblico della sede. Il menu mostra sezioni, disponibilità e foto statiche, permette l'aggiunta diretta dei prodotti semplici e apre il configuratore per le scelte richieste. Il configuratore e il carrello presentano importo e informazioni alimentari della composizione. Il preventivo del servizio rimane autorevole.
 
 Il filtro ospite vive nella pagina. Le preferenze dell'account sono gestibili nel menu e da `/ordina/profilo`; la composizione fornisce `FoodPreferencesApi`. Il client non le inserisce nelle righe o nelle richieste di ordine e distingue ingredienti, possibili tracce e dati da verificare.
+
+Le voci con identità pizza aprono `LivePizzaEditor` attraverso l'interfaccia pubblica della feature customization, condivisa tra aggiunta individuale, gruppo e modifica della riga. Il dettaglio mantiene presentazione e sezioni del PoC; gli altri prodotti continuano a usare il configuratore generico.

@@ -1,0 +1,1 @@
+- [x] **reconciliation**: Modellare dati mancanti, riconciliare importazioni e bozze esistenti, verificare persistenza, editor e idempotenza.

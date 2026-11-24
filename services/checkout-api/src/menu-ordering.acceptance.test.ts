@@ -204,6 +204,37 @@ const pizza = product("crea-pizza", {
   ],
 });
 
+describe("Ricette importate da verificare", () => {
+  it("salva dose e scorta sconosciute, blocca la pubblicazione finché non vengono confermate", async () => {
+    const f = fixture();
+    const store = json<IndividualStore>(await f.request("GET", catalog, "operator"));
+    store.ingredients.push({ id: "pesto-importato", name: "Pesto di Pra’ senza aglio", stock: null });
+    json<IndividualStore>(await f.request("PUT", catalog, "operator", { ...store }));
+    const imported = draft("importato", product("speciale", { ingredients: { "pesto-importato": null } }));
+    const saved = await f.save((await f.workspace()).revision, imported);
+    expect(saved.drafts[0].products[0].ingredients).toEqual({ "pesto-importato": null });
+    const blocked = await f.request("POST", `${menu}/publish`, "operator", { revision: saved.revision, draftId: imported.id });
+    expect(blocked.statusCode).toBe(400);
+    expect(blocked.json().message).toContain("verifica dosi e scorte");
+    imported.products[0].ingredients["pesto-importato"] = 2;
+    const dosed = await f.save(saved.revision, imported);
+    expect((await f.request("POST", `${menu}/publish`, "operator", { revision: dosed.revision, draftId: imported.id })).statusCode).toBe(400);
+    store.ingredients.find(item => item.id === "pesto-importato")!.stock = 8;
+    json<IndividualStore>(await f.request("PUT", catalog, "operator", { ...store }));
+    await f.publish((await f.workspace()).revision, imported.id);
+    expect((await f.quoteRequest(orderCart(line("speciale")))).statusCode).toBe(200);
+  });
+
+  it("rifiuta il preventivo se una scorta pubblicata torna sconosciuta", async () => {
+    const f = fixture();
+    await f.deploy(draft("confermato", product("speciale", { ingredients: { mozzarella: 2 } })));
+    const store = json<IndividualStore>(await f.request("GET", catalog, "operator"));
+    store.ingredients.find(item => item.id === "mozzarella")!.stock = null;
+    json<IndividualStore>(await f.request("PUT", catalog, "operator", { ...store }));
+    expect((await f.quoteRequest(orderCart(line("speciale")))).statusCode).toBe(409);
+  });
+});
+
 const box = product("box", {
   name: "Box mista",
   groups: [{ id: "porzioni", name: "Scegli tre porzioni", kind: "selection", min: 3, max: 3, allowRepeat: true, optionIds: ["olive", "patate", "pomodori"] }],

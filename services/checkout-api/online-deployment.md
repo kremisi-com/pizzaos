@@ -2,6 +2,12 @@
 
 Stato verificato il 23 novembre 2026: ambiente **test** nuovamente raggiungibile dopo l'upgrade Neon. Il [collaudo del 23 novembre](#ripristino-e-collaudo-del-23-novembre-2026) conferma il percorso cliente → admin → rider. Client e admin offrono `/poc` con accesso manuale e [accesso automatico dalla landing](#accesso-dalla-landing-del-23-novembre-2026). Rider appartiene ad admin. `pizzaos-api` è il servizio condiviso per identità, permessi, ordini, pagamenti e persistenza.
 
+## Importazione menu e magazzino del 24 novembre 2026
+
+- Sorgente `6a872c5`: backend `dpl_2AN5ZoTg79YDspBequ64zV1awT9p` e admin/rider `dpl_GSVH4gQFfKGJpkBvaVUoSTC1ZVK6` compilati, Ready e promossi al pilota. Health API 200. Worker lasciato stopped, zero istanze ready. Il client mantiene il proprio deploy esistente.
+- Analisi e backfill sul solo `pizzaos_test`, branch `br-tiny-art-baqa23dy`: 37 ingredienti creati senza inventare dosi/giacenze, 90 ricette collegate nelle due bozze. Pubblicato e dati operativi conservati. Ripetizione e reimportazione con ID rigenerati senza modifiche allo snapshot.
+- Verificati online selettore completo con 38 ID distinti, sei riferimenti della ricetta signature, nuove descrizioni e campi Da verificare. Dosi, giacenze, allergeni e composizioni incomplete richiedono verifica del gestore prima della pubblicazione. [Analisi, ingredienti ed evidenze](../../.agents/design/2026-11-24-menu-import/REVIEW.md).
+
 ## Menu operativo del 23 novembre 2026
 
 - D79 pubblicata sul pilota test dal sorgente `d29be4d`. Backend `dpl_8tUisMi9HQ8MB1zRgADkWb8z5vhP`, admin/rider `dpl_CUUsUrQHLbGBdSCJzmcvi5f15cL1`, client `dpl_94LPMRvFEQro4UkUZUBiMtLieVUQ`. Sul database `pizzaos_test` il ruolo proprietario ha creato `ordering_menu_images` e assegnato SELECT e INSERT al ruolo applicativo esistente.

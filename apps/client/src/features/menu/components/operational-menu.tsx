@@ -4,6 +4,7 @@ import { menuImagePath, resolveMenuComposition } from "@pizzaos/domain";
 import type { IndividualLine, IndividualProduct, IndividualStore, MenuOptionGroup, MenuSelection } from "@pizzaos/domain";
 import Image from "next/image";
 import { useEffect, useId, useRef, useState } from "react";
+import { LivePizzaEditor } from "../../customization";
 import { lineChoiceLabels, lineIssue, menuMoney, menuSelections } from "../live-menu-model";
 import { foodMatches, MenuFoodControls, MenuFoodSummary, type MenuPreferences } from "./operational-food";
 import styles from "./operational-menu.module.css";
@@ -12,7 +13,13 @@ function optionCount(group: MenuOptionGroup, choices: MenuSelection[]): number {
   return choices.reduce((count, choice) => count + (group.optionIds.includes(choice.optionId) ? choice.quantity : 0), 0);
 }
 
-function ConfigurationDialog({ store, product, line, disabled, avoid, onClose, onSave, quantity = 1, edit = false }: {
+function ConfigurationDialog(props: Parameters<typeof GenericConfigurationDialog>[0]) {
+  return props.product.pizza
+    ? <LivePizzaEditor {...props} onPairing={props.line ? undefined : props.onSave} />
+    : <GenericConfigurationDialog {...props} />;
+}
+
+function GenericConfigurationDialog({ store, product, line, disabled, avoid, onClose, onSave, quantity = 1, edit = false }: {
   store: IndividualStore;
   product: IndividualProduct;
   line?: IndividualLine;

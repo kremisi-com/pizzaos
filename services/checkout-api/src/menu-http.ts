@@ -32,7 +32,9 @@ export function registerMenuRoutes(app: FastifyInstance, options: {
     const actor = await authenticate(request);
     if (!isMenuRecord(input) || Object.keys(input).some(key => key !== "revision" && key !== "draft")) throw invalid("Bozza non valida.");
     const products = Array.isArray(input.draft?.products) ? input.draft.products : [];
-    const photoIds = [...new Set(products.flatMap(product => typeof product?.imageId === "string" ? [product.imageId] : []))];
+    const catalog = input.draft?.pizzaCatalog;
+    const pizzaEntries = [...(Array.isArray(catalog?.tastes) ? catalog.tastes : []), ...(Array.isArray(catalog?.formulas) ? catalog.formulas : [])];
+    const photoIds = [...new Set([...products, ...pizzaEntries].flatMap(product => typeof product?.imageId === "string" ? [product.imageId] : []))];
     if (photoIds.length) {
       await menu().imageAccess(actor, id);
       for (const imageId of photoIds) {

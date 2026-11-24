@@ -5,23 +5,30 @@ import type { PromotionBreakdown, PromotionSelection } from "./promotions-loyalt
 
 /** Durable pilot contracts. EUR amounts are integer cents, dates are UTC ISO strings. */
 export interface IndividualActor { id: string; email: string; name: string; }
-export interface IndividualIngredient { id: string; name: string; stock: number; food?: MenuFoodInformation; }
+/** null means the stock has not been verified; it cannot fulfil an order. */
+export interface IndividualIngredient { id: string; name: string; stock: number | null; food?: MenuFoodInformation; }
 export interface IndividualOption {
-  id: string; name: string; priceCents: number; ingredients: Record<string, number>;
+  id: string; name: string; priceCents: number; ingredients: Record<string, number | null>;
   description?: string; food?: MenuFoodInformation; removesIngredientIds?: string[];
+  pizza?: import("./pizza-types").PizzaOptionIdentity;
   /** Public projection of recipe references and current availability. */
   ingredientIds?: string[]; available?: boolean;
 }
 export interface IndividualProduct {
   id: string; name: string; description: string; priceCents: number; available: boolean;
-  allergens: string[]; ingredients: Record<string, number>; options: IndividualOption[];
+  /** null keeps the ingredient reference while its recipe dose awaits verification. */
+  allergens: string[]; ingredients: Record<string, number | null>; options: IndividualOption[];
   groups?: MenuOptionGroup[]; extraOffer?: MenuExtraOffer; pairingProductIds?: string[]; imageId?: string;
   food?: MenuFoodInformation;
+  pizza?: import("./pizza-types").PizzaProductIdentity;
+  /** Authoritative included topping recipes; omitted from public catalog responses. */
+  pizzaRecipeSources?: { sourceId: string; ingredients: Record<string, number | null> }[];
   /** Public projection for menu presentation. Stock quantities and recipe units stay server-side. */
   foodIngredients?: MenuFoodIngredient[]; baseIngredientIds?: string[]; maxAvailable?: number;
 }
 export interface MenuDraft extends PublishedMenu {
   products: IndividualProduct[];
+  pizzaCatalog?: import("./pizza-types").PizzaCatalog;
 }
 
 export interface MenuWorkspace {
@@ -66,7 +73,8 @@ export interface IndividualStore {
   /** Operator-only list of protected local dates, read-only. */
   protectedOrderDates?: string[];
 }
-export interface IndividualLine { productId: string; quantity: number; optionIds: string[]; notes: string; selections?: MenuSelection[]; }
+export type IndividualLineKind = "product" | "pizza_taste" | "pizza_formula";
+export interface IndividualLine { kind?: IndividualLineKind; productId: string; quantity: number; optionIds: string[]; notes: string; selections?: MenuSelection[]; }
 export interface IndividualDeliveryAddress { text: string; latitude: number; longitude: number; }
 export const DELIVERY_ADDRESS_QUERY_MIN_LENGTH = 3;
 export const DELIVERY_ADDRESS_QUERY_MAX_LENGTH = 200;

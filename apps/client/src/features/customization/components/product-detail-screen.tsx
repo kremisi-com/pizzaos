@@ -30,6 +30,7 @@ import {
   type CustomizationState,
   type IngredientMode
 } from "../customization-model";
+import { CollapsibleSection } from "./collapsible-section";
 import styles from "./product-detail-screen.module.css";
 
 const MONEY_FORMATTER = new Intl.NumberFormat("it-IT", {
@@ -437,53 +438,6 @@ export function ProductDetailScreen(props: ProductDetailScreenProps): ReactEleme
         </div>
       ) : null}
     </main>
-  );
-}
-
-/* ── Collapsible section wrapper ── */
-
-interface CollapsibleSectionProps
-{
-  readonly icon: string;
-  readonly title: string;
-  readonly currentValue: string;
-  readonly delta: number;
-  readonly isOpen: boolean;
-  readonly onToggle: () => void;
-  readonly children: ReactElement;
-}
-
-function CollapsibleSection(props: CollapsibleSectionProps): ReactElement
-{
-  return (
-    <div className={`${styles.sectionCard} ${props.isOpen ? styles.sectionCardOpen : ""}`}>
-      <button
-        type="button"
-        className={styles.sectionHeader}
-        onClick={props.onToggle}
-        aria-expanded={props.isOpen}
-      >
-        <div className={styles.sectionHeaderLeft}>
-          <span className={styles.sectionIcon}>{props.icon}</span>
-          <div className={styles.sectionTitleGroup}>
-            <h2 className={styles.sectionTitle}>{props.title}</h2>
-            <p className={styles.sectionCurrentValue}>{props.currentValue}</p>
-          </div>
-        </div>
-        <div className={styles.sectionHeaderRight}>
-          {props.delta !== 0 ? (
-            <span className={styles.sectionDelta}>{formatDelta(props.delta)}</span>
-          ) : null}
-          <span className={`${styles.chevron} ${props.isOpen ? styles.chevronOpen : ""}`}>▾</span>
-        </div>
-      </button>
-
-      <div className={`${styles.sectionBody} ${props.isOpen ? styles.sectionBodyOpen : ""}`}>
-        <div className={styles.sectionContent}>
-          {props.children}
-        </div>
-      </div>
-    </div>
   );
 }
 

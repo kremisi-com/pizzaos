@@ -30,9 +30,9 @@ const deliveryAddressSearch = "/v1/pilot/stores/:id/delivery-address-search";
 const text = { type: "string", minLength: 1, maxLength: 500 };
 const notes = { type: "string", maxLength: 2000 };
 const cents = { type: "integer", minimum: 0, maximum: 100000000 };
-const recipe = { type: "object", additionalProperties: { type: "integer", minimum: 1, maximum: 100000000 } };
+const recipe = { type: "object", additionalProperties: { type: ["integer", "null"], minimum: 1, maximum: 100000000 } };
 const line = { type: "object", additionalProperties: false, required: ["productId", "quantity", "optionIds", "notes"], properties: {
-  productId: text, quantity: { type: "integer", minimum: 1, maximum: 100 },
+  kind: { enum: ["product", "pizza_taste", "pizza_formula"] }, productId: text, quantity: { type: "integer", minimum: 1, maximum: 100 },
   optionIds: { type: "array", maxItems: 50, uniqueItems: true, items: text }, notes,
   selections: { type: "array", maxItems: 50, items: { type: "object", additionalProperties: false,
     required: ["optionId", "quantity"], properties: { optionId: text, quantity: { type: "integer", minimum: 1, maximum: 100 } } } }
@@ -64,7 +64,7 @@ const store = { type: "object", additionalProperties: false, required: ["id", "n
   timeZone: { type: "string", minLength: 1, maxLength: 100 },
   id: text, name: text, contactEmail: { anyOf: [{ type: "string", format: "email", maxLength: 254 }, { const: "" }] }, contactPhone: { type: "string", maxLength: 100 }, latitude: { type: "number", minimum: -90, maximum: 90 }, longitude: { type: "number", minimum: -180, maximum: 180 }, acceptingOrders: { type: "boolean" },
   deliveryBands: { type: "array", maxItems: 100, items: { type: "object", additionalProperties: false, required: ["upToKm", "feeCents", "minimumCents"], properties: { upToKm: { type: "number", minimum: 0, maximum: 1000 }, feeCents: cents, minimumCents: cents } } },
-  ingredients: { type: "array", maxItems: 1000, items: { type: "object", additionalProperties: false, required: ["id", "name", "stock"], properties: { id: text, name: text, stock: { type: "integer", minimum: 0, maximum: 100000000 }, food } } },
+  ingredients: { type: "array", maxItems: 1000, items: { type: "object", additionalProperties: false, required: ["id", "name", "stock"], properties: { id: text, name: text, stock: { type: ["integer", "null"], minimum: 0, maximum: 100000000 }, food } } },
   products: { type: "array", maxItems: 1000, items: { type: "object", additionalProperties: false, required: ["id", "name", "description", "priceCents", "available", "allergens", "ingredients", "options"], properties: {
     id: text, name: text, description: notes, priceCents: cents, available: { type: "boolean" }, ingredients: recipe,
     allergens: { type: "array", maxItems: 50, items: text },
@@ -185,7 +185,7 @@ export function buildOrderingApp(options: OrderingHttpOptions) {
     if (Array.isArray(cartInput.lines)) for (const entry of cartInput.lines) {
       if (!entry || typeof entry !== "object" || Array.isArray(entry)) return invalid();
       const row = entry as Record<string, unknown>;
-      if (Object.keys(row).some(key => !["productId", "quantity", "optionIds", "notes", "selections"].includes(key)) || typeof row.quantity !== "number" || typeof row.productId !== "string" || typeof row.notes !== "string" || !Array.isArray(row.optionIds) || row.optionIds.some(value => typeof value !== "string")) return invalid();
+      if (Object.keys(row).some(key => !["kind", "productId", "quantity", "optionIds", "notes", "selections"].includes(key)) || typeof row.quantity !== "number" || typeof row.productId !== "string" || typeof row.notes !== "string" || !Array.isArray(row.optionIds) || row.optionIds.some(value => typeof value !== "string")) return invalid();
       if (row.selections !== undefined) validateMenuSelections(row.selections, message => { throw new OrderingError("invalid_input", message); });
     }
     if (cartInput.address !== undefined) {

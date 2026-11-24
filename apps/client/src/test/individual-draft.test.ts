@@ -17,6 +17,18 @@ class StorageFake {
 }
 
 describe("individual draft persistence", () => {
+  it.each(["pizza_taste", "pizza_formula"] as const)("preserves %s through draft recovery and the exact checkout retry payload", kind => {
+    const storage = new StorageFake();
+    const pizza: IndividualCart = { ...cart, lines: [{ productId: "wild", kind, quantity: 1, optionIds: [], notes: "",
+      selections: [{ optionId: "base:rossa", quantity: 1 }, { optionId: "dough:integrale", quantity: 1 }] }] };
+    writeIndividualDraft(storage, pizza, created);
+    expect(readIndividualDraft(storage, created)).toEqual(pizza);
+    const input = { cart: pizza, fingerprint: "preventivo-con-tipo", method: "cash" as const, phone: "3331234567", idempotencyKey: "pizza-retry" };
+    const attempt = createCheckoutAttempt("cliente", input);
+    expect(attempt.input).toEqual(input);
+    writeCheckoutAttempt(storage, attempt);
+    expect(readCheckoutAttempt(storage)?.input).toEqual(input);
+  });
   it("saves a versioned device cart and preserves selections across login/reload", () => {
     const storage = new StorageFake();
     writeIndividualDraft(storage, cart, created);

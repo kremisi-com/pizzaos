@@ -24,11 +24,11 @@ export function MenuPreview({ menu, storeId, ingredients }: {
         const product = products.get(id);
         if (!product) return null;
         const options = new Map(product.options.map(option => [option.id, option]));
-        const foodIngredients = Object.keys(product.ingredients).flatMap(id => {
+        const foodIngredients = [...new Set([Object.keys(product.ingredients), ...product.options.map(option => Object.keys(option.ingredients))].flat())].flatMap(id => {
           const ingredient = ingredientsById.get(id);
           return ingredient ? [{ id, name: ingredient.name, food: ingredient.food }] : [];
         });
-        const { composition } = resolveMenuComposition({ ...product, foodIngredients }, []);
+        const { composition } = resolveMenuComposition({ ...product, foodIngredients }, product.pizza?.defaultSelections ?? []);
         return <article key={id} className={styles.productPreview}>
           {product.imageId && <Image src={menuImagePath(storeId, product.imageId)} alt="" width={96} height={96} unoptimized />}
           <div className={styles.productPreviewBody}>
@@ -49,7 +49,7 @@ export function MenuPreview({ menu, storeId, ingredients }: {
               </div>) : <ul>{product.options.map(option => <li key={option.id}>{option.name} · {money.format(option.priceCents / 100)}</li>)}</ul>}
             </details>}
           </div>
-          <strong>{product.groups?.some(group => group.min > 0) && "Base "}{money.format(product.priceCents / 100)}</strong>
+          <strong>{!product.pizza && product.groups?.some(group => group.min > 0) && "Base "}{money.format(product.priceCents / 100)}</strong>
         </article>;
       })}
     </section>)}
