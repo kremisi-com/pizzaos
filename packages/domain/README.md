@@ -64,6 +64,12 @@ Current exports from `src/index.ts`:
 
 `MenuAdminApi`, `FoodPreferencesApi`, sezioni, gruppi, scelte e composizione estendono il catalogo operativo. `resolveMenuComposition` calcola un riepilogo da una configurazione, usato come anteprima dal client e dal servizio durante il preventivo. Le scorte, la validazione della richiesta e la pubblicazione appartengono al servizio.
 
+`PizzaCatalog` distingue impasti, basi, formati, topping, gusti e formule. `materializePizzaMenu` produce le voci ordinabili dai rispettivi ID espliciti: un gusto conserva i topping inclusi, mentre Simple, Wild e Savage partono senza gusto. Ogni prezzo completo include i componenti standard; le alternative applicano la differenza rispetto allo standard. Le formule usano le regole di `PIZZA_EXTRA_OFFERS`. Nessun prezzo o tipo si deduce dai nomi.
+
+La proiezione `IndividualProduct.pizza` distingue gusto e formula, espone le selezioni standard, i riferimenti dei topping inclusi e le eventuali anteprime locali per coppia impasto/base con sovrapposizione del gusto. `IndividualOption.pizza` identifica componente, topping o rimozione e categoria degli extra. Le rimozioni eliminano solo il contributo del topping incluso, preservando ingredienti condivisi con altri topping, impasti o basi. `IndividualLine.kind` è opzionale per compatibilità con carrelli storici e viene verificato dal servizio quando presente. Lo snapshot della composizione acquistata conserva l'identità della pizza.
+
+Le dosi di `pizzaRecipeSources` e il catalogo sorgente completo sono riservati al servizio e al workspace operatore; il catalogo pubblico contiene soltanto riferimenti agli ingredienti e informazioni alimentari, senza scorte o dosi.
+
 ## Import Rules
 
 Pilot extensions are public through this package entry point: `PilotAnalyticsApi` and its calendar/report types describe the five store metrics; `RiderDeliveryApi` exposes minimized own-delivery operations; `DeliveryAdminApi` describes store-operator rider management and assignment. Rider memberships are distinct from operator `IndividualSession.storeIds`. `IndividualStore.timeZone` is optional for compatibility with existing pilot stores and is validated by the owning service.

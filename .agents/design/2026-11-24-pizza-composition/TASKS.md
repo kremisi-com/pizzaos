@@ -1,0 +1,2 @@
+- [x] **catalog**: Contratti pizza, proiezione autorevole, preventivo e migrazione esplicita.
+- [x] **interfaces**: Configurazione admin e collegamento della UX/UI PoC ai dati persistenti.

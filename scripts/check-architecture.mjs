@@ -10,7 +10,7 @@ function collectSourceFiles(directory) {
   return readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
     const entryPath = join(directory, entry.name);
     if (entry.isDirectory()) {
-      return ignoredDirectories.has(entry.name) ? [] : collectSourceFiles(entryPath);
+      return ignoredDirectories.has(entry.name) || entry.name.startsWith(".next-") ? [] : collectSourceFiles(entryPath);
     }
     return sourceExtensions.has(extname(entry.name)) ? [entryPath] : [];
   });

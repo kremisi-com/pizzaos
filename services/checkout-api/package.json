@@ -11,6 +11,7 @@
     "test": "vitest run --config ../../vitest.config.ts src",
     "migrate": "tsx src/migrate.ts",
     "menu:import": "tsx src/import-menu.ts",
+    "menu:migrate-pizza": "tsx src/migrate-pizza-menu.ts",
     "lint": "eslint src --max-warnings 0"
   },
   "dependencies": {

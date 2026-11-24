@@ -21,6 +21,8 @@ export interface PublishedMenu {
   name: string;
   sections: OrderingMenuSection[];
   kitchenNotice?: string;
+  /** Operator-owned source catalog; omitted from public storefront responses. */
+  pizzaCatalog?: import("./pizza-types").PizzaCatalog;
 }
 
 export interface MenuOptionGroup {
@@ -56,6 +58,7 @@ export interface MenuComposition {
   mayContain: string[];
   foodComplete: boolean;
   extraDiscountCents: number;
+  pizza?: import("./pizza-types").PizzaProductIdentity;
 }
 
 export interface FoodPreferences {

@@ -28,6 +28,7 @@ export function isIndividualCart(value: unknown): value is IndividualCart {
     && (cart.slotId === null || typeof cart.slotId === "string")
     && (cart.benefits === undefined || isSelection(cart.benefits))
     && Array.isArray(cart.lines) && cart.lines.every(line => line && typeof line.productId === "string"
+      && (line.kind === undefined || ["product", "pizza_taste", "pizza_formula"].includes(line.kind))
       && Number.isInteger(line.quantity) && line.quantity > 0 && typeof line.notes === "string"
       && Array.isArray(line.optionIds) && line.optionIds.every((id: unknown) => typeof id === "string")
       && (line.selections === undefined || (Array.isArray(line.selections) && line.selections.every(isMenuSelection)
@@ -66,6 +67,7 @@ export function copyIndividualCart(cart: IndividualCart): IndividualCart {
   return {
     storeId: cart.storeId,
     lines: cart.lines.map(line => ({
+      ...(line.kind ? { kind: line.kind } : {}),
       productId: line.productId, quantity: line.quantity, optionIds: [...line.optionIds], notes: line.notes,
       ...(line.selections ? { selections: line.selections.map(({ optionId, quantity }) => ({ optionId, quantity })) } : {})
     })),

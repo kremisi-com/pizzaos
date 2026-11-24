@@ -61,7 +61,7 @@ export function initialMenuWorkspace(store: IndividualStore): MenuWorkspace {
 }
 
 export function validateDraftHeader(draft: unknown, invalid: Invalid): asserts draft is MenuDraft {
-  if (!isMenuRecord(draft) || !only(draft, ["id", "name", "sections", "products", "kitchenNotice"]) ||
+  if (!isMenuRecord(draft) || !only(draft, ["id", "name", "sections", "products", "kitchenNotice", "pizzaCatalog"]) ||
     !isId(draft.id) || !isText(draft.name) || !Array.isArray(draft.sections) || draft.sections.length > 50 ||
     !Array.isArray(draft.products) || draft.products.length > 500 ||
     (draft.kitchenNotice !== undefined && !isText(draft.kitchenNotice, 1000))) invalid("Controlla nome, prodotti e sezioni del menu.");
@@ -97,14 +97,15 @@ export function validateMenuDraft(draft: MenuDraft, store: IndividualStore, inva
       }
     }
     if (!only(product as unknown as Record<string, unknown>,
-      ["id", "name", "description", "priceCents", "available", "allergens", "ingredients", "options", "groups", "extraOffer", "pairingProductIds", "imageId", "food"])) invalid("Prodotto del menu non valido.");
+      ["id", "name", "description", "priceCents", "available", "allergens", "ingredients", "options", "groups", "extraOffer", "pairingProductIds", "imageId", "food", "pizza", "pizzaRecipeSources"])) invalid("Prodotto del menu non valido.");
     if (product.imageId !== undefined && !isId(product.imageId)) invalid("Foto prodotto non valida.");
     if (product.food !== undefined) validateMenuFood(product.food, invalid);
-    if (product.options.length > 100) invalid("Il prodotto ha troppe opzioni.");
+    if (product.options.length > (product.pizza ? 500 : 100)) invalid("Il prodotto ha troppe opzioni.");
     if (product.pairingProductIds !== undefined && (!isUniqueStrings(product.pairingProductIds, 20) ||
       product.pairingProductIds.some(id => id === product.id || !productIds.has(id)))) invalid("Controlla gli abbinamenti del prodotto.");
     for (const option of product.options) {
-      if (!only(option as unknown as Record<string, unknown>, ["id", "name", "priceCents", "ingredients", "description", "food", "removesIngredientIds"]) ||
+      if (!only(option as unknown as Record<string, unknown>, ["id", "name", "priceCents", "ingredients", "description", "food", "removesIngredientIds", "pizza", "available"]) ||
+        (option.available !== undefined && typeof option.available !== "boolean") ||
         (option.description !== undefined && !isText(option.description, 1000)) ||
         (option.removesIngredientIds !== undefined && (!product.groups ||
           !isUniqueStrings(option.removesIngredientIds, 100) || option.removesIngredientIds.some(id => !ingredientIds.has(id))))) invalid("Opzione prodotto non valida.");

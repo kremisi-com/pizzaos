@@ -1,3 +1,4 @@
+import { preparePizzaMenu } from "./pizza-catalog";
 import { createHash, randomUUID } from "node:crypto";
 import { createDefaultWeeklyOrderSchedule, isOrderingSubdomain, resolveMenuComposition } from "@pizzaos/domain";
 import type {
@@ -104,7 +105,7 @@ export function validateStoreConfiguration(store: IndividualStore): void {
     product.allergens.forEach(allergen => text(allergen)); recipeValid(product.ingredients, ids);
     for (const option of product.options) {
       if (!record(option)) invalid("Opzione prodotto non valida.");
-      identifier(option.id); text(option.name); integer(option.priceCents); recipeValid(option.ingredients, ids);
+      identifier(option.id); text(option.name); integer(option.priceCents, product.pizza ? -Number.MAX_SAFE_INTEGER : 0); recipeValid(option.ingredients, ids);
     }
     unique(product.options.map(option => option.id));
   }
@@ -128,7 +129,8 @@ function validCart(value: IndividualCart): void {
   if (!Array.isArray(value.lines) || value.lines.length === 0 || value.lines.length > 100) fail("invalid_input", "Inserisci almeno un prodotto.");
   for (const line of value.lines) {
     if (!record(line)) fail("invalid_input", "Riga carrello non valida.");
-    if (Object.keys(line).some(key => !["productId", "quantity", "notes", "optionIds", "selections"].includes(key))) fail("invalid_input", "Campi riga non validi.");
+    if (Object.keys(line).some(key => !["kind", "productId", "quantity", "notes", "optionIds", "selections"].includes(key))) fail("invalid_input", "Campi riga non validi.");
+    if (line.kind !== undefined && !["product", "pizza_taste", "pizza_formula"].includes(line.kind)) invalid("Tipo di riga non valido.");
     text(line.productId); integer(line.quantity, 1); text(line.notes, 1000, true);
     if (line.quantity > 100 || !Array.isArray(line.optionIds)) fail("invalid_input", "Quantità o opzioni non valide.");
     line.optionIds.forEach(id => text(id)); unique(line.optionIds);
@@ -146,7 +148,7 @@ function validCart(value: IndividualCart): void {
 function cleanCart(cart: IndividualCart): IndividualCart {
   return {
     storeId: cart.storeId, mode: cart.mode, slotId: cart.slotId, notes: cart.notes,
-    lines: cart.lines.map(line => ({ productId: line.productId, quantity: line.quantity, notes: line.notes, optionIds: [...line.optionIds].sort(),
+    lines: cart.lines.map(line => ({ ...(line.kind ? { kind: line.kind } : {}), productId: line.productId, quantity: line.quantity, notes: line.notes, optionIds: [...line.optionIds].sort(),
       ...(line.selections !== undefined ? { selections: [...line.selections].sort((left, right) => left.optionId.localeCompare(right.optionId))
         .map(({ optionId, quantity }) => ({ optionId, quantity })) } : {}) })),
     ...(cart.benefits && (cart.benefits.couponCodes.length || cart.benefits.redeemReward) ? { benefits: normalizePromotionSelection(cart.benefits) } : {}),
@@ -167,14 +169,14 @@ function describeFood(product: IndividualProduct, store: IndividualStore): Indiv
 function publicProduct(product: IndividualProduct, store: IndividualStore, reserved: Record<string, number>): IndividualProduct {
   const remaining = new Map(store.ingredients.map(item => [item.id, (item.stock ?? 0) - (reserved[item.id] ?? 0)]));
   const removable = new Set(product.options.flatMap(option => option.removesIngredientIds ?? []));
-  const possible = (recipe: Record<string, number | null>) => Object.entries(recipe).every(([id, units]) => units !== null && (removable.has(id) || (remaining.get(id) ?? 0) >= units));
+  const possible = (recipe: Record<string, number | null>, allowRemovals = false) => Object.entries(recipe).every(([id, units]) => units !== null && ((allowRemovals && removable.has(id)) || (remaining.get(id) ?? 0) >= units));
   const base = Object.entries(product.ingredients).filter(([id]) => !removable.has(id));
   const managed = Boolean(store.menu || product.groups);
   const maxAvailable = managed && base.length ? Math.max(0, Math.min(...base.map(([id, units]) => units === null ? 0 : Math.floor((remaining.get(id) ?? 0) / units)))) : undefined;
-  return { ...(managed ? describeFood(product, store) : product), available: product.available && possible(product.ingredients),
+  return { ...(managed ? describeFood(product, store) : product), available: product.available && possible(product.ingredients, true),
     ...(managed ? { baseIngredientIds: Object.keys(product.ingredients), ...(maxAvailable !== undefined ? { maxAvailable } : {}) } : {}),
-    ingredients: {}, options: product.options.map(option => ({ ...option, ingredients: {},
-      ...(managed ? { ingredientIds: Object.keys(option.ingredients), available: possible(option.ingredients) } : {}) })) };
+    pizzaRecipeSources: undefined, ingredients: {}, options: product.options.map(option => ({ ...option, ingredients: {},
+      ...(managed ? { ingredientIds: Object.keys(option.ingredients), available: option.available !== false && possible(option.ingredients) } : {}) })) };
 }
 
 function distanceKm(a: { latitude: number; longitude: number }, b: { latitude: number; longitude: number }): number {
@@ -257,6 +259,8 @@ export function createOrderingService(options: OrderingServiceOptions): RiderOrd
     const lines = cart.lines.map(line => {
       const product = store.products.find(item => item.id === line.productId);
       if (!product?.available) fail("product_unavailable", "Un prodotto non è disponibile: correggi il carrello.");
+      const expectedKind = product.pizza ? product.pizza.kind === "taste" ? "pizza_taste" : "pizza_formula" : "product";
+      if (line.kind !== undefined && line.kind !== expectedKind) fail("customization_changed", "Il tipo di pizza è cambiato: scegli nuovamente la composizione.");
       const addRecipe = (requirements: Record<string, number | null>) => {
         for (const [ingredientId, units] of Object.entries(requirements)) {
           if (units === null) fail("inventory_changed", "Quantità della ricetta da verificare.");
@@ -588,6 +592,7 @@ export function createOrderingService(options: OrderingServiceOptions): RiderOrd
     delete publicStore.address;
     delete publicStore.orderSchedule;
     delete publicStore.protectedOrderDates;
+    if (publicStore.menu) delete publicStore.menu.pizzaCatalog;
     publicStore.ingredients = [];
     publicStore.products = store.products.map(product => publicProduct(product, store, reserved));
     publicStore.slots = remainingSlots(state, store, instant);
@@ -691,6 +696,7 @@ export function createOrderingService(options: OrderingServiceOptions): RiderOrd
           menuRevision(current, revision);
           validateDraftHeader(draft, invalid);
           if (draft.id === current.published.id) invalid("Duplica il menu pubblicato per modificarlo.");
+          draft = preparePizzaMenu(draft, new Set(store.ingredients.map(item => item.id)), invalid);
           validateStoreConfiguration({ ...store, products: draft.products });
           validateMenuDraft(draft, store, invalid);
           const previous = current.drafts.findIndex(item => item.id === draft.id);
@@ -720,8 +726,9 @@ export function createOrderingService(options: OrderingServiceOptions): RiderOrd
           const store = getStore(state, storeId);
           const current = workspace(state, store);
           menuRevision(current, revision);
-          const draft = current.drafts.find(item => item.id === draftId);
+          let draft = current.drafts.find(item => item.id === draftId);
           if (!draft) fail("not_found", "Bozza del menu non trovata.");
+          draft = preparePizzaMenu(draft, new Set(store.ingredients.map(item => item.id)), invalid, true, new Map(store.ingredients.map(item => [item.id, item.stock])));
           validateStoreConfiguration({ ...store, products: draft.products });
           validateMenuDraft(draft, store, invalid, true);
           const { products, ...menu } = copy(draft);

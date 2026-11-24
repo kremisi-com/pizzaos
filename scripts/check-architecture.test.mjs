@@ -1,7 +1,9 @@
 import assert from "node:assert/strict";
 import { resolve } from "node:path";
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { test } from "node:test";
-import { findBoundaryViolations } from "./check-architecture.mjs";
+import { checkArchitecture, findBoundaryViolations } from "./check-architecture.mjs";
 
 const workspaceRoot = resolve(import.meta.dirname, "..");
 
@@ -23,4 +25,21 @@ test("allows an app composition module to coordinate its own features", () => {
   const file = resolve(workspaceRoot, "apps/admin/src/composition/admin-shell.tsx");
   const violations = findBoundaryViolations(file, 'import "../features/orders/components/orders-dashboard";', workspaceRoot);
   assert.deepEqual(violations, []);
+});
+
+test("ignores isolated Next build output while still checking application sources", () => {
+  const prefix = resolve(tmpdir(), "pizzaos-architecture-");
+  const root = mkdtempSync(prefix);
+  try {
+    for (const directory of ["apps/client/.next-menu-ordering-e2e/server", "apps/client/src", "packages", "services"]) {
+      mkdirSync(resolve(root, directory), { recursive: true });
+    }
+    writeFileSync(resolve(root, "apps/client/.next-menu-ordering-e2e/server/generated.js"), 'import "services/private";');
+    assert.deepEqual(checkArchitecture(root), []);
+    writeFileSync(resolve(root, "apps/client/src/source.ts"), 'import "services/private";');
+    assert.match(checkArchitecture(root).join(" "), /app imports service implementation/);
+  } finally {
+    assert.ok(resolve(root).startsWith(prefix));
+    rmSync(root, { recursive: true, force: true });
+  }
 });

@@ -32,7 +32,7 @@ const notes = { type: "string", maxLength: 2000 };
 const cents = { type: "integer", minimum: 0, maximum: 100000000 };
 const recipe = { type: "object", additionalProperties: { type: ["integer", "null"], minimum: 1, maximum: 100000000 } };
 const line = { type: "object", additionalProperties: false, required: ["productId", "quantity", "optionIds", "notes"], properties: {
-  productId: text, quantity: { type: "integer", minimum: 1, maximum: 100 },
+  kind: { enum: ["product", "pizza_taste", "pizza_formula"] }, productId: text, quantity: { type: "integer", minimum: 1, maximum: 100 },
   optionIds: { type: "array", maxItems: 50, uniqueItems: true, items: text }, notes,
   selections: { type: "array", maxItems: 50, items: { type: "object", additionalProperties: false,
     required: ["optionId", "quantity"], properties: { optionId: text, quantity: { type: "integer", minimum: 1, maximum: 100 } } } }
@@ -185,7 +185,7 @@ export function buildOrderingApp(options: OrderingHttpOptions) {
     if (Array.isArray(cartInput.lines)) for (const entry of cartInput.lines) {
       if (!entry || typeof entry !== "object" || Array.isArray(entry)) return invalid();
       const row = entry as Record<string, unknown>;
-      if (Object.keys(row).some(key => !["productId", "quantity", "optionIds", "notes", "selections"].includes(key)) || typeof row.quantity !== "number" || typeof row.productId !== "string" || typeof row.notes !== "string" || !Array.isArray(row.optionIds) || row.optionIds.some(value => typeof value !== "string")) return invalid();
+      if (Object.keys(row).some(key => !["kind", "productId", "quantity", "optionIds", "notes", "selections"].includes(key)) || typeof row.quantity !== "number" || typeof row.productId !== "string" || typeof row.notes !== "string" || !Array.isArray(row.optionIds) || row.optionIds.some(value => typeof value !== "string")) return invalid();
       if (row.selections !== undefined) validateMenuSelections(row.selections, message => { throw new OrderingError("invalid_input", message); });
     }
     if (cartInput.address !== undefined) {

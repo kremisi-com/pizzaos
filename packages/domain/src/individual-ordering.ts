@@ -10,6 +10,7 @@ export interface IndividualIngredient { id: string; name: string; stock: number 
 export interface IndividualOption {
   id: string; name: string; priceCents: number; ingredients: Record<string, number | null>;
   description?: string; food?: MenuFoodInformation; removesIngredientIds?: string[];
+  pizza?: import("./pizza-types").PizzaOptionIdentity;
   /** Public projection of recipe references and current availability. */
   ingredientIds?: string[]; available?: boolean;
 }
@@ -19,11 +20,15 @@ export interface IndividualProduct {
   allergens: string[]; ingredients: Record<string, number | null>; options: IndividualOption[];
   groups?: MenuOptionGroup[]; extraOffer?: MenuExtraOffer; pairingProductIds?: string[]; imageId?: string;
   food?: MenuFoodInformation;
+  pizza?: import("./pizza-types").PizzaProductIdentity;
+  /** Authoritative included topping recipes; omitted from public catalog responses. */
+  pizzaRecipeSources?: { sourceId: string; ingredients: Record<string, number | null> }[];
   /** Public projection for menu presentation. Stock quantities and recipe units stay server-side. */
   foodIngredients?: MenuFoodIngredient[]; baseIngredientIds?: string[]; maxAvailable?: number;
 }
 export interface MenuDraft extends PublishedMenu {
   products: IndividualProduct[];
+  pizzaCatalog?: import("./pizza-types").PizzaCatalog;
 }
 
 export interface MenuWorkspace {
@@ -68,7 +73,8 @@ export interface IndividualStore {
   /** Operator-only list of protected local dates, read-only. */
   protectedOrderDates?: string[];
 }
-export interface IndividualLine { productId: string; quantity: number; optionIds: string[]; notes: string; selections?: MenuSelection[]; }
+export type IndividualLineKind = "product" | "pizza_taste" | "pizza_formula";
+export interface IndividualLine { kind?: IndividualLineKind; productId: string; quantity: number; optionIds: string[]; notes: string; selections?: MenuSelection[]; }
 export interface IndividualDeliveryAddress { text: string; latitude: number; longitude: number; }
 export const DELIVERY_ADDRESS_QUERY_MIN_LENGTH = 3;
 export const DELIVERY_ADDRESS_QUERY_MAX_LENGTH = 200;

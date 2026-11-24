@@ -52,6 +52,16 @@ A pending/uncertain payment blocks duplicate checkout. Provider idempotency keys
 
 ## Persistence and scaling
 
+### Catalogo pizza e conversione delle bozze
+
+Il catalogo pizza mantiene entità esplicite per impasti, basi, formati, topping, gusti e formule nello snapshot PostgreSQL esistente. Salvataggio e pubblicazione rigenerano prezzi, ricette e gruppi delle pizze dalla sorgente; i prodotti derivati ricevuti dal browser non sono autorevoli. Le formule partono senza gusto e il prezzo comprende impasto, base e formato standard. La pubblicazione richiede riferimenti validi e dosi/scorte verificate anche per i componenti presenti nel catalogo sorgente. Il catalogo cliente omette la sorgente e le dosi. Ordini, pagamenti e snapshot storici restano invariati.
+
+`pnpm --filter @pizzaos/checkout-api menu:migrate-pizza manifest.json` esegue l'anteprima senza scritture. Aggiungere `--apply` per salvare soltanto la bozza risultante in una transazione; non pubblica il menu. La funzione pura `planPizzaMenuMigration` permette la stessa verifica su uno snapshot isolato.
+
+Il manifest contiene `storeId`, `draftId`, `name`, `pizzaCatalog` e `replacements: [{productId, pizzaIds}]`. `sourceDraftId` è opzionale: senza, la fonte è il menu pubblicato o il catalogo precedente. La bozza di destinazione deve essere distinta dalla fonte e dal pubblicato. Le sostituzioni esplicite possono convertire un contenitore generico in più formule; non si cercano corrispondenze per nome. ID assenti, duplicati o ambigui bloccano l'operazione. La ripetizione dello stesso manifest non incrementa la revisione se il risultato è invariato. Il report elenca dosi/scorte mancanti e pizze ancora senza sezione. Il gestore completa e verifica la bozza dal pannello prima di pubblicare.
+
+Le anteprime configurate accettano esclusivamente asset sotto `/images/` con nomi e segmenti sicuri; le foto caricate restano soggette all'appartenenza alla sede. Nessun URL remoto viene interpretato come anteprima.
+
 Eseguire `pnpm migrate` sul PostgreSQL dedicato prima di avviare API e worker aggiornati. La migrazione di `src/schema.sql` è ripetibile, conserva lo snapshot esistente ed è compatibile con il repository precedente. Su Neon usare la connessione diretta per applicare lo schema. Le tabelle POC e quelle dell'adapter Auth.js restano disponibili.
 
 Ogni transazione verifica sotto lock la versione dello snapshot in `individual_ordering_state`. Quando coincide, il repository riusa la propria copia e PostgreSQL restituisce solo i metadati. Lo snapshot viene riscritto solo quando cambia il JSON. Il lock continua a serializzare scorte, capacità e transizioni tra istanze. Le operazioni Stripe restano fuori dal lock, dopo il salvataggio di un intento durevole. Il primo accesso di un processo a una versione può richiedere il documento intero, così come una scrittura effettiva. [Benchmark e verifica del traffico](../../.agents/design/2026-11-20-snapshot-traffic/REVIEW.md).

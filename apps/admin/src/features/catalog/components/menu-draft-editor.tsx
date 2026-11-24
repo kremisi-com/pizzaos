@@ -1,7 +1,9 @@
-import type { IndividualIngredient, IndividualProduct, MenuDraft, OrderingMenuSection } from "@pizzaos/domain";
+import { materializePizzaMenu } from "@pizzaos/domain";
+import type { IndividualIngredient, IndividualProduct, MenuDraft, OrderingMenuSection, PizzaEntry } from "@pizzaos/domain";
 import { Button } from "@pizzaos/ui";
 import { useState } from "react";
 import { MenuProductForm } from "./menu-product-form";
+import { PizzaCatalogEditor, PizzaEntryEditor } from "./pizza-catalog-editor";
 import styles from "./operational-catalog.module.css";
 
 const money = new Intl.NumberFormat("it-IT", { style: "currency", currency: "EUR" });
@@ -49,6 +51,7 @@ export function MenuDraftEditor({ draft, storeId, ingredients, onChange, onUploa
   }
 
   function addProduct(section: OrderingMenuSection, source?: IndividualProduct) {
+    if (source?.pizza) { addPizza(section, source.pizza.kind, source.id); return; }
     const id = crypto.randomUUID();
     const product: IndividualProduct = source
       ? { ...structuredClone(source), id, name: `Copia di ${source.name}` }
@@ -61,6 +64,25 @@ export function MenuDraftEditor({ draft, storeId, ingredients, onChange, onUploa
     setEditingId(id);
   }
 
+  function addPizza(section: OrderingMenuSection, kind: "taste" | "formula", sourceId?: string) {
+    const catalog = draft.pizzaCatalog ?? { doughs: [], bases: [], formats: [], toppings: [], tastes: [], formulas: [] };
+    const source = (kind === "taste" ? catalog.tastes : catalog.formulas).find(entry => entry.id === sourceId);
+    const id = crypto.randomUUID();
+    const entry: PizzaEntry = source ? { ...structuredClone(source), id, name: `Copia di ${source.name}` } : {
+      id, name: kind === "taste" ? "Nuovo gusto" : "Nuova formula", description: "", priceCents: 0, available: true,
+      standardDoughId: catalog.doughs[0]?.id ?? "", standardBaseId: catalog.bases[0]?.id ?? "", standardFormatId: catalog.formats[0]?.id ?? "",
+      doughIds: catalog.doughs.map(item => item.id), baseIds: catalog.bases.map(item => item.id), formatIds: catalog.formats.map(item => item.id),
+      toppingIds: catalog.toppings.map(item => item.id)
+    };
+    const pizzaCatalog = kind === "taste" ? { ...catalog, tastes: [...catalog.tastes,
+      { ...entry, includedToppingIds: source && "includedToppingIds" in source ? source.includedToppingIds : [] }] }
+      : { ...catalog, formulas: [...catalog.formulas,
+        { ...entry, offer: source && "offer" in source ? source.offer : "Simple" as const }] };
+    onChange(materializePizzaMenu({ ...draft, pizzaCatalog,
+      sections: draft.sections.map(item => item.id === section.id ? { ...item, productIds: [...item.productIds, id] } : item) }));
+    setEditingId(id);
+  }
+
   function removeProduct(id: string) {
     setRemovingId(id);
   }
@@ -68,6 +90,10 @@ export function MenuDraftEditor({ draft, storeId, ingredients, onChange, onUploa
   function confirmRemoveProduct(id: string) {
     onChange({
       ...draft,
+      ...(draft.pizzaCatalog ? { pizzaCatalog: { ...draft.pizzaCatalog,
+        tastes: draft.pizzaCatalog.tastes.filter(item => item.id !== id).map(item => ({ ...item, pairingProductIds: item.pairingProductIds?.filter(reference => reference !== id) })),
+        formulas: draft.pizzaCatalog.formulas.filter(item => item.id !== id).map(item => ({ ...item, pairingProductIds: item.pairingProductIds?.filter(reference => reference !== id) }))
+      } } : {}),
       products: draft.products.filter(item => item.id !== id).map(product => product.pairingProductIds?.includes(id)
         ? { ...product, pairingProductIds: product.pairingProductIds.filter(reference => reference !== id) }
         : product),
@@ -83,6 +109,7 @@ export function MenuDraftEditor({ draft, storeId, ingredients, onChange, onUploa
       <label>Avvertenze dalla cucina<textarea value={draft.kitchenNotice ?? ""} maxLength={1000}
         onChange={event => onChange({ ...draft, kitchenNotice: event.target.value || undefined })} /></label>
     </div>
+    <PizzaCatalogEditor draft={draft} ingredients={ingredients} onChange={onChange} />
     {draft.sections.map((section, index) => <section key={section.id} className={styles.section} aria-label={section.name || "Nuova sezione"}>
       <div className={styles.header}>
         <div className={styles.sectionTitle}>
@@ -139,7 +166,12 @@ export function MenuDraftEditor({ draft, storeId, ingredients, onChange, onUploa
                 <Button type="button" variant="ghost" onClick={() => setRemovingId("")}>Annulla</Button>
               </div>
             </fieldset>}
-            {editing && editingId === id && editingSection?.id === section.id && <MenuProductForm key={editing.id} storeId={storeId} product={editing} index={productIndex}
+            {editing?.pizza && editingId === id && editingSection?.id === section.id && (() => {
+              const entry = (editing.pizza.kind === "taste" ? draft.pizzaCatalog?.tastes : draft.pizzaCatalog?.formulas)?.find(item => item.id === editing.id);
+              return entry && <PizzaEntryEditor key={editing.id} draft={draft} entry={entry} kind={editing.pizza.kind} onChange={onChange}
+                onRemove={() => removeProduct(editing.id)} onClose={() => setEditingId("")} onUpload={file => onUpload(editing.id, file)} />;
+            })()}
+            {editing && !editing.pizza && editingId === id && editingSection?.id === section.id && <MenuProductForm key={editing.id} storeId={storeId} product={editing} index={productIndex}
               ingredients={ingredients} products={draft.products} sections={draft.sections} sectionId={editingSection?.id}
               onChange={change => onChange({ ...draft, products: draft.products.map(product => product.id === editing.id ? { ...product, ...change } : product) })}
               onMove={sectionId => {
@@ -159,7 +191,9 @@ export function MenuDraftEditor({ draft, storeId, ingredients, onChange, onUploa
           </li>;
         })}
       </ul>
-      <div><Button type="button" variant="secondary" onClick={() => addProduct(section)}>Aggiungi prodotto</Button></div>
+      <div className={styles.actions}><Button type="button" variant="secondary" onClick={() => addProduct(section)}>Aggiungi prodotto</Button>
+        <Button type="button" variant="secondary" onClick={() => addPizza(section, "taste")}>Aggiungi gusto</Button>
+        <Button type="button" variant="secondary" onClick={() => addPizza(section, "formula")}>Aggiungi formula</Button></div>
     </section>)}
     <div><Button type="button" variant="secondary" onClick={() => onChange({
       ...draft, sections: [...draft.sections, { id: crypto.randomUUID(), name: "Nuova sezione", productIds: [] }]
