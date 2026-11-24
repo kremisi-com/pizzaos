@@ -46,7 +46,7 @@ Admin, demo e area rider usano logo e pittogramma ufficiali da `@pizzaos/brand` 
 
 ## Feedback nell'interfaccia
 
-Gli esiti temporanei delle azioni (errori, successi e informazioni) vengono mostrati dal provider condiviso `src/composition/admin-toast.tsx` come toast ancorati in basso, accessibili da tastiera e con annunci screen reader. Stati di caricamento e dati operativi persistenti restano nel contesto della schermata.
+Gli esiti temporanei delle azioni (errori, successi e informazioni) vengono mostrati dal provider condiviso `src/composition/admin-toast.tsx` come toast ancorati in basso, accessibili da tastiera e con annunci screen reader. Le feature richiedono notifiche tramite il contratto pubblico di [`src/features/notifications`](src/features/notifications/README.md), senza dipendere dalla composizione. Stati di caricamento e dati operativi persistenti restano nel contesto della schermata.
 
 ## Analytics e consegne del pilota
 

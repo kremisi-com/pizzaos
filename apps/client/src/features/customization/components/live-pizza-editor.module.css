@@ -17,7 +17,10 @@
 .back { border: 0; background: transparent; cursor: pointer; }
 .feedback { padding: 0 20px; }
 .status { color: var(--pizzaos-color-critical); }
-.ingredientActions { display: flex; align-items: center; gap: 8px; }
+.ingredientActions { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 8px; min-width: 0; }
+.ingredientRow { gap: 8px; }
+.ingredientRow > div:first-child { min-width: 0; padding-right: 0; overflow-wrap: anywhere; }
+.ingredientRow > div:first-child > div { flex-wrap: wrap; gap: 4px; }
 .ingredientExtra { border: 1px solid var(--pizzaos-color-border); border-radius: 999px; padding: 8px; background: var(--pizzaos-color-background-accent); font: inherit; cursor: pointer; }
 .ingredientExtra[aria-pressed="true"] { border-color: var(--pizzaos-color-primary); color: var(--pizzaos-color-primary); }
 .dialog :focus-visible { outline: 2px solid var(--pizzaos-color-primary); outline-offset: 3px; }
@@ -26,3 +29,7 @@
 .stepper { display: flex; align-items: center; gap: 10px; }
 .stepper button { border: 1px solid var(--pizzaos-color-border); border-radius: 50%; width: 32px; height: 32px; background: var(--pizzaos-color-background-accent); font: inherit; cursor: pointer; }
 .fallback { width: 100%; height: auto; max-height: 320px; object-fit: contain; }
+.dialog .previewFrame { overflow: clip; }
+.emptyPreview { display: grid; place-items: center; min-height: 240px; margin: 0 auto 20px; max-width: 320px; border-radius: 50%; background: var(--pizzaos-color-surface-muted); color: var(--pizzaos-color-foreground-muted); text-align: center; }
+.emptyPreview > span { font-size: 4rem; }
+.emptyPreview p { margin: 0 16px 20px; font-size: .875rem; }

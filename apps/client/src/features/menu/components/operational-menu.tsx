@@ -1,10 +1,10 @@
 "use client";
 
-import { menuImagePath, resolveMenuComposition } from "@pizzaos/domain";
+import { resolveMenuComposition } from "@pizzaos/domain";
 import type { IndividualLine, IndividualProduct, IndividualStore, MenuOptionGroup, MenuSelection } from "@pizzaos/domain";
 import Image from "next/image";
 import { useEffect, useId, useRef, useState } from "react";
-import { LivePizzaEditor } from "../../customization";
+import { LivePizzaEditor, pizzaInitialSelections, pizzaPreview, type PizzaMenuChoices } from "../../customization";
 import { lineChoiceLabels, lineIssue, menuMoney, menuSelections } from "../live-menu-model";
 import { foodMatches, MenuFoodControls, MenuFoodSummary, type MenuPreferences } from "./operational-food";
 import styles from "./operational-menu.module.css";
@@ -29,6 +29,7 @@ function GenericConfigurationDialog({ store, product, line, disabled, avoid, onC
   onSave: (line: IndividualLine) => void;
   quantity?: number;
   edit?: boolean;
+  initialSelections?: MenuSelection[];
 }) {
   const dialog = useRef<HTMLDialogElement>(null);
   const title = useId();
@@ -86,7 +87,7 @@ function GenericConfigurationDialog({ store, product, line, disabled, avoid, onC
             {group.min > 0 && <p className={styles.groupHint}>{group.min === group.max
               ? group.min === 1 ? "Scegli una voce" : `Scegli ${group.min} unità · ${count}/${group.max}`
               : `Scegli da ${group.min} a ${group.max} · ${count}/${group.max}`}</p>}
-            {group.kind === "extras" && product.extraOffer && <p className={styles.offer}>
+            {group.kind === "extras" && product.extraOffer && product.extraOffer.quota > 0 && product.extraOffer.percent > 0 && <p className={styles.offer}>
               −{product.extraOffer.percent}% sui {product.extraOffer.quota} extra più costosi
             </p>}
             {group.optionIds.map(id => {
@@ -167,22 +168,27 @@ export function MenuLineDetails({ product, line, avoid = [], showUnknown = false
   </>;
 }
 
-function MenuItem({ store, product, preferences, disabled, onAdd }: {
+function MenuItem({ store, product, preferences, disabled, onAdd, pizzaChoices }: {
   store: IndividualStore; product: IndividualProduct; preferences: MenuPreferences;
   disabled: boolean; onAdd: (line: IndividualLine) => void;
+  pizzaChoices: PizzaMenuChoices;
 }) {
   const [configuring, setConfiguring] = useState(false);
   const needsChoices = Boolean(product.groups?.length);
   const pairing = store.products.filter(item => item.available && product.pairingProductIds?.includes(item.id));
-  const food = resolveMenuComposition(product, []).composition;
-  return <article className={styles.item}>
-    {product.imageId && <Image className={styles.photo} unoptimized src={menuImagePath(store.id, product.imageId)} alt="" width={112} height={112} />}
+  const initialSelections = pizzaInitialSelections(product, pizzaChoices);
+  const preview = resolveMenuComposition(product, initialSelections);
+  const image = pizzaPreview(product, initialSelections, store.id);
+  return <article className={`${styles.item} ${!product.available ? styles.itemUnavailable : ""}`}>
     <div className={styles.itemBody}>
       <h4>{product.name}</h4>
       {product.description && <p>{product.description}</p>}
-      {!product.available ? <p className={styles.unavailable}>Prodotto esaurito</p>
+      {!product.available ? <p className={styles.unavailable}>Non disponibile</p>
         : product.maxAvailable !== undefined && <p className={styles.stock}>Quantità max disponibile: {product.maxAvailable}</p>}
-      <MenuFoodSummary food={food} avoid={preferences.avoid} showUnknown={Boolean(store.menu)} />
+      <MenuFoodSummary food={preview.composition} avoid={preferences.avoid} showUnknown={Boolean(store.menu)} />
+      {product.extraOffer && product.extraOffer.quota > 0 && product.extraOffer.percent > 0 && <p className={styles.offer}>
+        −{product.extraOffer.percent}% sui {product.extraOffer.quota} extra più costosi
+      </p>}
       {pairing.length > 0 && <details className={styles.pairings}><summary>Abbinamenti consigliati</summary>
         {pairing.map(item => <p key={item.id}>{item.groups?.length
           ? <a href={`#${encodeURIComponent(menuItemId(item.id))}`}>{item.name} · {menuMoney(item.priceCents)}</a>
@@ -192,15 +198,22 @@ function MenuItem({ store, product, preferences, disabled, onAdd }: {
         </p>)}
       </details>}
       <div className={styles.itemActions}>
-        <strong>{needsChoices && product.groups?.some(group => group.min > 0) ? "Base " : ""}{menuMoney(product.priceCents)}</strong>
+        <strong>{!product.pizza && needsChoices && product.groups?.some(group => group.min > 0) ? "Base " : ""}{menuMoney(preview.unitCents)}</strong>
         <button type="button" disabled={disabled || !product.available} onClick={() => {
           if (needsChoices) setConfiguring(true);
           else onAdd({ productId: product.id, quantity: 1, optionIds: [], notes: "" });
-        }}>{product.available ? `Aggiungi ${product.name}` : "Non disponibile"}</button>
+        }} aria-label={product.available ? `Aggiungi ${product.name}` : `${product.name} non disponibile`}>
+          <span aria-hidden="true">{product.available ? "+" : "−"}</span>
+        </button>
         {!needsChoices && product.options.length > 0 && <MenuLineEditor store={store} product={product} disabled={disabled} avoid={preferences.avoid} onSave={onAdd} />}
       </div>
     </div>
-    {configuring && <ConfigurationDialog store={store} product={product} disabled={disabled} avoid={preferences.avoid} onClose={() => setConfiguring(false)} onSave={onAdd} />}
+    {image.src && <div className={styles.productVisual}>
+      <Image className={styles.photo} unoptimized src={image.src} alt="" width={160} height={160} />
+      {image.overlay && <Image className={styles.photoOverlay} unoptimized src={image.overlay} alt="" width={160} height={160} />}
+    </div>}
+    {configuring && <ConfigurationDialog store={store} product={product} disabled={disabled} avoid={preferences.avoid}
+      initialSelections={initialSelections} onClose={() => setConfiguring(false)} onSave={onAdd} />}
   </article>;
 }
 
@@ -211,6 +224,30 @@ export function OperationalMenu({ store, preferences, disabled = false, onAdd }:
 }) {
   const [filtering, setFiltering] = useState(false);
   const [selectedSection, setSelectedSection] = useState<string | null>(null);
+  const [pizzaChoices, setPizzaChoices] = useState<PizzaMenuChoices>({});
+  const pizzas = store.products.filter(product => product.pizza);
+  const representative = pizzas.find(product => product.available) ?? pizzas[0];
+  const defaults = representative?.pizza?.defaultSelections ?? [];
+  const dimensions = (["dough", "base"] as const).map(kind => {
+    const choices = new Map<string, { sourceId: string; name: string; priceCents: number; available: boolean }>();
+    for (const product of pizzas) {
+      const ids = new Set(product.groups?.filter(group => group.kind === kind).flatMap(group => group.optionIds));
+      for (const option of product.options) {
+        if (option.pizza?.kind !== kind || !ids.has(option.id)) continue;
+        const previous = choices.get(option.pizza.sourceId);
+        choices.set(option.pizza.sourceId, { sourceId: option.pizza.sourceId, name: option.name,
+          priceCents: previous?.priceCents ?? option.priceCents,
+          available: Boolean(previous?.available || product.available && option.available !== false) });
+      }
+    }
+    const requested = kind === "dough" ? pizzaChoices.doughId : pizzaChoices.baseId;
+    const standard = representative?.options.find(option => option.pizza?.kind === kind && defaults.some(choice => choice.optionId === option.id))?.pizza?.sourceId;
+    return { kind, choices: [...choices.values()], selected: requested && choices.has(requested) ? requested : standard };
+  });
+  const currentChoices: PizzaMenuChoices = {
+    doughId: dimensions.find(dimension => dimension.kind === "dough")?.selected,
+    baseId: dimensions.find(dimension => dimension.kind === "base")?.selected
+  };
   const products = new Map(store.products.map(product => [product.id, product]));
   const productIsVisible = (product: IndividualProduct) => {
     if (!filtering || !preferences.avoid.length || product.groups?.length) return true;
@@ -229,10 +266,39 @@ export function OperationalMenu({ store, preferences, disabled = false, onAdd }:
     }
   }
   const active = sections.some(section => section.id === selectedSection) ? selectedSection : sections[0]?.id;
+  const heroProduct = sections.find(section => section.id === active)?.products.find(product => product.pizza) ?? representative;
+  const heroImage = heroProduct ? pizzaPreview(heroProduct, pizzaInitialSelections(heroProduct, currentChoices), store.id) : undefined;
   return <div className={styles.menu}>
-    {store.menu?.name && <p className={styles.menuName}>{store.menu.name}</p>}
+    <header className={styles.hero}>
+      {store.menu?.name && <p className={styles.menuName}>{store.menu.name}</p>}
+      <h2>{pizzas.length ? "La pizza a modo tuo" : "Scegli dal menu"}</h2>
+      <p>{pizzas.length ? "Scegli impasto e base, poi trova la tua pizza." : "Scopri le proposte della pizzeria."}</p>
+      {pizzas.length > 0 && <div className={styles.heroPreview}>
+        {heroImage?.src ? <>
+          <Image unoptimized loading="eager" src={heroImage.src} alt={`Anteprima pizza ${heroProduct?.name ?? ""}`} width={360} height={360} />
+          {heroImage.overlay && <Image unoptimized className={styles.heroOverlay} src={heroImage.overlay} alt="" width={330} height={330} />}
+        </> : <div className={styles.emptyPreview}><span aria-hidden="true">🍕</span><p>La tua pizza prende forma qui.</p></div>}
+      </div>}
+    </header>
+    {dimensions.filter(dimension => dimension.choices.length > 0).map(dimension => <fieldset className={styles.initialChoice} key={dimension.kind} disabled={disabled}>
+      <legend>{dimension.kind === "dough" ? "Impasto" : "Base pizza"}</legend>
+      <div className={styles.choiceList}>{dimension.choices.map(choice => <label className={styles.choice} key={choice.sourceId}>
+        <input type="radio" name={`${store.id}-${dimension.kind}`} checked={dimension.selected === choice.sourceId} disabled={!choice.available}
+          onChange={() => setPizzaChoices(current => ({ ...current, [dimension.kind === "dough" ? "doughId" : "baseId"]: choice.sourceId }))} />
+        <span>{choice.name}</span>
+        {choice.priceCents !== 0 && <small>{choice.priceCents > 0 ? "+" : "−"}{menuMoney(Math.abs(choice.priceCents))}</small>}
+        {!choice.available && <small className={styles.unavailable}>Esaurito</small>}
+      </label>)}</div>
+    </fieldset>)}
     <MenuFoodControls preferences={preferences} filtering={filtering} onFilter={setFiltering} kitchenNotice={store.menu?.kitchenNotice} />
-    {sections.length > 1 && <nav className={styles.categoryBar} aria-label="Categorie del menu">
+    {sections.length > 1 && <nav className={styles.categoryPicker} aria-label="Categorie del menu">
+      <h3>Da dove vuoi iniziare?</h3>
+      <div className={styles.categoryCards}>{sections.map(section => <a key={section.id} href={`#categoria-${encodeURIComponent(section.id)}`}
+        aria-current={active === section.id ? "location" : undefined} onClick={() => setSelectedSection(section.id)}>
+        <span>{section.name}<small>{section.products.length} {section.products.length === 1 ? "proposta" : "proposte"}</small></span><span aria-hidden="true">→</span>
+      </a>)}</div>
+    </nav>}
+    {sections.length > 1 && <nav className={styles.categoryBar} aria-label="Scorri le categorie">
       {sections.map(section => <a key={section.id} href={`#categoria-${encodeURIComponent(section.id)}`}
         aria-current={active === section.id ? "location" : undefined} onClick={() => setSelectedSection(section.id)}>{section.name}</a>)}
     </nav>}
@@ -240,7 +306,7 @@ export function OperationalMenu({ store, preferences, disabled = false, onAdd }:
     {sections.map(section => <section className={styles.category} key={section.id} id={`categoria-${section.id}`}>
       {store.menu && <><h3>{section.name}</h3>{section.description && <p>{section.description}</p>}</>}
       <div className={styles.items}>{section.products.map(product => <div key={product.id} id={firstSectionOfProduct.get(product.id) === section.id ? menuItemId(product.id) : undefined}>
-        <MenuItem store={store} product={product} preferences={preferences} disabled={disabled || !store.acceptingOrders} onAdd={onAdd} />
+        <MenuItem store={store} product={product} preferences={preferences} disabled={disabled || !store.acceptingOrders} onAdd={onAdd} pizzaChoices={currentChoices} />
       </div>)}</div>
     </section>)}
   </div>;

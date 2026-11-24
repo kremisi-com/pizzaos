@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { BRAND_ASSETS } from "@pizzaos/brand";
 import { BrandLogo } from "@pizzaos/ui";
 import styles from "./sign-in.module.css";
-import { useAdminToast } from "../../../composition/admin-toast";
+import { useAdminToast } from "../../notifications";
 
 export function SignInScreen({ returnTo, area = "admin", demoOnly = false }: { returnTo: string; area?: "admin" | "rider"; demoOnly?: boolean }) {
   const showToast = useAdminToast();

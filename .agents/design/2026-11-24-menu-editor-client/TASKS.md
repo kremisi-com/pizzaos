@@ -1,0 +1,3 @@
+- [x] **contracts**: Standard comuni, formule configurabili, extra Magazzino e snapshot commerciali.
+- [x] **admin**: Editor a due colonne, Pizza custom e gestione extra.
+- [x] **client**: Menu e dettaglio operativi fedeli al POC.

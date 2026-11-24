@@ -3,7 +3,7 @@
 import type { AdminDeliveryItem, DeliveryAdminApi, DeliveryRider, IndividualOrder } from "@pizzaos/domain";
 import { type FormEvent, type ReactElement, useCallback, useEffect, useId, useRef, useState } from "react";
 import styles from "./delivery-assignment-panel.module.css";
-import { useAdminToast } from "../../composition/admin-toast";
+import { useAdminToast } from "../notifications";
 
 export interface DeliveryAssignmentsPanelProps {
   storeId: string;

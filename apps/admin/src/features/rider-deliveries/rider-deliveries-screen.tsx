@@ -2,7 +2,7 @@
 
 import type { RiderDelivery, RiderDeliveryApi, RiderSession } from "@pizzaos/domain";
 import { useEffect, useRef, useState, type ReactElement } from "react";
-import { useAdminToast } from "../../composition/admin-toast";
+import { useAdminToast } from "../notifications";
 import styles from "./rider-deliveries.module.css";
 
 export interface RiderDeliveriesScreenProps {

@@ -1,8 +1,11 @@
 import { describe, expect, it } from "vitest";
 import {
+  applyPizzaDefaults,
+  syncPizzaInventory,
   materializePizzaMenu,
   resolveMenuComposition,
   type IndividualProduct,
+  type IndividualIngredient,
   type MenuDraft,
   type MenuSelection,
   type PizzaCatalog,
@@ -66,6 +69,111 @@ function selections(product: IndividualProduct, ...changes: { kind: string; sour
 }
 
 describe("contratto pubblico del catalogo pizza", () => {
+  it("applica standard condivisi e tutte le alternative preservando prezzi e sorgente", () => {
+    const source = catalog();
+    source.defaults = { doughId: "integrale", baseId: "bianca", formatId: "maxi" };
+    source.tastes[0].doughIds = ["classico"];
+    source.formulas[0].baseIds = ["rossa"];
+    const before = structuredClone(source);
+    const applied = applyPizzaDefaults(source);
+    expect(source).toEqual(before);
+    expect(applyPizzaDefaults(applied)).toEqual(applied);
+    for (const entry of [...applied.tastes, ...applied.formulas]) {
+      expect(entry).toMatchObject({ standardDoughId: "integrale", standardBaseId: "bianca", standardFormatId: "maxi" });
+      expect(entry.doughIds).toEqual(applied.doughs.map(({ id }) => id));
+      expect(entry.baseIds).toEqual(applied.bases.map(({ id }) => id));
+      expect(entry.formatIds).toEqual(applied.formats.map(({ id }) => id));
+      const projected = pizza(applied, entry.id);
+      expect(resolveMenuComposition(projected, selections(projected))).toMatchObject({ valid: true, unitCents: entry.priceCents });
+    }
+    expect(applied.tastes[0].priceCents).toBe(600);
+    expect(applied.formulas[0].priceCents).toBe(500);
+    const projected = pizza(applied);
+    expect(resolveMenuComposition(projected, selections(projected, { kind: "dough", sourceId: "classico" }))).toMatchObject({ valid: true, unitCents: 480 });
+  });
+
+  it("disabilita la proiezione custom conservando formule e riferimenti per la riattivazione", () => {
+    const source = catalog();
+    source.customEnabled = false;
+    const candidate = draft(source);
+    const before = structuredClone(candidate);
+    const hidden = materializePizzaMenu(candidate);
+    expect(hidden.products.map(({ id }) => id)).toEqual(["acqua", "margherita"]);
+    expect(hidden.pizzaCatalog?.formulas).toEqual(before.pizzaCatalog?.formulas);
+    expect(hidden.sections).toEqual(before.sections);
+    expect(candidate).toEqual(before);
+    hidden.pizzaCatalog!.customEnabled = true;
+    expect(materializePizzaMenu(hidden).products.map(({ id }) => id)).toContain("simple");
+  });
+
+  it.each([
+    { quota: 2, percent: 40, quantities: [1, 1, 1], expected: 1300 },
+    { quota: 2, percent: 40, quantities: [3, 0, 0], expected: 1560 },
+    { quota: 0, percent: 40, quantities: [1, 1, 1], expected: 1500 },
+    { quota: 2, percent: 0, quantities: [1, 1, 1], expected: 1500 },
+    { quota: 100, percent: 100, quantities: [1, 1, 1], expected: 900 },
+  ])("calcola la formula libera con quota $quota e percentuale $percent", ({ quota, percent, quantities, expected }) => {
+    const source = catalog();
+    source.toppings = [300, 200, 100].map((price, index) => ({ ...component(`libero-${index}`, price, { [`ingrediente-${index}`]: 2 }), category: "Extra" }));
+    source.tastes = [];
+    source.formulas[0] = { ...source.formulas[0], name: "La scelta di Andrea", priceCents: 900, offer: "Savage", extraOffer: { quota, percent }, toppingIds: source.toppings.map(({ id }) => id) };
+    const product = pizza(source, "simple");
+    const extras = source.toppings.flatMap(({ id }, index) => quantities[index] ? [{ ...option(product, "topping", id), quantity: quantities[index] }] : []);
+    const result = resolveMenuComposition(product, [...selections(product), ...extras]);
+    expect(result).toMatchObject({ valid: true, unitCents: expected });
+    expect(product.extraOffer).toEqual({ quota, percent });
+    if (quantities[0] === 3) expect(result.recipe["ingrediente-0"]).toBe(6);
+    expect(result.recipe).not.toHaveProperty("latte");
+  });
+
+  it("non sincronizza cataloghi legacy senza scelta esplicita del Magazzino", () => {
+    const candidate = draft();
+    const before = structuredClone(candidate);
+    const ingredients: IndividualIngredient[] = [{ id: "olive", name: "Olive", stock: 10, extra: { enabled: true, priceCents: 999, dose: 8 } }];
+    expect(syncPizzaInventory(candidate, ingredients)).toEqual(before);
+    expect(candidate).toEqual(before);
+  });
+
+  it("sincronizza solo extra abilitati con identità esplicita, dosi e allergeni senza duplicati", () => {
+    const candidate = draft();
+    candidate.pizzaCatalog!.inventoryExtras = true;
+    const ingredients: IndividualIngredient[] = [
+      { id: "olive", name: "Olive di qualità", stock: 20, extra: { enabled: true, priceCents: 230, dose: 4 }, food: { contains: ["Sedano"], mayContain: ["Latte"] } },
+      { id: "vietato", name: "Olive", stock: 20, extra: { enabled: false, priceCents: 1, dose: 1 } },
+      { id: "normale", name: "Olive", stock: 20 },
+    ];
+    const before = structuredClone(candidate);
+    const result = syncPizzaInventory(candidate, ingredients);
+    expect(candidate).toEqual(before);
+    const managed = result.pizzaCatalog!.toppings.filter(({ inventoryIngredientId }) => inventoryIngredientId !== undefined);
+    expect(managed).toHaveLength(1);
+    expect(managed[0]).toMatchObject({ inventoryIngredientId: "olive", priceCents: 230, ingredients: { olive: 4 }, food: ingredients[0].food });
+    expect(new Set(result.pizzaCatalog!.formulas[0].toppingIds).size).toBe(result.pizzaCatalog!.formulas[0].toppingIds.length);
+    expect(result.pizzaCatalog!.formulas[0].toppingIds).toEqual([managed[0].id]);
+    expect(result.pizzaCatalog!.tastes[0].includedToppingIds).toEqual(before.pizzaCatalog!.tastes[0].includedToppingIds);
+    expect(syncPizzaInventory(result, ingredients)).toEqual(result);
+    const afterStock = structuredClone(ingredients);
+    afterStock[0].stock = 0;
+    expect(syncPizzaInventory(result, afterStock).pizzaCatalog!.inventorySignature).toBe(result.pizzaCatalog!.inventorySignature);
+    expect(syncPizzaInventory(result, [...ingredients].reverse()).pizzaCatalog!.inventorySignature).toBe(result.pizzaCatalog!.inventorySignature);
+    for (const changed of [
+      { ...ingredients[0], extra: { enabled: true, priceCents: 240, dose: 4 } },
+      { ...ingredients[0], extra: { enabled: true, priceCents: 230, dose: 5 } },
+      { ...ingredients[0], food: { contains: ["Senape"], mayContain: [] } },
+      { ...ingredients[0], extra: { enabled: false, priceCents: 230, dose: 4 } },
+    ]) {
+      expect(syncPizzaInventory(result, [changed, ...ingredients.slice(1)]).pizzaCatalog!.inventorySignature).not.toBe(result.pizzaCatalog!.inventorySignature);
+    }
+  });
+
+  it("conserva null come dose ignota degli extra dal Magazzino", () => {
+    const candidate = draft();
+    candidate.pizzaCatalog!.inventoryExtras = true;
+    const synced = syncPizzaInventory(candidate, [{ id: "nuovo", name: "Nuovo", stock: null, extra: { enabled: true, priceCents: 200, dose: null } }]);
+    const topping = synced.pizzaCatalog!.toppings.find(({ inventoryIngredientId }) => inventoryIngredientId === "nuovo");
+    expect(topping?.ingredients).toEqual({ nuovo: null });
+  });
+
   it("blocca un topping incluso disattivato finché viene rimosso, mantenendo visibile il gusto", () => {
     const source = catalog();
     source.toppings[0].available = false;

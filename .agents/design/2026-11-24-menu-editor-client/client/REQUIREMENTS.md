@@ -1,0 +1,3 @@
+# Requisiti
+
+Menu operativo individuale e gruppo con anteprima grande, scelte iniziali impasto/base, categorie navigabili e card pizza come POC, brand ufficiale corrente. Nessuna lettura dati demo o deduzione dai nomi. Anteprime da associazioni esplicite, fallback foto e stato neutro senza immagini. Scelte iniziali trasmesse al dettaglio nuove righe; modifica preserva scelte riga, quantità e note. Prezzi preview coerenti con opzioni selezionate; quote server autorevole. Mantenere allergeni, filtri, esauriti e abbinamenti. Dettaglio con sezioni Impasto/Base/Formato/Ingredienti/Extra e CTA fissa. Formule arbitrarie leggono quota/percentuale da catalogo. Carrello/checkout/POC isolato invariati. Mobile e tastiera accessibili.

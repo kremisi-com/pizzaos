@@ -46,7 +46,7 @@ test("la pubblicazione rende ordinabile la pizza componibile e la cucina riceve 
     await admin.goto(`${adminOrigin}/operazioni`);
     const operations = admin.getByRole("navigation", { name: "Navigazione admin" });
     await operations.getByRole("link", { name: "Menu", exact: true }).click();
-    await admin.getByRole("button", { name: draft.name, exact: true }).click();
+    await admin.getByLabel("Menu da modificare").selectOption(draft.id);
     await admin.getByRole("button", { name: "Pubblica menu", exact: true }).click();
     const publishing = admin.waitForResponse((response) => response.url().endsWith(`${workspacePath}/publish`) && response.request().method() === "POST");
     await admin.getByRole("button", { name: "Conferma pubblicazione", exact: true }).click();

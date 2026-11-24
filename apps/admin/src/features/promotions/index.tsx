@@ -2,7 +2,7 @@
 
 import type { IndividualProduct, PromotionConfiguration, PromotionCoupon, PromotionCouponInput, PromotionProgram, PromotionsApi } from "@pizzaos/domain";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useAdminToast } from "../../composition/admin-toast";
+import { useAdminToast } from "../notifications";
 import styles from "./promotions.module.css";
 
 interface CouponForm {

@@ -4,7 +4,7 @@ import type { IndividualIngredient, MenuAdminApi, MenuDraft, MenuWorkspace } fro
 import { materializePizzaMenu } from "@pizzaos/domain";
 import { Button } from "@pizzaos/ui";
 import { useEffect, useState } from "react";
-import { useAdminToast } from "../../../composition/admin-toast";
+import { useAdminToast } from "../../notifications";
 import { MenuDraftEditor } from "./menu-draft-editor";
 import { MenuPreview } from "./menu-preview";
 import styles from "./operational-catalog.module.css";
@@ -13,11 +13,12 @@ function message(failure: unknown) {
   return failure instanceof Error ? failure.message : "Operazione non riuscita. Riprova.";
 }
 
-export function OperationalCatalog({ api, storeId, ingredients, onPublished }: {
+export function OperationalCatalog({ api, storeId, ingredients, onPublished, onInventory }: {
   api: MenuAdminApi;
   storeId: string;
   ingredients: readonly IndividualIngredient[];
   onPublished: () => void;
+  onInventory?: () => void;
 }) {
   const showToast = useAdminToast();
   const [workspace, setWorkspace] = useState<MenuWorkspace | null>(null);
@@ -149,49 +150,47 @@ export function OperationalCatalog({ api, storeId, ingredients, onPublished }: {
       </Button>
     </div>}
     {!workspace && !error && <p role="status">Caricamento del menu…</p>}
-    {workspace && menu && <div className={styles.layout}>
-      <aside className={styles.side}>
-        <h2>I menu della sede</h2>
-        <nav className={styles.nav} aria-label="Menu della sede">
-          <Button type="button" variant={selectedId === null ? "primary" : "ghost"} aria-current={selectedId === null}
-            disabled={busy} onClick={() => select(null)}>Menu pubblicato</Button>
-          {Array.from(availableDrafts.values()).map(draft => <Button key={draft.id} type="button"
-            variant={draft.id === selectedId ? "primary" : "ghost"} aria-current={draft.id === selectedId}
-            disabled={busy} onClick={() => select(draft.id)}>{draft.name || "Bozza senza nome"}</Button>)}
-        </nav>
-        <Button type="button" variant="secondary" disabled={busy} onClick={() => newDraft()}>Nuovo menu</Button>
-      </aside>
-      <section className={styles.panel}>
-        <div className={styles.header}>
-          <h2>{selectedDraft ? "Bozza del menu" : "Menu pubblicato"}</h2>
-          <Button type="button" variant="secondary" disabled={busy} onClick={() => newDraft(menu)}>Duplica menu</Button>
+    {workspace && menu && <div className={styles.catalogPage}>
+      <header className={styles.catalogHeader}>
+        <div className={styles.catalogTitle}><h1>Il tuo menu</h1><p>Aggiungi le pizze, scegli il prezzo. Il resto solo se ti serve.</p></div>
+        <div className={styles.headerActions}>
+          <span role="status" className={styles.small}>{selectedDraft ? dirty ? "Modifiche da salvare" : "Bozza salvata" : "Menu pubblicato"}</span>
+          <Button type="button" variant="secondary" disabled={busy} aria-pressed={viewPreview} onClick={() => setViewPreview(value => !value)}>{viewPreview ? "Torna alla modifica" : "Anteprima"}</Button>
+          <label className={styles.menuSelect}>Menu da modificare<select value={selectedId ?? ""} disabled={busy} onChange={event => select(event.target.value || null)}>
+            <option value="">{workspace.published.name} (pubblicato)</option>
+            {Array.from(availableDrafts.values()).map(draft => <option key={draft.id} value={draft.id}>{draft.name || "Bozza senza nome"}</option>)}
+          </select></label>
+          <Button type="button" disabled={!selectedDraft || busy || dirty} aria-expanded={confirmation === "publish"} onClick={() => setConfirmation(value => value === "publish" ? null : "publish")}>Pubblica menu</Button>
         </div>
+      </header>
+      <div className={styles.menuTools}>
+        <Button type="button" variant="ghost" disabled={busy} onClick={() => newDraft()}>Nuovo menu</Button>
+        <Button type="button" variant="ghost" disabled={busy} onClick={() => newDraft(menu)}>Duplica menu</Button>
+        {selectedDraft && <Button type="button" variant="ghost" disabled={busy || dirty} onClick={() => setConfirmation(value => value === "delete" ? null : "delete")}>Elimina bozza</Button>}
+        {!selectedDraft && <p className={styles.small}>Duplica il menu pubblicato per modificarlo.</p>}
+      </div>
+      <section>
         {selectedDraft ? <form className={styles.form} onSubmit={event => {
           event.preventDefault();
           void saveDraft();
         }}>
-          <div className={styles.actions}>
-            <Button type="button" variant="secondary" disabled={busy} aria-pressed={viewPreview} onClick={() => {
-              setViewPreview(value => !value);
-              setConfirmation(null);
-            }}>{viewPreview ? "Torna alla modifica" : "Anteprima"}</Button>
-            {dirty && <Button type="button" variant="ghost" disabled={busy} onClick={() => {
+          {dirty && <div className={styles.actions}>
+            <Button type="button" variant="ghost" disabled={busy} onClick={() => {
               clearEdit(selectedDraft.id);
               if (!workspace.drafts.some(draft => draft.id === selectedId)) select(null);
               setConfirmation(null);
-            }}>Scarta modifiche locali</Button>}
-          </div>
+            }}>Scarta modifiche locali</Button>
+          </div>}
           {viewPreview ? <MenuPreview menu={menu} storeId={storeId} ingredients={ingredients} /> : <fieldset className={styles.editor} disabled={busy}>
             <legend className={styles.screenReaderOnly}>Impostazioni della bozza</legend>
             <MenuDraftEditor key={selectedDraft.id} draft={selectedDraft} storeId={storeId} ingredients={ingredients}
-              onChange={change} onUpload={(id, file) => void uploadPhoto(id, file)} />
+              onChange={change} onUpload={(id, file) => void uploadPhoto(id, file)} onSave={() => void saveDraft()} onInventory={onInventory ? () => {
+                if (Object.keys(edits).length) { showToast("Salva le bozze modificate prima di aprire il Magazzino.", "info"); return; }
+                onInventory();
+              } : undefined} />
           </fieldset>}
           <div className={styles.actions}>
             <Button type="submit" disabled={busy || !dirty}>Salva bozza</Button>
-            <Button type="button" variant="secondary" disabled={busy || dirty}
-              aria-expanded={confirmation === "publish"} onClick={() => setConfirmation(value => value === "publish" ? null : "publish")}>Pubblica menu</Button>
-            <Button type="button" variant="ghost" disabled={busy || dirty}
-              aria-expanded={confirmation === "delete"} onClick={() => setConfirmation(value => value === "delete" ? null : "delete")}>Elimina bozza</Button>
             {dirty && <span className={styles.small}>Salva la bozza prima di pubblicarla.</span>}
           </div>
           {confirmation && <fieldset className={styles.confirm} disabled={busy || dirty}>

@@ -3,7 +3,7 @@ export interface PizzaComponent {
   id: string; name: string; description: string; priceCents: number; available: boolean;
   ingredients: Record<string, number | null>; food?: { contains: string[]; mayContain: string[] }; imagePath?: string;
 }
-export interface PizzaTopping extends PizzaComponent { category: string; }
+export interface PizzaTopping extends PizzaComponent { category: string; inventoryIngredientId?: string; }
 export interface PizzaPreviewImage { doughId: string; baseId: string; imagePath: string; }
 export interface PizzaEntry {
   id: string; name: string; description: string; priceCents: number; available: boolean;
@@ -12,10 +12,18 @@ export interface PizzaEntry {
   imageId?: string; pairingProductIds?: string[]; previewImages?: PizzaPreviewImage[]; toppingImagePath?: string;
 }
 export interface PizzaTaste extends PizzaEntry { includedToppingIds: string[]; }
-export interface PizzaFormula extends PizzaEntry { offer: "Simple" | "Wild" | "Savage"; }
+export interface PizzaFormula extends PizzaEntry {
+  /** Legacy rules remain readable; new formulas use explicit extraOffer. */
+  offer?: "Simple" | "Wild" | "Savage";
+  extraOffer?: { quota: number; percent: number };
+}
 export interface PizzaCatalog {
   doughs: PizzaComponent[]; bases: PizzaComponent[]; formats: PizzaComponent[];
   toppings: PizzaTopping[]; tastes: PizzaTaste[]; formulas: PizzaFormula[];
+  defaults?: { doughId: string; baseId: string; formatId: string };
+  customEnabled?: boolean;
+  inventoryExtras?: boolean;
+  inventorySignature?: string;
 }
 export interface PizzaOptionIdentity {
   kind: "dough" | "base" | "format" | "topping" | "removal";

@@ -1,9 +1,9 @@
-import { materializePizzaMenu } from "@pizzaos/domain";
+import { materializePizzaMenu, PIZZA_EXTRA_OFFERS, syncPizzaInventory } from "@pizzaos/domain";
 import type { IndividualIngredient, IndividualProduct, MenuDraft, OrderingMenuSection, PizzaEntry } from "@pizzaos/domain";
 import { Button } from "@pizzaos/ui";
 import { useState } from "react";
 import { MenuProductForm } from "./menu-product-form";
-import { PizzaCatalogEditor, PizzaEntryEditor } from "./pizza-catalog-editor";
+import { blankPizzaCatalog, createPizzaEntry, PizzaCustomCard, PizzaSettingsPanel, PizzaTastePanel } from "./menu-pizza-panels";
 import styles from "./operational-catalog.module.css";
 
 const money = new Intl.NumberFormat("it-IT", { style: "currency", currency: "EUR" });
@@ -31,20 +31,38 @@ function MoveButtons({ label, index, count, onMove }: {
   </>;
 }
 
-export function MenuDraftEditor({ draft, storeId, ingredients, onChange, onUpload }: {
+export function MenuDraftEditor({ draft, storeId, ingredients, onChange, onUpload, onSave, onInventory }: {
   draft: MenuDraft;
   storeId: string;
   ingredients: readonly IndividualIngredient[];
   onChange: (draft: MenuDraft) => void;
   onUpload: (productId: string, file: File) => void;
+  onSave?: () => void;
+  onInventory?: () => void;
 }) {
   const [editingId, setEditingId] = useState("");
   const [removingId, setRemovingId] = useState("");
   const [editingSectionId, setEditingSectionId] = useState("");
+  const [settings, setSettings] = useState(false);
+  const [activeSectionId, setActiveSectionId] = useState("");
+  const [configurationStart, setConfigurationStart] = useState(draft.pizzaCatalog);
   const productIndex = draft.products.findIndex(product => product.id === editingId);
   const editing = draft.products[productIndex];
   const editingSection = draft.sections.find(section => section.productIds.includes(editingId));
   const products = new Map(draft.products.map(product => [product.id, product]));
+  const activeSection = draft.sections.find(section => section.id === activeSectionId) ?? draft.sections[0];
+  const catalog = draft.pizzaCatalog ?? blankPizzaCatalog();
+  const taste = catalog.tastes.find(item => item.id === editingId);
+
+  function ingredientSummary(product: IndividualProduct) {
+    const entry = catalog.tastes.find(item => item.id === product.id);
+    if (!entry) return product.description;
+    const base = catalog.bases.find(item => item.id === (catalog.defaults?.baseId ?? entry.standardBaseId));
+    return [...new Set([
+      ...Object.keys(base?.ingredients ?? {}).map(id => ingredients.find(item => item.id === id)?.name ?? "Ingrediente da verificare"),
+      ...catalog.toppings.filter(item => entry.includedToppingIds.includes(item.id)).map(item => item.name)
+    ])].join(", ");
+  }
 
   function updateSection(id: string, change: Partial<OrderingMenuSection>) {
     onChange({ ...draft, sections: draft.sections.map(section => section.id === id ? { ...section, ...change } : section) });
@@ -62,25 +80,22 @@ export function MenuDraftEditor({ draft, storeId, ingredients, onChange, onUploa
       sections: draft.sections.map(item => item.id === section.id ? { ...item, productIds: [...item.productIds, id] } : item)
     });
     setEditingId(id);
+    setSettings(false);
   }
 
   function addPizza(section: OrderingMenuSection, kind: "taste" | "formula", sourceId?: string) {
-    const catalog = draft.pizzaCatalog ?? { doughs: [], bases: [], formats: [], toppings: [], tastes: [], formulas: [] };
+    const catalog = draft.pizzaCatalog ?? blankPizzaCatalog();
     const source = (kind === "taste" ? catalog.tastes : catalog.formulas).find(entry => entry.id === sourceId);
     const id = crypto.randomUUID();
-    const entry: PizzaEntry = source ? { ...structuredClone(source), id, name: `Copia di ${source.name}` } : {
-      id, name: kind === "taste" ? "Nuovo gusto" : "Nuova formula", description: "", priceCents: 0, available: true,
-      standardDoughId: catalog.doughs[0]?.id ?? "", standardBaseId: catalog.bases[0]?.id ?? "", standardFormatId: catalog.formats[0]?.id ?? "",
-      doughIds: catalog.doughs.map(item => item.id), baseIds: catalog.bases.map(item => item.id), formatIds: catalog.formats.map(item => item.id),
-      toppingIds: catalog.toppings.map(item => item.id)
-    };
+    const entry: PizzaEntry = source ? { ...structuredClone(source), id, name: `Copia di ${source.name}` } : { ...createPizzaEntry(catalog, kind), id };
     const pizzaCatalog = kind === "taste" ? { ...catalog, tastes: [...catalog.tastes,
       { ...entry, includedToppingIds: source && "includedToppingIds" in source ? source.includedToppingIds : [] }] }
-      : { ...catalog, formulas: [...catalog.formulas,
-        { ...entry, offer: source && "offer" in source ? source.offer : "Simple" as const }] };
-    onChange(materializePizzaMenu({ ...draft, pizzaCatalog,
-      sections: draft.sections.map(item => item.id === section.id ? { ...item, productIds: [...item.productIds, id] } : item) }));
-    setEditingId(id);
+      : { ...catalog, customEnabled: true, inventoryExtras: source ? catalog.inventoryExtras : true, formulas: [...catalog.formulas,
+        { ...entry, extraOffer: source && "extraOffer" in source && source.extraOffer ? source.extraOffer
+          : source && "offer" in source && source.offer ? PIZZA_EXTRA_OFFERS[source.offer] : { quota: 0, percent: 0 } }] };
+    onChange(materializePizzaMenu(syncPizzaInventory({ ...draft, pizzaCatalog,
+      sections: draft.sections.map(item => item.id === section.id ? { ...item, productIds: [...item.productIds, id] } : item) }, ingredients)));
+    if (kind === "taste") { setEditingId(id); setSettings(false); }
   }
 
   function removeProduct(id: string) {
@@ -103,14 +118,18 @@ export function MenuDraftEditor({ draft, storeId, ingredients, onChange, onUploa
     setRemovingId("");
   }
 
-  return <div className={styles.stack}>
-    <div className={styles.formGrid}>
-      <label>Nome menu<input value={draft.name} required maxLength={200} onChange={event => onChange({ ...draft, name: event.target.value })} /></label>
+  return <div className={styles.menuWorkspace}>
+    <div className={styles.menuMain}>
+    <div className={styles.menuMetadata}>
+      <label><span className={styles.screenReaderOnly}>Nome menu</span><input className={styles.menuNameInput} value={draft.name} required maxLength={200} onChange={event => onChange({ ...draft, name: event.target.value })} /></label>
+      <details className={styles.food}><summary>Avvertenze del menu</summary>
       <label>Avvertenze dalla cucina<textarea value={draft.kitchenNotice ?? ""} maxLength={1000}
         onChange={event => onChange({ ...draft, kitchenNotice: event.target.value || undefined })} /></label>
+      </details>
     </div>
-    <PizzaCatalogEditor draft={draft} ingredients={ingredients} onChange={onChange} />
-    {draft.sections.map((section, index) => <section key={section.id} className={styles.section} aria-label={section.name || "Nuova sezione"}>
+    <nav className={styles.categoryTabs} aria-label="Categorie del menu">{draft.sections.map(section => <Button type="button" key={section.id}
+      variant={activeSection?.id === section.id ? "primary" : "ghost"} onClick={() => setActiveSectionId(section.id)}>{section.name || "Nuova sezione"}</Button>)}</nav>
+    {draft.sections.filter(section => section.id === activeSection?.id).map(section => { const index = draft.sections.findIndex(item => item.id === section.id); return <section key={section.id} className={`${styles.section} ${styles.menuCategory}`} aria-label={section.name || "Nuova sezione"}>
       <div className={styles.header}>
         <div className={styles.sectionTitle}>
           {editingSectionId === section.id ? <input aria-label={`Nome sezione ${index + 1}`}
@@ -141,21 +160,21 @@ export function MenuDraftEditor({ draft, storeId, ingredients, onChange, onUploa
           const product = products.get(id);
           if (!product) return null;
           return <li key={id}>
-            <div className={styles.productRow}>
+            <div className={`${styles.productRow} ${editingId === id && !settings ? styles.selectedRow : ""}`}>
               <div>
-                <strong>{product.name || "Nuovo prodotto"}</strong>
-                <p className={styles.small}>{money.format(product.priceCents / 100)}{!product.available && " · Esaurito"}</p>
+                <Button type="button" variant="ghost" className={styles.productNameButton} onClick={() => { setEditingId(id); setSettings(false); }}
+                  aria-label={`Modifica ${product.name || "prodotto"}`}>{product.name || "Nuovo prodotto"}</Button>
+                <p className={`${styles.small} ${styles.ingredientSummary}`}>{ingredientSummary(product)}{!product.available && " · Esaurito"}</p>
               </div>
+              <strong className={styles.rowPrice}>{money.format(product.priceCents / 100)}</strong>
               <div className={styles.actions}>
                 <MoveButtons label={product.name || "prodotto"} index={position} count={section.productIds.length}
                   onMove={offset => updateSection(section.id, { productIds: move(section.productIds, position, offset) })} />
                 <Button type="button" variant="ghost" onClick={() => addProduct(section, product)}
-                  aria-label={`Duplica ${product.name || "prodotto"}`}>Duplica</Button>
-                <Button type="button" variant={editingId === id ? "primary" : "secondary"} onClick={() => setEditingId(id)}
-                  aria-label={`Modifica ${product.name || "prodotto"}`}>Modifica</Button>
+                  aria-label={`Duplica ${product.name || "prodotto"}`} title="Duplica">⧉</Button>
                 <Button type="button" variant="ghost" onClick={() => removeProduct(id)}
                   aria-label={`Elimina ${product.name || "prodotto"} dal menu`}
-                  aria-expanded={removingId === id}>Elimina</Button>
+                  aria-expanded={removingId === id} title="Elimina">×</Button>
               </div>
             </div>
             {removingId === id && <fieldset className={styles.confirm}>
@@ -166,37 +185,60 @@ export function MenuDraftEditor({ draft, storeId, ingredients, onChange, onUploa
                 <Button type="button" variant="ghost" onClick={() => setRemovingId("")}>Annulla</Button>
               </div>
             </fieldset>}
-            {editing?.pizza && editingId === id && editingSection?.id === section.id && (() => {
-              const entry = (editing.pizza.kind === "taste" ? draft.pizzaCatalog?.tastes : draft.pizzaCatalog?.formulas)?.find(item => item.id === editing.id);
-              return entry && <PizzaEntryEditor key={editing.id} draft={draft} entry={entry} kind={editing.pizza.kind} onChange={onChange}
-                onRemove={() => removeProduct(editing.id)} onClose={() => setEditingId("")} onUpload={file => onUpload(editing.id, file)} />;
-            })()}
-            {editing && !editing.pizza && editingId === id && editingSection?.id === section.id && <MenuProductForm key={editing.id} storeId={storeId} product={editing} index={productIndex}
-              ingredients={ingredients} products={draft.products} sections={draft.sections} sectionId={editingSection?.id}
-              onChange={change => onChange({ ...draft, products: draft.products.map(product => product.id === editing.id ? { ...product, ...change } : product) })}
-              onMove={sectionId => {
-                if (sectionId === editingSection?.id) return;
-                onChange({
-                  ...draft,
-                  sections: draft.sections.map(section => ({
-                    ...section,
-                    productIds: section.id === sectionId
-                      ? [...section.productIds, editing.id]
-                      : section.productIds.filter(id => id !== editing.id)
-                  }))
-                });
-              }}
-              onRemove={() => removeProduct(editing.id)} onClose={() => setEditingId("")}
-              onUpload={file => onUpload(editing.id, file)} />}
           </li>;
         })}
       </ul>
       <div className={styles.actions}><Button type="button" variant="secondary" onClick={() => addProduct(section)}>Aggiungi prodotto</Button>
-        <Button type="button" variant="secondary" onClick={() => addPizza(section, "taste")}>Aggiungi gusto</Button>
-        <Button type="button" variant="secondary" onClick={() => addPizza(section, "formula")}>Aggiungi formula</Button></div>
-    </section>)}
+        <Button type="button" variant="secondary" onClick={() => addPizza(section, "taste")}>Aggiungi pizza</Button></div>
+    </section>; })}
     <div><Button type="button" variant="secondary" onClick={() => onChange({
       ...draft, sections: [...draft.sections, { id: crypto.randomUUID(), name: "Nuova sezione", productIds: [] }]
-    })}>Aggiungi sezione</Button></div>
+    })}>+ Categoria</Button></div>
+    <button type="button" className={`${styles.settingsCard} ${settings ? styles.selectedCard : ""}`} onClick={() => {
+      setConfigurationStart(structuredClone(draft.pizzaCatalog)); setSettings(true); setEditingId("");
+    }}><strong>Impasti, basi e formati</strong><span>{settings ? "In modifica" : "Personalizza"}</span>
+      <small>{catalog.doughs.find(item => item.id === catalog.defaults?.doughId)?.name ?? catalog.doughs[0]?.name ?? "Configura impasto"} · {catalog.bases.find(item => item.id === catalog.defaults?.baseId)?.name ?? catalog.bases[0]?.name ?? "base"} · {catalog.formats.find(item => item.id === catalog.defaults?.formatId)?.name ?? catalog.formats[0]?.name ?? "formato"}</small>
+      <small>Valgono per tutte le pizze. Cambiali solo se offri alternative.</small></button>
+    <PizzaCustomCard draft={draft} ingredients={ingredients} onChange={onChange} onSave={onSave} onInventory={onInventory}
+      onRemove={removeProduct} onAdd={() => {
+        const section = activeSection ?? { id: crypto.randomUUID(), name: "Pizza custom", productIds: [] };
+        if (!activeSection) {
+          const entry = createPizzaEntry(catalog, "formula");
+          onChange(materializePizzaMenu(syncPizzaInventory({ ...draft, sections: [...draft.sections, { ...section, productIds: [entry.id] }],
+            pizzaCatalog: { ...catalog, customEnabled: true, inventoryExtras: true, formulas: [...catalog.formulas, { ...entry, extraOffer: { quota: 0, percent: 0 } }] } }, ingredients)));
+        } else addPizza(section, "formula");
+      }} />
+    {removingId && !draft.products.some(product => product.id === removingId) && <fieldset className={styles.confirm}>
+      <legend>Eliminare {catalog.formulas.find(item => item.id === removingId)?.name || "combinazione"} dal menu?</legend>
+      <Button type="button" onClick={() => confirmRemoveProduct(removingId)}>Conferma eliminazione prodotto</Button>
+      <Button type="button" variant="ghost" onClick={() => setRemovingId("")}>Annulla</Button>
+    </fieldset>}
+    </div>
+    <aside className={styles.menuDetail} aria-label="Scheda di modifica">
+      {settings ? <PizzaSettingsPanel draft={draft} ingredients={ingredients} onChange={onChange} onSave={() => { onSave?.(); setSettings(false); }} onClose={() => {
+        const original = configurationStart ?? blankPizzaCatalog();
+        const restoreChoices = <T extends PizzaEntry>(entry: T): T => {
+          const previous = [...original.tastes, ...original.formulas].find(item => item.id === entry.id);
+          return { ...entry, standardDoughId: previous?.standardDoughId ?? original.defaults?.doughId ?? original.doughs[0]?.id ?? "",
+            standardBaseId: previous?.standardBaseId ?? original.defaults?.baseId ?? original.bases[0]?.id ?? "",
+            standardFormatId: previous?.standardFormatId ?? original.defaults?.formatId ?? original.formats[0]?.id ?? "",
+            doughIds: previous?.doughIds ?? original.doughs.map(item => item.id), baseIds: previous?.baseIds ?? original.bases.map(item => item.id),
+            formatIds: previous?.formatIds ?? original.formats.map(item => item.id) };
+        };
+        onChange(materializePizzaMenu({ ...draft, pizzaCatalog: { ...catalog, defaults: original.defaults,
+          doughs: original.doughs, bases: original.bases, formats: original.formats,
+          tastes: catalog.tastes.map(restoreChoices), formulas: catalog.formulas.map(restoreChoices) } }));
+        setSettings(false);
+      }} /> : taste ? <PizzaTastePanel key={taste.id} draft={draft} taste={taste} ingredients={ingredients} onChange={onChange}
+        onSave={onSave} onClose={() => setEditingId("")} onRemove={() => removeProduct(taste.id)} onUpload={file => onUpload(taste.id, file)} />
+      : editing && !editing.pizza ? <><MenuProductForm key={editing.id} storeId={storeId} product={editing} index={productIndex}
+        ingredients={ingredients} products={draft.products} sections={draft.sections} sectionId={editingSection?.id}
+        onChange={change => onChange({ ...draft, products: draft.products.map(product => product.id === editing.id ? { ...product, ...change } : product) })}
+        onMove={sectionId => onChange({ ...draft, sections: draft.sections.map(section => ({ ...section,
+          productIds: section.id === sectionId ? [...section.productIds.filter(id => id !== editing.id), editing.id] : section.productIds.filter(id => id !== editing.id)
+        })) })} onRemove={() => removeProduct(editing.id)} onClose={() => setEditingId("")} onUpload={file => onUpload(editing.id, file)} />
+        <Button type="button" onClick={onSave}>Salva prodotto</Button></>
+      : <section className={styles.productEditor}><h3>Il tuo menu, una pizza alla volta</h3><p>Scegli una pizza da modificare oppure personalizza impasti, basi e formati.</p></section>}
+    </aside>
   </div>;
 }

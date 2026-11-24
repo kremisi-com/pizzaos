@@ -70,6 +70,8 @@ export function validateDraftHeader(draft: unknown, invalid: Invalid): asserts d
 export function validateMenuDraft(draft: MenuDraft, store: IndividualStore, invalid: Invalid, publishing = false, checkRecipeReadiness = publishing): void {
   const ingredientIds = new Set(store.ingredients.map(item => item.id));
   const productIds = new Set(draft.products.map(item => item.id));
+  const hiddenFormulaIds = new Set(draft.pizzaCatalog?.customEnabled === false
+    ? draft.pizzaCatalog.formulas.map(item => item.id) : []);
   const sectionIds = new Set<string>();
   const listedProducts = new Set<string>();
   for (const section of draft.sections) {
@@ -78,8 +80,8 @@ export function validateMenuDraft(draft: MenuDraft, store: IndividualStore, inva
       (section.description !== undefined && !isText(section.description, 1000))) invalid("Sezione del menu non valida.");
     sectionIds.add(section.id);
     for (const productId of section.productIds) {
-      if (!productIds.has(productId)) invalid("Una sezione contiene un prodotto assente dal menu.");
-      listedProducts.add(productId);
+      if (!productIds.has(productId) && !hiddenFormulaIds.has(productId)) invalid("Una sezione contiene un prodotto assente dal menu.");
+      if (productIds.has(productId)) listedProducts.add(productId);
     }
   }
   if (publishing && (!listedProducts.size || listedProducts.size !== productIds.size)) {
@@ -102,7 +104,7 @@ export function validateMenuDraft(draft: MenuDraft, store: IndividualStore, inva
     if (product.food !== undefined) validateMenuFood(product.food, invalid);
     if (product.options.length > (product.pizza ? 500 : 100)) invalid("Il prodotto ha troppe opzioni.");
     if (product.pairingProductIds !== undefined && (!isUniqueStrings(product.pairingProductIds, 20) ||
-      product.pairingProductIds.some(id => id === product.id || !productIds.has(id)))) invalid("Controlla gli abbinamenti del prodotto.");
+      product.pairingProductIds.some(id => id === product.id || (!productIds.has(id) && !hiddenFormulaIds.has(id))))) invalid("Controlla gli abbinamenti del prodotto.");
     for (const option of product.options) {
       if (!only(option as unknown as Record<string, unknown>, ["id", "name", "priceCents", "ingredients", "description", "food", "removesIngredientIds", "pizza", "available"]) ||
         (option.available !== undefined && typeof option.available !== "boolean") ||
@@ -145,6 +147,6 @@ function validateGroups(product: IndividualProduct, invalid: Invalid, publishing
   if (publishing && assigned.size !== optionIds.size) invalid("Assegna ogni opzione a un gruppo.");
   const offer = product.extraOffer;
   if (offer !== undefined && (!isMenuRecord(offer) || !only(offer, ["quota", "percent"]) ||
-    !whole(offer.quota, 1, 100) || !whole(offer.percent, 1, 100) ||
-    (publishing && !groups.some(group => group.kind === "extras")))) invalid("Sconto extra non valido.");
+    !whole(offer.quota, 0, 100) || !whole(offer.percent, 0, 100) ||
+    (publishing && offer.quota > 0 && offer.percent > 0 && !groups.some(group => group.kind === "extras")))) invalid("Sconto extra non valido.");
 }

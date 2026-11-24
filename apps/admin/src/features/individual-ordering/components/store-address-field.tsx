@@ -1,6 +1,6 @@
 import type { StoreAddressApi, StoreAddressCandidate } from "@pizzaos/domain";
 import { useId, useRef, useState } from "react";
-import { useAdminToast } from "../../../composition/admin-toast";
+import { useAdminToast } from "../../notifications";
 import styles from "./individual-operations.module.css";
 
 export function StoreAddressField({ storeId, address, savedAddress, needsConfirmation, onSearch, onEdit, onConfirm }: {

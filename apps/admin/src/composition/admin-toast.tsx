@@ -1,13 +1,12 @@
 "use client";
 
-import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import styles from "./admin-toast.module.css";
 
-export type ToastTone = "error" | "success" | "info";
+import { AdminToastContext as ToastContext, type ToastTone } from "../features/notifications";
+export { useAdminToast, type ToastTone } from "../features/notifications";
 interface ToastMessage { readonly id: number; readonly message: string; readonly tone: ToastTone }
-interface ToastContextValue { showToast: (message: string, tone?: ToastTone) => void }
 
-const ToastContext = createContext<ToastContextValue>({ showToast: () => {} });
 const duration = 6000;
 
 export function AdminToastProvider({ children }: { children: ReactNode }) {
@@ -59,8 +58,4 @@ export function AdminToastProvider({ children }: { children: ReactNode }) {
       </div>)}
     </aside>
   </ToastContext.Provider>;
-}
-
-export function useAdminToast() {
-  return useContext(ToastContext).showToast;
 }

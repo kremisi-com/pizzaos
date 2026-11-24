@@ -104,12 +104,12 @@ export function PizzaEntryEditor({ draft, entry, kind, onChange, onRemove, onClo
         doughId: entry.standardDoughId, baseId: entry.standardBaseId, imagePath: ""
       }] })}>Aggiungi anteprima impasto e base</Button>
     </details>
-    <AllowedChoices title="Impasti" items={catalog.doughs} selected={entry.doughIds} standard={entry.standardDoughId}
+    {!catalog.defaults && <><AllowedChoices title="Impasti" items={catalog.doughs} selected={entry.doughIds} standard={entry.standardDoughId}
       onChange={(doughIds, standardDoughId) => update({ doughIds, standardDoughId })} />
     <AllowedChoices title="Basi" items={catalog.bases} selected={entry.baseIds} standard={entry.standardBaseId}
       onChange={(baseIds, standardBaseId) => update({ baseIds, standardBaseId })} />
     <AllowedChoices title="Formati" items={catalog.formats} selected={entry.formatIds} standard={entry.standardFormatId}
-      onChange={(formatIds, standardFormatId) => update({ formatIds, standardFormatId })} />
+      onChange={(formatIds, standardFormatId) => update({ formatIds, standardFormatId })} /></>}
     {formula && <label>Formula sconto extra<select value={formula.offer} onChange={event => {
       const offer = event.target.value;
       if (offer === "Simple" || offer === "Wild" || offer === "Savage") update({ offer });
