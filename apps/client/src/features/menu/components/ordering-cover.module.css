@@ -39,10 +39,9 @@
   height: 48px;
   border: 2px solid var(--pizzaos-brand-navy);
   border-radius: 50%;
-  background: var(--pizzaos-brand-orange);
-  color: var(--pizzaos-brand-navy);
+  background: var(--pizzaos-color-background-accent);
+  color: var(--pizzaos-color-primary);
   box-shadow: 0 4px 16px color-mix(in srgb, var(--pizzaos-brand-navy) 30%, transparent);
 }
 
-.profileLink:hover { background: var(--pizzaos-brand-sand); }
 .profileLink:focus-visible { outline: 3px solid var(--pizzaos-brand-navy); outline-offset: 3px; }

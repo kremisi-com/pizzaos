@@ -10,7 +10,7 @@ Owner: `services/checkout-api` per Auth.js, sessioni e appartenenze; client/admi
 4. Admin e rider condividono il deploy frontend, con ingressi, home e login per host. Ogni sessione usa cookie Secure/HttpOnly limitati all'host; autenticarsi nell'admin non autentica automaticamente il rider o la sede cliente.
 5. Il servizio verifica sessione, appartenenza e assegnazione a ogni richiesta protetta; la sola visibilità di una pagina non concede accesso. Le mutazioni richiedono origine consentita; i proxy non inoltrano identità scelte dal browser e non memorizzano risposte/sessioni in cache.
 
-Nella home operativa il cliente autenticato apre `/ordina/profilo` dall’icona utente in alto a destra sulla copertina fotografica, accanto al logo e sopra la card. L’icona usa arancio e blu PizzaOS, senza nome account o logout nella home. La pagina conserva le preferenze alimentari e offre il pulsante a larghezza piena «Effettua il log out». Il logout usa la sessione e il token CSRF del servizio e torna a `/accesso`; in caso di errore mostra un avviso e consente di riprovare. Per gli ospiti resta il link «Accedi».
+Nella home operativa il cliente autenticato apre `/ordina/profilo` dall’icona utente in alto a destra sulla copertina fotografica, accanto al logo e sopra la card. L’icona usa lo sfondo bianco, il simbolo arancione primary e il bordo blu PizzaOS. La home non mostra nome account o logout. La pagina conserva le preferenze alimentari e offre il pulsante a larghezza piena «Effettua il log out». Il logout usa la sessione e il token CSRF del servizio e torna a `/accesso`; in caso di errore mostra un avviso e consente di riprovare. Per gli ospiti resta il link «Accedi».
 
 ## Alternative ed errori
 
