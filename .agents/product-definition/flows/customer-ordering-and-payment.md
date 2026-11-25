@@ -2,7 +2,7 @@
 
 ## Stato della specifica
 
-Specifica del flusso individuale persistente, basata sul primo incremento D49-D55 e integrata dagli incrementi successivi sotto indicati. Allineamento documentale del 2026-11-20; le prove conservano la data delle rispettive evidenze. Le decisioni approvate sono nel [registro](../decisions.md).
+Specifica del flusso individuale persistente, basata sul primo incremento D49-D55 e integrata dagli incrementi successivi sotto indicati. Consolidamento documentale del 25 novembre 2026; le prove conservano la data delle rispettive evidenze. Le decisioni approvate sono nel [registro](../decisions.md).
 
 ## Incrementi integrati e responsabilità
 
@@ -11,7 +11,7 @@ Il servizio `services/checkout-api` possiede prezzi, riserve, ordini, pagamenti 
 - [Ordine di gruppo](group-ordering.md): raccolta persistente e un solo checkout dell'organizzatore, D61-D63.
 - [Coupon e fedeltà](promotions-and-loyalty.md): benefici applicabili sia all'individuale sia al gruppo, D64-D67; sostituiscono l'esclusione iniziale del primo incremento a prezzi ordinari, senza modificarne il contesto storico.
 - [Email operative](operational-emails.md): notifiche automatiche del lifecycle, D68-D69. Il contatto per concordare alternative via email/WhatsApp resta manuale.
-- [Consegne rider](../../design/2026-11-05-rider-deliveries/delivery-service/REQUIREMENTS.md): assegnazione, avanzamento e problemi di consegna D57-D58 sullo stesso ordine canonico.
+- [Operazioni e consegne rider](operations-and-delivery.md): assegnazione, avanzamento e problemi di consegna D57-D58 sullo stesso ordine canonico.
 
 Il [menu operativo D79](menu-ordering.md) descrive consultazione, configuratore, scorte, allergeni e sconti sugli extra. Lo stesso preventivo si usa nel percorso individuale, di gruppo e nelle aggiunte.
 
@@ -87,17 +87,11 @@ D75 estende D24 con una settimana tipo per sede, nel fuso della sede. Da **Profi
 
 [Requisiti del calendario](../../design/2026-11-23-order-calendar/calendar/REQUIREMENTS.md) · [Prove del servizio](../../../services/checkout-api/src/order-calendar.test.ts) · [Percorso browser](../../../tests/e2e/order-calendar.spec.ts).
 
-## Conferme che sbloccano il primo incremento
+## Decisioni e fonti correnti
 
-- D18/D49: carta rifiutata mantiene carrello e permette nuovo tentativo o contanti; esito incerto resta in verifica e impedisce doppio pagamento; rimborso fallito resta visibile e ritentabile.
-- D27/D42/D50: draft 7 giorni dall'ultima modifica, carrello dispositivo senza merge; nome/email account, telefono ordine, indirizzo solo delivery. Confermare nuovi prezzi, correggere prodotti o slot indisponibili.
-- D24/D41/D51: slot e capacità configurabili, ASAP prima disponibilità; riserve atomiche temporanee durante pagamento e consolidate all'invio; rilascio solo dopo esito certo.
-- D23/D52: raggio dalla sede e fasce di distanza con costo/minimo configurabili; alternativa ritiro fuori zona.
-- D25/D26/D53: coupon, premi, abbonamenti e gruppo non partecipano al totale del primo incremento; regole restano rinviate per incrementi successivi.
-- D17/D30/D40/D54: dashboard con countdown/attese, SSE più polling, comunicazioni manuali email/WhatsApp.
-- D28/D29/D55: superadmin crea sedi/invita operatori, ristoratore configura sede dal pannello, permessi operatori equivalenti.
+Le regole del flusso sono approvate da D18/D49, D27/D42/D50, D24/D41/D51, D23/D52, D17/D30/D40/D54 e D28/D29/D55, integrate da gruppo/promozioni/email D61–D69 e dalle successive decisioni menu/calendario. L'esclusione iniziale di queste estensioni dal primo incremento non è più un limite del flusso corrente. Gli abbonamenti restano esclusi. D16/D31 continuano a riguardare l'avvio in esercizio.
 
-Nessuna decisione ancora aperta blocca questo perimetro del pilota. D16/D31 continuano a riguardare l'avvio in esercizio. Il primo incremento è stato verificato localmente e successivamente provato online su ambiente test: il [verbale](../../../services/checkout-api/online-client-verification.md) delimita gli scenari effettivamente eseguiti, senza attestare apertura commerciale. Design e piano implementativo: [SDD individuale](../../design/2026-11-05-individual-ordering/design.md).
+La [configurazione sede](store-configuration.md) descrive il salvataggio concorrente: una bozza precedente a consumo scorte, pubblicazione o altra modifica non può sovrascrivere lo stato canonico. I controlli di versione sono verificati localmente; il [registro online](../../../services/checkout-api/online-deployment.md) distingue i rilasci effettivi. [SDD storico individuale](../../design/2026-11-05-individual-ordering/design.md).
 
 ## Casi limite e verifiche
 

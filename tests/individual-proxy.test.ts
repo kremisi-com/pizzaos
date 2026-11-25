@@ -1,6 +1,7 @@
 // @vitest-environment node
 // Independent acceptance tests from the documented same-origin proxy contract.
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { NextRequest } from "../apps/client/node_modules/next/server";
 import * as clientProxy from "../apps/client/app/api/pilot/[...path]/route";
 import * as adminProxy from "../apps/admin/app/api/pilot/[...path]/route";
 
@@ -18,7 +19,7 @@ beforeEach(() => {
 afterEach(() => { vi.unstubAllEnvs(); vi.unstubAllGlobals(); });
 
 describe.each(contexts)("$name same-origin ordering proxy", ({ handlers }) => {
-  const call = (method: Method, path: string[], request = new Request(`${appOrigin}/api/pilot/${path.join("/")}`, { method })) => handlers[method](request as Parameters<typeof handlers.GET>[0], { params: Promise.resolve({ path }) });
+  const call = (method: Method, path: string[], request = new Request(`${appOrigin}/api/pilot/${path.join("/")}`, { method })) => handlers[method](new NextRequest(request), { params: Promise.resolve({ path }) });
 
   it.each(["PIZZAOS_SERVICE_URL", "PIZZAOS_PROXY_SECRET"])("fails explicitly before fetching when %s is missing", async (name) => {
     vi.stubEnv(name, "");

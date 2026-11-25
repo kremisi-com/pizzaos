@@ -12,6 +12,7 @@ import {
   initialMenuWorkspace, normalizeFoodPreferences, validateDraftHeader, validateMenuDraft, validateMenuFood, validateMenuSelections
 } from "./menu-catalog";
 import { activateOrderCalendar, normalizeOrderSchedule, protectCalendarChanges, protectedOrderDates, upcomingOrderSlots } from "./order-calendar";
+import { storeConfigurationVersion } from "./store-configuration-version";
 
 interface Reservation { ingredients: Record<string, number>; slotId: string; }
 interface State extends OrderingState {
@@ -595,13 +596,14 @@ export function createOrderingService(options: OrderingServiceOptions): RiderOrd
     ensureCalendar(state, store, instant);
     const operatorView = member(state, actor, store.id);
     if (operatorView) {
-      const operatorStore = copy(store);
+      const operatorStore = { ...copy(store), configurationRevision: storeConfigurationVersion(store) };
       return store.orderSchedule ? {
         ...operatorStore, slots: remainingSlots(state, store, instant), protectedOrderDates: protectedOrderDates(state, store, instant)
       } : operatorStore;
     }
     const reserved = ingredientsReserved(state, store.id);
     const publicStore = copy(store);
+    delete publicStore.configurationRevision;
     delete publicStore.address;
     delete publicStore.orderSchedule;
     delete publicStore.protectedOrderDates;
@@ -941,6 +943,13 @@ export function createOrderingService(options: OrderingServiceOptions): RiderOrd
         const existing = Object.hasOwn(state.stores, input.id) ? state.stores[input.id] : undefined;
         if (!existing && !isSuper(user)) fail("forbidden", "Solo il superadmin può creare una sede.");
         if (existing) operator(state, user, input.id);
+        if (input.configurationRevision !== undefined) {
+          text(input.configurationRevision, 200);
+          if (!/^[a-f0-9]{64}$/.test(input.configurationRevision)) invalid("Versione della configurazione non valida.");
+        }
+        if (existing && input.configurationRevision !== storeConfigurationVersion(existing)) {
+          fail("revision_conflict", "La configurazione è cambiata. Ricarica la sede e ripeti la modifica.");
+        }
         const subdomain = input.orderingSubdomain;
         const currentSubdomain = existing?.orderingSubdomain;
         if (subdomain !== undefined && subdomain !== currentSubdomain) {
@@ -1009,6 +1018,7 @@ export function createOrderingService(options: OrderingServiceOptions): RiderOrd
         const saved = copy(next);
         if (currentSubdomain) saved.orderingSubdomain = currentSubdomain;
         delete saved.protectedOrderDates;
+        delete saved.configurationRevision;
         state.stores[input.id] = saved;
         if (existing && !existing.menu && JSON.stringify(existing.products) !== JSON.stringify(saved.products)) {
           const current = workspace(state, existing);

@@ -121,7 +121,7 @@ Approvazione esplicita dell’utente in chat: «Approvo tutto. Aggiorna il regis
 | D69 | Email al cliente che effettua l’ordine, nel gruppo all’organizzatore. Errori visibili nell’admin con retry automatico senza bloccare l’ordine. Il test usa di default una lista di destinatari di prova. Il pilota può abilitare esplicitamente gli invii all’indirizzo di ogni account cliente che effettua un ordine. | DECISO | Approvazione utente 2026-11-05, proposta 9. Apertura del pilota richiesta dall’utente il 2026-11-23. |
 | D70 | Sequenza vincolante: ordine individuale completo e verificato → gruppo completo e verificato → coupon/fedeltà completi e verificati → notifiche operative. Agenti SDD con test indipendenti dall’implementazione; avviare ogni feature solo dopo il gate precedente. Autonomia autorizzata senza ripetere conferme per queste scelte. D16/D31 e abbonamenti D26 restano rinviati. | DECISO | Istruzione esplicita utente 2026-11-05 |
 
-Piano di coordinamento e verifiche: [sequenza incrementi](sequential-increments.md). D53/D54 descrivono il primo incremento e non escludono quelli successivi ora approvati.
+Piano di coordinamento e verifiche: [sequenza incrementi](../archive/2026-11-05-sequential-increments.md). D53/D54 descrivono il primo incremento e non escludono quelli successivi ora approvati.
 
 ## Conferma del 2026-11-05: domini operativi e ambienti
 
@@ -151,7 +151,7 @@ Fonte corrente: [errori ed esercizio](flows/backend-observability.md); specifica
 
 Nelle successive conferme dell'handoff Sentry del 20 novembre 2026 l'utente ha autorizzato la creazione di `pizzaos-backend` (Node.js/Fastify) nell'organizzazione/team `kremisi`, la verifica del collegamento, il login Vercel dedicato, la diagnosi del guasto corrente e il rilascio di backend/worker sul pilota test, l'alert email per nuovi errori/regressioni (team Kremisi, massimo ogni 30 minuti) e la risoluzione dell'issue di prova. Stato ed evidenze sono nel [verbale Sentry](../design/2026-11-20-backend-observability/SENTRY_VERIFICATION.md), senza upgrade automatici.
 
-Dopo accesso corretto e diagnosi della quota rete Neon, l'utente ha scelto esplicitamente «Resta gratis: sospendi il worker e prepara il ripristino». Il worker è stato portato a zero istanze; variabili e pacchetto sono predisposti, senza nuovo deploy o upgrade. Il prossimo passo concordato è il [ripristino manuale gratuito](../../services/checkout-api/restore-test-after-quota.md) dopo verifica del reset e del traffico; il rinnovo del periodo Neon è atteso il 1 dicembre 2026 alle 01:00 italiane.
+La scelta del 20 novembre di sospendere il worker e attendere il reset gratuito è conservata nel [piano archiviato](../archive/2026-11-20-restore-test-after-quota.md). È stata superata operativamente dall'upgrade Neon Launch eseguito dall'utente e dal ripristino del 23 novembre; il worker è stato fermato dopo il collaudo. Non esiste un'attesa corrente del reset del 1 dicembre. Per versioni ed evidenze vale il [registro online](../../services/checkout-api/online-deployment.md).
 
 ## Sottodomini del sito ordini
 
@@ -186,7 +186,7 @@ Dopo accesso corretto e diagnosi della quota rete Neon, l'utente ha scelto espli
 ## Fonti e assunzioni da non confondere
 
 - Risposte dell'utente in chat del 2026-09-29: fonte per D01-D16.
-- Le pratiche di settore riassunte in `flow-inventory.md` sono esempi osservati, non policy PizzaOS.
+- Le pratiche di settore conservate nella [ricerca iniziale](../archive/2026-09-29-initial-research.md) sono esempi osservati, non policy PizzaOS.
 - `ClientApiContract` e `checkout-api` attestano basi tecniche esistenti, non approvazione di ogni dettaglio di processo.
 
 
@@ -204,3 +204,7 @@ Dopo accesso corretto e diagnosi della quota rete Neon, l'utente ha scelto espli
 | D85 | Rimuovere la sezione manuale allergeni dalle schede del Menu: allergeni e tracce di ogni pizza/prodotto derivano dall’unione degli ingredienti gestiti nel Magazzino. | DECISO | Richiesta utente 2026-11-24: rimuovere la tab; allergeni inseriti dai prodotti del magazzino ed ereditati dagli ingredienti. |
 | D86 | Ricetta base usa una selezione multipla degli ingredienti, con una sola unità per ingrediente nella pizza. I controlli precedenti Scegli l'impasto e Scegli la pizza vengono rimossi dall'editor; l'eliminazione dei dati salvati resta da confermare. Le quantità numeriche non sono più modificabili nella scheda pizza; la configurazione dei componenti comuni è successivamente semplificata da D87. | DECISO | Richiesta utente 2026-11-24: multiselect in Ricetta base e impossibilità di selezionare più di una unità per pizza. |
 | D87 | Rimuovere Basi e Ricette e dosi dal Magazzino dalla configurazione comune. La base è un ingrediente ordinario; ogni impasto associa una sola voce di Magazzino con selezione filtrabile e ogni formato determina la quantità da scalare da quella voce per pizza. Restano standard e supplementi; rimuovere le due frasi introduttive indicate dall'utente. Gli snapshot precedenti restano leggibili e la bozza conserva gli ingredienti della base standard, senza nuove quantità inventate. Sostituisce queste parti di D80/D82/D86. | DECISO | Richiesta utente in chat del 2026-11-24. [SDD](../design/2026-11-24-dough-stock/design.md). |
+
+## Stabilizzazione e punto zero
+
+La richiesta utente del 25 novembre 2026 autorizza correzione dei problemi emersi, consolidamento dello stato corrente e archiviazione dei documenti superati, senza interferire con modifiche in corso. Il [disegno](../design/2026-11-25-stabilization/design.md) delimita la base isolata e la protezione dei salvataggi concorrenti. Non modifica D16/D31, non autorizza apertura commerciale e non attesta un nuovo deploy.

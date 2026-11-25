@@ -1,6 +1,7 @@
 // @vitest-environment node
 
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { NextRequest } from "../apps/client/node_modules/next/server";
 import * as clientProxy from "../apps/client/app/api/pilot/[...path]/route";
 import * as adminProxy from "../apps/admin/app/api/pilot/[...path]/route";
 
@@ -29,7 +30,7 @@ describe.each(contexts)("$name observability proxy acceptance", ({ handlers }) =
     }));
     const path = ["v1", "pilot", "stores"];
     const request = new Request(`${appOrigin}/api/pilot/${path.join("/")}`, { headers: { "x-request-id": "caller-spoofed-request-id" } });
-    const response = await handlers.GET(request as Parameters<typeof handlers.GET>[0], { params: Promise.resolve({ path }) });
+    const response = await handlers.GET(new NextRequest(request), { params: Promise.resolve({ path }) });
     expect(forwarded?.url).toBe(`${upstreamOrigin}/v1/pilot/stores`);
     expect(forwarded?.headers.has("x-request-id")).toBe(false);
     expect(response.status).toBe(status);

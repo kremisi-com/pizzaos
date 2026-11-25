@@ -48,6 +48,7 @@ const cart = { type: "object", additionalProperties: false, required: ["storeId"
 const foodLabels = { type: "array", maxItems: 32, uniqueItems: true, items: { type: "string", minLength: 1, maxLength: 100 } };
 const food = { type: "object", additionalProperties: false, required: ["contains", "mayContain"], properties: { contains: foodLabels, mayContain: foodLabels } };
 const store = { type: "object", additionalProperties: false, required: ["id", "name", "latitude", "longitude", "acceptingOrders", "deliveryBands", "ingredients", "products", "slots"], properties: {
+  configurationRevision: { type: "string", pattern: "^[a-f0-9]{64}$" },
   orderingSubdomain: { type: "string", minLength: 1, maxLength: 63 },
   address: { type: "string", minLength: 1, maxLength: storeAddressLimit },
   addressConfirmation: { type: "string", minLength: 1, maxLength: 4044 },

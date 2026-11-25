@@ -36,7 +36,7 @@ PostgreSQL reale: solo container di test già dedicato `pizzaos-individual-sdd-2
 
 I cinque browser test coprono baseline individuale fino a completamento, baseline gruppo con quattro contesti e scadenza/guest ostile, admin configurazione→cliente maturazione→coupon/premio→completamento e annullamento, gruppo con wallet solo host e unico ordine attribuito. I test promozioni asseriscono il saldo **nel DOM senza reload** dopo completamenti e annullamenti, oltre al saldo autorevole API. Config dedicata: porte3601/3602/3604, output `test-results/promotions-loyalty`, Next `.next-promotions-e2e`. Build separate `.next-promotions-build`; nessuna build contemporanea ai server Next.
 
-Screenshot aperti e verificati dal test agent e dal lead: [ordine gruppo e benefici admin](../../../test-results/promotions-loyalty/promotions-loyalty-host-gr-4174f-ripristina-punti-e-utilizzo/ordine-gruppo-promozioni.png), [wallet ripristinato](../../../test-results/promotions-loyalty/promotions-loyalty-host-gr-4174f-ripristina-punti-e-utilizzo/wallet-ripristinato.png). Gruppo16→14 euro con coupon1 e premio1, righe host/invitato distinte; nessun overflow promozioni osservato.
+Screenshot aperti e verificati dal test agent e dal lead: ordine gruppo e benefici admin (`test-results/promotions-loyalty/promotions-loyalty-host-gr-4174f-ripristina-punti-e-utilizzo/ordine-gruppo-promozioni.png`), wallet ripristinato (`test-results/promotions-loyalty/promotions-loyalty-host-gr-4174f-ripristina-punti-e-utilizzo/wallet-ripristinato.png`). Gruppo16→14 euro con coupon1 e premio1, righe host/invitato distinte; nessun overflow promozioni osservato.
 
 ## File e limiti
 
@@ -47,3 +47,5 @@ Screenshot aperti e verificati dal test agent e dal lead: [ordine gruppo e benef
 - README di moduli/app/composizione e flow corrente `flows/promotions-and-loyalty.md`; registro decisioni/piano sequenziale non modificati. Modifiche altrui preservate, nessun commit/deploy.
 
 Rimossi solo gli include `.next-promotions-*` aggiunti dai check e ripristinati next-env sui tipi canonici `.next`; cache e risultati restano locali ignorati da Git, senza pulizie ricorsive. Server360x chiusi. Google OAuth e Stripe/3DS esterni non configurati: le prove carta coprono il boundary canonico con adapter test; browser economici reali app/HTTP su harness isolato e contanti, persistenza PostgreSQL verificata separatamente. Nessun fallback simulato nel runtime live e nessun invio esterno.
+
+Nota di portabilità del punto zero (25 novembre 2026): gli screenshot citati sono artefatti locali non versionati e non presenti nel checkout isolato; i risultati sopra conservano la data della prova originale. Questa nota non attesta una nuova verifica.

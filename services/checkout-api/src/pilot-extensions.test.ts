@@ -217,9 +217,10 @@ describe("operational pilot integration", () => {
     const f = await fixture();
     expect((await f.analytics.report(operator, { storeId: "roma", period: "today" })).range.timeZone).toBe("Europe/Rome");
     const before = await f.repository.snapshot();
-    await expect(f.service.saveStore(operator, store("roma", "Invalid/Timezone"))).rejects.toMatchObject({ code: "invalid_input" });
+    const configurationRevision = (await f.service.catalog("roma", operator)).configurationRevision;
+    await expect(f.service.saveStore(operator, { ...store("roma", "Invalid/Timezone"), configurationRevision })).rejects.toMatchObject({ code: "invalid_input" });
     expect((await f.repository.snapshot()).stores).toEqual(before.stores);
-    await f.service.saveStore(operator, store("roma", "America/New_York"));
+    await f.service.saveStore(operator, { ...store("roma", "America/New_York"), configurationRevision });
     expect((await f.service.catalog("roma", operator)).timeZone).toBe("America/New_York");
     expect((await f.analytics.report(operator, { storeId: "roma", period: "today" })).range.timeZone).toBe("America/New_York");
     expect(Object.keys(f.options).sort()).toEqual(["repository", "payments", "superadminEmails", "now", "id"].sort());

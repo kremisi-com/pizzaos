@@ -34,7 +34,7 @@ docs/
 
 Start from the nearest README for the module being changed and read its local `AGENTS.md` when present. Load child documentation only when directly relevant. The root [`AGENTS.md`](AGENTS.md) is the global context router; [`docs/`](docs/) contains cross-cutting guidance.
 
-Flussi, casi d'uso e casi limite sono indicizzati nella [definizione di prodotto](.agents/product-definition/README.md) e nell'[inventario corrente](.agents/product-definition/flow-inventory.md). La [roadmap](.agents/product-definition/roadmap.md) distingue implementazione, verifiche e capacità ancora da definire.
+Per maturità, perimetro e prove partire dallo [stato corrente e punto zero](.agents/product-definition/current-state.md). Flussi e casi limite sono nell'[inventario](.agents/product-definition/flow-inventory.md); la [roadmap](.agents/product-definition/roadmap.md) contiene il lavoro residuo. La pianificazione superata è nell'[archivio](.agents/archive/README.md).
 
 ## Commands
 
@@ -60,6 +60,6 @@ Deploy each app as a separate Vercel project with its app directory as the root:
 - `admin` → `apps/admin`
 - `landing` → `apps/landing`
 
-La scelta approvata [D71](.agents/product-definition/decisions.md) assegna `admin.pizzaos.app` agli operatori e `rider.pizzaos.app` ai rider nella stessa applicazione `apps/admin`, sullo stesso progetto e deploy frontend per ambiente. Restano tre applicazioni e tre deploy frontend, con un servizio backend separato. Client, due ingressi operativi e `api.pizzaos.app` sono pubblicati sul pilota test; produzione e test hanno database e credenziali separati. Il 5 novembre 2026 è stato verificato il [percorso online cliente → admin → rider](services/checkout-api/online-client-verification.md), con Stripe Elements, challenge 3DS ed email operative consegnate. Versioni, limiti residui e quote gratuite sono nel [registro online](services/checkout-api/online-deployment.md) e nel [piano del pilota](.agents/product-definition/architecture/pilot-deployment.md).
+La scelta approvata [D71](.agents/product-definition/decisions.md) assegna `admin.pizzaos.app` agli operatori e `rider.pizzaos.app` ai rider nella stessa applicazione `apps/admin`, sullo stesso progetto e deploy frontend per ambiente. Restano tre applicazioni e tre deploy frontend, con un servizio backend separato. Client, due ingressi operativi e `api.pizzaos.app` sono pubblicati sul pilota test; produzione e test hanno database e credenziali separati. Il 5 novembre 2026 è stato verificato il [percorso online cliente → admin → rider](services/checkout-api/online-client-verification.md), con Stripe Elements, challenge 3DS ed email operative consegnate. Versioni, limiti residui e risorse sono nel [registro online](services/checkout-api/online-deployment.md) e nel [piano del pilota](.agents/product-definition/architecture/pilot-deployment.md).
 
 Service setup and runtime requirements are documented in [`services/checkout-api/README.md`](services/checkout-api/README.md).

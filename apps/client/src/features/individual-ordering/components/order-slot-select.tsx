@@ -17,7 +17,8 @@ export function OrderSlotSelect({ store, value, onChange, onFocus }: {
     const now = Date.now();
     const nextClosing = Math.min(...store.slots.map(slot => Date.parse(slot.endsAt ?? slot.startsAt)).filter(end => end > now));
     if (!Number.isFinite(nextClosing)) return;
-    const timer = setTimeout(() => setClock(Date.now()), nextClosing - now + 1);
+    // Browsers and Node clamp overflowing delays to 1ms; distant windows must not spin.
+    const timer = setTimeout(() => setClock(Date.now()), Math.min(nextClosing - now + 1, 2_147_483_647));
     return () => clearTimeout(timer);
   }, [store, clock]);
 

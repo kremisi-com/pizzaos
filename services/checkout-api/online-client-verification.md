@@ -1,5 +1,7 @@
 # Verifica online cliente → admin → rider
 
+Verbale storico della versione provata il 5 novembre. Risultati e limiti sotto conservano quella data; per codice, correzioni locali e lavoro residuo successivi usare il [punto zero corrente](../../.agents/product-definition/current-state.md) e il [registro dei rilasci](online-deployment.md).
+
 Eseguita il **5 novembre 2026**, a partire dalle 13:42 Europe/Rome, su richiesta dell'utente. **Esito: percorso individuale completo riuscito**, con Stripe Elements nel browser, challenge 3DS sandbox ed email operative consegnate. Questo flusso è già stato provato: non va classificato nuovamente come «solo locale» o «3DS online da verificare».
 
 ## Versioni e ambiente

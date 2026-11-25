@@ -1,30 +1,26 @@
 # Definizione di prodotto PizzaOS
 
-Questa cartella sostituisce progressivamente la pianificazione POC con una specifica verificabile del prodotto da costruire. Le decisioni non ancora confermate restano aperte: non vanno inferite dai mock, dalla landing o da contratti non implementati.
+Questa cartella descrive il prodotto corrente. Iniziare dallo [stato del sistema e punto zero](current-state.md), poi caricare il solo flusso interessato. Le decisioni non ancora confermate restano aperte: non vanno inferite dai mock, dalla landing o da contratti non implementati.
 
 ## Stato
 
 - [`flow-inventory.md`](flow-inventory.md) — indice corrente dei 24 flussi, delle fonti proprietarie e delle lacune residue.
 - `decisions.md` — registro canonico delle decisioni, stato, dipendenze e blocchi.
 - `flows/` — specifiche per flussi utente e operativi; l'ordinazione pilota è in `flows/customer-ordering-and-payment.md`.
-- `architecture/` — contratti e ownership target; da aggiornare dopo le decisioni funzionali.
-- `roadmap.md` — incrementi del pilota, verifiche e capacità secondarie; la sequenza successiva autorizzata è in `sequential-increments.md`.
+- `architecture/` — topologia del pilota e configurazione per ambiente.
+- [`roadmap.md`](roadmap.md) — lavoro residuo e criteri di rilascio; la sequenza completata è nell'[archivio](../archive/README.md).
 
-## Incrementi verificati localmente
+## Stato e verifiche
 
-Il flusso individuale D49-D55 e gli incrementi gruppo, coupon/fedeltà ed email operative D61-D70 sono completati e verificati localmente. La [sequenza e i riesami](sequential-increments.md) distinguono implementazione, prove locali e verifiche esterne ancora necessarie. Le capacità rinviate restano nel perimetro del prodotto. Le configurazioni commerciali modificabili restano di competenza dell’admin.
+Il [punto zero](current-state.md) distingue capacità operative, demo, verifiche locali e ultimo stato online registrato. I riesami datati attestano soltanto gli incrementi/versioni provati. Le configurazioni commerciali modificabili restano di competenza dell'admin.
 
-Il 5 novembre 2026 il client è stato pubblicato sul pilota test e il percorso individuale cliente → admin → rider è riuscito online con Google, Stripe Elements/challenge 3DS e tre email operative Delivered. Il [verbale persistente](../../services/checkout-api/online-client-verification.md) registra versioni, risultati e limiti: prova su dispositivi fisici distinti e protezione da bozze di configurazione obsolete ancora aperte. Consultarlo prima di riproporre le stesse verifiche come lavoro mai eseguito.
+Il [registro online](../../services/checkout-api/online-deployment.md) e il [verbale del 5 novembre](../../services/checkout-api/online-client-verification.md) documentano prove sandbox. La protezione delle configurazioni obsolete è introdotta nella stabilizzazione locale del 25 novembre; il collaudo del relativo rilascio e la prova su dispositivi fisici distinti restano separati.
 
-## Regole di migrazione dei documenti
+## Documenti correnti e archivio
 
-Le estensioni D57-D60 sono specificate negli SDD [analytics](../design/2026-11-05-pilot-analytics/design.md), [consegne rider](../design/2026-11-05-rider-deliveries/design.md) e [integrazione](../design/2026-11-05-pilot-integration/design.md). Il servizio conserva un unico ordine autorevole per cliente, operatore e rider; il [deploy pilota](architecture/pilot-deployment.md) distingue gli ambienti e i domini D71.
+Le specifiche correnti coprono [accessi](flows/identity-and-access.md), [sede](flows/store-configuration.md), [operazioni/rider](flows/operations-and-delivery.md), [analytics](flows/analytics.md) e gli altri flussi elencati nell'inventario. Il [deploy pilota](architecture/pilot-deployment.md) distingue ambienti e domini D71.
 
-1. I documenti `.agents/planning/PizzaOS_POC/` sono la fonte storica delle scelte POC; non si cancellano finché le nuove specifiche non li sostituiscono esplicitamente.
-2. I design in `.agents/design/` documentano interventi completati o refactor specifici e restano nella loro posizione.
-3. Le specifiche di prodotto definitive devono indicare comportamento osservabile, casi limite, attori, dati posseduti e responsabilità tra app e servizi.
-4. Un contratto esistente non equivale a un flusso definito né a una capacità implementata.
-5. Tenere un indice e collegamenti alle fonti; evitare copie divergenti della stessa regola.
+La pianificazione POC, la ricerca iniziale, la sequenza completata e il piano di ripristino superato sono nell'[archivio](../archive/README.md); le fonti correnti li sostituiscono come ingresso al prodotto. I design in `.agents/design/` restano nella loro posizione come evidenze tecniche datate. Un contratto o una schermata demo non equivalgono a una capacità implementata. Evitare copie divergenti della stessa regola.
 
 ## Gate delle decisioni
 
@@ -42,7 +38,7 @@ Prima di un'attività, caricare l'indice e solo la specifica del flusso interess
 | Requisiti tecnici ed evidenze di un incremento datato | SDD e riesami in `../design/` | Durante quell'incremento; gli sviluppi successivi si collegano dalle fonti correnti |
 | Risultati di prove e pubblicazioni online | [Verbale online](../../services/checkout-api/online-client-verification.md) e [registro deploy](../../services/checkout-api/online-deployment.md) | Dopo la prova o il rilascio effettivo, indicando data, versione, ambiente e limiti |
 
-Le regole economiche e operative si definiscono nella fonte proprietaria e si richiamano tramite link dagli indici. Non copiarle in ogni README. I requisiti SDD ancora usati come specifica proprietaria sono indicati esplicitamente nell'inventario: la documentazione di prodotto non è ancora uniforme per tutti i flussi.
+Le regole economiche e operative si definiscono nella fonte proprietaria e si richiamano tramite link dagli indici. Non copiarle in ogni README. Per il comportamento corrente valgono i flussi indicati nell'inventario. Le capacità demo/da definire non hanno ancora una specifica operativa completa; gli SDD conservano il contesto e le prove dei rispettivi incrementi.
 
 In caso di disaccordo, distinguere intenzione e realtà: le decisioni approvate vincolano il prodotto; codice e test descrivono l'implementazione osservabile. Una differenza è una lacuna da segnalare e risolvere, senza trasformare automaticamente il comportamento del codice in una decisione approvata. Un vecchio riesame non attesta il funzionamento della revisione corrente.
 

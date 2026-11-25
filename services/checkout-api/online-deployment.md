@@ -1,13 +1,32 @@
 # Backend pilota online
 
-Stato verificato il 23 novembre 2026: ambiente **test** nuovamente raggiungibile dopo l'upgrade Neon. Il [collaudo del 23 novembre](#ripristino-e-collaudo-del-23-novembre-2026) conferma il percorso cliente → admin → rider. Client e admin offrono `/poc` con accesso manuale e [accesso automatico dalla landing](#accesso-dalla-landing-del-23-novembre-2026). Rider appartiene ad admin. `pizzaos-api` è il servizio condiviso per identità, permessi, ordini, pagamenti e persistenza.
+## Ultimo stato registrato
+
+Consolidamento documentale del 25 novembre 2026, **senza nuova ispezione cloud o deploy**. Le righe seguenti derivano dai verbali datati sotto; non certificano disponibilità corrente o corrispondenza con HEAD. Ambiente pubblico: **test**, con dati fittizi e Stripe sandbox. Rider appartiene ad admin; API e worker sono il backend condiviso.
+
+| Risorsa | Ultima evidenza disponibile | Stato registrato |
+|---|---|---|
+| API `api.pizzaos.app` | 24 novembre, sorgente `63baf1e`, `dpl_Bxad278mEfoBnjYGtKmsQva1HzAT` | Ready, health 200 nel verbale del menu al blur |
+| Admin/rider | 24 novembre, sorgente `63baf1e`, `dpl_CqAbxzGw18CYtn2bw8CmrKGZire1` | Ready sugli alias operativi |
+| Client | 23 novembre, rilascio menu D79 `d29be4d`, `dpl_94LPMRvFEQro4UkUZUBiMtLieVUQ` | Letture/accesso verificati; nessun deploy client nuovo nei verbali del 24 |
+| Landing | 23 novembre, accesso automatico ai POC D74 | Pass verificati; ID non rideterminato nel verbale D74 |
+| Worker `reconciliation` | 24 novembre | Stopped, zero istanze totali/pronte. Il manifest nominale non attesta un worker attivo |
+| Neon test | Ripristino del 23 novembre | Piano Launch, branch `br-tiny-art-baqa23dy`, database `pizzaos_test` |
+| Produzione distinta | Ultima configurazione registrata | `pizzaos_production` separato, vuoto/non migrato; nessuna credenziale applicativa pubblicata |
+| Email operative | 23 novembre | `test_open` sul pilota; non l'allowlist iniziale del 5 novembre |
+
+La stabilizzazione del 25 novembre è locale, su ramo isolato dalla base `9c27263`: non è presente in questi deploy. Menu compilato in bozza, menu pubblicato dal gestore e versione del codice sono tre stati distinti. [Punto zero e limiti](../../.agents/product-definition/current-state.md), [runbook corrente](pilot-operations.md).
+
+## Cronologia delle evidenze
+
+Le sezioni successive conservano risultati e configurazioni **alla data del titolo**. In caso di differenza, per l'ultimo stato documentato usare la tabella sopra; per lo stato effettivo occorre una nuova lettura della piattaforma.
 
 ## Salvataggio menu al blur del 24 novembre 2026
 
 - Correzione admin `63baf1e`: campi testuali e numerici salvati alla perdita del focus, toast dopo risposta positiva, azioni immediate e richieste sequenziali. Admin/rider `dpl_CqAbxzGw18CYtn2bw8CmrKGZire1` Ready sugli alias operativi.
-- Il backend online era ancora `6a872c5`: la validazione dell�intestazione rifiutava `pizzaCatalog`, causando lo stesso errore generico sia aggiungendo un impasto sia rinominandolo. Pubblicato il servizio dal sorgente `63baf1e`, deployment `dpl_Bxad278mEfoBnjYGtKmsQva1HzAT`, Ready su `api.pizzaos.app`; health HTTP 200. Worker verificato stopped, zero istanze totali/pronte. Nessuna pubblicazione del menu cliente.
+- Il backend online era ancora `6a872c5`: la validazione dell’intestazione rifiutava `pizzaCatalog`, causando lo stesso errore generico sia aggiungendo un impasto sia rinominandolo. Pubblicato il servizio dal sorgente `63baf1e`, deployment `dpl_Bxad278mEfoBnjYGtKmsQva1HzAT`, Ready su `api.pizzaos.app`; health HTTP 200. Worker verificato stopped, zero istanze totali/pronte. Nessuna pubblicazione del menu cliente.
 - Verifiche locali: 129 test admin, lint, typecheck e build; 611 test servizio passati e 22 test PostgreSQL saltati in assenza dei database di test, typecheck/build servizio e controllo architettura passati. La suite autosave verifica nessuna richiesta durante la digitazione, toast dopo salvataggio al blur, aggiunta di impasti/basi/formati e gestione degli errori.
-- Evidenza online: pagina autenticata riletta dopo i deploy con stato **Bozza salvata** e senza errore. La bozza risultava nel frattempo modificata dall�operatore; non sono state aggiunte scritture di prova concorrenti. Il comportamento dettagliato del blur e del toast � verificato localmente, non con una nuova modifica browser online.
+- Evidenza online: pagina autenticata riletta dopo i deploy con stato **Bozza salvata** e senza errore. La bozza risultava nel frattempo modificata dall’operatore; non sono state aggiunte scritture di prova concorrenti. Il comportamento dettagliato del blur e del toast è verificato localmente, non con una nuova modifica browser online.
 
 ## Importazione menu e magazzino del 24 novembre 2026
 
@@ -41,7 +60,9 @@ Stato verificato il 23 novembre 2026: ambiente **test** nuovamente raggiungibile
 - Health API 200, accesso diretto senza credenziale 403, sessione anonima via proxy client 200. Worker `reconciliation` pronto, una istanza in `fra1`. Il primo deploy backend era privo del pacchetto workspace `@pizzaos/domain` e ha restituito 500. Dopo il ripristino del deploy precedente, il bundle corretto è stato caricato fuori dal monorepo con Node 24 e pubblicato.
 - Assegnazione dal superadmin, menu della sede e gruppo sono stati provati localmente. Nessuna nuova sede è stata salvata nel pilota per il collaudo. Il login Google sul nuovo tipo di host ha una prova locale della callback con provider simulato.
 
-## Risorse attive
+## Risorse registrate prima degli aggiornamenti menu del 23–24 novembre
+
+Elenco storico: deployment e numero istanze sono stati successivamente superati dai verbali sopra. Gli ID dei progetti restano riferimenti di identificazione, non attestazioni di attività.
 
 - Landing: [www.pizzaos.app](https://www.pizzaos.app/), progetto `pizzaos-landing` (`prj_yyR1GmNDbfdtbR6ssqOgqUB15Te8`), deployment `dpl_4QWPXgyvGo32WkGRfgPoHspspMHr`.
 - Frontend operativo: [admin.pizzaos.app](https://admin.pizzaos.app) e [rider.pizzaos.app](https://rider.pizzaos.app), progetto Vercel `pizzaos-admin` (`prj_KzbNoKFKlPO2c8VhzHi5pfDCxDuO`), deployment `dpl_DVMHmpwXwR4YPKczWBqpgw44btxW`.
@@ -52,7 +73,9 @@ Stato verificato il 23 novembre 2026: ambiente **test** nuovamente raggiungibile
 - Neon, account Andrea: progetto `pizzaos` (`dawn-base-64314765`), PostgreSQL 17, `aws-eu-central-1`. Branch test `br-tiny-art-baqa23dy`, database `pizzaos_test`, migrazione idempotente. Ruolo `pizzaos_test_app` con lettura/scrittura, senza superuser o CREATE nello schema pubblico.
 - Produzione isolata: branch `br-sweet-recipe-baucjxbe`, database `pizzaos_production`, vuoto e non migrato. Nessuna credenziale applicativa di produzione pubblicata. La copia iniziale di questo database nel branch test è inutilizzata.
 
-## Autenticazione e provider
+## Autenticazione e provider: configurazione iniziale del 5 novembre
+
+Le modalità email sono state aggiornate il 23 novembre a `test_open`; le restrizioni iniziali sotto non descrivono l'ultima configurazione registrata.
 
 Google OAuth usa l'account scelto dall'utente e il progetto `pizzaos-pilota-2026`, client `PizzaOS Pilota Web`, pubblico esterno in modalità test, con i due superadmin come utenti di prova. Callback esatte: ciascuna origine admin/rider/client + `/api/pilot/auth/callback/google`. Gli scope sono soltanto openid, profilo ed email. Entrambe le email comunicate sono configurate come superadmin; l'accesso rider richiede comunque l'abilitazione nella sede.
 
@@ -107,7 +130,7 @@ Playwright ha verificato l'invio con il servizio email simulato e l'apertura di 
 
 Prima di qualsiasi deploy dell'osservabilità, `/health` ha risposto HTTP 500 con `FUNCTION_INVOCATION_FAILED`. Dopo il login corretto, i log del deployment `dpl_74ZKgDk81HKFv7oUtnggxiTdiWQP` hanno mostrato PostgreSQL 53000: quota superata. Neon conferma 5.533.768.020 byte di egress nel periodo novembre, oltre i 5 GB Free, ed endpoint test sospeso dal 9 novembre. Il nuovo periodo inizia il 1 dicembre alle 01:00 italiane. Le prove del 5 novembre sopra restano evidenze per quella versione/data e non attestano disponibilità corrente.
 
-L'utente ha scelto di restare sul gratuito: worker `reconciliation` sospeso con override fra1=0, verificati desired/total/ready=0. Nessun nuovo deploy. Sul progetto corretto sono predisposti SENTRY_DSN Secret, PIZZAOS_RELEASE/NODE_OPTIONS Config e Node24.x; nessuna altra credenziale modificata. Sentry è collegato, alert dedicato attivo e prova risolta; il vero errore quota è registrato in PIZZAOS-BACKEND-2. [Verbale Sentry](../../.agents/design/2026-11-20-backend-observability/SENTRY_VERIFICATION.md), [pacchetto e procedura di ripristino](restore-test-after-quota.md). Il reset e la riduzione/verifica del traffico sono precondizioni del ripristino; nessun upgrade o riavvio automatico eseguito.
+L'utente ha scelto di restare sul gratuito: worker `reconciliation` sospeso con override fra1=0, verificati desired/total/ready=0. Nessun nuovo deploy. Sul progetto corretto sono predisposti SENTRY_DSN Secret, PIZZAOS_RELEASE/NODE_OPTIONS Config e Node24.x; nessuna altra credenziale modificata. Sentry è collegato, alert dedicato attivo e prova risolta; il vero errore quota è registrato in PIZZAOS-BACKEND-2. [Verbale Sentry](../../.agents/design/2026-11-20-backend-observability/SENTRY_VERIFICATION.md), [pacchetto e procedura di ripristino](../../.agents/archive/2026-11-20-restore-test-after-quota.md). Il reset e la riduzione/verifica del traffico sono precondizioni del ripristino; nessun upgrade o riavvio automatico eseguito.
 
 ### Limiti registrati nel pilota del 5 novembre
 

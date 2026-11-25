@@ -57,6 +57,7 @@ function verifyTotal() {
 describe("fasce orarie dell’ordine individuale", () => {
   beforeEach(() => {
     window.localStorage.clear();
+    vi.useFakeTimers({ toFake: ["Date"] });
     vi.setSystemTime(new Date("2026-11-23T18:15:00.000Z"));
   });
 

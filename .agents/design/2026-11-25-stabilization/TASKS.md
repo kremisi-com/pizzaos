@@ -1,0 +1,4 @@
+- [x] **verification**: ripristinare le verifiche proxy e calendario senza indebolire gli scenari.
+- [x] **store-concurrency**: proteggere i salvataggi della sede con test indipendenti e aggiornare i chiamanti.
+- [x] **documentation**: consolidare stato e flussi correnti, archiviare le fonti superate e verificare collegamenti e limiti.
+- [x] **release-checks**: eseguire verifiche finali, riesaminare il diff, committare e verificare il push del solo lavoro isolato.

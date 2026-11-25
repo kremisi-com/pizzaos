@@ -1,12 +1,12 @@
 # Deploy del pilota: domini operativi e ambienti
 
-Stato: aggiornato il 2026-11-05. Client, admin/rider e backend sono online sul database Neon di test. `admin.pizzaos.app` e `rider.pizzaos.app` servono lo stesso deploy di `apps/admin`; `client.pizzaos.app` usa il nuovo flusso persistente sul medesimo servizio `api.pizzaos.app`. Verificati Google reale, permessi distinti, contanti/consegna, pagamento/rimborso Stripe sandbox e persistenza dopo riavvio. La successiva [prova cliente completa](../../../services/checkout-api/online-client-verification.md) copre Stripe Elements, challenge 3DS, gestione admin, consegna rider e tre email Delivered. Resta il criterio D56 dei dispositivi fisici distinti. Produzione separata e non attivata. Risorse, versioni e limiti sono nel [registro di pubblicazione](../../../services/checkout-api/online-deployment.md).
+Architettura consolidata il 25 novembre 2026; nessuna nuova verifica cloud implicita. Client, admin/rider e backend condividono il database di test all'interno dell'ambiente. `admin.pizzaos.app` e `rider.pizzaos.app` servono lo stesso deploy di `apps/admin`; il client usa `api.pizzaos.app`. Produzione separata e non attivata secondo l'ultima evidenza. Versioni, istanze worker e prove effettive sono nell'[ultimo stato registrato](../../../services/checkout-api/online-deployment.md), senza estenderle a HEAD. [Criteri residui](../roadmap.md).
 
 ## Applicazioni e indirizzi
 
 | Superficie | Indirizzo | Responsabilità |
 |---|---|---|
-| Landing | `landing.pizzaos.app` (esistente, non aggiornata in questo rilascio) | Presentazione PizzaOS, distinta dall'operatività |
+| Landing | `www.pizzaos.app` | Presentazione PizzaOS e accesso alle demo |
 | Client | `client.pizzaos.app` (pubblicato e verificato sul pilota test) | Menu, carrello, ordini e stato cliente |
 | Admin | `admin.pizzaos.app` (D71) | Configurazione sede e gestione ordini |
 | Rider | `rider.pizzaos.app` (D71) | Sole consegne assegnate all'identità collegata |
@@ -16,11 +16,13 @@ Rider è una vista mobile essenziale di `apps/admin`. I due sottodomini operativ
 
 Gli attuali host operativi pubblici ospitano il pilota test. L'ambiente Vercel denominato Production identifica gli alias, ma usa soltanto database e provider test. La futura produzione e le anteprime richiedono host e credenziali propri; nessun segreto o database di produzione viene riutilizzato automaticamente nelle anteprime.
 
-## Configurazione hosting verificata
+## Configurazione hosting e riferimenti
+
+Le associazioni sotto derivano dai verbali del pilota. Non attestano disponibilità o numero istanze al momento della lettura; prima di un rilascio applicare il [runbook](../../../services/checkout-api/pilot-operations.md).
 
 - Progetto corretto: [`kremisis-projects/pizzaos-admin`](https://vercel.com/kremisis-projects/pizzaos-admin), ID `prj_KzbNoKFKlPO2c8VhzHi5pfDCxDuO`. `admin.pizzaos.app` era già associato; `rider.pizzaos.app` è stato aggiunto allo stesso progetto senza redirect.
 - Zona `pizzaos.app` verificata nel medesimo team, delegata a `ns1.vercel-dns.com` e `ns2.vercel-dns.com`. Il record wildcard ALIAS è gestito da Vercel; la configurazione rider risulta corretta senza nuovi record manuali. Nessuna modifica ai nameserver OVH o ai record della posta in ingresso.
-- Variabili dell'alias operativo configurate: `PIZZAOS_APP_ORIGIN=https://admin.pizzaos.app`, `PIZZAOS_RIDER_ORIGIN=https://rider.pizzaos.app`, `PIZZAOS_SERVICE_URL=https://api.pizzaos.app` e segreto proxy protetto. Backend `pizzaos-api` nello stesso team, HTTP Functions e Daemon minimo da 1 GiB in `fra1`; budget autorizzato soltanto gratuito.
+- Variabili dell'alias operativo: `PIZZAOS_APP_ORIGIN=https://admin.pizzaos.app`, `PIZZAOS_RIDER_ORIGIN=https://rider.pizzaos.app`, `PIZZAOS_SERVICE_URL=https://api.pizzaos.app` e segreto proxy protetto. Backend `pizzaos-api` nello stesso team, HTTP Functions e worker `reconciliation` separati. Neon è passato a Launch il 23 novembre per azione dell'utente; non assumere un vincolo Free o nuove autorizzazioni di spesa dai vecchi piani.
 - Resend gratuito con `pizzaos.app` verificato: aggiunti soltanto il TXT DKIM e i CNAME di invio richiesti, senza cambiare nameserver o posta in ingresso. OAuth Google in test con callback esatte dei tre host applicativi e due utenti di prova.
 - Durante l'individuazione dell'account, su indicazione iniziale dell'utente era stato creato anche un progetto vuoto omonimo in `benjanapos-projects`, ID `prj_hHutfpU79G6C5fQvDtdOaGuW1AJz`, con richieste dominio non verificate. Non ha deployment e non serve i domini; non usarlo per i rilasci PizzaOS.
 
@@ -50,10 +52,10 @@ Un database PostgreSQL per ambiente conserva identità, sedi, configurazioni, or
 
 Test e futura produzione usano database e credenziali distinti, incluse chiavi Stripe, segreti sessione/proxy e configurazioni email/OAuth. I deploy di anteprima non devono usare il database di produzione.
 
-Il backend Vercel separa le richieste Fastify/SSE in Functions dal worker persistente Daemon. I due ingressi usano lo stesso runtime e database; il worker possiede i cicli indipendenti per riconciliazione e invii operativi. Il processo standalone conserva HTTP e worker per lo sviluppo. La quota gratuita Hobby del Daemon è finita: una istanza da 1 GiB consente al massimo 17,5 giorni mensili secondo la quota memoria, condivisa dal team; al limite Vercel arresta il worker. Non è sufficiente pubblicare i soli frontend e non si garantisce esecuzione mensile continua sul piano gratuito.
+Il backend Vercel separa le richieste Fastify/SSE in Functions dal worker persistente Daemon. I due ingressi usano lo stesso runtime e database; il worker possiede i cicli indipendenti per riconciliazione e invii operativi. Il processo standalone conserva HTTP e worker per lo sviluppo. L'ultima evidenza registra il worker fermo dopo il collaudo: pubblicare frontend/API non ne certifica l'attività. Disponibilità, piani, quote e costi si verificano sulla piattaforma al momento del rilascio, conservando le misure nel registro online.
 
 ## Verifiche di rilascio e prossimi ambienti
 
-Le verifiche online sono registrate nel documento del servizio, inclusi mapping degli host, Google, cookie e permessi, flusso contanti/consegna, Stripe sandbox e riavvio. Un magic link di prova risulta Delivered in Resend. Il [verbale client](../../../services/checkout-api/online-client-verification.md) documenta inoltre Stripe Elements/3DS nel browser cliente, ordine carta completato dal rider e tre email operative Delivered; la allowlist resta limitata all'account di prova. Prima dell'attivazione commerciale completare prove su dispositivi fisici distinti e controlli tra sedi e ambienti del relativo rilascio, oltre ai limiti elencati nel verbale. D16/D31 restano aperte per la successiva messa in esercizio con dati reali.
+Le verifiche online sono registrate nel documento del servizio, inclusi mapping degli host, Google, cookie e permessi, flusso contanti/consegna, Stripe sandbox e riavvio. Il [verbale client](../../../services/checkout-api/online-client-verification.md) documenta Stripe Elements/3DS e tre email Delivered per quella prova. Il 23 novembre le email operative sono passate a `test_open` nel solo pilota: l'allowlist iniziale non è l'ultima modalità registrata. Prima dell'attivazione commerciale completare prove su dispositivi fisici distinti e controlli tra sedi e ambienti della versione candidata. D16/D31 e i criteri della roadmap restano aperti.
 
 Fonti tecniche: README delle applicazioni e del servizio; [Vercel monorepos](https://vercel.com/docs/monorepos) per i progetti frontend separati. Le scelte di prodotto sono registrate in [decisions.md](../decisions.md).

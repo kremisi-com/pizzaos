@@ -1,5 +1,7 @@
 # PizzaOS POC Summary
 
+**Archivio dal 25 novembre 2026.** Pianificazione della demo iniziale, sostituita come ingresso al prodotto dal [punto zero corrente](../../product-definition/current-state.md). Le scelte effettive sono nel registro decisioni e nei flussi correnti; questo piano non attesta capacità operative o lavori ancora da eseguire.
+
 ## Overview
 
 This planning package turns the original PizzaOS POC idea into a structured set of requirements, design documents, and

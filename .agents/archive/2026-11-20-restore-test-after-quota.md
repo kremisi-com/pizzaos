@@ -1,6 +1,6 @@
 # Ripristino gratuito del pilota dopo la quota Neon
 
-Il piano qui sotto registra la preparazione del 20 novembre. Il pilota è stato ripristinato il 23 novembre dopo l'upgrade a Launch eseguito dall'utente. Migrazione, deploy e collaudo sono nel [registro online](online-deployment.md#ripristino-e-collaudo-del-23-novembre-2026). Le misure Neon in finestre comparabili restano da completare.
+Il piano qui sotto registra la preparazione del 20 novembre. Il pilota è stato ripristinato il 23 novembre dopo l'upgrade a Launch eseguito dall'utente. Migrazione, deploy e collaudo sono nel [registro online](../../services/checkout-api/online-deployment.md#ripristino-e-collaudo-del-23-novembre-2026). Le misure Neon in finestre comparabili restano da completare.
 
 ## Stato verificato il 20 novembre 2026
 
@@ -20,7 +20,7 @@ Archivio preparato: `.codex/uploads/pizzaos-api-observability-20261120-145104.zi
 ## Sequenza di ripristino manuale
 
 1. **Verificare il reset effettivo.** Rileggere consumo/periodo in Neon sul progetto sopra e controllare una sola connessione `SELECT 1` con il ruolo applicativo test. La data di rinnovo non sostituisce la prova di connessione. Non creare nuovi progetti o cambiare piani per aggirare il limite.
-2. **Includere la riduzione del traffico nel rilascio.** Il repository aggiornato evita di trasferire lo snapshot invariato e di riscriverlo nelle transazioni senza cambiamenti. Il [riesame SDD](../../.agents/design/2026-11-20-snapshot-traffic/REVIEW.md) riporta la misura su PostgreSQL locale e i casi di lettura a freddo. La verifica sull'egress del pilota resta al punto 7.
+2. **Includere la riduzione del traffico nel rilascio.** Il repository aggiornato evita di trasferire lo snapshot invariato e di riscriverlo nelle transazioni senza cambiamenti. Il [riesame SDD](../design/2026-11-20-snapshot-traffic/REVIEW.md) riporta la misura su PostgreSQL locale e i casi di lettura a freddo. La verifica sull'egress del pilota resta al punto 7.
 3. **Controllare destinazione e costo.** Login dedicato in `.codex/vercel-auth`; verificare progetto ID, team Hobby, Node24 e quote residue del worker. `PIZZAOS_ENVIRONMENT=test`, database `pizzaos_test` e Stripe test restano requisiti. Nessun piano, trial o upgrade automatico autorizzato.
 4. **Migrare e rilasciare il pacchetto verificato.** Rigenerare e verificare i bundle dal codice corrente. Applicare `pnpm migrate` da `services/checkout-api` con la connessione diretta al database del pilota test prima di avviare l'API aggiornata. La migrazione additiva supporta anche il vecchio binario durante il passaggio. Usare il progetto Vercel esistente. Il comando seguente è per il rilascio futuro.
 

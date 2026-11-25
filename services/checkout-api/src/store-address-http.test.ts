@@ -63,8 +63,11 @@ function fixture() {
   const headers = (actor: IndividualActor | null) => actor ? { "x-test-actor": actor.id } : {};
   const searchAddress = (actor: IndividualActor | null, id: string, query = "Via Roma") =>
     app.inject({ method: "POST", url: `${storePath(id)}/address-search`, headers: headers(actor), payload: { query } });
-  const save = (actor: IndividualActor | null, id: string, payload: IndividualStore & { addressConfirmation?: string; address?: string }) =>
-    app.inject({ method: "PUT", url: storePath(id), headers: headers(actor), payload });
+  const save = async (actor: IndividualActor | null, id: string, payload: IndividualStore & { addressConfirmation?: string; address?: string }) => {
+    const current = await app.inject({ method: "GET", url: storePath(id), headers: headers(owner) });
+    const configurationRevision = current.statusCode === 200 ? current.json<IndividualStore>().configurationRevision : undefined;
+    return app.inject({ method: "PUT", url: storePath(id), headers: headers(actor), payload: { ...payload, configurationRevision } });
+  };
   const read = (actor: IndividualActor | null, id: string, target = app) =>
     target.inject({ method: "GET", url: storePath(id), headers: headers(actor) });
   async function candidates(actor: IndividualActor, id = store.id) {

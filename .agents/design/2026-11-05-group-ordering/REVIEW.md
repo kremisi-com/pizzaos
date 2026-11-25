@@ -41,7 +41,7 @@ Playwright: `playwright.group-ordering.config.ts`, porte servizio/client/admin 3
 - Dopo correzione e chiave privata: `pnpm exec playwright test --config playwright.group-ordering.config.ts --grep 'Alice, Marco'` → **1/1 PASS**, scenario 20,5 s, esecuzione 38,2 s.
 - Complessivamente verificati i tre scenari: individuale completo fino a completamento admin; quattro contesti distinti Alice/Marco/Giulia/operatore con ingresso, refresh, cookie HttpOnly, isolamento contributi, payload cross-person respinto, aggiornamenti condivisi, rimozione partecipante, chiusura, preventivo e unico ordine contanti con righe Alice/Marco in admin; chiusura automatica e guest write `409 group_closed`.
 
-Screenshot finali aperti e controllati visivamente: [host dopo invio](../../../test-results/group-ordering/persistent-group-Alice-Mar-c0fdf-s-one-attributed-cash-order/group-host-submitted.png), [ordine unico admin](../../../test-results/group-ordering/persistent-group-Alice-Mar-c0fdf-s-one-attributed-cash-order/group-admin-order.png). L'admin mostra un solo ordine da 16 euro con `Per Alice` e `Per Marco`, nessuna riga Giulia rimossa.
+Screenshot finali aperti e controllati visivamente: host dopo invio (`test-results/group-ordering/persistent-group-Alice-Mar-c0fdf-s-one-attributed-cash-order/group-host-submitted.png`), ordine unico admin (`test-results/group-ordering/persistent-group-Alice-Mar-c0fdf-s-one-attributed-cash-order/group-admin-order.png`). L'admin mostra un solo ordine da 16 euro con `Per Alice` e `Per Marco`, nessuna riga Giulia rimossa.
 
 ## File e confini
 
@@ -56,3 +56,5 @@ Nessuna modifica al motore checkout canonico, a `pilot-extensions.ts`, al regist
 ## Limiti reali
 
 Nessun deploy o invio esterno. Google OAuth e Stripe/3DS reali non sono configurati: le prove carta coprono il boundary provider canonico e l'idempotenza con adapter sostituiti solo nei test. I browser usano il solo harness isolato con repository in memoria e identità di fixture; la persistenza reale PostgreSQL è provata separatamente con gli stessi moduli pubblici. Il server live usa PostgreSQL, Auth.js e Stripe reali e non importa l'harness né espone identità finte. Il percorso contanti è verificato end-to-end fino all'admin; la regressione individuale prosegue fino a completamento operativo.
+
+Nota di portabilità del punto zero (25 novembre 2026): gli screenshot citati sono artefatti locali non versionati e non presenti nel checkout isolato; i risultati sopra conservano la data della prova originale. Questa nota non attesta una nuova verifica.

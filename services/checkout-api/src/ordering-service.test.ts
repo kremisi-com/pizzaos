@@ -146,7 +146,7 @@ describe("authoritative catalog and quotation", () => {
     }
     await expect(f.service.quote(cart({ lines: [...cart().lines, ...cart().lines] }))).rejects.toMatchObject({ code: "inventory_changed" });
     const updated = store(); updated.products[0]!.available = false;
-    await f.service.saveStore(operator, updated);
+    await f.service.saveStore(operator, { ...updated, configurationRevision: (await f.service.catalog(updated.id, operator)).configurationRevision });
     await expect(f.service.quote(cart())).rejects.toMatchObject({ code: "product_unavailable" });
   });
 
@@ -162,7 +162,7 @@ describe("authoritative catalog and quotation", () => {
     const f = await fixture();
     const input = await f.input(cart(), "stale", "card");
     const updated = store(); updated.products[0]!.priceCents = 900;
-    await f.service.saveStore(operator, updated);
+    await f.service.saveStore(operator, { ...updated, configurationRevision: (await f.service.catalog(updated.id, operator)).configurationRevision });
     await expect(f.service.checkout(alice, input)).rejects.toMatchObject({ code: "price_changed" });
     expect(f.payments.createCalls).toHaveLength(0);
     expect(await f.service.orders(alice)).toHaveLength(0);
@@ -176,7 +176,7 @@ describe("authoritative catalog and quotation", () => {
     if (changed === "option") updated.products[0]!.options[0]!.priceCents = 200;
     if (changed === "slot") updated.slots[0]!.startsAt = iso(25);
     if (changed === "delivery") updated.deliveryBands[0]!.feeCents = 200;
-    await f.service.saveStore(operator, updated);
+    await f.service.saveStore(operator, { ...updated, configurationRevision: (await f.service.catalog(updated.id, operator)).configurationRevision });
     await expect(f.service.checkout(alice, input)).rejects.toMatchObject({ code: "price_changed" });
     expect(f.payments.createCalls).toHaveLength(0);
   });
@@ -283,8 +283,9 @@ describe("atomic reservations and idempotency", () => {
     const configuration = store({ ingredients: [{ id: "dough", name: "Impasto", stock: 1 }, { id: "cheese", name: "Mozzarella", stock: 20 }], slots: [{ id: "soon", startsAt: iso(20), capacity: 1 }] });
     const f = await fixture(configuration);
     const first = (await f.submit()).order;
-    await expect(f.service.saveStore(operator, { ...configuration, ingredients: [], products: [] })).rejects.toMatchObject({ statusCode: 409 });
-    await expect(f.service.saveStore(operator, { ...configuration, slots: [] })).rejects.toMatchObject({ statusCode: 409 });
+    const revision = (await f.service.catalog(configuration.id, operator)).configurationRevision;
+    await expect(f.service.saveStore(operator, { ...configuration, configurationRevision: revision, ingredients: [], products: [] })).rejects.toMatchObject({ code: "inventory_changed" });
+    await expect(f.service.saveStore(operator, { ...configuration, configurationRevision: revision, slots: [] })).rejects.toMatchObject({ code: "slot_unavailable" });
     const cancelled = await f.service.action(alice, first.id, { action: "cancel" });
     expect(cancelled).toMatchObject({ status: "cancelled", reservationReleased: true });
     await f.service.action(alice, first.id, { action: "cancel" });
@@ -502,7 +503,7 @@ describe("D36 owner-confirmed order additions", () => {
     const f = await fixture(configuration);
     const original = (await f.submit()).order;
     const changed = structuredClone(configuration); changed.products[0]!.priceCents = 900;
-    await f.service.saveStore(operator, changed);
+    await f.service.saveStore(operator, { ...changed, configurationRevision: (await f.service.catalog(changed.id, operator)).configurationRevision });
     const delta = await f.service.additionQuote(alice, original.id, lines());
     expect(delta).toMatchObject({ deltaCents: 900, quote: { subtotalCents: 1700, totalCents: 1700, slotId: "soon", slotStartsAt: iso(20) } });
     expect(delta.quote.lines).toEqual(expect.arrayContaining([expect.objectContaining({ unitCents: 800, quantity: 1 }), expect.objectContaining({ unitCents: 900, quantity: 1 })]));
@@ -532,7 +533,7 @@ describe("D36 owner-confirmed order additions", () => {
     const original = (await f.submit(alice, cart(), "original-card", "card")).order;
     const quote = await f.service.additionQuote(alice, original.id, lines());
     const changed = store(); changed.products[0]!.priceCents = 900;
-    await f.service.saveStore(operator, changed);
+    await f.service.saveStore(operator, { ...changed, configurationRevision: (await f.service.catalog(changed.id, operator)).configurationRevision });
     await expect(f.service.additions(alice, original.id, { lines: lines(), fingerprint: quote.fingerprint, idempotencyKey: "stale-delta" })).rejects.toMatchObject({ code: "price_changed" });
     const current = await f.service.additionQuote(alice, original.id, lines());
     const forged = { lines: lines(), fingerprint: current.fingerprint, idempotencyKey: "forged-delta", method: "cash" };

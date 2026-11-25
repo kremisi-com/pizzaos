@@ -61,7 +61,7 @@ un checkout che trova uno slot o un prodotto non più disponibile riceve un conf
 ## Pagamenti reali
 
 La carta è raccolta esclusivamente da Stripe Elements. Configurare `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` nel client e
-`DATABASE_URL`, `STRIPE_SECRET_KEY`, `CLIENT_ORIGIN` nel servizio `@pizzaos/checkout-api`; nessun segreto Stripe o
+la [configurazione runtime del servizio](../../services/checkout-api/README.md#environment-and-local-setup), incluse le origini in `PIZZAOS_ALLOWED_ORIGINS`; nessun segreto Stripe o
 numero carta deve essere inserito in `localStorage`, props, contratti di dominio o log. Il backend è la source of truth
 per tentativi, idempotenza e conferma operativa.
 

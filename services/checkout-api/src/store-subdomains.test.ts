@@ -96,9 +96,11 @@ async function fixture() {
   });
   runtimes.push(runtime);
   const { app } = runtime;
-  const save = (store: IndividualStore & { orderingSubdomain?: string }, actor = owner) => app.inject({
-    method: "PUT", url: `${base}/stores/${store.id}`, headers: headers(adminOrigin, actor), payload: store
-  });
+  const save = async (store: IndividualStore & { orderingSubdomain?: string }, actor = owner) => {
+    const current = await app.inject({ url: `${base}/stores/${store.id}`, headers: headers(adminOrigin, owner) });
+    const configurationRevision = current.statusCode === 200 ? current.json<IndividualStore>().configurationRevision : undefined;
+    return app.inject({ method: "PUT", url: `${base}/stores/${store.id}`, headers: headers(adminOrigin, actor), payload: { ...store, configurationRevision } });
+  };
   return { app, save };
 }
 

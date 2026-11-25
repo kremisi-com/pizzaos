@@ -61,6 +61,8 @@ export function createDefaultWeeklyOrderSchedule(): WeeklyOrderSchedule {
   })) };
 }
 export interface IndividualStore {
+  /** Opaque operator-only version. Required when saving an existing store. */
+  configurationRevision?: string;
   orderingSubdomain?: string;
   menu?: PublishedMenu;
   id: string; name: string; latitude: number; longitude: number; acceptingOrders: boolean;

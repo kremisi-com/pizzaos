@@ -207,9 +207,9 @@ const pizza = product("crea-pizza", {
 describe("Ricette importate da verificare", () => {
   it("salva dose e scorta sconosciute, blocca la pubblicazione finché non vengono confermate", async () => {
     const f = fixture();
-    const store = json<IndividualStore>(await f.request("GET", catalog, "operator"));
+    let store = json<IndividualStore>(await f.request("GET", catalog, "operator"));
     store.ingredients.push({ id: "pesto-importato", name: "Pesto di Pra’ senza aglio", stock: null });
-    json<IndividualStore>(await f.request("PUT", catalog, "operator", { ...store }));
+    store = json<IndividualStore>(await f.request("PUT", catalog, "operator", { ...store }));
     const imported = draft("importato", product("speciale", { ingredients: { "pesto-importato": null } }));
     const saved = await f.save((await f.workspace()).revision, imported);
     expect(saved.drafts[0].products[0].ingredients).toEqual({ "pesto-importato": null });

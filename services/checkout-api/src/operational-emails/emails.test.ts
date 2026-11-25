@@ -59,14 +59,14 @@ describe('email operative: eventi canonici e accesso', () => {
   });
   it('snapshot italiano resta immutabile dopo modifica catalogo e note ordine', async () => {
     const f = await fixture(); const { order } = await f.checkout('cash', 'delivery');
-    await f.service.notes(buyer, order.id, 'Nota modificata'); const changed = structuredClone(store); changed.products[0]!.name = 'Nome nuovo'; changed.products[0]!.priceCents = 8800; await f.service.saveStore(root, changed);
+    await f.service.notes(buyer, order.id, 'Nota modificata'); const changed = await f.service.catalog(store.id, root); changed.products[0]!.name = 'Nome nuovo'; changed.products[0]!.priceCents = 8800; await f.service.saveStore(root, changed);
     await f.emails.dispatch(); expect(f.messages).toHaveLength(1); const message = f.messages[0]!;
     expect(message.to).toBe(buyer.email); expect(message.text).toContain('Pizza Test'); expect(message.text).toContain('Ben cotta'); expect(message.text).toContain('Nota test'); expect(message.text).not.toContain('Nome nuovo'); expect(message.text).not.toContain('Nota modificata'); expect(message.text).toContain(order.id); expect(message.subject).toMatch(/ricevuto/i); expect(message.text).toMatch(/consegna/i); expect(message.text).toMatch(/12[,.]50/);
   });
   it('evento e slot usano italiano e fuso sede congelato, con fallback Europe/Rome', async () => {
     for (const timeZone of [undefined, 'Europe/Rome']) {
-      const f = await fixture(); const original = { ...structuredClone(store), timeZone }; await f.service.saveStore(root, original); await f.checkout();
-      await f.service.saveStore(root, { ...original, timeZone: 'Pacific/Honolulu' }); await f.emails.dispatch();
+      const f = await fixture(); const original = { ...await f.service.catalog(store.id, root), timeZone }; await f.service.saveStore(root, original); await f.checkout();
+      await f.service.saveStore(root, { ...await f.service.catalog(store.id, root), timeZone: 'Pacific/Honolulu' }); await f.emails.dispatch();
       const text = f.messages[0]!.text;
       expect(text).toMatch(/19[:.]00/); expect(text).toMatch(/20[:.]00/);
       expect(text).not.toMatch(/2026-11-05T(?:18|19):00/);
@@ -170,7 +170,7 @@ describe('email operative: rimborsi reali', () => {
     expect((await f.emails.list(root, store.id)).messages.map((m) => m.event)).toEqual(['received', 'cancelled']);
   });
   it('totale zero senza intento genera ricevuta ma nessun esito rimborso sintetico', async () => {
-    const f = await fixture(); const zero = structuredClone(store); zero.products[0]!.priceCents = 0; await f.service.saveStore(root, zero);
+    const f = await fixture(); const zero = await f.service.catalog(store.id, root); zero.products[0]!.priceCents = 0; await f.service.saveStore(root, zero);
     const { order } = await f.checkout('card'); expect(order.providerIntentId).toBeNull(); await f.service.action(root, order.id, { action: 'cancel' }); await f.service.tick();
     expect((await f.emails.list(root, store.id)).messages.map((m) => m.event)).toEqual(['received', 'cancelled']);
   });

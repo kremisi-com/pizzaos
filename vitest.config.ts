@@ -2,6 +2,16 @@ import { defineConfig } from "vitest/config";
 import { fileURLToPath } from "node:url";
 
 export default defineConfig({
+  plugins: [{
+    name: "app-local-imports",
+    enforce: "pre",
+    async resolveId(source, importer) {
+      if (!source.startsWith("@/") || !importer) return null;
+      const app = importer.replaceAll("\\", "/").match(/\/apps\/(client|admin|landing)\//)?.[1];
+      if (!app) throw new Error(`Import app-local senza applicazione proprietaria: ${source}`);
+      return this.resolve(fileURLToPath(new URL(`./apps/${app}/src/${source.slice(2)}`, import.meta.url)), importer, { skipSelf: true });
+    }
+  }],
   esbuild: {
     jsx: "automatic",
     jsxImportSource: "react"
@@ -16,9 +26,6 @@ export default defineConfig({
       "@pizzaos/ui": fileURLToPath(new URL("./packages/ui/src/index.tsx", import.meta.url)),
       "@pizzaos/testing": fileURLToPath(new URL("./packages/testing/src/index.ts", import.meta.url)),
       "@testing-library/react": fileURLToPath(new URL("./packages/testing/node_modules/@testing-library/react/dist/index.js", import.meta.url)),
-      "@/composition/api": fileURLToPath(new URL("./apps/client/src/composition/api", import.meta.url)),
-      "@/features": fileURLToPath(new URL("./apps/client/src/features", import.meta.url)),
-      "@": fileURLToPath(new URL("./apps/admin/src", import.meta.url))
     }
   },
   test: {

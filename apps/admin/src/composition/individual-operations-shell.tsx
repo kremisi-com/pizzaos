@@ -38,6 +38,7 @@ function isSettings(tab: AdminTab): tab is StoreConfigurationSection | "catalog"
 function mergeStoreChanges(current: IndividualStore, original: IndividualStore, draft: IndividualStore): IndividualStore {
   const next = { ...current };
   function apply<K extends keyof IndividualStore>(key: K) {
+    if (key === "configurationRevision") return;
     if (JSON.stringify(draft[key]) === JSON.stringify(original[key])) return;
     if (JSON.stringify(current[key]) !== JSON.stringify(original[key])) {
       throw new Error("La configurazione è cambiata. Ricarica la sede e ripeti la modifica.");

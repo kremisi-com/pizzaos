@@ -87,3 +87,45 @@ test("la settimana tipo del Profilo governa entrambi i checkout", async ({ brows
     await admin.close();
   }
 });
+
+test("il Profilo conserva la bozza se una modifica arriva fra rilettura e salvataggio", async ({ browser }) => {
+  const operator = await browser.newContext();
+  try {
+    await operator.addCookies([{ name: "pizzaos-e2e-actor", value: "operator", url: adminOrigin }]);
+    const page = await operator.newPage();
+    await page.goto(`${adminOrigin}/operazioni/profilo`);
+    const name = page.getByLabel("Nome sede", { exact: true });
+    await expect(name).toBeVisible();
+    const originalName = await name.inputValue();
+    await name.fill("Bozza concorrente");
+    let injectChange = true;
+    await page.route(`**${storeApi}`, async route => {
+      if (route.request().method() !== "GET" || !injectChange) { await route.continue(); return; }
+      injectChange = false;
+      const response = await route.fetch();
+      const current = await response.json() as IndividualStore;
+      const remote = await operator.request.put(`${adminOrigin}${storeApi}`, {
+        headers: { origin: adminOrigin }, data: { ...current, contactPhone: "0612345678" }
+      });
+      expect(remote.ok()).toBe(true);
+      await route.fulfill({ response });
+    });
+    const rejected = page.waitForResponse(response => response.url().endsWith(storeApi) && response.request().method() === "PUT");
+    await page.getByRole("button", { name: "Salva configurazione", exact: true }).click();
+    expect((await rejected).status()).toBe(409);
+    await expect(page.getByText("La configurazione è cambiata. Ricarica la sede e ripeti la modifica.", { exact: true })).toBeVisible();
+    await expect(name).toHaveValue("Bozza concorrente");
+    const canonical = await operator.request.get(`${adminOrigin}${storeApi}`);
+    expect(await canonical.json()).toMatchObject({ name: originalName, contactPhone: "0612345678" });
+    await page.unroute(`**${storeApi}`);
+    await page.reload();
+    await name.fill("Nome dopo rilettura");
+    const saved = page.waitForResponse(response => response.url().endsWith(storeApi) && response.request().method() === "PUT");
+    await page.getByRole("button", { name: "Salva configurazione", exact: true }).click();
+    expect((await saved).ok()).toBe(true);
+    await expect(page.getByText("Configurazione salvata.", { exact: true })).toBeVisible();
+    expect(await (await operator.request.get(`${adminOrigin}${storeApi}`)).json()).toMatchObject({ name: "Nome dopo rilettura", contactPhone: "0612345678" });
+  } finally {
+    await operator.close();
+  }
+});
