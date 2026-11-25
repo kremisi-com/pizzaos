@@ -198,6 +198,7 @@
 
 .foodGrid {
   margin-top: 0.5rem;
+  align-items: start;
 }
 
 .checkGrid {
