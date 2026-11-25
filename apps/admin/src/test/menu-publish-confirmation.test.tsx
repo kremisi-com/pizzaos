@@ -97,15 +97,18 @@ function pizzaDraft() {
 describe("pubblicazione con extra aggiornati", () => {
   it("attende il Magazzino corrente e permette di riprovare una lettura fallita", async () => {
     const loadIngredients = vi.fn().mockRejectedValueOnce(new Error("Magazzino non disponibile")).mockResolvedValue([olive]);
-    const { api, dialog, showToast } = await setup({ draft: pizzaDraft(), loadIngredients, waitReview: false });
+    const { api, dialog, trigger, showToast } = await setup({ draft: pizzaDraft(), loadIngredients, waitReview: false });
     expect(await within(dialog).findByRole("alert")).toHaveTextContent("Magazzino non disponibile");
     expect(screen.getAllByRole("alert")).toHaveLength(1);
     expect(showToast).not.toHaveBeenCalled();
     expect(within(dialog).getByRole("button", { name: "Conferma pubblicazione" })).toBeDisabled();
     expect(api.saveDraft).not.toHaveBeenCalled();
     expect(api.publish).not.toHaveBeenCalled();
-    fireEvent.click(within(dialog).getByRole("button", { name: "Ricontrolla modifiche" }));
-    await waitFor(() => expect(within(dialog).getByRole("button", { name: "Conferma pubblicazione" })).toBeEnabled());
+    expect(within(dialog).getAllByRole("button").map(button => button.textContent)).toEqual(["Conferma pubblicazione", "Annulla"]);
+    fireEvent.click(within(dialog).getByRole("button", { name: "Annulla" }));
+    fireEvent.click(trigger);
+    const reopened = screen.getByRole("dialog");
+    await waitFor(() => expect(within(reopened).getByRole("button", { name: "Conferma pubblicazione" })).toBeEnabled());
     expect(loadIngredients).toHaveBeenCalledTimes(2);
   });
 
@@ -160,15 +163,17 @@ describe("pubblicazione con extra aggiornati", () => {
   });
 
   it("richiede un nuovo controllo se il servizio salva extra diversi da quelli confermati", async () => {
-    const { api, dialog } = await setup({ draft: pizzaDraft(), ingredients: [] });
+    const { api, dialog, trigger } = await setup({ draft: pizzaDraft(), ingredients: [] });
     vi.mocked(api.saveDraft).mockResolvedValueOnce({ revision: 2, published: pizzaDraft(), drafts: [pizzaDraft()] });
     fireEvent.click(within(dialog).getByRole("button", { name: "Conferma pubblicazione" }));
     expect(await within(dialog).findByRole("alert")).toHaveTextContent("Gli extra sono cambiati durante la conferma");
     expect(api.publish).not.toHaveBeenCalled();
     expect(within(dialog).getByRole("button", { name: "Conferma pubblicazione" })).toBeDisabled();
-    fireEvent.click(within(dialog).getByRole("button", { name: "Ricontrolla modifiche" }));
-    await waitFor(() => expect(within(dialog).getByRole("button", { name: "Conferma pubblicazione" })).toBeEnabled());
-    expect(within(dialog).getByRole("region", { name: "Modifiche agli extra" })).toBeInTheDocument();
+    fireEvent.click(within(dialog).getByRole("button", { name: "Annulla" }));
+    fireEvent.click(trigger);
+    const reopened = screen.getByRole("dialog");
+    await waitFor(() => expect(within(reopened).getByRole("button", { name: "Conferma pubblicazione" })).toBeEnabled());
+    expect(within(reopened).getByRole("region", { name: "Modifiche agli extra" })).toBeInTheDocument();
   });
 
   it("conserva il blocco del servizio per dati incompleti e ritenta con la revisione salvata", async () => {

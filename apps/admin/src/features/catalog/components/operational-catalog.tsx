@@ -292,7 +292,6 @@ export function OperationalCatalog({ api, storeId, ingredients, onPublished, onI
       {error && <p role="alert">{error}</p>}
       <div className={styles.actions}>
         <Button type="button" disabled={pending || !publicationReview} onClick={() => void publish()}>Conferma pubblicazione</Button>
-        {error && <Button type="button" variant="secondary" disabled={pending} onClick={() => void reviewPublication()}>Ricontrolla modifiche</Button>}
         <Button type="button" variant="ghost" disabled={busy} onClick={() => setConfirmation(null)}>Annulla</Button>
       </div>
     </dialog>}
