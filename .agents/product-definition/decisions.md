@@ -223,3 +223,5 @@ Su richiesta esplicita di Andrea, il dettaglio pizza omette la scelta di impasto
 Andrea richiede per le card del menu client il prezzo in alto a destra allineato al titolo, la rimozione del pulsante + e l'intera card cliccabile per ridurne l'altezza. Il comportamento corrente e i casi limite sono nella [specifica del menu](flows/menu-ordering.md).
 
 Su richiesta esplicita di Andrea, il dettaglio pizza operativo rimuove tutto il riquadro superiore, comprese anteprima, emoji e «La tua pizza prende forma qui.», mantenendo soltanto il ritorno al menu prima del nome della pizza. Rimuove inoltre «Informazione da verificare». Questa scelta aggiorna la presentazione prevista da D80/D82. [Flusso corrente](flows/menu-ordering.md).
+
+Andrea conferma il pannello bianco con angoli superiori arrotondati per la CTA fissa del dettaglio pizza, al posto della sfumatura. Nel configuratore operativo il pannello si ancora al fondo senza il distacco della navigazione PoC, rispettando la safe area. [Flusso corrente](flows/menu-ordering.md).

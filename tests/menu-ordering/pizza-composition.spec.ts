@@ -59,6 +59,7 @@ test("gusti e formule usano la scheda PoC, il prezzo server e l'ordine cucina", 
     await admin.getByRole("button", { name: "Conferma pubblicazione", exact: true }).click();
     const published = await publishing;
     expect(published.ok(), await published.text()).toBe(true);
+    await page.setViewportSize({ width: 390, height: 844 });
     await page.goto(`${clientOrigin}/ordina`);
     for (const name of ["Simple", "Wild", "Savage", "Margherita"]) {
       await page.getByRole("button", { name: `Aggiungi ${name}`, exact: true }).click();
@@ -69,6 +70,18 @@ test("gusti e formule usano la scheda PoC, il prezzo server e l'ordine cucina", 
       }
       await expect(dialog.getByRole("heading", { name: "Note per la cucina" })).toBeVisible();
       await expect(dialog.getByRole("button", { name: /^Formato/ })).toHaveCount(0);
+      const cta = dialog.getByRole("button", { name: /Aggiungi al carrello/ });
+      const panel = cta.locator("..");
+      await expect(panel).toHaveCSS("bottom", "0px");
+      await expect(panel).toHaveCSS("border-top-left-radius", "24px");
+      await expect(panel).toHaveCSS("background-image", "none");
+      const notes = dialog.getByRole("textbox", { name: "Messaggio opzionale" });
+      await notes.scrollIntoViewIfNeeded();
+      await dialog.evaluate(element => { element.scrollTop = element.scrollHeight; });
+      const notesBox = await notes.boundingBox();
+      const panelBox = await panel.boundingBox();
+      expect(notesBox!.y + notesBox!.height).toBeLessThanOrEqual(panelBox!.y);
+      expect(await cta.evaluate(element => window.innerHeight - element.getBoundingClientRect().bottom)).toBe(12);
       await dialog.screenshot({ path: testInfo.outputPath(`${name.toLowerCase()}-mobile.png`) });
       await dialog.getByRole("button", { name: "Chiudi personalizzazione" }).click();
     }

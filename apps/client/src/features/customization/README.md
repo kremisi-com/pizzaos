@@ -21,3 +21,5 @@ La modifica mantiene quantità e note. Se una scelta non esiste più o è esauri
 Le pizze riclassificate possono conservare gruppi specifici oltre alle sezioni automatiche. `LivePizzaEditor` li mostra separatamente con min/max, singola o multipla scelta, contatori ripetibili, prezzi, disponibilità e rimozioni originali; le scelte obbligatorie bloccano la CTA finché completate. [Test](../../test/pizza-specific-choices.test.tsx). Gli extra comuni sono già presenti nel catalogo pubblicato: nessuna lettura diretta del Magazzino nel client.
 
 Impasto e Formato compaiono solo se il gruppo offre più di una opzione disponibile; le selezioni standard restano nella composizione anche quando il controllo è nascosto. Il badge della scelta attiva mantiene il testo nel colore di contrasto del tema anche con focus da tastiera.
+
+La CTA condivisa usa un pannello bianco con angoli superiori arrotondati; il dialog operativo lo ancora al fondo rispettando la safe area. Lo spazio finale del contenuto segue il pannello, mentre il PoC conserva il distacco della navigazione inferiore.
