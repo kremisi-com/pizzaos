@@ -28,3 +28,21 @@
 }
 
 .brand img { position: relative; max-width: 100%; }
+
+.profileLink {
+  position: absolute;
+  top: 20px;
+  right: clamp(16px, 3vw, 32px);
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border: 2px solid var(--pizzaos-brand-navy);
+  border-radius: 50%;
+  background: var(--pizzaos-brand-orange);
+  color: var(--pizzaos-brand-navy);
+  box-shadow: 0 4px 16px color-mix(in srgb, var(--pizzaos-brand-navy) 30%, transparent);
+}
+
+.profileLink:hover { background: var(--pizzaos-brand-sand); }
+.profileLink:focus-visible { outline: 3px solid var(--pizzaos-brand-navy); outline-offset: 3px; }

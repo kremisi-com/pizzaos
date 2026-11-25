@@ -230,11 +230,11 @@ export function IndividualOrderingScreen({ api, promotionsApi, preferencesApi, r
   const unresolved = orders.some(order => (order.status === "pending_payment" && (order.payment === "requires_action" || order.payment === "processing")) || order.additions?.some(item => !item.applied && ["requires_action", "processing"].includes(item.payment)));
 
   return <>
-    <OrderingCover />
+    <OrderingCover profileHref={session?.actor ? "/ordina/profilo" : undefined} />
     <div className={styles.page}>
     <header className={styles.header}>
       <div><h1>La tua prossima pizza.</h1>{store && <p>{store.name} · {store.acceptingOrders ? "Ordini aperti" : "Ordini sospesi"}</p>}</div>
-      {session?.actor ? <a className={styles.profileLink} href="/ordina/profilo" aria-label="Apri profilo" title="Apri profilo"><span aria-hidden="true">👤</span></a> : <a href="/accesso">Accedi</a>}
+      {!session?.actor && <a href="/accesso">Accedi</a>}
     </header>
     <nav className={styles.heroActions} aria-label="Inizia a ordinare">
       {stores.length > 0 && <a className={styles.linkButton} href="#il-menu">Sfoglia il menu</a>}
