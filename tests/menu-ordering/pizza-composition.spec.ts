@@ -64,10 +64,11 @@ test("gusti e formule usano la scheda PoC, il prezzo server e l'ordine cucina", 
       await page.getByRole("button", { name: `Aggiungi ${name}`, exact: true }).click();
       const dialog = page.getByRole("dialog", { name, exact: true });
       await expect(dialog).toBeVisible();
-      for (const section of ["Impasto", "Base", "Formato", "Ingredienti", "Extra"]) {
+      for (const section of ["Impasto", "Base", "Ingredienti", "Extra"]) {
         await expect(dialog.getByRole("heading", { name: section, exact: true, level: 2 })).toBeVisible();
       }
       await expect(dialog.getByRole("heading", { name: "Note per la cucina" })).toBeVisible();
+      await expect(dialog.getByRole("button", { name: /^Formato/ })).toHaveCount(0);
       await dialog.screenshot({ path: testInfo.outputPath(`${name.toLowerCase()}-mobile.png`) });
       await dialog.getByRole("button", { name: "Chiudi personalizzazione" }).click();
     }
