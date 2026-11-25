@@ -18,7 +18,7 @@ This package does not own app-specific rendering concerns.
 
 Entry point: `@pizzaos/domain`
 
-`IndividualIngredient.stock` e le dosi di `IndividualProduct.ingredients` / `IndividualOption.ingredients` ammettono `null` per dati importati da verificare. La chiave resta l'ID del magazzino; il dato ignoto non equivale a zero. Riserve e composizioni ordinabili conservano quantità numeriche positive. Il servizio blocca pubblicazione e ordinazione delle composizioni incomplete; l'editor permette di completarle.
+`IndividualIngredient.stock` e le dosi di `IndividualProduct.ingredients` / `IndividualOption.ingredients` ammettono `null` per dati importati da verificare. La chiave resta l'ID del magazzino; il dato ignoto non equivale a zero. Riserve e composizioni ordinabili conservano quantità numeriche positive. Il servizio blocca pubblicazione e ordinazione delle composizioni incomplete; fanno eccezione le scorte nulle degli ingredienti abilitati come extra, che restano ordinabili con prezzo e dose completi. L’editor permette di completare i dati mancanti.
 
 `src/index.ts` is the stable public entry. The entity and status model lives in `src/model.ts`; client API contracts import that model directly, so the entry point has no internal dependency cycle.
 

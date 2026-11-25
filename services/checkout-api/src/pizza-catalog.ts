@@ -1,4 +1,5 @@
 import { materializePizzaMenu, syncPizzaInventory, PIZZA_EXTRA_OFFERS, type IndividualIngredient, type MenuDraft, type PizzaCatalog } from "@pizzaos/domain";
+import { untrackedExtraStock } from "./inventory-extras";
 import { isMenuRecord, validateMenuFood } from "./menu-catalog";
 
 type Invalid = (message: string) => never;
@@ -10,7 +11,7 @@ const cents = (value: unknown): value is number => typeof value === "number" && 
 const only = (value: Record<string, unknown>, fields: string[]) => Object.keys(value).every(key => fields.includes(key));
 
 /** Validate the source catalog before compiling any browser-supplied projections. */
-export function validatePizzaCatalog(value: unknown, ingredientIds: Set<string>, invalid: Invalid, publishing = false, stocks?: Map<string, number | null>): asserts value is PizzaCatalog {
+export function validatePizzaCatalog(value: unknown, ingredientIds: Set<string>, invalid: Invalid, publishing = false, stocks?: Map<string, number | null>, untrackedStocks: ReadonlySet<string> = new Set()): asserts value is PizzaCatalog {
   const collections = ["doughs", "bases", "formats", "toppings", "tastes", "formulas"];
   if (!isMenuRecord(value) || !only(value, [...collections, "inventoryMode", "defaults", "customEnabled", "inventoryExtras", "inventorySignature"]) || collections.some(key => !Array.isArray(value[key]) || value[key].length > 100)) invalid("Catalogo pizza non valido.");
   const catalog = value as unknown as PizzaCatalog;
@@ -43,7 +44,7 @@ export function validatePizzaCatalog(value: unknown, ingredientIds: Set<string>,
       if (Object.keys(item.ingredients).length > 1000) invalid("Ricetta del componente pizza troppo grande.");
       for (const [id, dose] of Object.entries(item.ingredients)) {
         if (!ingredientIds.has(id) || (dose !== null && (typeof dose !== "number" || !Number.isSafeInteger(dose) || dose < 1))) invalid("Ricetta del componente pizza non valida.");
-        if (publishing && (dose === null || stocks?.get(id) == null)) invalid(`«${item.name}»: verifica dosi e scorte prima di pubblicare.`);
+        if (publishing && (dose === null || stocks?.get(id) == null && !untrackedStocks.has(id))) invalid(`«${item.name}»: verifica dosi e scorte prima di pubblicare.`);
       }
     }
   }
@@ -51,7 +52,7 @@ export function validatePizzaCatalog(value: unknown, ingredientIds: Set<string>,
     for (const dough of catalog.doughs) {
       if (Object.keys(dough.ingredients).length || dough.doughQuantity !== undefined) invalid("Associa una sola voce di Magazzino a ogni impasto.");
       if (dough.inventoryIngredientId !== undefined && !ingredientIds.has(dough.inventoryIngredientId)) invalid("Voce di Magazzino dell'impasto non valida.");
-      if (publishing && (!dough.inventoryIngredientId || stocks && stocks.get(dough.inventoryIngredientId) == null)) invalid(`«${dough.name}»: verifica collegamento e scorte dell'impasto prima di pubblicare.`);
+      if (publishing && (!dough.inventoryIngredientId || stocks && stocks.get(dough.inventoryIngredientId) == null && !untrackedStocks.has(dough.inventoryIngredientId))) invalid(`«${dough.name}»: verifica collegamento e scorte dell'impasto prima di pubblicare.`);
     }
     for (const format of catalog.formats) {
       if (Object.keys(format.ingredients).length || format.inventoryIngredientId !== undefined) invalid("Il formato indica soltanto la quantità di impasto.");
@@ -135,7 +136,8 @@ export function preparePizzaMenu(draft: MenuDraft, ingredientIds: Set<string>, i
       (Array.isArray(product.options) && product.options.some(option => isMenuRecord(option) && option.pizza !== undefined)))) invalid("Una pizza deve appartenere al catalogo pizza.");
     return draft;
   }
-  validatePizzaCatalog(draft.pizzaCatalog, ingredientIds, invalid, publishing, stocks);
+  const untrackedStocks = new Set(inventory?.filter(untrackedExtraStock).map(item => item.id));
+  validatePizzaCatalog(draft.pizzaCatalog, ingredientIds, invalid, publishing, stocks, untrackedStocks);
   const pizzaIds = new Set([...draft.pizzaCatalog.tastes, ...draft.pizzaCatalog.formulas].map(entry => entry.id));
   for (const product of draft.products) {
     if (!pizzaIds.has(product.id) && (product.pizza !== undefined || product.pizzaRecipeSources !== undefined ||
@@ -152,7 +154,7 @@ export function preparePizzaMenu(draft: MenuDraft, ingredientIds: Set<string>, i
       if (item.extra?.priceCents == null || item.extra.dose == null) invalid(`«${item.name}»: verifica prezzo e dose extra nel Magazzino prima di pubblicare.`);
     }
     draft = refreshed;
-    validatePizzaCatalog(draft.pizzaCatalog, ingredientIds, invalid, publishing, stocks);
+    validatePizzaCatalog(draft.pizzaCatalog, ingredientIds, invalid, publishing, stocks, untrackedStocks);
   }
   return materializePizzaMenu(draft);
 }

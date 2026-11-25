@@ -198,7 +198,7 @@ describe("catalogo pizza autorevole via HTTP", () => {
     expect(serialized).not.toContain('"extra":{"enabled"');
   });
 
-  it("mantiene prezzo e dose pubblicati, blocca la bozza obsoleta e richiede nuovo salvataggio", async () => {
+  it("applica subito prezzo e dose correnti, conservando il controllo della bozza obsoleta", async () => {
     const f = fixture();
     const store = (await f.request("GET", "/v1/pilot/stores/roma")).json<IndividualStore>();
     store.ingredients.find(({ id }) => id === "latte")!.extra = { enabled: true, priceCents: 300, dose: 2 };
@@ -218,7 +218,7 @@ describe("catalogo pizza autorevole via HTTP", () => {
     const changed = (await f.request("GET", "/v1/pilot/stores/roma")).json<IndividualStore>();
     changed.ingredients.find(({ id }) => id === "latte")!.extra = { enabled: true, priceCents: 500, dose: 4 };
     expect((await f.request("PUT", "/v1/pilot/stores/roma", { ...changed })).statusCode).toBe(200);
-    expect((await f.quote(active, choices)).json<IndividualQuote>().totalCents).toBe(1080);
+    expect((await f.quote(active, choices)).json<IndividualQuote>().totalCents).toBe(1200);
     const blocked = await f.publish(candidate.id);
     expect(blocked.statusCode, blocked.body).toBe(400);
     expect(blocked.json()).toMatchObject({ code: "invalid_input" });
@@ -244,12 +244,11 @@ describe("catalogo pizza autorevole via HTTP", () => {
     expect(unavailable.json()).toMatchObject({ code: "inventory_changed" });
   });
 
-  it.each(["dose", "stock"])("blocca la pubblicazione con %s ignoto di un extra abilitato", async missing => {
+  it("blocca la pubblicazione con dose ignota di un extra abilitato", async () => {
     const f = fixture();
     const store = (await f.request("GET", "/v1/pilot/stores/roma")).json<IndividualStore>();
     const ingredient = store.ingredients.find(({ id }) => id === "latte")!;
-    ingredient.extra = { enabled: true, priceCents: 200, dose: missing === "dose" ? null : 2 };
-    if (missing === "stock") ingredient.stock = null;
+    ingredient.extra = { enabled: true, priceCents: 200, dose: null };
     expect((await f.request("PUT", "/v1/pilot/stores/roma", { ...store })).statusCode).toBe(200);
     const before = (await f.workspace()).published;
     const saved = await f.save(inventoryDraft());
@@ -585,6 +584,55 @@ describe("classificazione ed extra comuni: contratto HTTP indipendente", () => {
     return (await f.request("GET", "/v1/pilot/stores/roma", undefined, "customer")).json<IndividualStore>();
   }
 
+  it("pubblica extra con scorta da verificare quando prezzo e dose sono completi", async () => {
+    const f = fixture();
+    const store = (await f.request("GET", "/v1/pilot/stores/roma")).json<IndividualStore>();
+    Object.assign(store.ingredients.find(item => item.id === "latte")!, { stock: null, extra: { enabled: true, priceCents: 100, dose: 1 } });
+    expect((await f.request("PUT", "/v1/pilot/stores/roma", { ...store })).statusCode).toBe(200);
+    expect((await f.save(inventoryDraft())).statusCode).toBe(200);
+    const published = await f.publish("pizza");
+    expect(published.statusCode, published.body).toBe(200);
+  });
+
+  it("aggiorna gli extra subito dal Magazzino e completa ordini con scorta ignota senza inventare giacenze", async () => {
+    const f = fixture();
+    const candidate = draft();
+    expect((await f.save(candidate)).statusCode).toBe(200);
+    expect((await f.publish(candidate.id)).statusCode).toBe(200);
+    const published = (await f.workspace()).published;
+    const current = (await f.request("GET", "/v1/pilot/stores/roma")).json<IndividualStore>();
+    const extra = current.ingredients.find(item => item.id === "crusca")!;
+    extra.stock = null;
+    extra.extra = { enabled: true, priceCents: 120, dose: 2 };
+    expect((await f.request("PUT", "/v1/pilot/stores/roma", { ...current })).statusCode).toBe(200);
+    const pizza = (await publicStore(f)).products.find(item => item.id === "margherita")!;
+    const topping = pizza.options.find(option => option.pizza?.kind === "topping" && option.ingredientIds?.includes("crusca"))!;
+    expect(topping).toMatchObject({ available: true, priceCents: 120 });
+    const selections = [...pizza.pizza!.defaultSelections, { optionId: topping.id, quantity: 2 }];
+    expect((await f.quote(pizza, selections)).statusCode).toBe(200);
+    const cart = { storeId: "roma", mode: "pickup", slotId: "pranzo", notes: "", lines: [
+      { productId: pizza.id, quantity: 1, optionIds: [], selections, notes: "" }
+    ] };
+    const quote = (await f.quote(pizza, selections)).json<IndividualQuote>();
+    const checkout = await f.request("POST", "/v1/pilot/checkouts", { cart, fingerprint: quote.fingerprint, phone: "+393331234567", method: "cash", idempotencyKey: "unknown-extra-stock" }, "customer");
+    expect(checkout.statusCode, checkout.body).toBe(200);
+    const order = checkout.json<IndividualCheckoutResult>().order;
+    const reserved = (await f.request("GET", "/v1/pilot/stores/roma")).json<IndividualStore>();
+    reserved.ingredients.find(item => item.id === "crusca")!.stock = 1;
+    expect((await f.request("PUT", "/v1/pilot/stores/roma", { ...reserved })).statusCode).toBe(409);
+    for (const action of ["accept", "prepare", "ready", "complete"]) {
+      const result = await f.request("POST", `/v1/pilot/orders/${order.id}/actions`, { action });
+      expect(result.statusCode, result.body).toBe(200);
+    }
+    const updated = (await f.request("GET", "/v1/pilot/stores/roma")).json<IndividualStore>();
+    expect(updated.ingredients.find(item => item.id === "crusca")!.stock).toBeNull();
+    expect((await f.workspace()).published).toEqual(published);
+    updated.ingredients.find(item => item.id === "crusca")!.stock = 0;
+    expect((await f.request("PUT", "/v1/pilot/stores/roma", { ...updated })).statusCode).toBe(200);
+    expect((await publicStore(f)).products.find(item => item.id === pizza.id)!.options.find(item => item.id === topping.id)).toBeUndefined();
+    expect((await f.quote(pizza, selections)).statusCode).toBe(409);
+  });
+
   it("offre extra del Magazzino su gusti senza custom o flag e mantiene la ricetta inclusa dopo disabilitazione", async () => {
     const f = fixture();
     await configureLatte(f, { enabled: true, priceCents: 150, dose: 2 });
@@ -672,7 +720,7 @@ describe("classificazione ed extra comuni: contratto HTTP indipendente", () => {
     expect(await f.workspace()).toEqual(before);
   });
 
-  it("richiede un nuovo salvataggio dopo modifica commerciale anche senza flag e mantiene il prezzo attivo", async () => {
+  it("richiede un nuovo salvataggio della bozza obsoleta e applica subito il prezzo extra corrente", async () => {
     const f = fixture();
     await configureLatte(f, { enabled: true, priceCents: 150, dose: 2 });
     const candidate = draft();
@@ -689,7 +737,7 @@ describe("classificazione ed extra comuni: contratto HTTP indipendente", () => {
     await configureLatte(f, { enabled: true, priceCents: 200, dose: 2 });
     const oldQuote = await f.quote(active, [...active.pizza!.defaultSelections, { optionId: extra.id, quantity: 1 }]);
     expect(oldQuote.statusCode, oldQuote.body).toBe(200);
-    expect(oldQuote.json<IndividualQuote>().lines[0].unitCents).toBe(750);
+    expect(oldQuote.json<IndividualQuote>().lines[0].unitCents).toBe(800);
     const stale = await f.publish(revised.id);
     expect([400, 409], stale.body).toContain(stale.statusCode);
     const resaved = await f.save(savedAgain.json<MenuWorkspace>().drafts.find((entry) => entry.id === revised.id)!);

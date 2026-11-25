@@ -1,4 +1,5 @@
 import { preparePizzaMenu } from "./pizza-catalog";
+import { inventoryExtraProducts, untrackedExtraStock } from "./inventory-extras";
 import { createHash, randomUUID } from "node:crypto";
 import { createDefaultWeeklyOrderSchedule, isOrderingSubdomain, resolveMenuComposition } from "@pizzaos/domain";
 import type {
@@ -174,7 +175,7 @@ function describeFood(product: IndividualProduct, store: IndividualStore): Indiv
 }
 
 function publicProduct(product: IndividualProduct, store: IndividualStore, reserved: Record<string, number>): IndividualProduct {
-  const remaining = new Map(store.ingredients.map(item => [item.id, (item.stock ?? 0) - (reserved[item.id] ?? 0)]));
+  const remaining = new Map(store.ingredients.map(item => [item.id, untrackedExtraStock(item) ? Infinity : (item.stock ?? 0) - (reserved[item.id] ?? 0)]));
   const removable = new Set(product.options.flatMap(option => option.removesIngredientIds ?? []));
   const specificRemovable = new Set(product.options.filter(option => !option.pizza).flatMap(option => option.removesIngredientIds ?? []));
   const possible = (recipe: Record<string, number | null>, allowRemovals = false) => Object.entries(recipe).every(([id, units]) => units !== null && ((allowRemovals && removable.has(id)) || (remaining.get(id) ?? 0) >= units));
@@ -186,9 +187,12 @@ function publicProduct(product: IndividualProduct, store: IndividualStore, reser
     return Object.entries(option.ingredients).every(([id, units]) => units !== null
       && (component && specificRemovable.has(id) || (remaining.get(id) ?? 0) >= units));
   }
+  const hiddenExtras = new Set(product.options.filter(option => option.pizza?.kind === "topping"
+    && Object.keys(option.ingredients).some(id => store.ingredients.find(item => item.id === id)?.stock === 0)).map(option => option.id));
   return { ...(managed ? describeFood(product, store) : product), available: product.available && possible(product.ingredients, true),
-    ...(managed ? { baseIngredientIds: Object.keys(product.ingredients), ...(maxAvailable !== undefined ? { maxAvailable } : {}) } : {}),
-    pizzaRecipeSources: undefined, ingredients: {}, options: product.options.map(option => ({ ...option,
+    ...(managed ? { baseIngredientIds: Object.keys(product.ingredients), ...(maxAvailable !== undefined && Number.isFinite(maxAvailable) ? { maxAvailable } : {}) } : {}),
+    ...(product.groups ? { groups: product.groups.map(group => ({ ...group, optionIds: group.optionIds.filter(id => !hiddenExtras.has(id)) })) } : {}),
+    pizzaRecipeSources: undefined, ingredients: {}, options: product.options.filter(option => !hiddenExtras.has(option.id)).map(option => ({ ...option,
       ...(option.pizza ? { pizza: { ...option.pizza, doughQuantity: undefined } } : {}), ingredients: {},
       ...(managed ? { ingredientIds: Object.keys(option.ingredients), available: option.available !== false && optionPossible(option) } : {}) })) };
 }
@@ -270,8 +274,9 @@ export function createOrderingService(options: OrderingServiceOptions): RiderOrd
     if (!store.acceptingOrders) fail("slot_unavailable", "La sede non accetta ordini in questo momento.");
     const recipe: Record<string, number> = {};
     let subtotalCents = 0;
+    const products = inventoryExtraProducts(store);
     const lines = cart.lines.map(line => {
-      const product = store.products.find(item => item.id === line.productId);
+      const product = products.find(item => item.id === line.productId);
       if (!product?.available) fail("product_unavailable", "Un prodotto non è disponibile: correggi il carrello.");
       const expectedKind = product.pizza ? product.pizza.kind === "taste" ? "pizza_taste" : "pizza_formula" : "product";
       if (line.kind !== undefined && line.kind !== expectedKind) fail("customization_changed", "Il tipo di pizza è cambiato: scegli nuovamente la composizione.");
@@ -309,7 +314,9 @@ export function createOrderingService(options: OrderingServiceOptions): RiderOrd
     });
     const reserved = ingredientsReserved(state, store.id);
     for (const [ingredientId, quantity] of Object.entries(recipe)) {
-      const available = store.ingredients.find(item => item.id === ingredientId)?.stock ?? 0;
+      const ingredient = store.ingredients.find(item => item.id === ingredientId);
+      if (untrackedExtraStock(ingredient)) continue;
+      const available = ingredient?.stock ?? 0;
       if (quantity > available - (reserved[ingredientId] ?? 0)) fail("inventory_changed", "Ingredienti non sufficienti: correggi il carrello.");
     }
     const instant = now().getTime();
@@ -609,7 +616,7 @@ export function createOrderingService(options: OrderingServiceOptions): RiderOrd
     delete publicStore.protectedOrderDates;
     if (publicStore.menu) delete publicStore.menu.pizzaCatalog;
     publicStore.ingredients = [];
-    publicStore.products = store.products.map(product => publicProduct(product, store, reserved));
+    publicStore.products = inventoryExtraProducts(store).map(product => publicProduct(product, store, reserved));
     publicStore.slots = remainingSlots(state, store, instant);
     return publicStore;
   }
@@ -669,6 +676,7 @@ export function createOrderingService(options: OrderingServiceOptions): RiderOrd
             const store = getStore(state, order.storeId); const recipe = reservations(state)[order.id]?.ingredients ?? {};
             for (const [ingredientId, quantity] of Object.entries(recipe)) {
               const ingredient = store.ingredients.find(item => item.id === ingredientId);
+              if (untrackedExtraStock(ingredient)) continue;
               if (!ingredient || ingredient.stock === null || ingredient.stock < quantity) fail("inventory_changed", "Scorte incoerenti con le riserve dell'ordine.");
               ingredient.stock -= quantity;
             }
@@ -982,6 +990,7 @@ export function createOrderingService(options: OrderingServiceOptions): RiderOrd
         const reserved = ingredientsReserved(state, input.id);
         for (const [ingredientId, quantity] of Object.entries(reserved)) {
           const ingredient = input.ingredients.find(item => item.id === ingredientId);
+          if (untrackedExtraStock(ingredient)) continue;
           if (!ingredient || ingredient.stock === null || ingredient.stock < quantity) fail("inventory_changed", "Le nuove scorte non coprono gli ordini riservati.");
         }
         const instant = now().getTime();

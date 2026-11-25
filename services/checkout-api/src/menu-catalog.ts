@@ -1,5 +1,6 @@
 import { menuAllergenKey, type FoodPreferences, type IndividualProduct, type IndividualStore,
   type MenuDraft, type MenuFoodInformation, type MenuSelection, type MenuWorkspace } from "@pizzaos/domain";
+import { untrackedExtraStock } from "./inventory-extras";
 
 type Invalid = (message: string) => never;
 const kinds = new Set(["dough", "base", "format", "ingredients", "extras", "recipe", "selection"]);
@@ -92,7 +93,8 @@ export function validateMenuDraft(draft: MenuDraft, store: IndividualStore, inva
     if (checkRecipeReadiness) {
       for (const recipe of [product.ingredients, ...product.options.map(option => option.ingredients)]) {
         for (const [id, dose] of Object.entries(recipe)) {
-          if (dose === null || store.ingredients.find(ingredient => ingredient.id === id)?.stock == null) {
+          const ingredient = store.ingredients.find(ingredient => ingredient.id === id);
+          if (dose === null || ingredient?.stock == null && !untrackedExtraStock(ingredient)) {
             invalid(`«${product.name}»: verifica dosi e scorte degli ingredienti prima di pubblicare.`);
           }
         }

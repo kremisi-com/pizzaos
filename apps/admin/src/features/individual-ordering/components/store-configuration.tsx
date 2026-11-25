@@ -127,7 +127,7 @@ export function StoreConfiguration({ store, isNew, section, busy, orderingDomain
             value={ingredient.extra.dose ?? ""} onChange={event => update("ingredients", draft.ingredients.map(item => item.id === ingredient.id ? { ...item,
               extra: { enabled: true, priceCents: item.extra?.priceCents ?? null, dose: event.target.value === "" ? null : Number(event.target.value) }
             } : item))} /></label>
-          <p>La dose usa le unità delle ricette. Prezzi e scelte cambiano nel menu cliente dopo la pubblicazione.</p>
+          <p>La dose usa le unità delle ricette. Prezzi e scelte degli extra si aggiornano nel menu cliente dopo il salvataggio.</p>
         </div>}
         <MenuFoodFields food={ingredient.food} onChange={food => update("ingredients", draft.ingredients.map(item =>
           item.id === ingredient.id ? { ...item, food } : item))} />
