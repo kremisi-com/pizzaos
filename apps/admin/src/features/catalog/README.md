@@ -1,5 +1,7 @@
 # Gestione catalogo
 
+Nella bozza, **Pizza custom** precede **Extra comuni dal Magazzino**. La card degli extra non mostra il conteggio degli extra abilitati e la nota sui prezzi e sulle dosi visibili dopo la pubblicazione.
+
 Su desktop la scheda di modifica a destra ha uno scroll indipendente, limitato all’altezza della finestra: raggiungerne i bordi non fa scorrere l’elenco a sinistra. Nel layout a colonna singola torna il normale scroll della pagina. Verifica browser: `tests/menu-ordering/menu-detail-scroll.spec.ts`.
 
 **Pubblica menu** apre un modal centrato con il nome della bozza e «Questo menu diventerà visibile ai clienti della sede.». Solo **Conferma pubblicazione** pubblica; **Annulla** ed Escape chiudono e riportano il focus al comando. Durante la richiesta i comandi sono bloccati; un errore resta visibile nel modal e consente di riprovare. Verifica locale: `src/test/menu-publish-confirmation.test.tsx`.

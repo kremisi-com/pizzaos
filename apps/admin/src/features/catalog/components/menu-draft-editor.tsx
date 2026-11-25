@@ -203,21 +203,6 @@ export function MenuDraftEditor({ draft: sourceDraft, storeId, ingredients, onCh
     }}><strong>Impasti e formati</strong><span>{settings ? "In modifica" : "Personalizza"}</span>
       <small>{catalog.doughs.find(item => item.id === catalog.defaults?.doughId)?.name ?? catalog.doughs[0]?.name ?? "Configura impasto"} · {catalog.formats.find(item => item.id === catalog.defaults?.formatId)?.name ?? catalog.formats[0]?.name ?? "formato"}</small>
       <small>Valgono per tutte le pizze. Cambiali solo se offri alternative.</small></button>
-    {(catalog.tastes.length > 0 || catalog.formulas.length > 0) && <section className={styles.section} aria-label="Extra comuni dal Magazzino">
-      <h3>Extra comuni dal Magazzino</h3>
-      <p>Tutte le pizze propongono gli ingredienti con la spunta “Possibile extra”. Prezzi e dosi si gestiscono una sola volta nel Magazzino; le scorte determinano la disponibilità.</p>
-      <p>{ingredients.filter(item => item.extra?.enabled).length} extra abilitati. Le aggiunte possono essere ripetute.</p>
-      <ul>{ingredients.filter(item => item.extra?.enabled).map(item => <li key={item.id}>
-        {item.name} · {item.extra?.priceCents == null ? "Prezzo da verificare" : money.format(item.extra.priceCents / 100)}
-        {item.extra?.dose == null ? " · Dose da verificare" : ` · Dose ${item.extra.dose}`}
-        {item.stock === null ? " · Scorta da verificare" : item.stock === 0 ? " · Esaurito" : ""}
-      </li>)}</ul>
-      {!ingredients.some(item => item.extra?.enabled) && <p>Nessun ingrediente ha la spunta Possibile extra.</p>}
-      {extrasChanged && <p role="status">Gli extra della bozza sono da aggiornare. Controlla le scelte prima di pubblicare.</p>}
-      {extrasChanged && <Button type="button" variant="secondary" onClick={() => onChange(syncPizzaInventory(draft, ingredients))}>Aggiorna extra della bozza</Button>}
-      {onInventory && <Button type="button" variant="ghost" onClick={onInventory}>Apri Magazzino</Button>}
-      <p className={styles.small}>Prezzi e dosi diventano visibili ai clienti solo dopo la pubblicazione del menu.</p>
-    </section>}
     <PizzaCustomCard draft={draft} ingredients={ingredients} onChange={onChange} onInventory={onInventory}
       onRemove={removeProduct} onAdd={() => {
         const section = activeSection ?? { id: crypto.randomUUID(), name: "Pizza custom", productIds: [] };
@@ -227,6 +212,19 @@ export function MenuDraftEditor({ draft: sourceDraft, storeId, ingredients, onCh
             pizzaCatalog: { ...catalog, customEnabled: true, inventoryExtras: true, formulas: [...catalog.formulas, { ...entry, extraOffer: { quota: 0, percent: 0 } }] } }, ingredients)));
         } else addPizza(section, "formula");
       }} />
+    {(catalog.tastes.length > 0 || catalog.formulas.length > 0) && <section className={styles.section} aria-label="Extra comuni dal Magazzino">
+      <h3>Extra comuni dal Magazzino</h3>
+      <p>Tutte le pizze propongono gli ingredienti con la spunta “Possibile extra”. Prezzi e dosi si gestiscono una sola volta nel Magazzino; le scorte determinano la disponibilità.</p>
+      <ul>{ingredients.filter(item => item.extra?.enabled).map(item => <li key={item.id}>
+        {item.name} · {item.extra?.priceCents == null ? "Prezzo da verificare" : money.format(item.extra.priceCents / 100)}
+        {item.extra?.dose == null ? " · Dose da verificare" : ` · Dose ${item.extra.dose}`}
+        {item.stock === null ? " · Scorta da verificare" : item.stock === 0 ? " · Esaurito" : ""}
+      </li>)}</ul>
+      {!ingredients.some(item => item.extra?.enabled) && <p>Nessun ingrediente ha la spunta Possibile extra.</p>}
+      {extrasChanged && <p role="status">Gli extra della bozza sono da aggiornare. Controlla le scelte prima di pubblicare.</p>}
+      {extrasChanged && <Button type="button" variant="secondary" onClick={() => onChange(syncPizzaInventory(draft, ingredients))}>Aggiorna extra della bozza</Button>}
+      {onInventory && <Button type="button" variant="ghost" onClick={onInventory}>Apri Magazzino</Button>}
+    </section>}
     {removingId && !draft.products.some(product => product.id === removingId) && <fieldset className={styles.confirm}>
       <legend>Eliminare {catalog.formulas.find(item => item.id === removingId)?.name || "combinazione"} dal menu?</legend>
       <Button type="button" onClick={() => confirmRemoveProduct(removingId)}>Conferma eliminazione prodotto</Button>

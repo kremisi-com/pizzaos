@@ -1,5 +1,7 @@
 # Menu, composizione e preferenze alimentari
 
+Nella bozza, **Pizza custom** precede **Extra comuni dal Magazzino**. La card degli extra non mostra il conteggio degli extra abilitati e la nota sui prezzi e sulle dosi visibili dopo la pubblicazione.
+
 Nella bozza aperta su desktop, la scheda di modifica a destra scorre indipendentemente dall’elenco prodotti. Anche raggiungendo il primo o l’ultimo campo, la rotella sulla scheda lascia fermo l’elenco. Nel layout a colonna singola lo scroll torna alla pagina. L’interazione appartiene all’admin e non modifica i dati della bozza. Verifica locale: [scroll della scheda](../../../tests/menu-ordering/menu-detail-scroll.spec.ts). Nessuna nuova evidenza online.
 
 Nel flusso F04, con una bozza selezionata e i salvataggi completati, **Pubblica menu** apre un modal centrato sopra l'editor con il nome della bozza e «Questo menu diventerà visibile ai clienti della sede.». L'admin richiede la pubblicazione al servizio solo con **Conferma pubblicazione**; **Annulla** o Escape chiudono senza modifiche e restituiscono il focus al comando. Durante la richiesta conferma e chiusura sono bloccate per evitare invii ripetuti. Al successo il modal si chiude e il menu pubblicato viene aggiornato; un errore resta leggibile nel modal, conservando la bozza e consentendo di riprovare o annullare. Verifica locale: [conferma pubblicazione](../../../apps/admin/src/test/menu-publish-confirmation.test.tsx). Nessuna nuova evidenza online.
