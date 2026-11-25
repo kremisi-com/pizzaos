@@ -105,6 +105,7 @@ test("impasto dal Magazzino e consumo del formato arrivano dalla bozza al client
     await dialog.screenshot({ path: testInfo.outputPath("impasto-formato-mobile.png") });
     await dialog.getByRole("button", { name: /Aggiungi al carrello/ }).click();
     const quoting = page.waitForResponse(response => response.url().endsWith("/v1/pilot/quote") && response.request().method() === "POST");
+    await page.getByRole("link", { name: "Vai a consegna e pagamento", exact: true }).click();
     await page.getByRole("button", { name: "Verifica disponibilità e totale", exact: true }).click();
     const quoted = await quoting;
     expect(quoted.ok(), await quoted.text()).toBe(true);

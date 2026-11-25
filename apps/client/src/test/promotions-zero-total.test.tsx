@@ -19,6 +19,7 @@ describe("conferma esplicita carta a totale zero senza Stripe", () => {
     const service = api();
     renderDom(<IndividualOrderingScreen api={service} />);
     fireEvent.click(await screen.findByRole("button", { name: "Aggiungi Pizza" }));
+    fireEvent.click(screen.getByRole("link", { name: "Vai a consegna e pagamento" }));
     fireEvent.click(screen.getByRole("button", { name: "Verifica disponibilità e totale" }));
     await screen.findByLabelText("Telefono per l'ordine");
     fireEvent.change(screen.getByLabelText("Telefono per l'ordine"), { target: { value: "+393331234567" } });

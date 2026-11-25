@@ -37,6 +37,7 @@ async function completeOrder(admin: Page, customer: Page, note: string, id: stri
 async function createIndividual(page: Page, note: string, code?: string) {
   await page.goto(`${clientOrigin}/ordina`);
   await page.getByRole("button", { name: "Aggiungi Pizza", exact: true }).click();
+  await page.getByRole("link", { name: "Vai a consegna e pagamento", exact: true }).click();
   await page.locator("textarea").first().fill(note);
   if (code) {
     await page.getByLabel("Codici coupon").fill(code);

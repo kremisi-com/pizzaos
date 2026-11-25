@@ -118,6 +118,7 @@ async function addPizzas(quantity: number)
 
 async function verifyAndSubmit()
 {
+  domFireEvent.click(domScreen.getByRole("link", { name: "Vai a consegna e pagamento" }));
   domFireEvent.change(domScreen.getByLabelText(/Telefono per l['’]ordine/), { target: { value: PHONE } });
   domFireEvent.change(domScreen.getByLabelText("Come paghi?"), { target: { value: "cash" } });
   domFireEvent.click(domScreen.getByRole("button", { name: "Verifica disponibilità e totale" }));
@@ -130,6 +131,35 @@ describe("individual ordering recovery and live catalog contract", () =>
 {
   beforeEach(() => { cleanupDom(); window.localStorage.clear(); });
   afterEach(() => cleanupDom());
+
+  it("opens checkout only on request, including a restored draft", async () =>
+  {
+    const fake = recoveryApi();
+    const page = renderDom(<IndividualOrderingScreen api={fake.api} />);
+    await addPizzas(1);
+    expect(domScreen.queryByRole("region", { name: "Consegna e pagamento" })).toBeNull();
+    domFireEvent.click(domScreen.getByRole("link", { name: "Vai a consegna e pagamento" }));
+    expect(document.activeElement).toBe(domScreen.getByRole("region", { name: "Consegna e pagamento" }));
+    page.unmount();
+    renderDom(<IndividualOrderingScreen api={fake.api} />);
+    const open = await domScreen.findByRole("link", { name: "Vai a consegna e pagamento" });
+    expect(domScreen.queryByRole("region", { name: "Consegna e pagamento" })).toBeNull();
+    domFireEvent.click(open);
+    expect(domScreen.getByLabelText("Modalità")).toBeDefined();
+  });
+
+  it("opens payment recovery with an empty cart", async () =>
+  {
+    const fake = recoveryApi();
+    await fake.api.checkout({ cart: { storeId: "store-recovery", lines: [{ productId: "pizza", quantity: 1, optionIds: [], notes: "" }], mode: "pickup", slotId: null, notes: "" }, fingerprint: "pending", phone: PHONE, method: "card", idempotencyKey: "pending" });
+    fake.accepted[0].status = "pending_payment";
+    fake.accepted[0].payment = "requires_action";
+    renderDom(<IndividualOrderingScreen api={fake.api} />);
+    const recover = await domScreen.findByRole("button", { name: "Completa pagamento esistente" });
+    expect(domScreen.queryByRole("region", { name: "Consegna e pagamento" })).toBeNull();
+    domFireEvent.click(recover);
+    expect(domScreen.getByRole("button", { name: "Riprendi pagamento esistente" })).toBeDefined();
+  });
 
   it("recovers a cash order whose response was lost and allows a different cart after reload", async () =>
   {
@@ -190,6 +220,7 @@ describe("individual ordering recovery and live catalog contract", () =>
     const fake = recoveryApi();
     const page = renderDom(<IndividualOrderingScreen api={fake.api} refreshVersion={0} />);
     await addPizzas(2);
+    domFireEvent.click(domScreen.getByRole("link", { name: "Vai a consegna e pagamento" }));
     domFireEvent.change(domScreen.getByLabelText(/Telefono per l['’]ordine/), { target: { value: PHONE } });
     domFireEvent.click(domScreen.getByRole("button", { name: "Verifica disponibilità e totale" }));
     await waitFor(() => expect((domScreen.getByRole("button", { name: "Conferma e invia ordine" }) as HTMLButtonElement).disabled).toBe(false));

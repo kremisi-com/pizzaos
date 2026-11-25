@@ -71,6 +71,7 @@ test("la pubblicazione rende ordinabile la pizza componibile e la cucina riceve 
     await configurator.getByRole("radio", { name: /Ricetta rossa/ }).check();
     await configurator.getByRole("button", { name: "Aggiungi", exact: true }).click();
     const quoting = page.waitForResponse((response) => response.url().endsWith("/v1/pilot/quote") && response.request().method() === "POST");
+    await page.getByRole("link", { name: "Vai a consegna e pagamento", exact: true }).click();
     await page.getByRole("button", { name: "Verifica disponibilità e totale", exact: true }).click();
     const quote = await quoting;
     expect(quote.ok(), await quote.text()).toBe(true);

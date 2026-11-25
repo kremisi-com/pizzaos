@@ -88,6 +88,7 @@ test("classificazione confermata in bozza, extra comuni e scelte specifiche arri
     await editor.screenshot({ path: testInfo.outputPath("classificazione-scelte-cliente-mobile.png") });
     await editor.getByRole("button", { name: /Aggiungi al carrello/ }).click();
     const quoting = page.waitForResponse((response) => response.url().endsWith("/v1/pilot/quote") && response.request().method() === "POST");
+    await page.getByRole("link", { name: "Vai a consegna e pagamento", exact: true }).click();
     await page.getByRole("button", { name: "Verifica disponibilità e totale", exact: true }).click();
     const quoted = await quoting;
     expect(quoted.ok(), await quoted.text()).toBe(true);

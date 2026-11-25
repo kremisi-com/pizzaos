@@ -67,6 +67,8 @@ export function IndividualOrderingScreen({ api, promotionsApi, preferencesApi, r
   const [notice, setNotice] = useState("");
   const [busy, setBusy] = useState(false);
   const [loaded, setLoaded] = useState(false);
+  const [checkoutOpen, setCheckoutOpen] = useState(false);
+  const checkoutRef = useRef<HTMLElement>(null);
   const [editedNotes, setEditedNotes] = useState<Record<string, string>>({});
   const [resumeOrderId, setResumeOrderId] = useState<string | null>(null);
   const [attempt, setAttempt] = useState<IndividualCheckoutAttempt | null>(null);
@@ -104,6 +106,7 @@ export function IndividualOrderingScreen({ api, promotionsApi, preferencesApi, r
     } catch (failure) { setError(errorText(failure)); setLoaded(true); }
   }, [api, reloadOrders]);
   useEffect(() => { void load(); }, [load]);
+  useEffect(() => { if (checkoutOpen) checkoutRef.current?.focus(); }, [checkoutOpen]);
   useEffect(() => { if (confirmation) confirmationRef.current?.focus(); }, [confirmation]);
   useEffect(() => {
     if (!cart.storeId) { storeRef.current = null; setStore(null); return; }
@@ -276,8 +279,8 @@ export function IndividualOrderingScreen({ api, promotionsApi, preferencesApi, r
               onSave={next => replaceLine(index, next)} />}
             <label>Note per {name}<input maxLength={500} value={line.notes} onChange={event => replaceLine(index, { ...line, notes: event.target.value })} /></label></li>;
         })}</ul>}
-        {cartCount > 0 && <a className={styles.checkoutJump} href="#checkout-ordine">Vai a consegna e pagamento</a>}
-      </section><section className={styles.card} id="checkout-ordine" aria-labelledby="checkout-title">
+        {cartCount > 0 && <a className={styles.checkoutJump} href="#checkout-ordine" aria-expanded={checkoutOpen} aria-controls="checkout-ordine" onClick={event => { event.preventDefault(); setCheckoutOpen(true); checkoutRef.current?.focus(); }}>Vai a consegna e pagamento</a>}
+      </section>{checkoutOpen && <section ref={checkoutRef} tabIndex={-1} className={styles.card} id="checkout-ordine" aria-labelledby="checkout-title">
         <h2 id="checkout-title">Consegna e pagamento</h2>
         {cart.lines.length > 0 && store?.menu?.kitchenNotice && <p className={styles.small}>{store.menu.kitchenNotice}</p>}
         <label>Modalità<select aria-label="Modalità" value={cart.mode} onChange={event => changeCart({ ...cart, mode: event.target.value === "delivery" ? "delivery" : "pickup", address: undefined })}><option value="pickup">Ritiro in pizzeria</option><option value="delivery">Consegna a domicilio</option></select></label>
@@ -306,7 +309,7 @@ export function IndividualOrderingScreen({ api, promotionsApi, preferencesApi, r
           <p className={styles.small}>Il ristorante deve accettare l&apos;ordine. Se viene annullato, il rimborso della carta viene avviato automaticamente.</p>
         </> : <div className={styles.login}><h3>Accedi quando sei pronto</h3><p>Il carrello resta su questo dispositivo mentre accedi con Google o con un link via email.</p><a className={styles.linkButton} href="/accesso">Accedi per completare l&apos;ordine</a></div>}
         {unresolved && <p className={styles.notice}>Hai un pagamento da verificare. Recuperalo nei tuoi ordini prima di inviarne un altro.</p>}
-      </section></div></fieldset>
+      </section>}</div></fieldset>
       {cartCount > 0 && <div className={styles.mobileCart}><a href="#il-tuo-ordine">Carrello · {cartCount} {cartCount === 1 ? "articolo" : "articoli"}</a></div>}
     </>}
     {session?.actor && <section className={styles.history} id="i-tuoi-ordini"><div className={styles.headingRow}><h2>I tuoi ordini</h2><button type="button" className={styles.secondary} disabled={busy} onClick={() => void reloadOrders().catch(failure => setError(errorText(failure)))}>Aggiorna ordini</button></div>
@@ -323,7 +326,7 @@ export function IndividualOrderingScreen({ api, promotionsApi, preferencesApi, r
         {["pending_payment", "awaiting_acceptance", "awaiting_customer", "accepted"].includes(order.status) && <div><label>Note ordine {order.id}<textarea maxLength={1000} value={editedNotes[order.id] ?? order.notes} onChange={event => setEditedNotes(current => ({ ...current, [order.id]: event.target.value }))} /></label><button type="button" className={styles.secondary} disabled={busy} onClick={() => void orderAction(order, "notes")}>Aggiorna note</button></div>}
         <IndividualAdditions api={api} order={order} avoid={preferences.avoid} onChanged={reloadOrders} />
         <div className={styles.actions}>
-          {order.status === "pending_payment" && order.payment !== "failed" && <><button type="button" disabled={busy} onClick={() => void recover(order, false)}>Verifica pagamento</button>{order.payment === "requires_action" && <button type="button" disabled={busy} onClick={() => { setMethod("card"); setResumeOrderId(order.id); setNotice("Completa i dati della carta nel pagamento sicuro e premi Riprendi pagamento."); window.scrollTo({ top: 0, behavior: "smooth" }); }}>Completa pagamento esistente</button>}</>}
+          {order.status === "pending_payment" && order.payment !== "failed" && <><button type="button" disabled={busy} onClick={() => void recover(order, false)}>Verifica pagamento</button>{order.payment === "requires_action" && <button type="button" disabled={busy} onClick={() => { setCheckoutOpen(true); setMethod("card"); setResumeOrderId(order.id); setNotice("Completa i dati della carta nel pagamento sicuro e premi Riprendi pagamento."); window.scrollTo({ top: 0, behavior: "smooth" }); }}>Completa pagamento esistente</button>}</>}
           {["awaiting_acceptance", "awaiting_customer"].includes(order.status) && <button type="button" className={styles.secondary} disabled={busy} onClick={() => void orderAction(order, "cancel")}>Annulla ordine</button>}
           {(order.status === "cancelled" || order.status === "completed" || order.payment === "failed") && <button type="button" className={styles.secondary} disabled={busy || unresolved} onClick={() => repeat(order)}>{order.status === "cancelled" ? "Ripeti ordine annullato" : "Ripeti ordine"}</button>}
         </div>

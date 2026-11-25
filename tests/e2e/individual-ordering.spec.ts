@@ -11,9 +11,11 @@ const adminOrigin = process.env.PIZZAOS_E2E_ADMIN_URL ?? "http://127.0.0.1:3002"
 test("guest draft survives reload and sign-in, cash pickup reaches completed in operations", async ({ browser, page, context }) => {
   await page.goto(`${clientOrigin}/ordina`);
   await expect(page.getByRole("heading", { name: "La tua prossima pizza." })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Consegna e pagamento", exact: true })).toHaveCount(0);
   await expect(page.getByLabel("Scegli la sede")).toBeVisible();
   await page.getByLabel("Scegli la sede").selectOption({ label: "Roma" });
   await page.getByRole("button", { name: "Aggiungi Pizza", exact: true }).click();
+  await expect(page.getByRole("heading", { name: "Consegna e pagamento", exact: true })).toHaveCount(0);
   await expect.poll(async () => page.evaluate(() => {
     const raw = window.localStorage.getItem("pizzaos.individual-cart.v1");
     if (!raw) return 0;
@@ -21,11 +23,15 @@ test("guest draft survives reload and sign-in, cash pickup reaches completed in 
     return draft.cart.lines.reduce((sum, line) => sum + line.quantity, 0);
   })).toBe(1);
   await page.reload();
+  await expect(page.getByRole("heading", { name: "Consegna e pagamento", exact: true })).toHaveCount(0);
+  await page.getByRole("link", { name: "Vai a consegna e pagamento", exact: true }).click();
+  await expect(page.getByRole("region", { name: "Consegna e pagamento", exact: true })).toBeFocused();
   await page.getByRole("button", { name: "Verifica disponibilità e totale" }).click();
   await expect(page.getByRole("heading", { name: "Riepilogo da confermare" })).toBeVisible();
 
   await context.addCookies([{ name: "pizzaos-e2e-actor", value: "alice", url: clientOrigin, httpOnly: true, sameSite: "Lax" }]);
   await page.reload();
+  await page.getByRole("link", { name: "Vai a consegna e pagamento", exact: true }).click();
   await page.getByRole("button", { name: "Verifica disponibilità e totale" }).click();
   await page.getByLabel(/Telefono per l.ordine/).fill("+39 3331234567");
   await page.getByLabel("Come paghi?").selectOption({ label: "Contanti al ritiro o alla consegna" });
@@ -96,6 +102,7 @@ test("guest delivery requires a selected street number and sends its point to th
   await page.goto(`${clientOrigin}/ordina`);
   await page.getByLabel("Scegli la sede").selectOption("roma");
   await page.getByRole("button", { name: "Aggiungi Pizza", exact: true }).click();
+  await page.getByRole("link", { name: "Vai a consegna e pagamento", exact: true }).click();
   await page.getByLabel("Modalità", { exact: true }).selectOption("delivery");
   const address = page.getByLabel("Indirizzo completo", { exact: true });
   const verify = page.getByRole("button", { name: "Verifica disponibilità e totale" });
@@ -172,6 +179,7 @@ test("delivery reuses an older cart and recovers the original checkout request",
   }));
 
   await page.goto(`${clientOrigin}/ordina`);
+  await page.getByRole("link", { name: "Vai a consegna e pagamento", exact: true }).click();
   const address = page.getByLabel("Indirizzo completo", { exact: true });
   await expect(address).toHaveValue(savedAddress.text);
   await page.getByRole("button", { name: "Verifica disponibilità e totale" }).click();
@@ -187,6 +195,7 @@ test("delivery reuses an older cart and recovers the original checkout request",
   await address.fill("Via Verdi 20");
   await page.getByRole("option", { name: replacement.text, exact: true }).click();
   await page.reload();
+  await page.getByRole("link", { name: "Vai a consegna e pagamento", exact: true }).click();
   await expect(address).toHaveValue(replacement.text);
   const retry = page.waitForRequest(checkout);
   await recover.click();

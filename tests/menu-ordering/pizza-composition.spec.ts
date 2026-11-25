@@ -92,6 +92,7 @@ test("gusti e formule usano la scheda PoC, il prezzo server e l'ordine cucina", 
     await expect(editor.getByRole("radio", { name: /Integrale/ })).toBeChecked();
     await editor.getByRole("button", { name: /Aggiungi al carrello/ }).click();
     const quoting = page.waitForResponse(response => response.url().endsWith("/v1/pilot/quote") && response.request().method() === "POST");
+    await page.getByRole("link", { name: "Vai a consegna e pagamento", exact: true }).click();
     await page.getByRole("button", { name: "Verifica disponibilità e totale", exact: true }).click();
     const response = await quoting;
     expect(response.ok(), await response.text()).toBe(true);
@@ -248,6 +249,7 @@ test("Magazzino e formula libera arrivano al preventivo con impasto e base scelt
     expect(expandedLayout.overflowingElements.filter(element => element.tag !== "INPUT" && element.tag !== "TEXTAREA" && element.scrollLeft !== 0)).toEqual([]);
     await editor.getByRole("button", { name: /Aggiungi al carrello/ }).click();
     const quoting = page.waitForResponse(response => response.url().endsWith("/v1/pilot/quote") && response.request().method() === "POST");
+    await page.getByRole("link", { name: "Vai a consegna e pagamento", exact: true }).click();
     await page.getByRole("button", { name: "Verifica disponibilità e totale", exact: true }).click();
     const quoted = await quoting;
     expect(quoted.ok(), await quoted.text()).toBe(true);

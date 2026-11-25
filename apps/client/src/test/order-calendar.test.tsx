@@ -69,12 +69,13 @@ describe("fasce orarie dell’ordine individuale", () => {
   it("lascia visibile la fascia al completo e mostra nel riepilogo quella disponibile per Appena possibile", async () => {
     const f = calendarApi(0);
     renderDom(<IndividualOrderingScreen api={f.api} />);
+    await addPizza();
+    domFireEvent.click(domScreen.getByRole("link", { name: "Vai a consegna e pagamento" }));
     const full = await domScreen.findByRole<HTMLOptionElement>("option", { name: /19:00.*20:00.*Al completo/i });
     expect(full.disabled).toBe(true);
     const available = domScreen.getByRole<HTMLOptionElement>("option", { name: laterLabel });
     expect(available.disabled).toBe(false);
     chooseOption(domScreen.getByRole<HTMLOptionElement>("option", { name: /Appena possibile/i }));
-    await addPizza();
     verifyTotal();
     await domScreen.findByRole("heading", { name: "Riepilogo da confermare" });
     expect(await domScreen.findByText(laterLabel, { selector: ":not(option)" })).toBeDefined();
@@ -84,9 +85,10 @@ describe("fasce orarie dell’ordine individuale", () => {
   it("conserva il carrello quando il cliente cambia fascia dopo un conflitto sull’ultimo posto", async () => {
     const f = calendarApi(1);
     renderDom(<IndividualOrderingScreen api={f.api} />);
+    await addPizza();
+    domFireEvent.click(domScreen.getByRole("link", { name: "Vai a consegna e pagamento" }));
     const inProgress = await domScreen.findByRole<HTMLOptionElement>("option", { name: currentLabel });
     chooseOption(inProgress);
-    await addPizza();
     await addPizza();
     domFireEvent.change(domScreen.getByLabelText(/Telefono per l['’]ordine/), { target: { value: "3331234567" } });
     domFireEvent.change(domScreen.getByLabelText("Come paghi?"), { target: { value: "cash" } });

@@ -29,6 +29,7 @@ test("la card compatta aggiunge da descrizione, prezzo, spazio e tastiera", asyn
   await page.keyboard.press("Enter");
   await page.keyboard.press("Space");
   const quoting = page.waitForResponse(response => response.url().endsWith("/v1/pilot/quote") && response.request().method() === "POST");
+  await page.getByRole("link", { name: "Vai a consegna e pagamento", exact: true }).click();
   await page.getByRole("button", { name: "Verifica disponibilità e totale", exact: true }).click();
   const response = await quoting;
   expect(response.ok(), await response.text()).toBe(true);
