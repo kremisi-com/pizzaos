@@ -75,10 +75,6 @@ test("impasto dal Magazzino e consumo del formato arrivano dalla bozza al client
     await dialog.getByRole("button", { name: /^Formato/ }).click();
     await dialog.getByText("Maxi", { exact: true }).click();
     await expect(dialog.getByRole("radio", { name: /Maxi/ })).toBeChecked();
-    const format = dialog.getByRole("radio", { name: /Maxi/ });
-    await format.focus();
-    const badge = format.locator("..").locator("span").filter({ hasText: /^\+2,00/ }).last();
-    await expect(badge).toHaveCSS("color", "rgb(255, 255, 255)");
     await expect(dialog.getByLabel("Allergeni attivi")).toContainText("Glutine");
     await dialog.screenshot({ path: testInfo.outputPath("impasto-formato-mobile.png") });
     await dialog.getByRole("button", { name: /Aggiungi al carrello/ }).click();

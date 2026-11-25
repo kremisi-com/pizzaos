@@ -182,7 +182,7 @@ function MenuItem({ store, product, preferences, disabled, onAdd }: {
     <div className={styles.itemBody}>
       <h4>{product.name}</h4>
       {product.description && <p>{product.description}</p>}
-      <MenuFoodSummary food={preview.composition} avoid={preferences.avoid} showUnknown={Boolean(store.menu)} />
+      {preview.composition.ingredients.length > 0 && <p className={styles.ingredients}>{preview.composition.ingredients.join(", ")}</p>}
       {!product.available ? <p className={styles.unavailable}>Non disponibile</p>
         : product.maxAvailable !== undefined && <p className={styles.stock}>Quantità max disponibile: {product.maxAvailable}</p>}
       {product.extraOffer && product.extraOffer.quota > 0 && product.extraOffer.percent > 0 && <p className={styles.offer}>
