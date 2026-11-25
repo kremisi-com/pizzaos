@@ -380,16 +380,17 @@
 .ingredientSummary { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; margin: 0; line-height: 1.5; }
 .rowPrice { grid-column: 2; grid-row: 1; justify-self: end; white-space: nowrap; line-height: 1.5; }
 .selectedRow { background: var(--pizzaos-color-background); border-radius: .6rem; box-shadow: inset 3px 0 var(--pizzaos-color-primary); }
-.catalogHeader { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: start; gap: 1rem; }
+.catalogHeader { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 1rem; }
 .catalogTitle { min-width: 0; }
 .catalogTitle h1 { margin: 0; font-size: clamp(1.6rem, 2.1vw, 2.1rem); line-height: 1.15; }
 .catalogTitle p { margin: .4rem 0 0; font-size: .9rem; line-height: 1.45; }
-.headerActions { display: flex; gap: .5rem; align-items: flex-end; }
-.headerActions > span { align-self: center; max-width: 6rem; font-size: .75rem; }
-.headerActions button { white-space: nowrap; padding-inline: .75rem; font-size: .85rem; }
-.headerActions .menuSelect select { width: 12rem; max-width: 12rem; }
-.menuTools { display: flex; flex-wrap: wrap; gap: .35rem .6rem; align-items: center; }
-.menuTools button { min-height: 2rem; padding: .3rem .5rem; font-size: .8rem; }
+.headerActions { display: grid; grid-template-columns: 7.5rem auto 12rem auto; gap: .5rem; align-items: end; }
+.headerActions > span { display: flex; align-items: center; justify-content: flex-end; align-self: end; width: auto; min-height: 2.75rem; font-size: .75rem; text-align: right; }
+.headerActions button { box-sizing: border-box; height: 2.75rem; white-space: nowrap; padding-inline: .75rem; font-size: .85rem; }
+.headerActions .menuSelect select { box-sizing: border-box; width: 100%; max-width: none; height: 2.75rem; }
+.menuTools { display: flex; flex-wrap: wrap; gap: .35rem 1.5rem; align-items: center; }
+/* Align ghost action labels with the title despite shared Button inline padding. */
+.menuTools button { min-height: 2rem; padding-inline: 0 !important; font-size: .8rem; }
 .menuTools p { margin: 0; }
 .menuMetadata { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: .75rem; align-items: start; }
 .menuMetadata .food { padding: .45rem .6rem; }
@@ -402,7 +403,12 @@
 .menuCategory > label { grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: .6rem; font-size: .8rem; }
 .menuCategory > label textarea { min-height: 2.25rem; height: 2.25rem; padding: .35rem .5rem; }
 .categoryTabs button { min-height: 2.25rem; padding: .3rem .65rem; font-size: .9rem; }
-@media (max-width: 1150px) { .catalogHeader { grid-template-columns: minmax(0, 1fr); } .headerActions { flex-wrap: wrap; } }
+@media (max-width: 1150px) { .catalogHeader { grid-template-columns: minmax(0, 1fr); } .headerActions { justify-content: start; } }
+@media (max-width: 650px) {
+  .headerActions { grid-template-columns: minmax(0, 1fr) auto; }
+  .headerActions > span { justify-content: flex-start; text-align: left; }
+  .headerActions .menuSelect { min-width: 0; }
+}
 @media (max-width: 520px) { .menuMetadata { grid-template-columns: minmax(0, 1fr); } .headerActions .menuSelect select { width: 100%; max-width: 100%; } }
 .menuMain textarea { min-height: 3.5rem; }
 @media (max-width: 1050px) {
