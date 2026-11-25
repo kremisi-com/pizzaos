@@ -215,3 +215,5 @@ Su richiesta esplicita di Andrea, il Client operativo omette il nome del menu pu
 Su richiesta esplicita di Andrea, il Client operativo mantiene «Il menu» e rimuove il blocco introduttivo fino ai selettori preventivi di impasto/base inclusi. L’impasto si sceglie soltanto dopo aver selezionato un prodotto con identità pizza, nella sua personalizzazione; categorie e prodotti restano disponibili. Questa scelta sostituisce la selezione iniziale del menu prevista in precedenza. [Flusso corrente](flows/menu-ordering.md).
 
 Su richiesta esplicita di Andrea, le schede del menu Client mostrano solo gli ingredienti sotto la descrizione, in forma minimale. Questa scelta sostituisce la precedente indicazione di mantenere gli avvisi alimentari sulle schede del menu; dettaglio e carrello conservano le informazioni alimentari. [Flusso corrente](flows/menu-ordering.md).
+
+Su richiesta esplicita di Andrea, il dettaglio pizza omette la scelta di impasto e formato quando non vi è più di una opzione disponibile. Correggere inoltre il contrasto del testo nella scelta attiva/con focus. [Flusso corrente](flows/menu-ordering.md).

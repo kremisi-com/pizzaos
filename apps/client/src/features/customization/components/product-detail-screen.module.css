@@ -498,6 +498,11 @@
   color: var(--pizzaos-color-primary-foreground);
 }
 
+.optionPillDelta .optionDelta
+{
+  color: inherit;
+}
+
 /* ── Option Lists (Dough, Base) ── */
 .optionList
 {

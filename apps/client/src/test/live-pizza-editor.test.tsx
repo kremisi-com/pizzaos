@@ -68,6 +68,32 @@ describe("pizza choices after product selection", () => {
 });
 
 describe("persistent pizza editor using the PoC presentation", () => {
+  it.each(["dough", "format"] as const)("hides %s with at most one available choice and preserves defaults", kind => {
+    const { store, taste } = fixture();
+    const group = taste.groups!.find(group => group.kind === kind)!;
+    const defaultId = taste.pizza!.defaultSelections.find(choice => group.optionIds.includes(choice.optionId))!.optionId;
+    const alternative = { ...taste.options.find(option => option.id === defaultId)!, id: `${kind}:unavailable`, name: "Esaurito", available: false };
+    taste.options = [...taste.options.filter(option => !group.optionIds.includes(option.id) || option.id === defaultId), alternative];
+    group.optionIds = [defaultId, alternative.id];
+    const save = vi.fn();
+    renderDom(<LivePizzaEditor store={store} product={taste} disabled={false} avoid={[]} onClose={vi.fn()} onSave={save} />);
+    expect(domScreen.queryByRole("heading", { name: kind === "dough" ? "Impasto" : "Formato" })).toBeNull();
+    domFireEvent.click(domScreen.getByRole("button", { name: /Aggiungi al carrello/ }));
+    expect(save).toHaveBeenCalledWith(expect.objectContaining({ selections: taste.pizza!.defaultSelections }));
+  });
+
+  it("shows format choices when multiple formats are available", () => {
+    const { store, taste } = fixture();
+    const standard = taste.options.find(option => option.pizza?.kind === "format")!;
+    taste.options.push({ ...standard, id: "format:maxi", name: "Maxi" });
+    taste.groups!.find(group => group.kind === "format")!.optionIds.push("format:maxi");
+    renderDom(<LivePizzaEditor store={store} product={taste} disabled={false} avoid={[]} onClose={vi.fn()} onSave={vi.fn()} />);
+    domFireEvent.click(domScreen.getByRole("button", { name: /^Formato/ }));
+    expect(domScreen.getByRole("radiogroup", { name: /formato/ }).querySelectorAll('input[type="radio"]')).toHaveLength(2);
+    domFireEvent.click(domScreen.getByRole("radio", { name: /Maxi/ }));
+    expect((domScreen.getByRole("radio", { name: /Maxi/ }) as HTMLInputElement).checked).toBe(true);
+  });
+
   it("applies initial menu choices to a new line, preview and price", () => {
     const { store, taste } = fixture();
     const save = vi.fn();
@@ -116,7 +142,7 @@ describe("persistent pizza editor using the PoC presentation", () => {
     const save = vi.fn();
     renderDom(<LivePizzaEditor store={store} product={taste} disabled={false} avoid={[]} onClose={vi.fn()} onSave={save} />);
     expect(domScreen.getByRole("dialog", { name: "Margherita" }).parentElement).toBe(document.body);
-    for (const name of ["Impasto", "Base", "Formato", "Ingredienti", "Extra", "Note per la cucina"]) {
+    for (const name of ["Impasto", "Base", "Ingredienti", "Extra", "Note per la cucina"]) {
       expect(domScreen.getByRole("heading", { name }).textContent).toBe(name);
     }
     expect(domScreen.getByRole("img", { name: "Anteprima pizza Margherita" }).getAttribute("src")).toBe("/images/pizza/rossa-classica.png");

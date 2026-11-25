@@ -186,7 +186,14 @@ export function LivePizzaEditor({ store, product, line, quantity = 1, disabled, 
       </div>}
       {relevant.length > 0 && <p className={`${live.feedback} ${live.status}`} role="status">Da verificare per le tue preferenze: {relevant.join(", ")}.</p>}
       <div className={styles.customizationArea}>
-        {sections.filter(section => section.kind !== "base" || groups.some(group => group.kind === "base")).map(section => {
+        {sections.filter(section => {
+          if (section.kind === "base") return groups.some(group => group.kind === "base");
+          if (section.kind === "dough" || section.kind === "format") {
+            return groups.some(group => group.kind === section.kind
+              && group.optionIds.filter(id => options.has(id) && options.get(id)?.available !== false).length > 1);
+          }
+          return true;
+        }).map(section => {
           const matching = groups.filter(group => group.kind === section.kind);
           const chosenNames = matching.flatMap(group => group.optionIds.filter(id => selected(id) > 0).map(id => options.get(id)?.name ?? ""));
           const sectionDelta = matching.flatMap(group => group.optionIds).reduce((sum, id) =>
