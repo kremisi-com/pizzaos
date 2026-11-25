@@ -129,7 +129,7 @@ export function OperationalCatalog({ api, storeId, ingredients, onPublished, onI
     select(draft.id);
   }
 
-  async function perform(operation: () => Promise<void>) {
+  async function perform(operation: () => Promise<void>, errorPlacement: "toast" | "dialog" = "toast") {
     setBusy(true);
     setError("");
     try {
@@ -137,7 +137,7 @@ export function OperationalCatalog({ api, storeId, ingredients, onPublished, onI
     } catch (failure) {
       const text = message(failure);
       setError(text);
-      showToast(text, "error");
+      if (errorPlacement === "toast") showToast(text, "error");
     } finally {
       setBusy(false);
     }
@@ -155,7 +155,7 @@ export function OperationalCatalog({ api, storeId, ingredients, onPublished, onI
     await perform(async () => {
       const latest = loadIngredients ? await loadIngredients(storeId) : ingredients;
       setPublicationReview({ draft: selectedDraft, ingredients: latest });
-    });
+    }, "dialog");
   }
 
   const reviewedMenu = useMemo(() => publicationReview && syncPizzaInventory(publicationReview.draft, publicationReview.ingredients), [publicationReview]);
@@ -180,7 +180,7 @@ export function OperationalCatalog({ api, storeId, ingredients, onPublished, onI
       select(null);
       showToast("Menu pubblicato.", "success");
       onPublished();
-    });
+    }, "dialog");
   }
 
   async function deleteDraft() {
@@ -214,7 +214,7 @@ export function OperationalCatalog({ api, storeId, ingredients, onPublished, onI
   for (const draft of Object.values(edits)) availableDrafts.set(draft.id, draft);
 
   return <div className={styles.catalog} aria-busy={busy || saving}>
-    {error && <div className={styles.actions}>
+    {error && confirmation !== "publish" && <div className={styles.actions}>
       <p role="alert">{error}</p>
       {failedDraft && <Button type="button" variant="secondary" disabled={busy || saving} onClick={() => setFailedDraft(null)}>Riprova salvataggio</Button>}
       <Button type="button" variant="secondary" disabled={busy || saving} onClick={reloadWorkspace}>

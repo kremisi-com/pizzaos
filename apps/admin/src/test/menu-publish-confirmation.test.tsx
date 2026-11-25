@@ -4,6 +4,7 @@ import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from "vitest
 import { emptyPizzaCatalog, syncPizzaInventory } from "@pizzaos/domain";
 import type { IndividualIngredient, MenuAdminApi, MenuDraft, MenuWorkspace } from "@pizzaos/domain";
 import { OperationalCatalog } from "../features/catalog/components/operational-catalog";
+import { AdminToastContext } from "../features/notifications";
 
 // JSDOM does not implement the native dialog lifecycle.
 const dialogMethods = Object.getOwnPropertyDescriptors(HTMLDialogElement.prototype);
@@ -30,13 +31,16 @@ async function setup(options: { draft?: MenuDraft; ingredients?: IndividualIngre
     removeDraft: vi.fn(), uploadImage: vi.fn()
   };
   const onPublished = vi.fn();
-  render(<OperationalCatalog api={api} storeId="store" ingredients={options.ingredients ?? []} loadIngredients={options.loadIngredients} onPublished={onPublished} />);
+  const showToast = vi.fn();
+  render(<AdminToastContext.Provider value={{ showToast }}>
+    <OperationalCatalog api={api} storeId="store" ingredients={options.ingredients ?? []} loadIngredients={options.loadIngredients} onPublished={onPublished} />
+  </AdminToastContext.Provider>);
   fireEvent.change(await screen.findByRole("combobox", { name: "Menu da modificare" }), { target: { value: "draft" } });
   const trigger = screen.getByRole("button", { name: "Pubblica menu" });
   trigger.focus();
   fireEvent.click(trigger);
   if (options.waitReview !== false) await waitFor(() => expect(screen.getByRole("button", { name: "Conferma pubblicazione" })).toBeEnabled());
-  return { api, onPublished, trigger, dialog: screen.getByRole("dialog", { name: "Pubblicare Bozza?" }) };
+  return { api, onPublished, trigger, showToast, dialog: screen.getByRole("dialog", { name: "Pubblicare Bozza?" }) };
 }
 
 describe("conferma pubblicazione menu", () => {
@@ -70,10 +74,12 @@ describe("conferma pubblicazione menu", () => {
   });
 
   it("mantiene il modal aperto e mostra l'errore al suo interno per riprovare", async () => {
-    const { api, dialog, onPublished } = await setup();
+    const { api, dialog, onPublished, showToast } = await setup();
     vi.mocked(api.publish).mockRejectedValueOnce(new Error("Connessione non disponibile"));
     fireEvent.click(within(dialog).getByRole("button", { name: "Conferma pubblicazione" }));
     expect(await within(dialog).findByRole("alert")).toHaveTextContent("Connessione non disponibile");
+    expect(screen.getAllByRole("alert")).toHaveLength(1);
+    expect(showToast).not.toHaveBeenCalledWith("Connessione non disponibile", "error");
     expect(onPublished).not.toHaveBeenCalled();
     fireEvent.click(within(dialog).getByRole("button", { name: "Conferma pubblicazione" }));
     await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
@@ -91,8 +97,10 @@ function pizzaDraft() {
 describe("pubblicazione con extra aggiornati", () => {
   it("attende il Magazzino corrente e permette di riprovare una lettura fallita", async () => {
     const loadIngredients = vi.fn().mockRejectedValueOnce(new Error("Magazzino non disponibile")).mockResolvedValue([olive]);
-    const { api, dialog } = await setup({ draft: pizzaDraft(), loadIngredients, waitReview: false });
+    const { api, dialog, showToast } = await setup({ draft: pizzaDraft(), loadIngredients, waitReview: false });
     expect(await within(dialog).findByRole("alert")).toHaveTextContent("Magazzino non disponibile");
+    expect(screen.getAllByRole("alert")).toHaveLength(1);
+    expect(showToast).not.toHaveBeenCalled();
     expect(within(dialog).getByRole("button", { name: "Conferma pubblicazione" })).toBeDisabled();
     expect(api.saveDraft).not.toHaveBeenCalled();
     expect(api.publish).not.toHaveBeenCalled();
@@ -140,10 +148,12 @@ describe("pubblicazione con extra aggiornati", () => {
   });
 
   it("non pubblica se il salvataggio fallisce e permette di riprovare", async () => {
-    const { api, dialog } = await setup({ draft: pizzaDraft(), ingredients: [] });
+    const { api, dialog, showToast } = await setup({ draft: pizzaDraft(), ingredients: [] });
     vi.mocked(api.saveDraft).mockRejectedValueOnce(new Error("Connessione non disponibile"));
     fireEvent.click(within(dialog).getByRole("button", { name: "Conferma pubblicazione" }));
     expect(await within(dialog).findByRole("alert")).toHaveTextContent("Connessione non disponibile");
+    expect(screen.getAllByRole("alert")).toHaveLength(1);
+    expect(showToast).not.toHaveBeenCalled();
     expect(api.publish).not.toHaveBeenCalled();
     fireEvent.click(within(dialog).getByRole("button", { name: "Conferma pubblicazione" }));
     await waitFor(() => expect(api.publish).toHaveBeenCalledWith("store", 2, "draft"));
