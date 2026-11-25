@@ -62,6 +62,9 @@ test("impasto dal Magazzino e consumo del formato arrivano dalla bozza al client
     expect(published.ok(), await published.text()).toBe(true);
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto(`${clientOrigin}/ordina`);
+    await expect(page.getByRole("heading", { name: "Il menu", exact: true })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "La pizza a modo tuo", exact: true })).toHaveCount(0);
+    await expect(page.getByRole("radio")).toHaveCount(0);
     await expect(page.getByRole("group", { name: "Base pizza", exact: true })).toHaveCount(0);
     await page.getByRole("button", { name: "Aggiungi Pizza magazzino", exact: true }).click();
     const dialog = page.getByRole("dialog", { name: "Pizza magazzino", exact: true });
@@ -72,6 +75,10 @@ test("impasto dal Magazzino e consumo del formato arrivano dalla bozza al client
     await dialog.getByRole("button", { name: /^Formato/ }).click();
     await dialog.getByText("Maxi", { exact: true }).click();
     await expect(dialog.getByRole("radio", { name: /Maxi/ })).toBeChecked();
+    const format = dialog.getByRole("radio", { name: /Maxi/ });
+    await format.focus();
+    const badge = format.locator("..").locator("span").filter({ hasText: /^\+2,00/ }).last();
+    await expect(badge).toHaveCSS("color", "rgb(255, 255, 255)");
     await expect(dialog.getByLabel("Allergeni attivi")).toContainText("Glutine");
     await dialog.screenshot({ path: testInfo.outputPath("impasto-formato-mobile.png") });
     await dialog.getByRole("button", { name: /Aggiungi al carrello/ }).click();

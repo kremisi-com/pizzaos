@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { emptyPizzaCatalog, materializePizzaMenu, resolveMenuComposition, type IndividualProduct, type IndividualStore, type MenuSelection, type PizzaComponent, type PizzaEntry } from "@pizzaos/domain";
 import { cleanupDom, domFireEvent, domScreen, renderDom } from "@pizzaos/testing";
 import { LivePizzaEditor } from "../features/customization";
+import { OperationalMenu } from "../features/menu";
 
 function fixture() {
   const component = (id: string, name: string, priceCents = 0): PizzaComponent => ({
@@ -34,6 +35,36 @@ beforeEach(() => {
   cleanupDom();
   Object.defineProperty(HTMLDialogElement.prototype, "showModal", { configurable: true, value() { this.setAttribute("open", ""); } });
   Object.defineProperty(HTMLDialogElement.prototype, "close", { configurable: true, value() { this.removeAttribute("open"); } });
+});
+
+describe("pizza choices after product selection", () => {
+  it("opens dough choices only for a selected pizza and keeps each new pizza independent", () => {
+    const { store } = fixture();
+    const drink: IndividualProduct = { id: "acqua", name: "Acqua", description: "", allergens: [], ingredients: {}, priceCents: 150, available: true, options: [] };
+    store.products.push(drink);
+    store.menu!.sections = [{ id: "prodotti", name: "Prodotti", productIds: store.products.map(product => product.id) }];
+    const save = vi.fn();
+    renderDom(<OperationalMenu store={store} preferences={{ avoid: [], save: vi.fn(), busy: false, message: "", authenticated: false, retry: vi.fn(), available: true }} onAdd={save} />);
+
+    expect(domScreen.queryByRole("heading", { name: "La pizza a modo tuo" })).toBeNull();
+    expect(domScreen.queryByRole("radio")).toBeNull();
+    expect(domScreen.queryByRole("dialog")).toBeNull();
+    domFireEvent.click(domScreen.getByRole("button", { name: "Aggiungi Acqua" }));
+    expect(save).toHaveBeenCalledWith({ productId: "acqua", quantity: 1, optionIds: [], notes: "" });
+    expect(domScreen.queryByRole("dialog")).toBeNull();
+
+    domFireEvent.click(domScreen.getByRole("button", { name: "Aggiungi Margherita" }));
+    domFireEvent.click(domScreen.getByRole("button", { name: /^Impasto/ }));
+    domFireEvent.click(domScreen.getByRole("radio", { name: /Integrale/ }));
+    domFireEvent.click(domScreen.getByRole("button", { name: /Aggiungi al carrello/ }));
+    expect(save).toHaveBeenLastCalledWith(expect.objectContaining({ productId: "margherita", selections: expect.arrayContaining([
+      { optionId: "dough:integrale", quantity: 1 }
+    ]) }));
+    domFireEvent.click(domScreen.getByRole("button", { name: "Aggiungi Margherita" }));
+    domFireEvent.click(domScreen.getByRole("button", { name: /^Impasto/ }));
+    expect((domScreen.getByRole("radio", { name: /Classico/ }) as HTMLInputElement).checked).toBe(true);
+    expect((domScreen.getByRole("radio", { name: /Integrale/ }) as HTMLInputElement).checked).toBe(false);
+  });
 });
 
 describe("persistent pizza editor using the PoC presentation", () => {

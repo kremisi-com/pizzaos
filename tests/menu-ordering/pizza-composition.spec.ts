@@ -64,10 +64,11 @@ test("gusti e formule usano la scheda PoC, il prezzo server e l'ordine cucina", 
       await page.getByRole("button", { name: `Aggiungi ${name}`, exact: true }).click();
       const dialog = page.getByRole("dialog", { name, exact: true });
       await expect(dialog).toBeVisible();
-      for (const section of ["Impasto", "Base", "Formato", "Ingredienti", "Extra"]) {
+      for (const section of ["Impasto", "Base", "Ingredienti", "Extra"]) {
         await expect(dialog.getByRole("heading", { name: section, exact: true, level: 2 })).toBeVisible();
       }
       await expect(dialog.getByRole("heading", { name: "Note per la cucina" })).toBeVisible();
+      await expect(dialog.getByRole("button", { name: /^Formato/ })).toHaveCount(0);
       await dialog.screenshot({ path: testInfo.outputPath(`${name.toLowerCase()}-mobile.png`) });
       await dialog.getByRole("button", { name: "Chiudi personalizzazione" }).click();
     }
@@ -99,7 +100,7 @@ test("gusti e formule usano la scheda PoC, il prezzo server e l'ordine cucina", 
   } finally { await operator.close(); }
 });
 
-test("Magazzino e formula libera arrivano al preventivo con impasto e base scelti dal menu", async ({ browser, page, context }, testInfo) => {
+test("Magazzino e formula libera arrivano al preventivo con impasto e base scelti nel dettaglio", async ({ browser, page, context }, testInfo) => {
   const operator = await browser.newContext();
   await operator.addCookies([{ name: "pizzaos-e2e-actor", value: "operator", url: adminOrigin }]);
   await context.addCookies([{ name: "pizzaos-e2e-actor", value: "alice", url: clientOrigin }]);
@@ -179,12 +180,8 @@ test("Magazzino e formula libera arrivano al preventivo con impasto e base scelt
     expect((await publishing).ok()).toBe(true);
 
     await page.goto(`${clientOrigin}/ordina`);
-    await page.getByRole("radio", { name: /^Integrale/ }).check();
-    await page.getByRole("radio", { name: "Bianca", exact: true }).check();
-    const menuPreview = page.getByRole("img", { name: "Anteprima pizza La mia pizza", exact: true });
-    await menuPreview.scrollIntoViewIfNeeded();
-    await expect(menuPreview).toBeVisible();
-    await expect.poll(() => menuPreview.evaluate(image => image instanceof HTMLImageElement && image.complete && image.naturalWidth > 0)).toBe(true);
+    await expect(page.getByRole("heading", { name: "Il menu", exact: true })).toBeVisible();
+    await expect(page.getByRole("radio")).toHaveCount(0);
     await page.screenshot({ path: testInfo.outputPath("menu-client-mobile.png"), fullPage: true });
     await page.getByRole("button", { name: "Aggiungi La mia pizza", exact: true }).click();
     const editor = page.getByRole("dialog", { name: "La mia pizza", exact: true });
@@ -207,9 +204,9 @@ test("Magazzino e formula libera arrivano al preventivo con impasto e base scelt
     await expect.poll(() => editorPreview.evaluate(image => image instanceof HTMLImageElement && image.complete && image.naturalWidth > 0)).toBe(true);
     await page.screenshot({ path: testInfo.outputPath("pizza-editor-mobile.png") });
     await editor.getByRole("button", { name: /Impasto/ }).click();
-    await expect(editor.getByRole("radio", { name: /Integrale/ })).toBeChecked();
+    await editor.getByRole("radio", { name: /Integrale/ }).check();
     await editor.getByRole("button", { name: /Base/ }).click();
-    await expect(editor.getByRole("radio", { name: /Bianca/ })).toBeChecked();
+    await editor.getByRole("radio", { name: /Bianca/ }).check();
     await expect(editor.getByTestId("customization-total-value")).toContainText("10,20");
     await editor.getByRole("heading", { name: "Extra", exact: true }).first().locator("..").click();
     const publicStore = await (await context.request.get(`${clientOrigin}/api/pilot/v1/pilot/stores/roma`)).json() as IndividualStore;

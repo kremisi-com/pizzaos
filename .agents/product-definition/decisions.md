@@ -211,3 +211,5 @@ La richiesta utente del 25 novembre 2026 autorizza correzione dei problemi emers
 
 
 Su richiesta esplicita di Andrea, il Client operativo omette il nome del menu pubblicato, l’introduzione generica «Scegli dal menu»/«Scopri le proposte della pizzeria.» e il pannello «Allergeni e preferenze alimentari». Le preferenze restano gestibili dal profilo e gli avvisi restano sulle schede. La dicitura «Aggiornamenti in tempo reale» non viene mostrata; il meccanismo di aggiornamento rimane attivo. Comportamento corrente nel [flusso menu](flows/menu-ordering.md).
+
+Su richiesta esplicita di Andrea, il Client operativo mantiene «Il menu» e rimuove il blocco introduttivo fino ai selettori preventivi di impasto/base inclusi. L’impasto si sceglie soltanto dopo aver selezionato un prodotto con identità pizza, nella sua personalizzazione; categorie e prodotti restano disponibili. Questa scelta sostituisce la selezione iniziale del menu prevista in precedenza. [Flusso corrente](flows/menu-ordering.md).

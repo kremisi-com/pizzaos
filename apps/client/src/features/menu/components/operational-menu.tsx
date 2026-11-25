@@ -4,7 +4,7 @@ import { resolveMenuComposition } from "@pizzaos/domain";
 import type { IndividualLine, IndividualProduct, IndividualStore, MenuOptionGroup, MenuSelection } from "@pizzaos/domain";
 import Image from "next/image";
 import { useEffect, useId, useRef, useState } from "react";
-import { LivePizzaEditor, pizzaInitialSelections, pizzaPreview, type PizzaMenuChoices } from "../../customization";
+import { LivePizzaEditor, pizzaInitialSelections, pizzaPreview } from "../../customization";
 import { lineChoiceLabels, lineIssue, menuMoney, menuSelections } from "../live-menu-model";
 import { MenuFoodSummary, type MenuPreferences } from "./operational-food";
 import styles from "./operational-menu.module.css";
@@ -168,24 +168,23 @@ export function MenuLineDetails({ product, line, avoid = [], showUnknown = false
   </>;
 }
 
-function MenuItem({ store, product, preferences, disabled, onAdd, pizzaChoices }: {
+function MenuItem({ store, product, preferences, disabled, onAdd }: {
   store: IndividualStore; product: IndividualProduct; preferences: MenuPreferences;
   disabled: boolean; onAdd: (line: IndividualLine) => void;
-  pizzaChoices: PizzaMenuChoices;
 }) {
   const [configuring, setConfiguring] = useState(false);
   const needsChoices = Boolean(product.groups?.length);
   const pairing = store.products.filter(item => item.available && product.pairingProductIds?.includes(item.id));
-  const initialSelections = pizzaInitialSelections(product, pizzaChoices);
+  const initialSelections = pizzaInitialSelections(product, {});
   const preview = resolveMenuComposition(product, initialSelections);
   const image = pizzaPreview(product, initialSelections, store.id);
   return <article className={`${styles.item} ${!product.available ? styles.itemUnavailable : ""}`}>
     <div className={styles.itemBody}>
       <h4>{product.name}</h4>
       {product.description && <p>{product.description}</p>}
+      <MenuFoodSummary food={preview.composition} avoid={preferences.avoid} showUnknown={Boolean(store.menu)} />
       {!product.available ? <p className={styles.unavailable}>Non disponibile</p>
         : product.maxAvailable !== undefined && <p className={styles.stock}>Quantità max disponibile: {product.maxAvailable}</p>}
-      <MenuFoodSummary food={preview.composition} avoid={preferences.avoid} showUnknown={Boolean(store.menu)} />
       {product.extraOffer && product.extraOffer.quota > 0 && product.extraOffer.percent > 0 && <p className={styles.offer}>
         −{product.extraOffer.percent}% sui {product.extraOffer.quota} extra più costosi
       </p>}
@@ -223,30 +222,6 @@ export function OperationalMenu({ store, preferences, disabled = false, onAdd }:
   store: IndividualStore; preferences: MenuPreferences; disabled?: boolean; onAdd: (line: IndividualLine) => void;
 }) {
   const [selectedSection, setSelectedSection] = useState<string | null>(null);
-  const [pizzaChoices, setPizzaChoices] = useState<PizzaMenuChoices>({});
-  const pizzas = store.products.filter(product => product.pizza);
-  const representative = pizzas.find(product => product.available) ?? pizzas[0];
-  const defaults = representative?.pizza?.defaultSelections ?? [];
-  const dimensions = (["dough", "base"] as const).map(kind => {
-    const choices = new Map<string, { sourceId: string; name: string; priceCents: number; available: boolean }>();
-    for (const product of pizzas) {
-      const ids = new Set(product.groups?.filter(group => group.kind === kind).flatMap(group => group.optionIds));
-      for (const option of product.options) {
-        if (option.pizza?.kind !== kind || !ids.has(option.id)) continue;
-        const previous = choices.get(option.pizza.sourceId);
-        choices.set(option.pizza.sourceId, { sourceId: option.pizza.sourceId, name: option.name,
-          priceCents: previous?.priceCents ?? option.priceCents,
-          available: Boolean(previous?.available || product.available && option.available !== false) });
-      }
-    }
-    const requested = kind === "dough" ? pizzaChoices.doughId : pizzaChoices.baseId;
-    const standard = representative?.options.find(option => option.pizza?.kind === kind && defaults.some(choice => choice.optionId === option.id))?.pizza?.sourceId;
-    return { kind, choices: [...choices.values()], selected: requested && choices.has(requested) ? requested : standard };
-  });
-  const currentChoices: PizzaMenuChoices = {
-    doughId: dimensions.find(dimension => dimension.kind === "dough")?.selected,
-    baseId: dimensions.find(dimension => dimension.kind === "base")?.selected
-  };
   const products = new Map(store.products.map(product => [product.id, product]));
   const sections = (store.menu?.sections ?? [{ id: "prodotti", name: "Prodotti", description: undefined, productIds: store.products.map(product => product.id) }])
     .map(section => ({ ...section, products: section.productIds.flatMap(id => {
@@ -260,30 +235,7 @@ export function OperationalMenu({ store, preferences, disabled = false, onAdd }:
     }
   }
   const active = sections.some(section => section.id === selectedSection) ? selectedSection : sections[0]?.id;
-  const heroProduct = sections.find(section => section.id === active)?.products.find(product => product.pizza) ?? representative;
-  const heroImage = heroProduct ? pizzaPreview(heroProduct, pizzaInitialSelections(heroProduct, currentChoices), store.id) : undefined;
   return <div className={styles.menu}>
-    {pizzas.length > 0 && <header className={styles.hero}>
-      <h2>La pizza a modo tuo</h2>
-      <p>{dimensions.some(dimension => dimension.kind === "base" && dimension.choices.length)
-        ? "Scegli impasto e base, poi trova la tua pizza." : "Scegli l'impasto, poi trova la tua pizza."}</p>
-      {pizzas.length > 0 && <div className={styles.heroPreview}>
-        {heroImage?.src ? <>
-          <Image unoptimized loading="eager" src={heroImage.src} alt={`Anteprima pizza ${heroProduct?.name ?? ""}`} width={360} height={360} />
-          {heroImage.overlay && <Image unoptimized className={styles.heroOverlay} src={heroImage.overlay} alt="" width={330} height={330} />}
-        </> : <div className={styles.emptyPreview}><span aria-hidden="true">🍕</span><p>La tua pizza prende forma qui.</p></div>}
-      </div>}
-    </header>}
-    {dimensions.filter(dimension => dimension.choices.length > 0).map(dimension => <fieldset className={styles.initialChoice} key={dimension.kind} disabled={disabled}>
-      <legend>{dimension.kind === "dough" ? "Impasto" : "Base pizza"}</legend>
-      <div className={styles.choiceList}>{dimension.choices.map(choice => <label className={styles.choice} key={choice.sourceId}>
-        <input type="radio" name={`${store.id}-${dimension.kind}`} checked={dimension.selected === choice.sourceId} disabled={!choice.available}
-          onChange={() => setPizzaChoices(current => ({ ...current, [dimension.kind === "dough" ? "doughId" : "baseId"]: choice.sourceId }))} />
-        <span>{choice.name}</span>
-        {choice.priceCents !== 0 && <small>{choice.priceCents > 0 ? "+" : "−"}{menuMoney(Math.abs(choice.priceCents))}</small>}
-        {!choice.available && <small className={styles.unavailable}>Esaurito</small>}
-      </label>)}</div>
-    </fieldset>)}
     {sections.length > 1 && <nav className={styles.categoryPicker} aria-label="Categorie del menu">
       <h3>Da dove vuoi iniziare?</h3>
       <div className={styles.categoryCards}>{sections.map(section => <a key={section.id} href={`#categoria-${encodeURIComponent(section.id)}`}
@@ -299,7 +251,7 @@ export function OperationalMenu({ store, preferences, disabled = false, onAdd }:
     {sections.map(section => <section className={styles.category} key={section.id} id={`categoria-${section.id}`}>
       {store.menu && <><h3>{section.name}</h3>{section.description && <p>{section.description}</p>}</>}
       <div className={styles.items}>{section.products.map(product => <div key={product.id} id={firstSectionOfProduct.get(product.id) === section.id ? menuItemId(product.id) : undefined}>
-        <MenuItem store={store} product={product} preferences={preferences} disabled={disabled || !store.acceptingOrders} onAdd={onAdd} pizzaChoices={currentChoices} />
+        <MenuItem store={store} product={product} preferences={preferences} disabled={disabled || !store.acceptingOrders} onAdd={onAdd} />
       </div>)}</div>
     </section>)}
   </div>;
