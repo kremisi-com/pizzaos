@@ -248,7 +248,7 @@ export function OperationalMenu({ store, preferences, disabled = false, onAdd }:
     </nav>}
     {!sections.length && <p>Il menu non contiene ancora prodotti.</p>}
     {sections.map(section => <section className={styles.category} key={section.id} id={`categoria-${section.id}`}>
-      {store.menu && <><h3>{section.name}</h3>{section.description && <p>{section.description}</p>}</>}
+      {store.menu && <>{sections.length > 1 && <h3>{section.name}</h3>}{section.description && <p>{section.description}</p>}</>}
       <div className={styles.items}>{section.products.map(product => <div key={product.id} id={firstSectionOfProduct.get(product.id) === section.id ? menuItemId(product.id) : undefined}>
         <MenuItem store={store} product={product} preferences={preferences} disabled={disabled || !store.acceptingOrders} onAdd={onAdd} />
       </div>)}</div>

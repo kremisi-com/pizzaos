@@ -1,5 +1,7 @@
 # Ordine individuale persistente
 
+La schermata iniziale propone «Sfoglia il menu» e «Ordine di gruppo»; l'accesso agli ordini resta nella navigazione inferiore, senza il pulsante duplicato «I tuoi ordini» tra le azioni iniziali.
+
 Questa feature possiede presentazione e interazioni del primo flusso individuale cliente. Riceve il port pubblico `IndividualApi` dalla composizione dell'app; non dipende da repository locali, codice di altre app o implementazione del servizio. Gli ordini, i totali, le riserve e i pagamenti sono autorevoli nel servizio checkout.
 
 L'entry pubblico `index.ts` esporta `IndividualStripeFields` e `ConfirmIndividualPayment`: il flusso gruppo riusa questa capability Stripe Elements senza accedere ai componenti privati della feature o introdurre un secondo provider di pagamento.

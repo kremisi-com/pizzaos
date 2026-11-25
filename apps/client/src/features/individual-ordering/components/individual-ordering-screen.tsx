@@ -239,7 +239,6 @@ export function IndividualOrderingScreen({ api, promotionsApi, preferencesApi, r
     <nav className={styles.heroActions} aria-label="Inizia a ordinare">
       {stores.length > 0 && <a className={styles.linkButton} href="#il-menu">Sfoglia il menu</a>}
       <a className={styles.groupLink} href="/ordina/gruppo">Ordine di gruppo</a>
-      {session?.actor && <a className={styles.groupLink} href="#i-tuoi-ordini">I tuoi ordini</a>}
     </nav>
     {connection && <p className={styles.connection} role="status">{connection}</p>}
     {error && <div className={styles.error} role="alert">{error}<div><button type="button" className={styles.secondary} disabled={busy} onClick={() => void load()}>Riprova caricamento</button></div></div>}

@@ -8,6 +8,8 @@ Run `pnpm --filter @pizzaos/client test` for menu screen and view-model coverage
 
 ## Menu operativo
 
+Quando è visibile una sola sezione, il suo titolo è nascosto per evitare un'intestazione ridondante sotto «Il menu». Con più sezioni visibili restano i titoli delle categorie e la relativa navigazione; le descrizioni delle sezioni restano visibili anche con una sola sezione.
+
 L'ordine individuale e di gruppo ricevono lo stesso catalogo pubblico della sede. Il menu mostra sezioni, disponibilità e foto statiche, permette l'aggiunta diretta dei prodotti semplici e apre il configuratore per le scelte richieste. Il configuratore e il carrello presentano importo e informazioni alimentari della composizione. Il preventivo del servizio rimane autorevole.
 
 Il menu non mostra il nome del menu pubblicato, l’introduzione generica né il pannello allergeni/preferenze con filtro. Le preferenze dell'account sono gestibili da `/ordina/profilo`; la composizione fornisce `FoodPreferencesApi`. Il client non le inserisce nelle righe o nelle richieste di ordine e distingue ingredienti, possibili tracce e dati da verificare.

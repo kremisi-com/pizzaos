@@ -23,6 +23,10 @@ Consentire al cliente di comporre un ordine come ospite, autenticarsi al termine
 
 ## Percorso approvato
 
+Le azioni iniziali del client sono «Sfoglia il menu» e «Ordine di gruppo». Il pulsante «I tuoi ordini» non compare in questo blocco; gli ordini restano accessibili dalla navigazione inferiore e lo storico mantiene le azioni di recupero e gestione.
+
+Nel menu operativo, se una sola sezione contiene prodotti visibili, il suo titolo non compare sotto «Il menu». Con più sezioni visibili, il client mostra titoli e navigazione delle categorie. Le descrizioni restano visibili anche per la sezione singola; i nomi salvati nell'admin non cambiano.
+
 1. Sull'indirizzo pubblico della sede il cliente trova già il menu della sede e sceglie modalità (consegna o ritiro), prodotti, personalizzazioni e slot. Può iniziare senza autenticarsi. L'origine storica del pilota conserva la scelta della sede.
 2. Il carrello e il contesto di checkout si conservano localmente quanto basta per recuperare il percorso dopo reload. La UI mantiene i dati durante il passaggio a login/signup.
 3. Prima di inviare l'ordine, il cliente accede o crea un account usando Google o magic link con Auth.js.
