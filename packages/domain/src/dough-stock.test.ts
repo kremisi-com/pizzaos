@@ -42,6 +42,30 @@ function choices(product: IndividualProduct, doughId: string, formatId: string):
 }
 
 describe("impasto e formato determinano il consumo della voce Magazzino scelta", () => {
+  it("omette l'impasto dagli ingredienti visibili mantenendo consumi e allergeni", () => {
+    const product = materializePizzaMenu(draft()).products[0];
+    product.foodIngredients = [
+      { id: "panetto-integrale", name: "Impasto integrale", food: { contains: ["Glutine"], mayContain: ["Sesamo"] } },
+      { id: "pomodoro", name: "Pomodoro", food: { contains: [], mayContain: [] } }
+    ];
+    const result = resolveMenuComposition(product, choices(product, "integrale", "maxi"));
+    expect(result.recipe).toEqual({ "panetto-integrale": 3, pomodoro: 1 });
+    expect(result.composition.ingredients).toEqual(["Pomodoro"]);
+    expect(result.composition.contains).toEqual(["Glutine"]);
+    expect(result.composition.mayContain).toEqual(["Sesamo"]);
+  });
+
+  it("proietta il consiglio senza cambiare selezione standard o supplementi", () => {
+    const source = draft();
+    source.pizzaCatalog!.tastes[0].recommendedDoughId = "integrale";
+    const product = materializePizzaMenu(source).products[0];
+    expect(product.pizza?.recommendedDoughOptionId).toBe("dough:integrale");
+    expect(product.pizza?.defaultSelections).toContainEqual({ optionId: "dough:classico", quantity: 1 });
+    expect(resolveMenuComposition(product, product.pizza!.defaultSelections).unitCents).toBe(700);
+    source.pizzaCatalog!.tastes[0].recommendedDoughId = "classico";
+    expect(materializePizzaMenu(source).products[0].pizza?.recommendedDoughOptionId).toBeUndefined();
+  });
+
   it("scala la quantità del formato esclusivamente dall'impasto scelto, con supplementi invariati", () => {
     const product = materializePizzaMenu(draft()).products[0];
     const result = resolveMenuComposition(product, choices(product, "integrale", "maxi"));

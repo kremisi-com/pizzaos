@@ -141,7 +141,9 @@ function projectPizza(catalog: PizzaCatalog, entry: PizzaTaste | PizzaFormula, k
   return { id: entry.id, name: entry.name, description: entry.description, priceCents: entry.priceCents,
     available: entry.available, ingredients, allergens: taste?.allergens ? [...taste.allergens] : [], options, groups,
     ...(taste?.food ? { food: copyFood(taste.food) } : {}),
-    pizza: { kind, sourceId: entry.id, defaultSelections, ...(entry.previewImages ? { previewImages: entry.previewImages.map(image => ({ ...image })) } : {}), ...(entry.toppingImagePath ? { toppingImagePath: entry.toppingImagePath } : {}), includedToppings: catalog.toppings.filter(item => included.includes(item.id)).map(item => ({ sourceId: item.id, ingredientIds: Object.keys(item.ingredients), available: item.available, ...(item.food ? { food: copyFood(item.food) } : {}) })) },
+    pizza: { kind, sourceId: entry.id, defaultSelections,
+      ...(entry.recommendedDoughId && entry.recommendedDoughId !== entry.standardDoughId
+        ? { recommendedDoughOptionId: makeId("dough", entry.recommendedDoughId) } : {}), ...(entry.previewImages ? { previewImages: entry.previewImages.map(image => ({ ...image })) } : {}), ...(entry.toppingImagePath ? { toppingImagePath: entry.toppingImagePath } : {}), includedToppings: catalog.toppings.filter(item => included.includes(item.id)).map(item => ({ sourceId: item.id, ingredientIds: Object.keys(item.ingredients), available: item.available, ...(item.food ? { food: copyFood(item.food) } : {}) })) },
     pizzaRecipeSources: catalog.toppings.filter(item => included.includes(item.id)).map(item => ({ sourceId: item.id, ingredients: { ...item.ingredients } })),
     ...("extraOffer" in entry && entry.extraOffer ? { extraOffer: { ...entry.extraOffer } }
       : "offer" in entry && entry.offer ? { extraOffer: { ...PIZZA_EXTRA_OFFERS[entry.offer] } } : {}),

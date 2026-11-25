@@ -132,7 +132,7 @@ describe("consumi impasto e formato lungo l'ordine HTTP", () => {
     expect(quoted.statusCode, quoted.body).toBe(200);
     const quote = quoted.json<IndividualQuote>();
     expect(quote.lines[0].composition?.contains).toContain("Glutine");
-    expect(quote.lines[0].composition?.ingredients).toEqual(expect.arrayContaining(["integrale", "pomodoro"]));
+    expect(quote.lines[0].composition?.ingredients).toEqual(["pomodoro"]);
     const checkout = await f.request("POST", "/v1/pilot/checkouts", { cart, fingerprint: quote.fingerprint,
       phone: "+393331234567", method: "cash", idempotencyKey: "dough-quantity" }, "customer");
     expect(checkout.statusCode, checkout.body).toBe(200);

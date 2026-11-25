@@ -68,6 +68,29 @@ describe("pizza choices after product selection", () => {
 });
 
 describe("persistent pizza editor using the PoC presentation", () => {
+  it("mostra il consiglio soltanto in Impasto senza selezionarlo", () => {
+    const { store, taste } = fixture();
+    taste.pizza!.recommendedDoughOptionId = "dough:integrale";
+    const save = vi.fn();
+    renderDom(<LivePizzaEditor store={store} product={taste} disabled={false} avoid={[]} onClose={vi.fn()} onSave={save} />);
+    expect(domScreen.getByRole("button", { name: /Impasto.*Consigliato: Integrale/ })).toBeTruthy();
+    domFireEvent.click(domScreen.getByRole("button", { name: /^Impasto/ }));
+    expect((domScreen.getByRole("radio", { name: /Classico/ }) as HTMLInputElement).checked).toBe(true);
+    expect((domScreen.getByRole("radio", { name: /Integrale/ }) as HTMLInputElement).checked).toBe(false);
+    domFireEvent.click(domScreen.getByRole("button", { name: /Aggiungi al carrello/ }));
+    expect(save).toHaveBeenCalledWith(expect.objectContaining({ selections: expect.arrayContaining([
+      { optionId: "dough:classico", quantity: 1 }
+    ]) }));
+  });
+
+  it("non mostra un impasto consigliato esaurito o mancante", () => {
+    const { store, taste } = fixture();
+    taste.pizza!.recommendedDoughOptionId = "dough:integrale";
+    taste.options.find(option => option.id === "dough:integrale")!.available = false;
+    renderDom(<LivePizzaEditor store={store} product={taste} disabled={false} avoid={[]} onClose={vi.fn()} onSave={vi.fn()} />);
+    expect(domScreen.queryByText(/Consigliato:/)).toBeNull();
+  });
+
   it("always shows ingredients and allergen icons with informative toasts as choices change", () => {
     const { store, taste } = fixture();
     taste.food = { contains: ["Glutine"], mayContain: ["Sesamo"] };

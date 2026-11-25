@@ -60,12 +60,14 @@ export function resolveMenuComposition(product: IndividualProduct, selections: r
   }
   const ingredients = new Map(product.foodIngredients?.map(item => [item.id, item]));
   const format = selected.find(({ option }) => option.pizza?.kind === "format")?.option.pizza;
+  const visibleIngredientIds = new Set(base.map(([id]) => id));
   const doughQuantity = format?.doughQuantity;
   if (doughQuantity !== undefined && (doughQuantity === null || !Number.isSafeInteger(doughQuantity) || doughQuantity < 1)) valid = false;
   for (const { option, quantity } of selected) {
     const references = option.ingredientIds?.map(id => [id, 1] as const) ?? Object.entries(option.ingredients);
     const ownRemovals = new Set(option.removesIngredientIds);
     for (const [id, units] of references) {
+      if (option.pizza?.kind !== "dough" || doughQuantity === undefined) visibleIngredientIds.add(id);
       if (units === null) { valid = false; continue; }
       const dose = option.pizza?.kind === "dough" && doughQuantity != null ? doughQuantity : units;
       if (!removed.has(id) || ownRemovals.has(id) || option.pizza?.kind === "dough" && doughQuantity !== undefined) {
@@ -106,7 +108,7 @@ export function resolveMenuComposition(product: IndividualProduct, selections: r
     composition: {
       ...(product.pizza ? { pizza: product.pizza } : {}),
       choices, extraDiscountCents, foodComplete: identifiedFood && foodComplete && valid,
-      ingredients: [...recipe.keys()].map(id => ingredients.get(id)?.name ?? id),
+      ingredients: [...recipe.keys()].filter(id => !product.pizza || visibleIngredientIds.has(id)).map(id => ingredients.get(id)?.name ?? id),
       contains: [...contains.values()],
       mayContain: [...mayContain.values()]
     }

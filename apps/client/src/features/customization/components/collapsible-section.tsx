@@ -3,8 +3,9 @@ import styles from "./product-detail-screen.module.css";
 
 const money = new Intl.NumberFormat("it-IT", { style: "currency", currency: "EUR" });
 
-export function CollapsibleSection({ icon, title, currentValue, delta, isOpen, onToggle, children }: {
+export function CollapsibleSection({ icon, title, currentValue, advice, delta, isOpen, onToggle, children }: {
   icon: string; title: string; currentValue: string; delta: number;
+  advice?: string;
   isOpen: boolean; onToggle: () => void; children: ReactNode;
 }) {
   const contentId = useId();
@@ -16,6 +17,7 @@ export function CollapsibleSection({ icon, title, currentValue, delta, isOpen, o
         <div className={styles.sectionTitleGroup}>
           <h2 className={styles.sectionTitle}>{title}</h2>
           <p className={styles.sectionCurrentValue}>{currentValue}</p>
+          {advice && <p className={styles.sectionAdvice}>{advice}</p>}
         </div>
       </div>
       <div className={styles.sectionHeaderRight}>

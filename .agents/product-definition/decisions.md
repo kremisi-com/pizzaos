@@ -227,3 +227,5 @@ Su richiesta esplicita di Andrea, il dettaglio pizza operativo rimuove tutto il 
 Andrea conferma il pannello bianco con angoli superiori arrotondati per la CTA fissa del dettaglio pizza, al posto della sfumatura. Nel configuratore operativo il pannello si ancora al fondo senza il distacco della navigazione PoC, rispettando la safe area. [Flusso corrente](flows/menu-ordering.md).
 
 La richiesta utente del 25 novembre 2026 aggiorna la gestione Magazzino di D85: la sezione **Allergeni** parte chiusa, senza suffisso né checkbox di verifica; le dichiarazioni sono verificate di default. **Contiene** e **Può contenere** usano multiselect filtrabili come nel Menu, senza card interne. [Flusso corrente](flows/store-configuration.md).
+
+Andrea richiede di togliere la voce di Magazzino dell’impasto dall’elenco ingredienti e di gestire nell’admin un impasto consigliato per pizza, fra quelli del menu. Conferma che il consiglio è **solo indicazione**, senza preselezione; compare nella sezione Impasto soltanto se diverso dallo standard. Richiede inoltre di nascondere **Avvertenze del menu** nell’admin. [Flusso corrente](flows/menu-ordering.md).
