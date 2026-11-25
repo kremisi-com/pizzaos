@@ -206,14 +206,16 @@ export function IndividualOperationsShell({ riderHref, orderingDomain }: { rider
       if (storeId !== saved.id) selectStore(saved.id);
       setCreating(false);
       setCatalog(saved);
-      setConfigurationVersion(value => value + 1);
+      if (creating || tab !== "inventory") setConfigurationVersion(value => value + 1);
       setStores(previous => previous.some(item => item.id === saved.id)
         ? previous.map(item => item.id === saved.id ? saved : item)
         : [...previous, saved]);
       setNotice("Configurazione salvata.");
       refresh();
+      return true;
     } catch (failure) {
       setError(errorText(failure));
+      return false;
     } finally {
       setBusy(false);
     }

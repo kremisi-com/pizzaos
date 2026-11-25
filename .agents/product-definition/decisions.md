@@ -207,6 +207,8 @@ La scelta del 20 novembre di sospendere il worker e attendere il reset gratuito 
 
 ## Stabilizzazione e punto zero
 
+Andrea richiede la rimozione di **Salva configurazione** dal Magazzino e il salvataggio automatico al cambio di focus come nel Menu. Il [flusso configurazione sede](flows/store-configuration.md#salvataggi-concorrenti) descrive implementazione, errori e verifiche; Profilo e creazione sede mantengono il salvataggio manuale.
+
 La richiesta utente del 25 novembre 2026 autorizza correzione dei problemi emersi, consolidamento dello stato corrente e archiviazione dei documenti superati, senza interferire con modifiche in corso. Il [disegno](../design/2026-11-25-stabilization/design.md) delimita la base isolata e la protezione dei salvataggi concorrenti. Non modifica D16/D31, non autorizza apertura commerciale e non attesta un nuovo deploy.
 
 

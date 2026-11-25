@@ -14,6 +14,8 @@ Il superadmin assegna una sola etichetta pubblica univoca e immutabile per sede;
 
 ## Salvataggi concorrenti
 
+Il Magazzino salva testi e numeri quando il campo perde il focus e selezioni/rimozioni immediatamente, senza pulsante **Salva configurazione**. Un ingrediente nuovo viene salvato dopo aver compilato il nome obbligatorio. Durante una richiesta i campi restano editabili: i salvataggi successivi attendono la risposta e usano come confronto l'ultima bozza riuscita, senza rimontare il form o perdere il focus. Errori e conflitti mantengono la bozza e fermano la coda; **Riprova salvataggio** o una nuova modifica avviano un tentativo esplicito, soggetto alle stesse verifiche di concorrenza. Il messaggio di successo compare solo dopo la risposta positiva. Profilo e creazione sede mantengono il salvataggio manuale. Copertura locale: `apps/admin/src/test/inventory-autosave.test.tsx`, `apps/admin/src/test/inventory-allergens.test.tsx`, `apps/admin/src/test/store-configuration-concurrency.test.tsx`. Nessuna nuova verifica online attestata.
+
 La lettura operatore e il salvataggio restituiscono `configurationRevision`, un token opaco della configurazione canonica. Non è esposto ai clienti. La creazione non richiede token; l'aggiornamento di una sede esistente lo richiede. Il servizio confronta il token dentro la stessa transazione che applica la modifica.
 
 - Due modifiche indipendenti: l'admin rilegge la sede e conserva i campi aggiornati da altri che l'operatore non ha cambiato. Invia la versione di questa rilettura.

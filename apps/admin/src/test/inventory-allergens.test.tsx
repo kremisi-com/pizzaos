@@ -1,4 +1,4 @@
-import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { MENU_ALLERGENS, type IndividualStore } from "@pizzaos/domain";
 import { StoreConfiguration } from "../features/individual-ordering/components/store-configuration";
@@ -35,25 +35,24 @@ describe("multiselect allergeni del Magazzino", () => {
     expect(selects[1].disabled).toBe(true);
   });
 
-  it("salva più allergeni per ingrediente, sposta le tracce ed elimina una selezione", () => {
+  it("salva più allergeni per ingrediente, sposta le tracce ed elimina una selezione", async () => {
     const { store, onSave } = fixture();
     const contains = screen.getAllByRole<HTMLSelectElement>("listbox", { name: "Contiene" })[0];
     selectValues(contains, ["Glutine", "Senape", "Uova"]);
     selectValues(contains, ["Senape", "Uova"]);
     fireEvent.click(screen.getAllByLabelText("Informazioni allergeni verificate")[1]);
     selectValues(screen.getAllByRole<HTMLSelectElement>("listbox", { name: "Contiene" })[1], ["Latte"]);
-    fireEvent.click(screen.getByRole("button", { name: "Salva configurazione" }));
-    expect(onSave).toHaveBeenCalledWith(expect.objectContaining({ ingredients: [
+    await waitFor(() => expect(onSave).toHaveBeenLastCalledWith(expect.objectContaining({ ingredients: [
       { ...store.ingredients[0], food: { contains: ["Uova", "Senape"], mayContain: ["Voce importata"] } },
       { ...store.ingredients[1], food: { contains: ["Latte"], mayContain: [] } }
-    ] }), store, undefined);
+    ] }), expect.objectContaining({ id: store.id })));
   });
 
-  it("distingue una dichiarazione vuota dai dati da verificare", () => {
+  it("distingue una dichiarazione vuota dai dati da verificare", async () => {
     const { onSave } = fixture();
     fireEvent.click(screen.getAllByLabelText("Informazioni allergeni verificate")[0]);
     fireEvent.click(screen.getAllByLabelText("Informazioni allergeni verificate")[1]);
-    fireEvent.click(screen.getByRole("button", { name: "Salva configurazione" }));
+    await waitFor(() => expect(onSave.mock.lastCall?.[0].ingredients[1].food).toEqual({ contains: [], mayContain: [] }));
     const saved: IndividualStore = onSave.mock.lastCall![0];
     expect(saved.ingredients[0].food).toBeUndefined();
     expect(saved.ingredients[1].food).toEqual({ contains: [], mayContain: [] });

@@ -129,10 +129,12 @@ test("Magazzino e formula libera arrivano al preventivo con impasto e base scelt
       await admin.getByLabel(`Prezzo extra ${name} in euro`, { exact: true }).fill(price);
       await admin.getByLabel(`Dose per aggiunta ${name}`, { exact: true }).fill("2");
     }
-    const storing = admin.waitForResponse(response => response.url().endsWith("/v1/pilot/stores/roma") && response.request().method() === "PUT");
-    await admin.getByRole("button", { name: "Salva configurazione", exact: true }).click();
-    const stored = await storing;
-    expect(stored.ok(), await stored.text()).toBe(true);
+    await admin.getByLabel(`Dose per aggiunta ${additions.at(-1)!.name}`, { exact: true }).press("Tab");
+    await expect(admin.getByRole("button", { name: "Salva configurazione", exact: true })).toHaveCount(0);
+    await expect.poll(async () => {
+      const saved = await (await operator.request.get(`${adminOrigin}/api/pilot/v1/pilot/stores/roma`)).json() as IndividualStore;
+      return additions.map(({ id }) => saved.ingredients.find(ingredient => ingredient.id === id)?.extra);
+    }).toEqual(additions.map(({ price }) => ({ enabled: true, priceCents: Number(price) * 100, dose: 2 })));
     const updatedStore = await (await operator.request.get(`${adminOrigin}/api/pilot/v1/pilot/stores/roma`)).json() as IndividualStore;
     for (const { id, price } of additions) {
       expect(updatedStore.ingredients.find(ingredient => ingredient.id === id)?.extra).toEqual({ enabled: true, priceCents: Number(price) * 100, dose: 2 });

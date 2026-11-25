@@ -2,7 +2,7 @@
 
 import { createDefaultWeeklyOrderSchedule } from "@pizzaos/domain";
 import type { IndividualProduct, IndividualStore, StoreAddressApi, StoreAddressCandidate } from "@pizzaos/domain";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { MenuFoodFields, MenuRecipeFields } from "../../catalog";
 import { StoreAddressField } from "./store-address-field";
 import { WeeklyOrderCalendar } from "./weekly-order-calendar";
@@ -18,20 +18,66 @@ export function StoreConfiguration({ store, isNew, section, busy, orderingDomain
   orderingDomain?: string;
   canPublish?: boolean;
   onSearchAddress: StoreAddressApi["searchStoreAddresses"];
-  onSave: (draft: IndividualStore, original: IndividualStore, addressConfirmation?: string) => Promise<void>;
+  onSave: (draft: IndividualStore, original: IndividualStore, addressConfirmation?: string) => Promise<boolean | void>;
 }) {
   const [original] = useState(store);
   const [draft, setDraft] = useState(store);
+  const automatic = !isNew && section === "inventory";
+  const baseline = useRef(store);
+  const form = useRef<HTMLFormElement>(null);
+  const editingText = useRef(false);
+  const inFlight = useRef(false);
+  const [queued, setQueued] = useState<IndividualStore | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [failed, setFailed] = useState(false);
+
+  useEffect(() => {
+    if (!automatic || !queued || failed || inFlight.current || !form.current?.checkValidity()) return;
+    if (JSON.stringify(queued.ingredients) === JSON.stringify(baseline.current.ingredients)) return;
+    const submitted = queued;
+    inFlight.current = true;
+    setSaving(true);
+    void onSave(submitted, baseline.current).then(result => {
+      if (result === false) { setFailed(true); return; }
+      baseline.current = submitted;
+      setQueued(current => current === submitted ? null : current);
+    }).catch(() => setFailed(true)).finally(() => {
+      inFlight.current = false;
+      setSaving(false);
+    });
+  }, [automatic, queued, failed, saving, onSave]);
+
+  function queueSave(next: IndividualStore) {
+    setFailed(false);
+    setQueued(next);
+  }
   const [address, setAddress] = useState(store.address ?? "");
   const [confirmedAddress, setConfirmedAddress] = useState<StoreAddressCandidate | null>(null);
   const needsConfirmation = (isNew || address.trim() !== (original.address ?? "")) && !confirmedAddress;
-  const update = <K extends keyof IndividualStore>(key: K, value: IndividualStore[K]) => setDraft(current => ({ ...current, [key]: value }));
+  const update = <K extends keyof IndividualStore>(key: K, value: IndividualStore[K]) => {
+    const next = { ...draft, [key]: value };
+    setDraft(next);
+    if (automatic && !editingText.current) queueSave(next);
+  };
   function productChange(index: number, change: Partial<IndividualProduct>) { update("products", draft.products.map((product, i) => i === index ? { ...product, ...change } : product)); }
-  return <form className={`${styles.page} ${styles.configuration}`} onSubmit={event => {
+  return <form ref={form} className={`${styles.page} ${styles.configuration}`}
+    onChangeCapture={event => {
+      const target = event.target;
+      editingText.current = target instanceof HTMLInputElement && !["checkbox", "radio"].includes(target.type);
+    }}
+    onClickCapture={event => {
+      if (event.target instanceof Element && event.target.closest("button")) editingText.current = false;
+    }}
+    onBlur={event => {
+      if (!automatic || !(event.target instanceof HTMLInputElement) || ["checkbox", "radio"].includes(event.target.type)) return;
+      editingText.current = false;
+      queueSave(draft);
+    }} onSubmit={event => {
     event.preventDefault();
+    if (automatic) { queueSave(draft); return; }
     if (!busy && !needsConfirmation) void onSave(draft, original, confirmedAddress?.confirmation);
   }}>
-    <h2>{isNew ? "Crea una sede" : section === "inventory" ? "Magazzino ingredienti" : "Configurazione della sede"}</h2><p>Le modifiche vengono applicate quando salvi. Le risorse già impegnate dagli ordini devono restare disponibili.</p>
+    <h2>{isNew ? "Crea una sede" : section === "inventory" ? "Magazzino ingredienti" : "Configurazione della sede"}</h2><p>{!automatic && "Le modifiche vengono applicate quando salvi. "}Le risorse già impegnate dagli ordini devono restare disponibili.</p>
     {(isNew || section === "profile") && <fieldset disabled={busy}><legend>Identità e contatti</legend><div className={styles.formGrid}>
       <label>Identificativo sede<input required value={draft.id} disabled={!isNew} pattern="[a-zA-Z0-9_-]+" onChange={event => {
         update("id", event.target.value);
@@ -57,7 +103,7 @@ export function StoreConfiguration({ store, isNew, section, busy, orderingDomain
       onConfirm={candidate => { setAddress(candidate.address); setConfirmedAddress(candidate); }} />
     <label className={styles.check}><input type="checkbox" checked={draft.acceptingOrders} onChange={event => update("acceptingOrders", event.target.checked)} />Accetta nuovi ordini</label></fieldset>}
 
-    {(isNew || section === "inventory") && <fieldset disabled={busy}><legend>Magazzino ingredienti</legend><p>Le quantità sono espresse nelle stesse unità delle ricette. La disponibilità per nuovi ordini tiene conto delle riserve. Una scorta vuota è da verificare; inserisci zero solo se l’ingrediente è esaurito.</p>
+    {(isNew || section === "inventory") && <fieldset disabled={busy && !automatic}><legend>Magazzino ingredienti</legend><p>Le quantità sono espresse nelle stesse unità delle ricette. La disponibilità per nuovi ordini tiene conto delle riserve. Una scorta vuota è da verificare; inserisci zero solo se l’ingrediente è esaurito.</p>
       {draft.ingredients.map((ingredient, index) => <div className={styles.productEditor} key={ingredient.id}>
         <div className={styles.repeatRow}>
           <label>Nome ingrediente {index + 1}<input required value={ingredient.name} onChange={event => update("ingredients", draft.ingredients.map((item, i) => i === index ? { ...item, name: event.target.value } : item))} /></label>
@@ -118,6 +164,7 @@ export function StoreConfiguration({ store, isNew, section, busy, orderingDomain
         <button className={styles.secondary} type="button" onClick={() => update("deliveryBands", draft.deliveryBands.filter((_, i) => i !== index))}>Rimuovi zona</button>
       </div>)}<button className={styles.secondary} type="button" onClick={() => update("deliveryBands", [...draft.deliveryBands, { upToKm: (draft.deliveryBands.at(-1)?.upToKm ?? 0) + 1, feeCents: 0, minimumCents: 0 }])}>Aggiungi zona di consegna</button>
     </fieldset>}
-    <button type="submit" disabled={busy || needsConfirmation}>{busy ? "Salvataggio…" : isNew ? "Crea sede" : "Salva configurazione"}</button>
+    {automatic ? failed && <button type="button" onClick={() => queueSave(draft)}>Riprova salvataggio</button>
+      : <button type="submit" disabled={busy || needsConfirmation}>{busy ? "Salvataggio…" : isNew ? "Crea sede" : "Salva configurazione"}</button>}
   </form>;
 }

@@ -10,7 +10,8 @@ vi.mock("../composition/api/individual-api", () => ({ createIndividualApi: creat
 function fixture() {
   let current: IndividualStore = {
     id: "roma", name: "Roma", address: "Via Roma 10", latitude: 41.9, longitude: 12.5,
-    configurationRevision: "original", acceptingOrders: true, ingredients: [], products: [], slots: [], deliveryBands: []
+    configurationRevision: "original", acceptingOrders: true,
+    ingredients: [{ id: "farina", name: "Farina", stock: 10 }], products: [], slots: [], deliveryBands: []
   };
   const unexpected = async (): Promise<never> => { throw new Error("Operazione imprevista"); };
   const saveStore = vi.fn<IndividualApi["saveStore"]>(async input => {
@@ -32,6 +33,26 @@ beforeEach(() => { window.localStorage.clear(); window.history.replaceState(null
 afterEach(() => { cleanupDom(); vi.clearAllMocks(); });
 
 describe("salvataggio configurazione dalla bozza operatore", () => {
+  it("salva il Magazzino più volte senza rimontare i campi e conserva gli aggiornamenti indipendenti", async () => {
+    window.history.replaceState(null, "", "/operazioni/magazzino");
+    const f = fixture();
+    const stock = await domScreen.findByLabelText<HTMLInputElement>("Scorta Farina");
+    expect(domScreen.queryByRole("button", { name: "Salva configurazione" })).toBeNull();
+    domFireEvent.change(stock, { target: { value: "12" } });
+    domFireEvent.blur(stock);
+    await domWaitFor(() => expect(f.saveStore).toHaveBeenCalledTimes(1));
+    await domScreen.findByText("Configurazione salvata.");
+    f.change({ contactPhone: "0612345", configurationRevision: "remote" });
+    domFireEvent.change(stock, { target: { value: "15" } });
+    domFireEvent.blur(stock);
+    await domWaitFor(() => expect(f.saveStore).toHaveBeenCalledTimes(2));
+    expect(f.saveStore.mock.lastCall?.[0]).toMatchObject({
+      contactPhone: "0612345", configurationRevision: "remote", ingredients: [{ stock: 15 }]
+    });
+    expect(domScreen.getByLabelText("Scorta Farina")).toBe(stock);
+    expect(stock.value).toBe("15");
+  });
+
   it("invia la revisione della rilettura e conserva i campi indipendenti modificati altrove", async () => {
     const f = fixture();
     const name = await domScreen.findByLabelText("Nome sede");
