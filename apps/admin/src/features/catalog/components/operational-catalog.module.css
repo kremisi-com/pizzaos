@@ -1,3 +1,23 @@
+.saveStatus {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 2rem;
+  height: 2.75rem;
+  color: var(--pizzaos-color-primary);
+}
+
+.saveSpinner { animation: saveSpin 1s linear infinite; }
+
+@keyframes saveSpin {
+  to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .saveSpinner { animation: none; }
+}
+
 .catalog {
   display: grid;
   gap: var(--space-4, 1rem);

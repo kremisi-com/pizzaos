@@ -59,9 +59,6 @@ export function LivePizzaEditor({ store, product, line, quantity = 1, disabled, 
   const [openCategory, setOpenCategory] = useState<string | null>(null);
   const [pairingMessage, setPairingMessage] = useState("");
   const options = new Map(product.options.map(option => [option.id, option]));
-  const recommendedDough = options.get(product.pizza?.recommendedDoughOptionId ?? "");
-  const doughAdvice = recommendedDough?.pizza?.kind === "dough" && recommendedDough.available !== false
-    ? `Consigliato: ${recommendedDough.name}` : "";
   const allGroups = product.groups ?? [];
   const groups = allGroups.filter(group => group.optionIds.some(id => options.get(id)?.pizza));
   const specificGroups = allGroups.filter(group => !group.optionIds.some(id => options.get(id)?.pizza));
@@ -183,7 +180,6 @@ export function LivePizzaEditor({ store, product, line, quantity = 1, disabled, 
             : section.kind === "extras" ? extraCount ? `${extraCount} selezionati` : "Nessun extra"
               : chosenNames.join(", ") || "Scegli una voce";
           return <CollapsibleSection key={section.kind} {...section} currentValue={value} delta={sectionDelta}
-            advice={section.kind === "dough" ? doughAdvice : undefined}
             isOpen={openSection === section.kind} onToggle={() => setOpenSection(current => current === section.kind ? null : section.kind)}>
             {section.kind === "ingredients" ? <div className={styles.ingredientList}>
               {!removals.length && <p className={live.feedback}>Nessun ingrediente del gusto predefinito.</p>}

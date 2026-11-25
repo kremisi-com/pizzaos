@@ -95,30 +95,6 @@ function inventoryDraft(): MenuDraft {
 }
 
 describe("catalogo pizza autorevole via HTTP", () => {
-  it("salva e pubblica il consiglio senza alterare standard e preventivo", async () => {
-    const f = fixture();
-    const candidate = draft();
-    candidate.pizzaCatalog!.tastes[0].recommendedDoughId = "integrale";
-    const saved = await f.save(candidate);
-    expect(saved.statusCode, saved.body).toBe(200);
-    expect(saved.json<MenuWorkspace>().drafts[0].pizzaCatalog!.tastes[0].recommendedDoughId).toBe("integrale");
-    const published = await f.publish(candidate.id);
-    expect(published.statusCode, published.body).toBe(200);
-    const store = (await f.request("GET", "/v1/pilot/stores/roma", undefined, "customer")).json<IndividualStore>();
-    const product = store.products.find(item => item.id === "margherita")!;
-    expect(product.pizza?.recommendedDoughOptionId).toBe("dough:integrale");
-    expect(product.pizza?.defaultSelections).toContainEqual({ optionId: "dough:classico", quantity: 1 });
-    const quote = await f.quote(product);
-    expect(quote.statusCode, quote.body).toBe(200);
-  });
-
-  it("rifiuta un consiglio estraneo agli impasti del menu", async () => {
-    const f = fixture();
-    const candidate = draft();
-    candidate.pizzaCatalog!.tastes[0].recommendedDoughId = "inesistente";
-    expect((await f.save(candidate)).statusCode).toBe(400);
-  });
-
   it("pubblica con custom disabilitato mantenendo formule sorgenti riattivabili", async () => {
     const f = fixture();
     const candidate = draft();

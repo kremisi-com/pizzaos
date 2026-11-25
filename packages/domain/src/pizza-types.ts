@@ -13,7 +13,6 @@ export interface PizzaPreviewImage { doughId: string; baseId: string; imagePath:
 export interface PizzaEntry {
   id: string; name: string; description: string; priceCents: number; available: boolean;
   standardDoughId: string; standardBaseId: string; standardFormatId: string;
-  recommendedDoughId?: string;
   doughIds: string[]; baseIds: string[]; formatIds: string[]; toppingIds: string[];
   imageId?: string; pairingProductIds?: string[]; previewImages?: PizzaPreviewImage[]; toppingImagePath?: string;
 }
@@ -47,7 +46,6 @@ export interface PizzaOptionIdentity {
   doughQuantity?: number | null;
 }
 export interface PizzaProductIdentity {
-  recommendedDoughOptionId?: string;
   kind: "taste" | "formula"; sourceId: string; defaultSelections: { optionId: string; quantity: number }[];
   previewImages?: PizzaPreviewImage[]; toppingImagePath?: string;
   includedToppings?: { sourceId: string; ingredientIds: string[]; available?: boolean; food?: { contains: string[]; mayContain: string[] } }[];

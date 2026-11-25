@@ -52,7 +52,6 @@ export function PizzaTastePanel({ draft, taste, ingredients, onChange, onClose, 
       </div></div>
     <label>Nome pizza<input required maxLength={200} value={taste.name} onChange={event => update({ name: event.target.value })} /></label>
     <label>Descrizione<textarea maxLength={2000} value={taste.description} onChange={event => update({ description: event.target.value })} /></label>
-    <RecommendedDoughSelect catalog={catalog} entry={taste} onChange={recommendedDoughId => update({ recommendedDoughId })} />
     <div className={styles.ingredientSelect}>
       <span className={styles.fieldLabel}>Ingredienti</span>
       <button className={styles.selectTrigger} type="button" aria-label="Seleziona ingredienti" aria-expanded={open} onClick={() => setOpen(value => !value)}>
@@ -101,17 +100,6 @@ const dimensions = [
   { key: "doughs", title: "Impasti", singular: "impasto", defaultKey: "doughId" },
   { key: "formats", title: "Formati", singular: "formato", defaultKey: "formatId" }
 ] as const;
-
-function RecommendedDoughSelect({ catalog, entry, onChange }: {
-  catalog: PizzaCatalog; entry: PizzaEntry; onChange: (id: string | undefined) => void;
-}) {
-  return <label>Impasto consigliato<select value={entry.recommendedDoughId ?? ""}
-    onChange={event => onChange(event.target.value || undefined)}>
-    <option value="">Nessuno</option>
-    {catalog.doughs.filter(dough => catalog.defaults || entry.doughIds.includes(dough.id))
-      .map(dough => <option key={dough.id} value={dough.id}>{dough.name}</option>)}
-  </select></label>;
-}
 
 function DoughInventorySelect({ dough, ingredients, onChange }: {
   dough: PizzaComponent; ingredients: readonly IndividualIngredient[]; onChange: (id: string | undefined) => void;
@@ -215,7 +203,6 @@ export function PizzaCustomCard({ draft, ingredients, onChange, onAdd, onRemove 
       {selected && <>
         <label>Nome combinazione<input value={selected.name} required maxLength={200} onChange={event => update({ name: event.target.value })} /></label>
         <label>Descrizione<textarea value={selected.description} maxLength={2000} onChange={event => update({ description: event.target.value })} /></label>
-        <RecommendedDoughSelect catalog={catalog} entry={selected} onChange={recommendedDoughId => update({ recommendedDoughId })} />
         <div className={styles.threeFields}>
           <MenuPriceField label="Prezzo base in euro" cents={selected.priceCents} onChange={priceCents => update({ priceCents })} />
           <label>Numero di extra scontati<input type="number" min={0} max={100} step={1} value={offer.quota} onChange={event => update({ extraOffer: { ...offer, quota: Number(event.target.value) } })} /></label>

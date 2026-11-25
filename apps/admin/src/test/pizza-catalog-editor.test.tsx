@@ -29,21 +29,6 @@ function Editor({ initialDraft, ingredients = [] }: { initialDraft?: MenuDraft; 
 const current = () => JSON.parse(screen.getByLabelText("Bozza corrente").textContent ?? "{}") as MenuDraft;
 
 describe("Catalogo pizza nel pannello", () => {
-  it("salva e rimuove il consiglio fra gli impasti del menu senza cambiare lo standard", () => {
-    const candidate = initial();
-    candidate.kitchenNotice = "Messaggio conservato";
-    candidate.pizzaCatalog!.defaults = { doughId: "classico", baseId: "rossa", formatId: "standard" };
-    candidate.pizzaCatalog!.doughs.push({ ...candidate.pizzaCatalog!.doughs[0], id: "integrale", name: "Integrale" });
-    render(<Editor initialDraft={materializePizzaMenu(candidate)} />);
-    expect(screen.queryByText("Avvertenze del menu")).toBeNull();
-    expect(screen.queryByLabelText("Avvertenze dalla cucina")).toBeNull();
-    fireEvent.change(screen.getByLabelText("Impasto consigliato"), { target: { value: "integrale" } });
-    expect(current().pizzaCatalog!.formulas[0]).toMatchObject({ recommendedDoughId: "integrale", standardDoughId: "classico" });
-    expect(current().kitchenNotice).toBe("Messaggio conservato");
-    fireEvent.change(screen.getByLabelText("Impasto consigliato"), { target: { value: "" } });
-    expect(current().pizzaCatalog!.formulas[0].recommendedDoughId).toBeUndefined();
-  });
-
   it("mantiene operative le opzioni avanzate senza duplicare la scheda pizza o alterare le scelte salvate", () => {
     const candidate = initial();
     candidate.pizzaCatalog!.tastes = [{ ...entry, id: "margherita", name: "Margherita", imageId: "foto",
@@ -82,8 +67,6 @@ describe("Catalogo pizza nel pannello", () => {
     expect(taste).toMatchObject({ available: false, pairingProductIds: ["simple"],
       doughIds: entry.doughIds, baseIds: entry.baseIds, formatIds: entry.formatIds, toppingIds: entry.toppingIds,
       includedToppingIds: ["olive"], previewImages: candidate.pizzaCatalog!.tastes[0].previewImages });
-    fireEvent.change(editor.getByLabelText("Impasto consigliato"), { target: { value: "classico" } });
-    expect(current().pizzaCatalog!.tastes[0].recommendedDoughId).toBe("classico");
     expect(taste.imageId).toBeUndefined();
     expect(current().pizzaCatalog!.toppings[0].ingredients).toEqual({ olive: 1 });
     expect(current().sections).toEqual(candidate.sections);

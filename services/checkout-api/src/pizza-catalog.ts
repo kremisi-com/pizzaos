@@ -70,7 +70,7 @@ export function validatePizzaCatalog(value: unknown, ingredientIds: Set<string>,
   }
   const ids = new Set<string>();
   for (const entry of [...catalog.tastes, ...catalog.formulas]) {
-    if (!isMenuRecord(entry) || !only(entry, ["id", "name", "description", "priceCents", "available", "standardDoughId", "recommendedDoughId", "standardBaseId", "standardFormatId", "doughIds", "baseIds", "formatIds", "toppingIds", "imageId", "pairingProductIds", "includedToppingIds", "offer", "extraOffer", "previewImages", "toppingImagePath", "customizations", "food", "allergens"]) ||
+    if (!isMenuRecord(entry) || !only(entry, ["id", "name", "description", "priceCents", "available", "standardDoughId", "standardBaseId", "standardFormatId", "doughIds", "baseIds", "formatIds", "toppingIds", "imageId", "pairingProductIds", "includedToppingIds", "offer", "extraOffer", "previewImages", "toppingImagePath", "customizations", "food", "allergens"]) ||
       !safeId(entry.id) || ids.has(entry.id) || !label(entry.name) || typeof entry.description !== "string" || entry.description.length > 2000 || !cents(entry.priceCents) || typeof entry.available !== "boolean") invalid("Gusto o formula pizza non validi.");
     ids.add(entry.id);
     for (const [items, allowed, standard] of [[catalog.doughs, entry.doughIds, entry.standardDoughId], [catalog.bases, entry.baseIds, entry.standardBaseId], [catalog.formats, entry.formatIds, entry.standardFormatId]] as const) {
@@ -82,8 +82,6 @@ export function validatePizzaCatalog(value: unknown, ingredientIds: Set<string>,
         (standard !== "" && !allowed.includes(standard)) || (publishing && (!allowed.length || !standard))) invalid(doughInventory
           ? `«${entry.name}»: verifica impasti, formati e scelte standard.` : `«${entry.name}»: verifica impasti, basi, formati e scelte standard.`);
     }
-    if (entry.recommendedDoughId !== undefined && (!safeId(entry.recommendedDoughId)
-      || !entry.doughIds.includes(entry.recommendedDoughId))) invalid("Scegli un impasto consigliato fra quelli del menu.");
     if (!strings(entry.toppingIds) || entry.toppingIds.some(id => !catalog.toppings.some(topping => topping.id === id))) invalid("Topping ammessi non validi.");
     if (entry.toppingImagePath !== undefined && !asset(entry.toppingImagePath)) invalid("Immagine degli ingredienti non valida.");
     if (entry.previewImages !== undefined) {

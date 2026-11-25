@@ -126,6 +126,10 @@ export function MenuDraftEditor({ draft: sourceDraft, storeId, ingredients, onCh
     <div className={styles.menuMain}>
     <div className={styles.menuMetadata}>
       <label><span className={styles.screenReaderOnly}>Nome menu</span><input className={styles.menuNameInput} value={draft.name} required maxLength={200} onChange={event => onChange({ ...draft, name: event.target.value })} /></label>
+      <details className={styles.food}><summary>Avvertenze del menu</summary>
+      <label>Avvertenze dalla cucina<textarea value={draft.kitchenNotice ?? ""} maxLength={1000}
+        onChange={event => onChange({ ...draft, kitchenNotice: event.target.value || undefined })} /></label>
+      </details>
     </div>
     <nav className={styles.categoryTabs} aria-label="Categorie del menu">
       <Button type="button" variant="secondary" style={{ borderColor: "var(--pizzaos-color-primary)" }} onClick={() => onChange({

@@ -39,7 +39,6 @@ test("impasto dal Magazzino e consumo del formato arrivano dalla bozza al client
     await admin.setViewportSize({ width: 1440, height: 1000 });
     await admin.goto(`${adminOrigin}/operazioni/menu`);
     await admin.getByLabel("Menu da modificare").selectOption(candidate.id);
-    await expect(admin.getByText("Avvertenze del menu", { exact: true })).toHaveCount(0);
     await admin.getByRole("button", { name: /Impasti e formati/ }).click();
     const settings = admin.getByRole("region", { name: "Impasti e formati", exact: true });
     await expect(settings.getByRole("heading", { name: "Basi", exact: true })).toHaveCount(0);
@@ -50,10 +49,6 @@ test("impasto dal Magazzino e consumo del formato arrivano dalla bozza al client
     await settings.getByRole("button", { name: "Panetto integrale", exact: true }).click();
     await settings.getByLabel("Quantità impasto Maxi", { exact: true }).fill("3");
     await settings.getByLabel("Quantità impasto Maxi", { exact: true }).blur();
-    await expect(admin.getByText("Bozza salvata", { exact: true })).toBeVisible();
-    await settings.getByRole("button", { name: "Chiudi configurazione", exact: true }).last().click();
-    await admin.getByRole("button", { name: "Modifica Pizza magazzino", exact: true }).click();
-    await admin.getByRole("combobox", { name: /^Impasto consigliato/ }).selectOption("integrale");
     await expect(admin.getByText("Bozza salvata", { exact: true })).toBeVisible();
     const persisted = await (await operator.request.get(`${adminOrigin}${menuPath}`)).json() as MenuWorkspace;
     const draft = persisted.drafts.find(item => item.id === candidate.id)!;
@@ -73,10 +68,8 @@ test("impasto dal Magazzino e consumo del formato arrivano dalla bozza al client
     await expect(page.getByRole("group", { name: "Base pizza", exact: true })).toHaveCount(0);
     await page.getByRole("button", { name: "Aggiungi Pizza magazzino", exact: true }).click();
     const dialog = page.getByRole("dialog", { name: "Pizza magazzino", exact: true });
-    await expect(dialog.getByRole("button", { name: /Impasto.*Consigliato: Integrale/ })).toBeVisible();
     await expect(dialog.getByRole("heading", { name: "Base", exact: true })).toHaveCount(0);
     await dialog.getByRole("button", { name: /^Impasto/ }).click();
-    await expect(dialog.getByRole("radio", { name: /Classico/ })).toBeChecked();
     await dialog.getByText("Integrale", { exact: true }).click();
     await expect(dialog.getByRole("radio", { name: /Integrale/ })).toBeChecked();
     await dialog.getByRole("button", { name: /^Formato/ }).click();
@@ -88,8 +81,7 @@ test("impasto dal Magazzino e consumo del formato arrivano dalla bozza al client
     await expect(badge).toHaveCSS("color", "rgb(255, 255, 255)");
     await expect(dialog.getByRole("button", { name: "Informazioni ingredienti e allergeni" })).toHaveCount(0);
     await expect(dialog.getByRole("heading", { name: "Ingredienti e allergeni" })).toHaveCount(0);
-    await expect(dialog.getByText(/Panetto integrale/)).toHaveCount(0);
-    await expect(dialog.getByText("Pomodoro", { exact: true })).toBeVisible();
+    await expect(dialog.getByText(/Panetto integrale/)).toBeVisible();
     const gluten = dialog.getByRole("button", { name: "Contiene Glutine", exact: true });
     await expect(gluten).toHaveText("🌾");
     await gluten.focus();

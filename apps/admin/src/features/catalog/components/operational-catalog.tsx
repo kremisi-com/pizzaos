@@ -199,7 +199,17 @@ export function OperationalCatalog({ api, storeId, ingredients, onPublished, onI
       <header className={styles.catalogHeader}>
         <div className={styles.catalogTitle}><h1>Il tuo menu</h1><p>Aggiungi le pizze, scegli il prezzo. Il resto solo se ti serve.</p></div>
         <div className={styles.headerActions}>
-          <span role="status" className={styles.small}>{selectedDraft ? failedDraft ? "Salvataggio non riuscito" : saving ? "Salvataggio automatico…" : dirty ? "Modifiche da salvare" : "Bozza salvata" : "Menu pubblicato"}</span>
+          <span role="status" className={selectedDraft && !failedDraft && (saving || !dirty) ? styles.saveStatus : styles.small}>
+            {selectedDraft && !failedDraft && (saving || !dirty) ? <>
+              <svg aria-hidden="true" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" className={saving ? styles.saveSpinner : undefined}>
+                {saving ? <path d="M12 3a9 9 0 1 1-9 9" /> : <>
+                  <path d="M7 18H6a4 4 0 0 1-.8-7.92 7 7 0 0 1 13.6 0A4 4 0 0 1 18 18h-1" />
+                  <path d="m9 17 2 2 4-4" />
+                </>}
+              </svg>
+              <span className={styles.screenReaderOnly}>{saving ? "Salvataggio automatico…" : "Bozza salvata"}</span>
+            </> : selectedDraft ? failedDraft ? "Salvataggio non riuscito" : "Modifiche da salvare" : "Menu pubblicato"}
+          </span>
           <Button type="button" variant="secondary" disabled={busy} aria-pressed={viewPreview} onClick={() => setViewPreview(value => !value)}>{viewPreview ? "Torna alla modifica" : "Anteprima"}</Button>
           <label className={styles.menuSelect}>Menu da modificare<select value={selectedId ?? ""} disabled={busy} onChange={event => select(event.target.value || null)}>
             <option value="">{workspace.published.name} (pubblicato)</option>

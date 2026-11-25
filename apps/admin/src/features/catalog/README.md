@@ -44,8 +44,8 @@ Gli ingredienti importati sono selezionabili dalla stessa lista del Magazzino. U
 
 ### Salvataggio automatico delle bozze
 
+Nell’intestazione la bozza salvata usa un cloud con spunta arancione primary; durante il salvataggio compare uno spinner nello stesso colore. Le descrizioni restano accessibili agli screen reader. Lo spinner rispetta la preferenza di movimento ridotto; modifiche locali ed errori mantengono il messaggio testuale. Verifica: `menu-autosave.test.tsx`.
+
 I campi di testo e numerici aggiornano la bozza locale durante la digitazione e si salvano tramite `MenuAdminApi` quando perdono il focus; aggiunte, rimozioni e selezioni si salvano subito; non ci sono pulsanti Salva bozza, Salva prodotto, Salva pizza o salvataggi separati per configurazioni e combinazioni. I campi restano editabili durante la richiesta: le modifiche successive vengono salvate in sequenza con la revisione aggiornata. Lo stato distingue modifiche locali, salvataggio in corso e completato; il toast «Bozza salvata.» compare soltanto dopo la risposta positiva; pubblicazione ed eliminazione della bozza attendono tutti i salvataggi.
 
 In caso di errore le modifiche restano locali, il messaggio Ã¨ visibile e **Riprova salvataggio** ritenta. Correggere un campo e uscirne avvia un nuovo tentativo; una revisione superata richiede di ricaricare, scartando esplicitamente le modifiche locali. Il menu cliente cambia solo con **Pubblica menu**. Verifica locale: `src/test/menu-autosave.test.tsx` (modifica prodotto, richieste sequenziali, campi editabili ed errore con retry).
-
-**Impasto consigliato** nella scheda pizza e nelle combinazioni custom sceglie un impasto del menu oppure Nessuno. Ãˆ un suggerimento senza preselezione per il cliente, pubblicato con la bozza. **Avvertenze del menu** Ã¨ nascosto: i dati salvati sono conservati. Verifica: `src/test/pizza-catalog-editor.test.tsx`.

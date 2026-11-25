@@ -4,6 +4,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import type { MenuAdminApi, MenuDraft, MenuWorkspace } from "@pizzaos/domain";
 import { AdminToastContext } from "../features/notifications";
 import { OperationalCatalog } from "../features/catalog/components/operational-catalog";
+import styles from "../features/catalog/components/operational-catalog.module.css";
 
 afterEach(cleanup);
 
@@ -41,8 +42,13 @@ describe("salvataggio automatico menu", () => {
       sections: [expect.objectContaining({ id: "section", name: "Menu Serale" })]
     })]);
     expect(showToast).not.toHaveBeenCalled();
+    expect(screen.getByRole("status")).toHaveTextContent("Salvataggio automatico…");
+    expect(screen.getByRole("status").querySelector("svg")).toHaveClass(styles.saveSpinner);
     resolveSave({ ...workspace, revision: 2, drafts: [saveDraft.mock.calls[0][2]] });
     await waitFor(() => expect(showToast).toHaveBeenCalledWith("Bozza salvata.", "success"));
+    expect(screen.getByRole("status")).toHaveTextContent("Bozza salvata");
+    expect(screen.getByRole("status").querySelector("svg")).not.toHaveClass(styles.saveSpinner);
+    expect(screen.getByText("Bozza salvata")).toHaveClass(styles.screenReaderOnly);
     expect(saveDraft).toHaveBeenCalledTimes(1);
     fireEvent.change(screen.getByLabelText("Nome menu"), { target: { value: "Bozza aggiornata" } });
     expect(saveDraft).toHaveBeenCalledTimes(1);
