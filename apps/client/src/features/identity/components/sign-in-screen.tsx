@@ -67,7 +67,7 @@ export function SignInScreen({ returnTo, demoOnly = false }: { returnTo: string;
   </section></div>;
 }
 
-export function SignOutButton() {
+export function SignOutButton({ label = "Esci", className }: { label?: string; className?: string }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   async function logout() {
@@ -85,5 +85,5 @@ export function SignOutButton() {
       document.body.appendChild(form); form.submit();
     } catch (failure) { setError(failure instanceof Error ? failure.message : "Impossibile uscire."); setBusy(false); }
   }
-  return <span><button type="button" disabled={busy} onClick={() => void logout()}>{busy ? "Uscita…" : "Esci"}</button>{error && <span role="alert">{error}</span>}</span>;
+  return <span><button className={className} type="button" disabled={busy} onClick={() => void logout()}>{busy ? "Uscita…" : label}</button>{error && <span role="alert">{error}</span>}</span>;
 }

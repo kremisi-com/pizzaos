@@ -10,6 +10,8 @@ Owner: `services/checkout-api` per Auth.js, sessioni e appartenenze; client/admi
 4. Admin e rider condividono il deploy frontend, con ingressi, home e login per host. Ogni sessione usa cookie Secure/HttpOnly limitati all'host; autenticarsi nell'admin non autentica automaticamente il rider o la sede cliente.
 5. Il servizio verifica sessione, appartenenza e assegnazione a ogni richiesta protetta; la sola visibilità di una pagina non concede accesso. Le mutazioni richiedono origine consentita; i proxy non inoltrano identità scelte dal browser e non memorizzano risposte/sessioni in cache.
 
+Nella home operativa il cliente autenticato apre `/ordina/profilo` dall’icona utente in alto a destra, senza nome account o logout nella home. La pagina conserva le preferenze alimentari e offre il pulsante a larghezza piena «Effettua il log out». Il logout usa la sessione e il token CSRF del servizio e torna a `/accesso`; in caso di errore mostra un avviso e consente di riprovare. Per gli ospiti resta il link «Accedi».
+
 ## Alternative ed errori
 
 - Sessione assente: richiesta di accesso / HTTP 401; ruolo o sede non autorizzati: 403 (o 404 per risorse di una sede estranea sul sito ordini). La disattivazione del rider revoca letture e azioni.
@@ -19,5 +21,7 @@ Owner: `services/checkout-api` per Auth.js, sessioni e appartenenze; client/admi
 - L'ingresso demo sostituisce la sessione operativa sullo stesso host. Demo e dati locali non autorizzano chiamate alle API operative, né pagamenti Stripe.
 
 ## Verifiche e limiti
+
+Accesso al profilo dalla home: [suite ordine individuale](../../../apps/client/src/test/individual-recovery.test.tsx). Logout nel profilo, ospite ed errore recuperabile: [suite profilo](../../../apps/client/src/test/profile-logout.test.tsx). Queste verifiche sono locali e non attestano un rilascio online.
 
 [Auth.js/PostgreSQL](../../../services/checkout-api/src/auth-runtime.test.ts), [domini e autorizzazioni](../../../tests/operational-domains.test.ts), [proxy](../../../tests/individual-proxy.test.ts), [isolamento demo](../../../services/checkout-api/src/demo-access.test.ts), [sottodomini](../../../services/checkout-api/src/store-subdomains.test.ts), [browser domini](../../../tests/e2e/operational-domains.spec.ts). Le prove Auth reali richiedono il database locale dedicato; quelle browser isolate non certificano Google o email esterni. Profilo completo, consensi e condizioni commerciali restano nel perimetro aperto D16/D31.

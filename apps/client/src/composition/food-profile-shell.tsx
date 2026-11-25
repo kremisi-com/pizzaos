@@ -7,6 +7,7 @@ import { Card } from "@pizzaos/ui";
 import { createFoodPreferencesApi } from "./api/food-preferences-api";
 import { createIndividualApi } from "./api/individual-api";
 import styles from "./food-profile.module.css";
+import { SignOutButton } from "../features/identity/components/sign-in-screen";
 
 export function FoodProfileShell() {
   const api = useMemo(() => createIndividualApi(), []);
@@ -27,5 +28,6 @@ export function FoodProfileShell() {
       : !session ? <p role="status">Caricamento del profilo…</p>
       : !session.actor ? <a href="/accesso">Accedi per salvare le preferenze</a>
       : <Card title="Allergeni e preferenze"><FoodPreferenceEditor preferences={preferences} /></Card>}
+    {session?.actor && <div className={styles.logout}><SignOutButton label="Effettua il log out" className={styles.logoutButton} /></div>}
   </main>;
 }

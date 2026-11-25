@@ -136,6 +136,8 @@ describe("individual ordering recovery and live catalog contract", () =>
     const fake = recoveryApi();
     fake.loseResponses(true);
     const firstPage = renderDom(<IndividualOrderingScreen api={fake.api} />);
+    expect((await domScreen.findByRole("link", { name: "Apri profilo" })).getAttribute("href")).toBe("/ordina/profilo");
+    expect(domScreen.queryByRole("button", { name: "Esci" })).toBeNull();
     await addPizzas(1);
     await verifyAndSubmit();
     await waitFor(() => expect(fake.accepted).toHaveLength(1));

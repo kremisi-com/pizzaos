@@ -38,3 +38,11 @@
   opacity: .5;
   cursor: default;
 }
+
+.logout { margin-top: 24px; }
+.logoutButton { width: 100%; font-weight: 650; }
+
+.page button:focus-visible {
+  outline: 3px solid var(--pizzaos-color-focus);
+  outline-offset: 3px;
+}

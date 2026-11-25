@@ -1,11 +1,11 @@
 .page { position: relative; max-width: 1180px; margin: -32px auto 0; padding: 32px 22px 60px; background: var(--pizzaos-color-background-accent); border-radius: 32px 32px 0 0; }
-.header { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 16px; }
+.header { position: relative; padding-right: 60px; display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 16px; }
 .header h1 { font-size: clamp(1.8rem, 5vw, 3rem); line-height: 1.08; letter-spacing: -.035em; margin: 0; }
 .header p { margin: 8px 0 0; color: var(--pizzaos-color-foreground-muted); }
 .heroActions { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 16px; }
 .heroActions a { min-height: 44px; padding: 12px 17px; border-radius: 12px; text-align: center; text-decoration: none; }
 .heroActions .groupLink { border: 1px solid var(--pizzaos-color-border); background: var(--pizzaos-color-surface-muted); }
-.account { display: flex; flex-wrap: wrap; gap: 16px; align-items: center; }
+.profileLink { position: absolute; top: 0; right: 0; display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; background: var(--pizzaos-color-surface-muted); text-decoration: none; font-size: 1.4rem; }
 .page a { color: var(--pizzaos-color-primary); font-weight: 650; }
 .page label { display: grid; gap: 7px; font-size: .9rem; font-weight: 600; margin: 14px 0; }
 .page input, .page select, .page textarea { width: 100%; box-sizing: border-box; padding: 11px 12px; border: 1px solid var(--pizzaos-color-border); border-radius: 10px; font: inherit; color: var(--pizzaos-color-foreground); background: var(--pizzaos-color-background-accent); }

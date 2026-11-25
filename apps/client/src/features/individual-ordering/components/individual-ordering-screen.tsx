@@ -9,7 +9,6 @@ import { IndividualStripeFields, type ConfirmIndividualPayment } from "./individ
 import { IndividualAdditions } from "./individual-additions";
 import { OrderSlotSelect } from "./order-slot-select";
 import { DeliveryAddressField, hasDeliveryPoint } from "./delivery-address-field";
-import { SignOutButton } from "../../identity/components/sign-in-screen";
 import { PromotionSelectionPanel, PromotionSummary } from "../../promotions";
 import { appendMenuLine, lineIssue, MenuLineDetails, MenuLineEditor, OperationalMenu, useMenuPreferences } from "../../menu";
 import { OrderTimeline } from "../../orders/components/operational-order-timeline";
@@ -235,7 +234,7 @@ export function IndividualOrderingScreen({ api, promotionsApi, preferencesApi, r
     <div className={styles.page}>
     <header className={styles.header}>
       <div><h1>La tua prossima pizza.</h1>{store && <p>{store.name} · {store.acceptingOrders ? "Ordini aperti" : "Ordini sospesi"}</p>}</div>
-      {session?.actor ? <div className={styles.account}><a href="/ordina/profilo">{session.actor.name || session.actor.email} · Profilo</a><SignOutButton /></div> : <a href="/accesso">Accedi</a>}
+      {session?.actor ? <a className={styles.profileLink} href="/ordina/profilo" aria-label="Apri profilo" title="Apri profilo"><span aria-hidden="true">👤</span></a> : <a href="/accesso">Accedi</a>}
     </header>
     <nav className={styles.heroActions} aria-label="Inizia a ordinare">
       {stores.length > 0 && <a className={styles.linkButton} href="#il-menu">Sfoglia il menu</a>}
