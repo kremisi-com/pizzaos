@@ -6,277 +6,277 @@
   "ingredients": [
     {
       "id": "demo-menu-20261125-pomodoro",
-      "name": "Pomodoro · demo 25/11/2026",
+      "name": "Pomodoro",
       "stock": 100
     },
     {
       "id": "demo-menu-20261125-mozzarella",
-      "name": "Mozzarella · demo 25/11/2026",
+      "name": "Mozzarella",
       "stock": 100
     },
     {
       "id": "demo-menu-20261125-datterini-gialli",
-      "name": "Datterini gialli · demo 25/11/2026",
+      "name": "Datterini gialli",
       "stock": 100
     },
     {
       "id": "demo-menu-20261125-datterini-rossi",
-      "name": "Datterini rossi · demo 25/11/2026",
+      "name": "Datterini rossi",
       "stock": 100
     },
     {
       "id": "demo-menu-20261125-bufala",
-      "name": "Mozzarella di bufala D.O.P. · demo 25/11/2026",
+      "name": "Mozzarella di bufala D.O.P.",
       "stock": 100
     },
     {
       "id": "demo-menu-20261125-pesto",
-      "name": "Pesto di Pra’ senza aglio · demo 25/11/2026",
+      "name": "Pesto di Pra’ senza aglio",
       "stock": 100
     },
     {
       "id": "demo-menu-20261125-speck",
-      "name": "Speck croccante · demo 25/11/2026",
+      "name": "Speck croccante",
       "stock": 100
     },
     {
       "id": "demo-menu-20261125-gorgonzola",
-      "name": "Gorgonzola D.O.P. · demo 25/11/2026",
+      "name": "Gorgonzola D.O.P.",
       "stock": 100
     },
     {
       "id": "demo-menu-20261125-bufala-cottura",
-      "name": "Mozzarella di bufala campana D.O.P. in cottura · demo 25/11/2026",
+      "name": "Mozzarella di bufala campana D.O.P. in cottura",
       "stock": 100
     },
     {
       "id": "demo-menu-20261125-olio-puglia",
-      "name": "Olio EVO pugliese · demo 25/11/2026",
+      "name": "Olio EVO pugliese",
       "stock": 100
     },
     {
       "id": "demo-menu-20261125-tonno",
-      "name": "Tonno al naturale · demo 25/11/2026",
+      "name": "Tonno al naturale",
       "stock": 100
     },
     {
       "id": "demo-menu-20261125-cipolle",
-      "name": "Cipolle fresche caramellate · demo 25/11/2026",
+      "name": "Cipolle fresche caramellate",
       "stock": 100
     },
     {
       "id": "demo-menu-20261125-zucchine",
-      "name": "Zucchine · demo 25/11/2026",
+      "name": "Zucchine",
       "stock": 100
     },
     {
       "id": "demo-menu-20261125-melanzane",
-      "name": "Melanzane · demo 25/11/2026",
+      "name": "Melanzane",
       "stock": 100
     },
     {
       "id": "demo-menu-20261125-peperoni",
-      "name": "Peperoni · demo 25/11/2026",
+      "name": "Peperoni",
       "stock": 100
     },
     {
       "id": "demo-menu-20261125-funghi",
-      "name": "Funghi con porcini · demo 25/11/2026",
+      "name": "Funghi con porcini",
       "stock": 100
     },
     {
       "id": "demo-menu-20261125-brie",
-      "name": "Brie · demo 25/11/2026",
+      "name": "Brie",
       "stock": 100
     },
     {
       "id": "demo-menu-20261125-salsiccia",
-      "name": "Salsiccia fresca · demo 25/11/2026",
+      "name": "Salsiccia fresca",
       "stock": 100
     },
     {
       "id": "demo-menu-20261125-aglio",
-      "name": "Aglio bianco · demo 25/11/2026",
+      "name": "Aglio bianco",
       "stock": 100
     },
     {
       "id": "demo-menu-20261125-olio-aglio",
-      "name": "Olio EVO all’aglio · demo 25/11/2026",
+      "name": "Olio EVO all’aglio",
       "stock": 100
     },
     {
       "id": "demo-menu-20261125-origano-puglia",
-      "name": "Origano pugliese bio · demo 25/11/2026",
+      "name": "Origano pugliese bio",
       "stock": 100
     },
     {
       "id": "demo-menu-20261125-wurstel",
-      "name": "Würstel giganti del Trentino · demo 25/11/2026",
+      "name": "Würstel giganti del Trentino",
       "stock": 100
     },
     {
       "id": "demo-menu-20261125-patate",
-      "name": "Patate fresche al forno in tripla cottura · demo 25/11/2026",
+      "name": "Patate fresche al forno in tripla cottura",
       "stock": 100
     },
     {
       "id": "demo-menu-20261125-salame",
-      "name": "Salame piccante · demo 25/11/2026",
+      "name": "Salame piccante",
       "stock": 100
     },
     {
       "id": "demo-menu-20261125-olio-peperoncino",
-      "name": "Olio EVO al peperoncino · demo 25/11/2026",
+      "name": "Olio EVO al peperoncino",
       "stock": 100
     },
     {
       "id": "demo-menu-20261125-acciughe",
-      "name": "Acciughe del Mar Cantabrico · demo 25/11/2026",
+      "name": "Acciughe del Mar Cantabrico",
       "stock": 100
     },
     {
       "id": "demo-menu-20261125-origano-sicilia",
-      "name": "Origano di Sicilia bio · demo 25/11/2026",
+      "name": "Origano di Sicilia bio",
       "stock": 100
     },
     {
       "id": "demo-menu-20261125-marmellata",
-      "name": "Marmellata artigianale di fico d’India · demo 25/11/2026",
+      "name": "Marmellata artigianale di fico d’India",
       "stock": 100
     },
     {
       "id": "demo-menu-20261125-prosciutto",
-      "name": "Prosciutto cotto di Praga · demo 25/11/2026",
+      "name": "Prosciutto cotto di Praga",
       "stock": 100
     },
     {
       "id": "demo-menu-20261125-carciofi",
-      "name": "Carciofi gourmet con gambo · demo 25/11/2026",
+      "name": "Carciofi gourmet con gambo",
       "stock": 100
     },
     {
       "id": "demo-menu-20261125-olive",
-      "name": "Olive taggiasche · demo 25/11/2026",
+      "name": "Olive taggiasche",
       "stock": 100
     },
     {
       "id": "demo-menu-20261125-pane",
-      "name": "Pane · demo 25/11/2026",
+      "name": "Pane",
       "stock": 100
     },
     {
       "id": "demo-menu-20261125-nutella",
-      "name": "Nutella · demo 25/11/2026",
+      "name": "Nutella",
       "stock": 100
     },
     {
       "id": "demo-menu-20261125-impasto-castagne",
-      "name": "Impasto castagne · demo 25/11/2026",
+      "name": "Impasto castagne",
       "stock": 5
     },
     {
       "id": "demo-menu-20261125-impasto-mais",
-      "name": "Impasto mais · demo 25/11/2026",
+      "name": "Impasto mais",
       "stock": 16
     },
     {
       "id": "demo-menu-20261125-impasto-integrale",
-      "name": "Impasto integrale · demo 25/11/2026",
+      "name": "Impasto integrale",
       "stock": 0
     },
     {
       "id": "demo-menu-20261125-impasto-tradizionale",
-      "name": "Impasto tradizionale · demo 25/11/2026",
+      "name": "Impasto tradizionale",
       "stock": 16
     },
     {
       "id": "demo-menu-20261125-bocconcini",
-      "name": "Bocconcini di pane (porzione da 6) · demo 25/11/2026",
+      "name": "Bocconcini di pane (porzione da 6)",
       "stock": 0
     },
     {
       "id": "demo-menu-20261125-barchetta",
-      "name": "Barchetta pronta · demo 25/11/2026",
+      "name": "Barchetta pronta",
       "stock": 0
     },
     {
       "id": "demo-menu-20261125-birra-chiara",
-      "name": "Chiara artigianale 33 cl · demo 25/11/2026",
+      "name": "Chiara artigianale 33 cl",
       "stock": 24
     },
     {
       "id": "demo-menu-20261125-birra-ambrata",
-      "name": "Ambrata artigianale 33 cl · demo 25/11/2026",
+      "name": "Ambrata artigianale 33 cl",
       "stock": 18
     },
     {
       "id": "demo-menu-20261125-birra-ipa",
-      "name": "IPA artigianale 33 cl · demo 25/11/2026",
+      "name": "IPA artigianale 33 cl",
       "stock": 18
     },
     {
       "id": "demo-menu-20261125-apribottiglie",
-      "name": "Apribottiglie omaggio · demo 25/11/2026",
+      "name": "Apribottiglie omaggio",
       "stock": 20
     },
     {
       "id": "demo-menu-20261125-acqua-naturale",
-      "name": "Acqua naturale 50 cl · demo 25/11/2026",
+      "name": "Acqua naturale 50 cl",
       "stock": 48
     },
     {
       "id": "demo-menu-20261125-acqua-frizzante",
-      "name": "Acqua frizzante 50 cl · demo 25/11/2026",
+      "name": "Acqua frizzante 50 cl",
       "stock": 48
     },
     {
       "id": "demo-menu-20261125-coca-cola",
-      "name": "Coca-Cola 33 cl · demo 25/11/2026",
+      "name": "Coca-Cola 33 cl",
       "stock": 24
     },
     {
       "id": "demo-menu-20261125-coca-zero",
-      "name": "Coca-Cola Zero 33 cl · demo 25/11/2026",
+      "name": "Coca-Cola Zero 33 cl",
       "stock": 24
     },
     {
       "id": "demo-menu-20261125-fanta",
-      "name": "Fanta 33 cl · demo 25/11/2026",
+      "name": "Fanta 33 cl",
       "stock": 18
     },
     {
       "id": "demo-menu-20261125-sprite",
-      "name": "Sprite 33 cl · demo 25/11/2026",
+      "name": "Sprite 33 cl",
       "stock": 18
     },
     {
       "id": "demo-menu-20261125-te-pesca",
-      "name": "Tè alla pesca 33 cl · demo 25/11/2026",
+      "name": "Tè alla pesca 33 cl",
       "stock": 18
     },
     {
       "id": "demo-menu-20261125-te-limone",
-      "name": "Tè al limone 33 cl · demo 25/11/2026",
+      "name": "Tè al limone 33 cl",
       "stock": 18
     },
     {
       "id": "demo-menu-20261125-bocconcini-nutella",
-      "name": "Bocconcini di pane alla Nutella (porzione da 6) · demo 25/11/2026",
+      "name": "Bocconcini di pane alla Nutella (porzione da 6)",
       "stock": 0
     },
     {
       "id": "demo-menu-20261125-sacher",
-      "name": "Sacher (porzione) · demo 25/11/2026",
+      "name": "Sacher (porzione)",
       "stock": 1
     },
     {
       "id": "demo-menu-20261125-cheesecake-rossi",
-      "name": "Cheesecake ai frutti rossi (porzione) · demo 25/11/2026",
+      "name": "Cheesecake ai frutti rossi (porzione)",
       "stock": 2
     },
     {
       "id": "demo-menu-20261125-cheesecake-pistacchio",
-      "name": "Cheesecake al pistacchio (porzione) · demo 25/11/2026",
+      "name": "Cheesecake al pistacchio (porzione)",
       "stock": 2
     }
   ],
@@ -287,22 +287,22 @@
       "Birre, bibite, box, omaggi, verdure e tris di formaggi sono esempi, non referenze verificate del produttore.",
       "Formato standard dimostrativo 32 cm, consumo di una unità di impasto; Baby usa lo stesso formato.",
       "Dosi: una porzione per ingrediente; scorte ordinarie 100 porzioni. Impasti, prodotti finiti e bevande hanno le quantità concordate.",
-      "Gli ingredienti esistenti hanno stock null: nessuno è stato riutilizzato né modificato. Tutte le scorte demo sono separate e riconoscibili dal suffisso.",
+      "Gli ingredienti esistenti hanno stock null: nessuno è stato riutilizzato né modificato. Le scorte separate sono identificate dagli ID tecnici, senza suffissi nei nomi visibili.",
       "Allergeni e tracce non forniti: schede food omesse, informazioni da verificare. Nessuna immagine caricata.",
       "I prodotti finiti (stuzzicherie e dolci) si scalano per porzione completa; la ricetta artigianale interna resta da verificare.",
       "Box: 3 o 6 bottiglie con ripetizioni; prezzo fisso, una bottiglia per scelta e uno o due apribottiglie omaggio.",
-      "Importazione limitata a una nuova bozza; nessuna pubblicazione, modifica a menu precedenti, ordini o scorte condivise."
+      "Importazione limitata a una nuova bozza; nessuna pubblicazione, modifica a menu precedenti, ordini o scorte condivise.",
+      "Correzione richiesta da Andrea: nomi visibili senza demo/date, nessun avviso dimostrativo e descrizioni delle pizze senza ripetere gli ingredienti strutturati. ID tecnici e dati commerciali conservati."
     ]
   },
   "draft": {
     "id": "menu-demo-20261125-speciale",
-    "name": "La Pizza Speciale · nuovo menu demo 25/11/2026",
-    "kitchenNotice": "Menu dimostrativo. Disponibilità e referenze aggiunte sono dati di esempio. Allergeni e tracce da verificare con il personale.",
+    "name": "La Pizza Speciale",
     "products": [
       {
         "id": "demo-menu-20261125-bocconcini",
         "name": "Bocconcini di pane",
-        "description": "6 bocconcini di pane appena sfornati",
+        "description": "6 pezzi appena sfornati.",
         "priceCents": 450,
         "available": false,
         "ingredients": {
@@ -314,7 +314,7 @@
       {
         "id": "demo-menu-20261125-barchetta",
         "name": "Barchetta",
-        "description": "Barchetta di pizza con pomodoro, mozzarella e origano, da condividere",
+        "description": "Da condividere.",
         "priceCents": 650,
         "available": false,
         "ingredients": {
@@ -326,7 +326,7 @@
       {
         "id": "demo-menu-20261125-birra-chiara",
         "name": "Chiara artigianale",
-        "description": "Birra artigianale in bottiglia da 33 cl · Referenza dimostrativa",
+        "description": "Birra artigianale in bottiglia da 33 cl",
         "priceCents": 600,
         "available": true,
         "ingredients": {
@@ -338,7 +338,7 @@
       {
         "id": "demo-menu-20261125-birra-ambrata",
         "name": "Ambrata artigianale",
-        "description": "Birra artigianale in bottiglia da 33 cl · Referenza dimostrativa",
+        "description": "Birra artigianale in bottiglia da 33 cl",
         "priceCents": 600,
         "available": true,
         "ingredients": {
@@ -350,7 +350,7 @@
       {
         "id": "demo-menu-20261125-birra-ipa",
         "name": "IPA artigianale",
-        "description": "Birra artigianale in bottiglia da 33 cl · Referenza dimostrativa",
+        "description": "Birra artigianale in bottiglia da 33 cl",
         "priceCents": 600,
         "available": true,
         "ingredients": {
@@ -568,7 +568,7 @@
       {
         "id": "demo-menu-20261125-bocconcini-nutella",
         "name": "Bocconcini di pane alla Nutella (6 pz.)",
-        "description": "Bocconcini appena sfornati, ripieni di Nutella",
+        "description": "6 pezzi appena sfornati.",
         "priceCents": 600,
         "available": false,
         "ingredients": {
@@ -647,7 +647,7 @@
       {
         "id": "birre",
         "name": "Birre speciali",
-        "description": "Birre artigianali in bottiglia del birrificio agricolo Serra Storta di Buscate, nel Parco del Ticino, prodotte prevalentemente con materie prime coltivate dall’azienda. Referenze e box dimostrativi.",
+        "description": "Birre artigianali in bottiglia del birrificio agricolo Serra Storta di Buscate, nel Parco del Ticino, prodotte prevalentemente con materie prime coltivate dall’azienda.",
         "productIds": [
           "demo-menu-20261125-birra-chiara",
           "demo-menu-20261125-birra-ambrata",
@@ -1109,7 +1109,7 @@
         {
           "id": "demo-menu-20261125-speciale",
           "name": "La Pizza Speciale",
-          "description": "Best seller · Pomodoro, mozzarella, datterini gialli e rossi, bufala D.O.P. e pesto di Pra’ senza aglio",
+          "description": "Best seller",
           "priceCents": 1300,
           "available": true,
           "standardDoughId": "tradizionale",
@@ -1138,7 +1138,7 @@
         {
           "id": "demo-menu-20261125-regina",
           "name": "Regina d’Autunno",
-          "description": "Pizza del mese · Mozzarella, speck croccante e gorgonzola D.O.P.",
+          "description": "Pizza del mese",
           "priceCents": 1100,
           "available": true,
           "standardDoughId": "tradizionale",
@@ -1164,7 +1164,7 @@
         {
           "id": "demo-menu-20261125-bufalina",
           "name": "Bufalina",
-          "description": "Pomodoro, mozzarella di bufala campana D.O.P. in cottura e pipetta di olio EVO pugliese",
+          "description": "",
           "priceCents": 1000,
           "available": true,
           "standardDoughId": "tradizionale",
@@ -1190,7 +1190,7 @@
         {
           "id": "demo-menu-20261125-blu-blu",
           "name": "Blu Blu",
-          "description": "Pomodoro, mozzarella, tonno al naturale e cipolle fresche caramellate",
+          "description": "",
           "priceCents": 1040,
           "available": true,
           "standardDoughId": "tradizionale",
@@ -1217,7 +1217,7 @@
         {
           "id": "demo-menu-20261125-arcobaleno",
           "name": "Arcobaleno",
-          "description": "Pomodoro, mozzarella e mix di verdure fresche secondo disponibilità: zucchine, melanzane e peperoni",
+          "description": "",
           "priceCents": 1220,
           "available": true,
           "standardDoughId": "tradizionale",
@@ -1245,7 +1245,7 @@
         {
           "id": "demo-menu-20261125-porciccia",
           "name": "Porciccia",
-          "description": "Pomodoro, mozzarella, funghi con porcini, brie e salsiccia fresca",
+          "description": "",
           "priceCents": 1340,
           "available": true,
           "standardDoughId": "tradizionale",
@@ -1273,7 +1273,7 @@
         {
           "id": "demo-menu-20261125-marinara",
           "name": "Marinara Sbagliata",
-          "description": "Pomodoro, datterini gialli, aglio bianco, olio EVO all’aglio e origano pugliese bio",
+          "description": "",
           "priceCents": 1090,
           "available": true,
           "standardDoughId": "tradizionale",
@@ -1301,7 +1301,7 @@
         {
           "id": "demo-menu-20261125-happy-pork",
           "name": "Happy Pork",
-          "description": "Pomodoro, mozzarella, würstel giganti del Trentino e patate fresche al forno in tripla cottura",
+          "description": "",
           "priceCents": 1070,
           "available": true,
           "standardDoughId": "tradizionale",
@@ -1328,7 +1328,7 @@
         {
           "id": "demo-menu-20261125-diavolita",
           "name": "Diavolita",
-          "description": "Pomodoro, mozzarella, salame piccante e olio EVO al peperoncino",
+          "description": "",
           "priceCents": 940,
           "available": true,
           "standardDoughId": "tradizionale",
@@ -1355,7 +1355,7 @@
         {
           "id": "demo-menu-20261125-napoli",
           "name": "Super Napoli",
-          "description": "Pomodoro, mozzarella di bufala D.O.P., acciughe del Mar Cantabrico e origano di Sicilia bio",
+          "description": "",
           "priceCents": 1280,
           "available": true,
           "standardDoughId": "tradizionale",
@@ -1382,7 +1382,7 @@
         {
           "id": "demo-menu-20261125-formaggi",
           "name": "Tre Formaggi",
-          "description": "Tris di formaggi secondo disponibilità: mozzarella, gorgonzola e brie, con marmellata artigianale di fico d’India servita a parte",
+          "description": "",
           "priceCents": 1190,
           "available": true,
           "standardDoughId": "tradizionale",
@@ -1409,7 +1409,7 @@
         {
           "id": "demo-menu-20261125-monellona",
           "name": "Monellona",
-          "description": "Pomodoro, mozzarella, prosciutto cotto di Praga, funghi con porcini, carciofi gourmet con gambo e olive taggiasche, il tutto suddiviso in quattro spicchi",
+          "description": "Suddivisa in quattro spicchi.",
           "priceCents": 1390,
           "available": true,
           "standardDoughId": "tradizionale",
@@ -1438,7 +1438,7 @@
         {
           "id": "demo-menu-20261125-margherita",
           "name": "Margherita Tristezza",
-          "description": "Pomodoro e mozzarella",
+          "description": "",
           "priceCents": 700,
           "available": true,
           "standardDoughId": "tradizionale",
@@ -1463,7 +1463,7 @@
         {
           "id": "demo-menu-20261125-baby",
           "name": "Baby",
-          "description": "Pomodoro e mozzarella, servita con un «8» di pane e Nutella",
+          "description": "",
           "priceCents": 700,
           "available": true,
           "standardDoughId": "tradizionale",
