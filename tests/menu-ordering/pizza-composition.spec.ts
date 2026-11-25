@@ -200,8 +200,10 @@ test("Magazzino e formula libera arrivano al preventivo con impasto e base scelt
     await editor.evaluate(element => {
       for (const child of [element, ...element.querySelectorAll("*")]) if (child instanceof HTMLElement) child.scrollTo(0, 0);
     });
-    const editorPreview = editor.getByRole("img", { name: "Anteprima pizza La mia pizza", exact: true });
-    await expect.poll(() => editorPreview.evaluate(image => image instanceof HTMLImageElement && image.complete && image.naturalWidth > 0)).toBe(true);
+    await expect(editor.getByRole("img", { name: /Anteprima pizza/ })).toHaveCount(0);
+    await expect(editor.getByText("La tua pizza prende forma qui.", { exact: true })).toHaveCount(0);
+    await expect(editor.getByText("Informazione da verificare", { exact: true })).toHaveCount(0);
+    await expect(editor.getByRole("button", { name: "Chiudi personalizzazione" })).toBeVisible();
     await page.screenshot({ path: testInfo.outputPath("pizza-editor-mobile.png") });
     await editor.getByRole("button", { name: /Impasto/ }).click();
     await editor.getByRole("radio", { name: /Integrale/ }).check();

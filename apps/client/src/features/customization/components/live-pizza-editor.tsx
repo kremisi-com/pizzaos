@@ -3,11 +3,9 @@
 import { menuAllergenKey, resolveMenuComposition } from "@pizzaos/domain";
 import type { IndividualLine, IndividualOption, IndividualProduct, IndividualStore, MenuOptionGroup, MenuSelection } from "@pizzaos/domain";
 import { Badge } from "@pizzaos/ui";
-import Image from "next/image";
 import { useEffect, useId, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { CollapsibleSection } from "./collapsible-section";
-import { pizzaPreview } from "../pizza-presentation";
 import styles from "./product-detail-screen.module.css";
 import live from "./live-pizza-editor.module.css";
 
@@ -70,7 +68,6 @@ export function LivePizzaEditor({ store, product, line, quantity = 1, disabled, 
   const canSave = !disabled && product.available && preview.valid;
   const changed = selections.some(choice => !options.has(choice.optionId) || options.get(choice.optionId)?.available === false);
   const selected = (id: string) => selections.find(choice => choice.optionId === id)?.quantity ?? 0;
-  const image = pizzaPreview(product, selections, store.id);
   const pairings = onPairing ? store.products.filter(item => item.available && !item.groups?.length && product.pairingProductIds?.includes(item.id)) : [];
   const extraGroups = groups.filter(group => group.kind === "extras");
   const extraIds = new Set(extraGroups.flatMap(group => group.optionIds));
@@ -154,12 +151,6 @@ export function LivePizzaEditor({ store, product, line, quantity = 1, disabled, 
         <div className={styles.heroTopRow}>
           <button type="button" className={`${styles.backButton} ${live.back}`} onClick={onClose} aria-label="Chiudi personalizzazione"><span aria-hidden="true">←</span> Menu</button>
         </div>
-        {image.src ? <div className={styles.generatorPreview}><div className={`${styles.generatorPreviewFrame} ${live.previewFrame}`}>
-          <Image unoptimized src={image.src} alt={`Anteprima pizza ${product.name}`} width={360} height={360}
-            className={image.configured ? styles.generatorPreviewImage : live.fallback} />
-          {image.overlay && <Image unoptimized src={image.overlay}
-            alt="" aria-hidden="true" width={330} height={330} className={styles.generatorPreviewOverlay} />}
-        </div></div> : <div className={live.emptyPreview}><span aria-hidden="true">🍕</span><p>La tua pizza prende forma qui.</p></div>}
         <div className={styles.titleWrapper}>
           <h1 id={titleId} className={styles.heroTitle}>{product.name}</h1>
           <button type="button" className={styles.infoButton} onClick={() => setShowFood(current => !current)}
@@ -171,7 +162,6 @@ export function LivePizzaEditor({ store, product, line, quantity = 1, disabled, 
           {preview.composition.contains.map(label => <Badge tone="warning" key={label}>{label}</Badge>)}
         </div>
         {preview.composition.mayContain.length > 0 && <p>Può contenere: {preview.composition.mayContain.join(", ")}</p>}
-        {!preview.composition.foodComplete && <p>Informazione da verificare</p>}
         {showFood && <div className={styles.modalIngredientList}>
           <h2>Ingredienti e allergeni</h2>
           <p>{preview.composition.ingredients.join(", ") || "Componi la tua pizza"}</p>

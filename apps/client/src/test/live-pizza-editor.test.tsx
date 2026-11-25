@@ -68,6 +68,24 @@ describe("pizza choices after product selection", () => {
 });
 
 describe("persistent pizza editor using the PoC presentation", () => {
+  it.each([true, false])("keeps menu navigation without the preview or incomplete-food notice (assets: %s)", withAssets => {
+    const { store, taste } = fixture();
+    if (!withAssets) {
+      taste.imageId = undefined;
+      taste.pizza!.previewImages = [];
+      taste.pizza!.toppingImagePath = undefined;
+      for (const option of taste.options) if (option.pizza) option.pizza.imagePath = undefined;
+    }
+    const close = vi.fn();
+    renderDom(<LivePizzaEditor store={store} product={taste} disabled={false} avoid={[]} onClose={close} onSave={vi.fn()} />);
+    expect(domScreen.getByRole("heading", { name: taste.name })).toBeTruthy();
+    expect(domScreen.queryByRole("img")).toBeNull();
+    expect(domScreen.queryByText("La tua pizza prende forma qui.")).toBeNull();
+    expect(domScreen.queryByText("Informazione da verificare")).toBeNull();
+    domFireEvent.click(domScreen.getByRole("button", { name: "Chiudi personalizzazione" }));
+    expect(close).toHaveBeenCalledOnce();
+  });
+
   it.each(["dough", "format"] as const)("hides %s with at most one available choice and preserves defaults", kind => {
     const { store, taste } = fixture();
     const group = taste.groups!.find(group => group.kind === kind)!;
@@ -145,11 +163,10 @@ describe("persistent pizza editor using the PoC presentation", () => {
     for (const name of ["Impasto", "Base", "Ingredienti", "Extra", "Note per la cucina"]) {
       expect(domScreen.getByRole("heading", { name }).textContent).toBe(name);
     }
-    expect(domScreen.getByRole("img", { name: "Anteprima pizza Margherita" }).getAttribute("src")).toBe("/images/pizza/rossa-classica.png");
+    expect(domScreen.queryByRole("img")).toBeNull();
     domFireEvent.click(domScreen.getByRole("heading", { name: "Impasto" }).closest("button") as HTMLButtonElement);
     domFireEvent.click(domScreen.getByRole("radio", { name: /Integrale/ }));
-    expect(domScreen.getByRole("img", { name: "Anteprima pizza Margherita" }).getAttribute("src")).toBe("/images/pizza/rossa-integrale.png");
-    expect(document.querySelector('[src="/images/topping/margherita.png"]')).not.toBeNull();
+    expect(domScreen.queryByRole("img")).toBeNull();
     domFireEvent.change(domScreen.getByLabelText("Messaggio opzionale"), { target: { value: "Ben cotta" } });
     expect(domScreen.getByTestId("customization-total-value").textContent).toContain("7,20");
     domFireEvent.click(domScreen.getByRole("button", { name: /Aggiungi al carrello/ }));

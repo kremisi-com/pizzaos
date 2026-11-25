@@ -219,3 +219,5 @@ Su richiesta esplicita di Andrea, le schede del menu Client mostrano solo gli in
 Su richiesta esplicita di Andrea, il dettaglio pizza omette la scelta di impasto e formato quando non vi è più di una opzione disponibile. Correggere inoltre il contrasto del testo nella scelta attiva/con focus. [Flusso corrente](flows/menu-ordering.md).
 
 Andrea richiede per le card del menu client il prezzo in alto a destra allineato al titolo, la rimozione del pulsante + e l'intera card cliccabile per ridurne l'altezza. Il comportamento corrente e i casi limite sono nella [specifica del menu](flows/menu-ordering.md).
+
+Su richiesta esplicita di Andrea, il dettaglio pizza operativo rimuove tutto il riquadro superiore, comprese anteprima, emoji e «La tua pizza prende forma qui.», mantenendo soltanto il ritorno al menu prima del nome della pizza. Rimuove inoltre «Informazione da verificare». Questa scelta aggiorna la presentazione prevista da D80/D82. [Flusso corrente](flows/menu-ordering.md).
