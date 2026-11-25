@@ -344,7 +344,7 @@
   top: 1rem;
   max-height: calc(100dvh - 2rem);
   overflow-y: auto;
-  overscroll-behavior-y: contain;
+  overscroll-behavior-y: auto;
 }
 .categoryTabs { display: flex; flex-wrap: wrap; gap: .35rem; }
 .threeFields { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .75rem; align-items: end; }
