@@ -273,6 +273,7 @@ export function IndividualOperationsShell({ riderHref, orderingDomain }: { rider
       {tab === "profile" && session.superadmin && !creating &&
         <Button type="button" variant="secondary" disabled={busy} onClick={() => { setCreating(true); setError(""); setNotice(""); }}>Nuova sede</Button>}
       {tab === "catalog" && store && <OperationalCatalog key={storeId} api={api} storeId={storeId}
+        loadIngredients={async id => (await api.catalog(id)).ingredients}
         ingredients={store.ingredients} onPublished={refresh} onInventory={() => navigate("inventory")} />}
       {tab !== "catalog" && (creating || store) && <StoreConfiguration key={creating ? "new" : `${storeId}:${tab}:${configurationVersion}`}
         store={creating ? emptyStore : store ?? emptyStore} isNew={creating} section={tab} busy={busy}

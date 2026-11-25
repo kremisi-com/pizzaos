@@ -1,12 +1,13 @@
 "use client";
 
 import type { IndividualIngredient, MenuAdminApi, MenuDraft, MenuWorkspace } from "@pizzaos/domain";
-import { materializePizzaMenu } from "@pizzaos/domain";
+import { materializePizzaMenu, syncPizzaInventory } from "@pizzaos/domain";
 import { Button } from "@pizzaos/ui";
-import { useEffect, useRef, useState, type SyntheticEvent } from "react";
+import { useEffect, useMemo, useRef, useState, type SyntheticEvent } from "react";
 import { useAdminToast } from "../../notifications";
 import { MenuDraftEditor } from "./menu-draft-editor";
 import { MenuPreview } from "./menu-preview";
+import { MenuExtraChanges } from "./menu-extra-changes";
 import styles from "./operational-catalog.module.css";
 
 function message(failure: unknown) {
@@ -19,12 +20,13 @@ function isTextEdit(event: SyntheticEvent) {
     && !["checkbox", "radio", "file", "button", "submit"].includes(target.type);
 }
 
-export function OperationalCatalog({ api, storeId, ingredients, onPublished, onInventory }: {
+export function OperationalCatalog({ api, storeId, ingredients, onPublished, onInventory, loadIngredients }: {
   api: MenuAdminApi;
   storeId: string;
   ingredients: readonly IndividualIngredient[];
   onPublished: () => void;
   onInventory?: () => void;
+  loadIngredients?: (storeId: string) => Promise<readonly IndividualIngredient[]>;
 }) {
   const showToast = useAdminToast();
   const [workspace, setWorkspace] = useState<MenuWorkspace | null>(null);
@@ -41,6 +43,7 @@ export function OperationalCatalog({ api, storeId, ingredients, onPublished, onI
   const [failedDraft, setFailedDraft] = useState<MenuDraft | null>(null);
   const saveInFlight = useRef(false);
   const publishDialog = useRef<HTMLDialogElement>(null);
+  const [publicationReview, setPublicationReview] = useState<{ draft: MenuDraft; ingredients: readonly IndividualIngredient[] } | null>(null);
 
   useEffect(() => {
     if (confirmation !== "publish") return;
@@ -145,10 +148,34 @@ export function OperationalCatalog({ api, storeId, ingredients, onPublished, onI
   const dirty = Object.keys(edits).length > 0;
   const pending = busy || saving || dirty;
 
-  async function publish() {
-    if (!workspace || !selectedDraft || pending) return;
+  async function reviewPublication() {
+    if (!selectedDraft || pending) return;
+    setPublicationReview(null);
+    setConfirmation("publish");
     await perform(async () => {
-      const updated = await api.publish(storeId, workspace.revision, selectedDraft.id);
+      const latest = loadIngredients ? await loadIngredients(storeId) : ingredients;
+      setPublicationReview({ draft: selectedDraft, ingredients: latest });
+    });
+  }
+
+  const reviewedMenu = useMemo(() => publicationReview && syncPizzaInventory(publicationReview.draft, publicationReview.ingredients), [publicationReview]);
+  const extrasChanged = reviewedMenu?.pizzaCatalog?.inventorySignature !== publicationReview?.draft.pizzaCatalog?.inventorySignature;
+
+  async function publish() {
+    if (!workspace || !selectedDraft || pending || !publicationReview || !reviewedMenu) return;
+    await perform(async () => {
+      let current = workspace;
+      const prepared = syncPizzaInventory(selectedDraft, publicationReview.ingredients);
+      if (prepared.pizzaCatalog?.inventorySignature !== selectedDraft.pizzaCatalog?.inventorySignature) {
+        current = await api.saveDraft(storeId, current.revision, prepared);
+        setWorkspace(current);
+        const saved = current.drafts.find(draft => draft.id === selectedDraft.id);
+        if (!saved || saved.pizzaCatalog?.inventorySignature !== prepared.pizzaCatalog?.inventorySignature) {
+          setPublicationReview(null);
+          throw new Error("Gli extra sono cambiati durante la conferma. Ricontrolla le modifiche prima di pubblicare.");
+        }
+      }
+      const updated = await api.publish(storeId, current.revision, selectedDraft.id);
       setWorkspace(updated);
       select(null);
       showToast("Menu pubblicato.", "success");
@@ -215,7 +242,7 @@ export function OperationalCatalog({ api, storeId, ingredients, onPublished, onI
             <option value="">{workspace.published.name} (pubblicato)</option>
             {Array.from(availableDrafts.values()).map(draft => <option key={draft.id} value={draft.id}>{draft.name || "Bozza senza nome"}</option>)}
           </select></label>
-          <Button type="button" disabled={!selectedDraft || pending} aria-haspopup="dialog" onClick={() => setConfirmation("publish")}>Pubblica menu</Button>
+          <Button type="button" disabled={!selectedDraft || pending} aria-haspopup="dialog" onClick={() => void reviewPublication()}>Pubblica menu</Button>
         </div>
       </header>
       <div className={styles.menuTools}>
@@ -256,9 +283,12 @@ export function OperationalCatalog({ api, storeId, ingredients, onPublished, onI
       onCancel={event => { event.preventDefault(); if (!busy) setConfirmation(null); }}>
       <h2 id="publish-menu-title">Pubblicare {selectedDraft.name}?</h2>
       <p id="publish-menu-description">Questo menu diventerà visibile ai clienti della sede.</p>
+      {extrasChanged && publicationReview && reviewedMenu && <MenuExtraChanges before={publicationReview.draft} after={reviewedMenu} ingredients={publicationReview.ingredients} />}
+      {busy && !publicationReview && <p role="status">Controllo degli extra del Magazzino…</p>}
       {error && <p role="alert">{error}</p>}
       <div className={styles.actions}>
-        <Button type="button" disabled={pending} onClick={() => void publish()}>Conferma pubblicazione</Button>
+        <Button type="button" disabled={pending || !publicationReview} onClick={() => void publish()}>Conferma pubblicazione</Button>
+        {error && <Button type="button" variant="secondary" disabled={pending} onClick={() => void reviewPublication()}>Ricontrolla modifiche</Button>}
         <Button type="button" variant="ghost" disabled={busy} onClick={() => setConfirmation(null)}>Annulla</Button>
       </div>
     </dialog>}
