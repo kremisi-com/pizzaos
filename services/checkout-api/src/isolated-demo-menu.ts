@@ -24,7 +24,7 @@ export function planIsolatedDemoMenu(input: OrderingState, source: IsolatedDemoM
     source.inventoryPrefix.length < 15 || !Array.isArray(source.ingredients) || !source.ingredients.length ||
     new Set(source.ingredients.map(item => item.id)).size !== source.ingredients.length ||
     new Set(source.ingredients.map(item => item.name)).size !== source.ingredients.length ||
-    source.ingredients.some(item => !item.id.startsWith(source.inventoryPrefix) || !item.name.endsWith(" · demo 25/11/2026") ||
+    source.ingredients.some(item => !item.id.startsWith(source.inventoryPrefix) ||
       item.stock === null || !Number.isSafeInteger(item.stock) || item.stock < 0 || item.extra !== undefined)) {
     throw new Error("Usa soltanto scorte dimostrative separate e verificate.");
   }
@@ -36,7 +36,8 @@ export function planIsolatedDemoMenu(input: OrderingState, source: IsolatedDemoM
   }
   const created: string[] = [];
   for (const ingredient of source.ingredients) {
-    const existing = store.ingredients.find(item => item.id === ingredient.id || item.name === ingredient.name);
+    // Stock isolation is encoded in stable IDs, never in operator-facing labels.
+    const existing = store.ingredients.find(item => item.id === ingredient.id);
     if (existing) {
       if (!isDeepStrictEqual(existing, ingredient)) throw new Error(`Scorta demo già modificata: ${ingredient.name}`);
     } else {
