@@ -1,5 +1,7 @@
 # Gestione catalogo
 
+Su desktop la scheda di modifica a destra ha uno scroll indipendente, limitato all’altezza della finestra: raggiungerne i bordi non fa scorrere l’elenco a sinistra. Nel layout a colonna singola torna il normale scroll della pagina. Verifica browser: `tests/menu-ordering/menu-detail-scroll.spec.ts`.
+
 **Pubblica menu** apre un modal centrato con il nome della bozza e «Questo menu diventerà visibile ai clienti della sede.». Solo **Conferma pubblicazione** pubblica; **Annulla** ed Escape chiudono e riportano il focus al comando. Durante la richiesta i comandi sono bloccati; un errore resta visibile nel modal e consente di riprovare. Verifica locale: `src/test/menu-publish-confirmation.test.tsx`.
 
 **Abbinamenti consigliati** usa lo stesso multiselect filtrabile nelle schede prodotto e pizza. Il gestore cerca per nome, seleziona più prodotti e rimuove le selezioni tramite checkbox o chip; il prodotto corrente è escluso. Il filtro conserva le selezioni non visibili. Escape chiude il controllo e riporta il focus al pulsante. Senza alternative o risultati compare un messaggio dedicato; eventuali riferimenti mancanti restano rimovibili. Le modifiche seguono il salvataggio automatico della bozza. Verifica locale: `src/test/menu-pairing-select.test.tsx` e `src/test/pizza-catalog-editor.test.tsx`.

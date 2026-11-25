@@ -319,7 +319,13 @@
 .menuSelect select { max-width: 16rem; min-height: 2.75rem; border: 1px solid var(--pizzaos-color-border); border-radius: .5rem; padding: .55rem; color: inherit; background: var(--pizzaos-color-background-accent); font: inherit; }
 .menuWorkspace { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 1.25rem; align-items: start; }
 .menuMain, .menuDetail { min-width: 0; display: grid; gap: 1rem; align-content: start; }
-.menuDetail { position: sticky; top: 1rem; }
+.menuDetail {
+  position: sticky;
+  top: 1rem;
+  max-height: calc(100dvh - 2rem);
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
+}
 .categoryTabs { display: flex; flex-wrap: wrap; gap: .35rem; }
 .threeFields { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .75rem; align-items: end; }
 .threeFields label { display: grid; grid-template-rows: minmax(2.5em, auto) auto; align-items: end; }
@@ -381,7 +387,7 @@
 .menuMain textarea { min-height: 3.5rem; }
 @media (max-width: 1050px) {
   .menuWorkspace { grid-template-columns: minmax(0, 1fr); }
-  .menuDetail { position: static; }
+  .menuDetail { position: static; max-height: none; overflow-y: visible; overscroll-behavior-y: auto; }
 }
 @media (max-width: 520px) {
   .threeFields { grid-template-columns: minmax(0, 1fr); }
