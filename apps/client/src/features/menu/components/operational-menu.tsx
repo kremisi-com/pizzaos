@@ -180,7 +180,13 @@ function MenuItem({ store, product, preferences, disabled, onAdd }: {
   const image = pizzaPreview(product, initialSelections, store.id);
   return <article className={`${styles.item} ${!product.available ? styles.itemUnavailable : ""}`}>
     <div className={styles.itemBody}>
-      <h4>{product.name}</h4>
+      <h4 aria-label={product.name}>
+        <button className={styles.itemTrigger} type="button" disabled={disabled || !product.available} onClick={() => {
+          if (needsChoices) setConfiguring(true);
+          else onAdd({ productId: product.id, quantity: 1, optionIds: [], notes: "" });
+        }} aria-label={product.available ? `Aggiungi ${product.name}` : `${product.name} non disponibile`}>{product.name}</button>
+        <strong className={styles.itemPrice}>{!product.pizza && needsChoices && product.groups?.some(group => group.min > 0) ? "Base " : ""}{menuMoney(preview.unitCents)}</strong>
+      </h4>
       {product.description && <p>{product.description}</p>}
       {preview.composition.ingredients.length > 0 && <p className={styles.ingredients}>{preview.composition.ingredients.join(", ")}</p>}
       {!product.available ? <p className={styles.unavailable}>Non disponibile</p>
@@ -196,16 +202,9 @@ function MenuItem({ store, product, preferences, disabled, onAdd }: {
           }>Aggiungi {item.name} · {menuMoney(item.priceCents)}</button>}
         </p>)}
       </details>}
-      <div className={styles.itemActions}>
-        <strong>{!product.pizza && needsChoices && product.groups?.some(group => group.min > 0) ? "Base " : ""}{menuMoney(preview.unitCents)}</strong>
-        <button type="button" disabled={disabled || !product.available} onClick={() => {
-          if (needsChoices) setConfiguring(true);
-          else onAdd({ productId: product.id, quantity: 1, optionIds: [], notes: "" });
-        }} aria-label={product.available ? `Aggiungi ${product.name}` : `${product.name} non disponibile`}>
-          <span aria-hidden="true">{product.available ? "+" : "−"}</span>
-        </button>
-        {!needsChoices && product.options.length > 0 && <MenuLineEditor store={store} product={product} disabled={disabled} avoid={preferences.avoid} onSave={onAdd} />}
-      </div>
+      {!needsChoices && product.options.length > 0 && <div className={styles.itemActions}>
+        <MenuLineEditor store={store} product={product} disabled={disabled} avoid={preferences.avoid} onSave={onAdd} />
+      </div>}
     </div>
     {image.src && <div className={styles.productVisual}>
       <Image className={styles.photo} unoptimized src={image.src} alt="" width={160} height={160} />

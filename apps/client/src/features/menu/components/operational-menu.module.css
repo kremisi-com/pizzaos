@@ -87,6 +87,7 @@
 }
 
 .item {
+  position: relative;
   display: flex;
   align-items: flex-start;
   gap: 14px;
@@ -101,7 +102,7 @@
 }
 
 .itemUnavailable { background: var(--pizzaos-color-surface-muted); }
-.productVisual { position: relative; align-self: center; flex: 0 0 clamp(70px, 20vw, 112px); }
+.productVisual { pointer-events: none; position: relative; align-self: center; flex: 0 0 clamp(70px, 20vw, 112px); }
 
 .itemBody {
   min-width: 0;
@@ -111,6 +112,10 @@
 .item h4 {
   margin: 0;
   font-size: 1.05rem;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
 }
 
 .item p {
@@ -128,8 +133,24 @@
 }
 
 .photoOverlay { position: absolute; width: 92%; height: auto; inset: 4% 0 0 4%; object-fit: contain; pointer-events: none; clip-path: circle(48%); }
-.menu .itemActions > button { display: grid; place-items: center; width: 44px; height: 44px; min-height: 44px; padding: 0; border-radius: 14px; font-size: 1.5rem; }
-.menu .itemActions > button.textButton { width: auto; padding: 8px; font-size: .8rem; }
+.menu .itemTrigger {
+  padding: 0;
+  min-height: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--pizzaos-color-foreground) !important;
+  font: inherit;
+  text-align: left;
+}
+
+.itemTrigger::after { content: ""; position: absolute; inset: 0; border-radius: 22px; }
+.itemTrigger:enabled { cursor: pointer; }
+.menu .itemTrigger:disabled { opacity: 1; cursor: default; }
+.menu .itemTrigger:focus-visible { outline: none; }
+.itemTrigger:focus-visible::after { outline: 2px solid var(--pizzaos-color-primary); outline-offset: 3px; }
+.itemPrice { color: var(--pizzaos-color-primary); white-space: nowrap; }
+.itemActions, .pairings { position: relative; z-index: 1; }
 
 .itemActions, .foodActions {
   display: flex;
@@ -137,12 +158,6 @@
   flex-wrap: wrap;
   gap: 10px;
   margin-top: 10px;
-}
-
-.itemActions > strong {
-  margin-right: auto;
-  color: var(--pizzaos-color-primary);
-  white-space: nowrap;
 }
 
 .foodControls {

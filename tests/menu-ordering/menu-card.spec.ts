@@ -1,0 +1,36 @@
+import { expect, test } from "@playwright/test";
+const clientOrigin = process.env.PIZZAOS_E2E_CLIENT_URL ?? "http://127.0.0.1:3731";
+
+test("la card compatta aggiunge da descrizione, prezzo, spazio e tastiera", async ({ page, context }, testInfo) => {
+  await context.addCookies([{ name: "pizzaos-e2e-actor", value: "alice", url: clientOrigin }]);
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto(`${clientOrigin}/ordina`);
+  const trigger = page.getByRole("button", { name: "Aggiungi Pizza", exact: true });
+  const card = page.getByRole("article").filter({ has: trigger });
+  await expect(trigger).toBeVisible();
+  await expect(trigger).toHaveText("Pizza");
+  expect(await trigger.evaluate(element => getComputedStyle(element).color)).not.toBe("rgb(255, 255, 255)");
+  const heading = card.getByRole("heading", { name: "Pizza", exact: true });
+  const price = heading.locator("strong");
+  const titleBox = await trigger.boundingBox();
+  const priceBox = await price.boundingBox();
+  expect(titleBox).not.toBeNull();
+  expect(priceBox).not.toBeNull();
+  expect(Math.abs(titleBox!.y - priceBox!.y)).toBeLessThan(5);
+  expect(priceBox!.x).toBeGreaterThan(titleBox!.x + titleBox!.width);
+  const cardBox = await card.boundingBox();
+  expect(cardBox!.height).toBeLessThan(110);
+  await card.screenshot({ path: testInfo.outputPath("menu-card-mobile.png") });
+  const descriptionBox = await card.getByText("Pizza del pilota", { exact: true }).boundingBox();
+  await card.click({ position: { x: descriptionBox!.x - cardBox!.x + 10, y: descriptionBox!.y - cardBox!.y + 5 } });
+  await card.click({ position: { x: priceBox!.x - cardBox!.x + 5, y: priceBox!.y - cardBox!.y + 5 } });
+  await card.click({ position: { x: cardBox!.width - 22, y: cardBox!.height - 12 } });
+  await trigger.focus();
+  await page.keyboard.press("Enter");
+  await page.keyboard.press("Space");
+  const quoting = page.waitForResponse(response => response.url().endsWith("/v1/pilot/quote") && response.request().method() === "POST");
+  await page.getByRole("button", { name: "Verifica disponibilità e totale", exact: true }).click();
+  const response = await quoting;
+  expect(response.ok(), await response.text()).toBe(true);
+  expect((await response.json()).totalCents).toBe(4000);
+});

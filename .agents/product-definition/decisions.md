@@ -217,3 +217,5 @@ Su richiesta esplicita di Andrea, il Client operativo mantiene «Il menu» e rim
 Su richiesta esplicita di Andrea, le schede del menu Client mostrano solo gli ingredienti sotto la descrizione, in forma minimale. Questa scelta sostituisce la precedente indicazione di mantenere gli avvisi alimentari sulle schede del menu; dettaglio e carrello conservano le informazioni alimentari. [Flusso corrente](flows/menu-ordering.md).
 
 Su richiesta esplicita di Andrea, il dettaglio pizza omette la scelta di impasto e formato quando non vi è più di una opzione disponibile. Correggere inoltre il contrasto del testo nella scelta attiva/con focus. [Flusso corrente](flows/menu-ordering.md).
+
+Andrea richiede per le card del menu client il prezzo in alto a destra allineato al titolo, la rimozione del pulsante + e l'intera card cliccabile per ridurne l'altezza. Il comportamento corrente e i casi limite sono nella [specifica del menu](flows/menu-ordering.md).
