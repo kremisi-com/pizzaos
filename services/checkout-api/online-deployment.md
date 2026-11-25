@@ -2,20 +2,28 @@
 
 ## Ultimo stato registrato
 
-Consolidamento documentale del 25 novembre 2026, **senza nuova ispezione cloud o deploy**. Le righe seguenti derivano dai verbali datati sotto; non certificano disponibilità corrente o corrispondenza con HEAD. Ambiente pubblico: **test**, con dati fittizi e Stripe sandbox. Rider appartiene ad admin; API e worker sono il backend condiviso.
+Verifica e rilascio del 25 novembre 2026 dal candidato `9784e70`, che integra la stabilizzazione `5bb1174` e `main` a `5f72b69`. Ambiente pubblico: **test**, con dati fittizi e Stripe sandbox. Rider appartiene ad admin; API e worker sono il backend condiviso.
 
 | Risorsa | Ultima evidenza disponibile | Stato registrato |
 |---|---|---|
-| API `api.pizzaos.app` | 24 novembre, sorgente `63baf1e`, `dpl_Bxad278mEfoBnjYGtKmsQva1HzAT` | Ready, health 200 nel verbale del menu al blur |
-| Admin/rider | 24 novembre, sorgente `63baf1e`, `dpl_CqAbxzGw18CYtn2bw8CmrKGZire1` | Ready sugli alias operativi |
-| Client | 23 novembre, rilascio menu D79 `d29be4d`, `dpl_94LPMRvFEQro4UkUZUBiMtLieVUQ` | Letture/accesso verificati; nessun deploy client nuovo nei verbali del 24 |
+| API `api.pizzaos.app` | 25 novembre, `9784e70`, `dpl_AdiJXSTL584HvRWBZojvvJm3nNqY` | Ready, promossa; health 200 e salvataggio bozza 200 |
+| Admin/rider | 25 novembre, `9784e70`, `dpl_4Sr4aXjd5rx4NufyC6Wi88YqUkHR` | Ready e promossa; menu autenticato e proxy sessione verificati |
+| Client | 25 novembre, `9784e70`, `dpl_2uf3tbA3ctytvqETnLjGhHVxRSwj` | Ready e promossa; proxy sessione anonima 200 |
 | Landing | 23 novembre, accesso automatico ai POC D74 | Pass verificati; ID non rideterminato nel verbale D74 |
-| Worker `reconciliation` | 24 novembre | Stopped, zero istanze totali/pronte. Il manifest nominale non attesta un worker attivo |
+| Worker `reconciliation` | 25 novembre, lettura Vercel e runtime log | Stopped, zero istanze totali/pronte; quota mensile Hobby Daemons esaurita |
 | Neon test | Ripristino del 23 novembre | Piano Launch, branch `br-tiny-art-baqa23dy`, database `pizzaos_test` |
 | Produzione distinta | Ultima configurazione registrata | `pizzaos_production` separato, vuoto/non migrato; nessuna credenziale applicativa pubblicata |
 | Email operative | 23 novembre | `test_open` sul pilota; non l'allowlist iniziale del 5 novembre |
 
-La stabilizzazione del 25 novembre è locale, su ramo isolato dalla base `9c27263`: non è presente in questi deploy. Menu compilato in bozza, menu pubblicato dal gestore e versione del codice sono tre stati distinti. [Punto zero e limiti](../../.agents/product-definition/current-state.md), [runbook corrente](pilot-operations.md).
+La stabilizzazione del 25 novembre è inclusa in questi deploy. Menu compilato in bozza, menu pubblicato dal gestore e versione del codice sono tre stati distinti. [Punto zero e limiti](../../.agents/product-definition/current-state.md), [runbook corrente](pilot-operations.md).
+
+## Allineamento catalogo e rilascio del 25 novembre 2026
+
+- Causa verificata: API pubblica ancora al sorgente `63baf1e`; la validazione precedente rifiutava il campo `inventoryMode` introdotto dal catalogo impasti/formati. L'editor aggiornato e il backend precedente producevano «Catalogo pizza non valido». Non è stato necessario cambiare la validazione corrente né i contenuti del menu.
+- API, admin/rider e client sono stati compilati dal candidato consolidato e promossi ai rispettivi alias. Nessuna migrazione richiesta; nessuna pubblicazione del menu cliente, modifica di piano o riattivazione volontaria del worker. Manifest di caricamento con istanze worker a zero; la lettura piattaforma registra comunque desired 1, ready/total 0 e stopped. I log riportano quota Hobby Daemons di 5 CPU ore mensili esaurita: l'avanzamento automatico non è certificato.
+- Verifica online autenticata: il retry dalla scheda precedente riceve correttamente 409 perché la revisione è cambiata durante gli altri lavori; le modifiche locali rimangono nella scheda. Una nuova scheda legge la bozza corrente; una modifica annullata prima del blur conserva esattamente il nome e invia il normale salvataggio. Risposta PUT 200 alle 11:14:45 UTC, stato e toast «Bozza salvata.». La scelta su conservazione/scarto delle vecchie modifiche locali resta all'utente.
+- Health 200; sessione anonima 200 dai proxy admin e client con `x-request-id`. I runtime log esaminati riportano l'arresto del daemon per quota e warning del driver sulla semantica futura SSL; non attestano un errore applicativo nel salvataggio riuscito. La verifica degli URL temporanei protetti non è riuscita con il collegamento Vercel; il collaudo sopra usa i domini canonici dopo la promozione.
+- Verifica locale dal candidato: 1.242 test passati, 22 PostgreSQL/Auth saltati; lint, build di tutti i workspace, typecheck servizio e architettura passati. Suite browser menu: 2 scenari passati, incluso `dough-stock.spec.ts` (bozza → pubblicazione → cliente e consumo impasto/formato); 3 falliti su percorsi/asserzioni precedenti, inclusi i comandi rimossi «Salva bozza» e «Impasti, basi e formati». La suite completa menu non viene dichiarata verde: l'aggiornamento di questi scenari rimane distinto dalla correzione del deploy.
 
 ## Cronologia delle evidenze
 
