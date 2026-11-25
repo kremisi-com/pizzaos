@@ -139,6 +139,8 @@ No new SQL tables are needed for these extensions: the existing durable state do
 
 ### Importazione e recupero delle ricette
 
+Per la nuova bozza dimostrativa completa del 25 novembre usare invece l'[importazione isolata](data/menu-demo-2026-11-25.md): aggiunge una sola bozza e scorte demo separate, senza riconciliare ricette di altri menu. Richiede `PIZZAOS_ENVIRONMENT=test` e database `pizzaos_test`; l'analisi è il default e `--apply` applica sotto lock. La ripetizione non cambia dati o revisioni; modifiche successive dell'operatore bloccano la reimportazione invece di essere sovrascritte. Verifica: `src/isolated-demo-menu.test.ts`.
+
 Per modifiche ordinarie usare **Admin → Menu** e **Magazzino**. Il precedente caricamento del pilota era una trascrizione dal pannello: salvava ricette testuali, senza riferimenti al magazzino. `menu-import.ts` e `menu:import` riconciliano ingredienti, prodotti e scelte; il manifest separa nomi originali e descrizioni promozionali. Il [manifest del recupero del 24 novembre](data/menu-recipes-2026-11-24.json) documenta fonte e verifiche residue.
 
 Da questa directory, con `DATABASE_URL` dell'ambiente scelto già esportata:

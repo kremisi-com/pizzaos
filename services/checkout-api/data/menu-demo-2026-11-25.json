@@ -1,0 +1,1495 @@
+{
+  "database": "pizzaos_test",
+  "storeId": "verifica-online",
+  "storeName": "La Pizza Speciale",
+  "inventoryPrefix": "demo-menu-20261125-",
+  "ingredients": [
+    {
+      "id": "demo-menu-20261125-pomodoro",
+      "name": "Pomodoro · demo 25/11/2026",
+      "stock": 100
+    },
+    {
+      "id": "demo-menu-20261125-mozzarella",
+      "name": "Mozzarella · demo 25/11/2026",
+      "stock": 100
+    },
+    {
+      "id": "demo-menu-20261125-datterini-gialli",
+      "name": "Datterini gialli · demo 25/11/2026",
+      "stock": 100
+    },
+    {
+      "id": "demo-menu-20261125-datterini-rossi",
+      "name": "Datterini rossi · demo 25/11/2026",
+      "stock": 100
+    },
+    {
+      "id": "demo-menu-20261125-bufala",
+      "name": "Mozzarella di bufala D.O.P. · demo 25/11/2026",
+      "stock": 100
+    },
+    {
+      "id": "demo-menu-20261125-pesto",
+      "name": "Pesto di Pra’ senza aglio · demo 25/11/2026",
+      "stock": 100
+    },
+    {
+      "id": "demo-menu-20261125-speck",
+      "name": "Speck croccante · demo 25/11/2026",
+      "stock": 100
+    },
+    {
+      "id": "demo-menu-20261125-gorgonzola",
+      "name": "Gorgonzola D.O.P. · demo 25/11/2026",
+      "stock": 100
+    },
+    {
+      "id": "demo-menu-20261125-bufala-cottura",
+      "name": "Mozzarella di bufala campana D.O.P. in cottura · demo 25/11/2026",
+      "stock": 100
+    },
+    {
+      "id": "demo-menu-20261125-olio-puglia",
+      "name": "Olio EVO pugliese · demo 25/11/2026",
+      "stock": 100
+    },
+    {
+      "id": "demo-menu-20261125-tonno",
+      "name": "Tonno al naturale · demo 25/11/2026",
+      "stock": 100
+    },
+    {
+      "id": "demo-menu-20261125-cipolle",
+      "name": "Cipolle fresche caramellate · demo 25/11/2026",
+      "stock": 100
+    },
+    {
+      "id": "demo-menu-20261125-zucchine",
+      "name": "Zucchine · demo 25/11/2026",
+      "stock": 100
+    },
+    {
+      "id": "demo-menu-20261125-melanzane",
+      "name": "Melanzane · demo 25/11/2026",
+      "stock": 100
+    },
+    {
+      "id": "demo-menu-20261125-peperoni",
+      "name": "Peperoni · demo 25/11/2026",
+      "stock": 100
+    },
+    {
+      "id": "demo-menu-20261125-funghi",
+      "name": "Funghi con porcini · demo 25/11/2026",
+      "stock": 100
+    },
+    {
+      "id": "demo-menu-20261125-brie",
+      "name": "Brie · demo 25/11/2026",
+      "stock": 100
+    },
+    {
+      "id": "demo-menu-20261125-salsiccia",
+      "name": "Salsiccia fresca · demo 25/11/2026",
+      "stock": 100
+    },
+    {
+      "id": "demo-menu-20261125-aglio",
+      "name": "Aglio bianco · demo 25/11/2026",
+      "stock": 100
+    },
+    {
+      "id": "demo-menu-20261125-olio-aglio",
+      "name": "Olio EVO all’aglio · demo 25/11/2026",
+      "stock": 100
+    },
+    {
+      "id": "demo-menu-20261125-origano-puglia",
+      "name": "Origano pugliese bio · demo 25/11/2026",
+      "stock": 100
+    },
+    {
+      "id": "demo-menu-20261125-wurstel",
+      "name": "Würstel giganti del Trentino · demo 25/11/2026",
+      "stock": 100
+    },
+    {
+      "id": "demo-menu-20261125-patate",
+      "name": "Patate fresche al forno in tripla cottura · demo 25/11/2026",
+      "stock": 100
+    },
+    {
+      "id": "demo-menu-20261125-salame",
+      "name": "Salame piccante · demo 25/11/2026",
+      "stock": 100
+    },
+    {
+      "id": "demo-menu-20261125-olio-peperoncino",
+      "name": "Olio EVO al peperoncino · demo 25/11/2026",
+      "stock": 100
+    },
+    {
+      "id": "demo-menu-20261125-acciughe",
+      "name": "Acciughe del Mar Cantabrico · demo 25/11/2026",
+      "stock": 100
+    },
+    {
+      "id": "demo-menu-20261125-origano-sicilia",
+      "name": "Origano di Sicilia bio · demo 25/11/2026",
+      "stock": 100
+    },
+    {
+      "id": "demo-menu-20261125-marmellata",
+      "name": "Marmellata artigianale di fico d’India · demo 25/11/2026",
+      "stock": 100
+    },
+    {
+      "id": "demo-menu-20261125-prosciutto",
+      "name": "Prosciutto cotto di Praga · demo 25/11/2026",
+      "stock": 100
+    },
+    {
+      "id": "demo-menu-20261125-carciofi",
+      "name": "Carciofi gourmet con gambo · demo 25/11/2026",
+      "stock": 100
+    },
+    {
+      "id": "demo-menu-20261125-olive",
+      "name": "Olive taggiasche · demo 25/11/2026",
+      "stock": 100
+    },
+    {
+      "id": "demo-menu-20261125-pane",
+      "name": "Pane · demo 25/11/2026",
+      "stock": 100
+    },
+    {
+      "id": "demo-menu-20261125-nutella",
+      "name": "Nutella · demo 25/11/2026",
+      "stock": 100
+    },
+    {
+      "id": "demo-menu-20261125-impasto-castagne",
+      "name": "Impasto castagne · demo 25/11/2026",
+      "stock": 5
+    },
+    {
+      "id": "demo-menu-20261125-impasto-mais",
+      "name": "Impasto mais · demo 25/11/2026",
+      "stock": 16
+    },
+    {
+      "id": "demo-menu-20261125-impasto-integrale",
+      "name": "Impasto integrale · demo 25/11/2026",
+      "stock": 0
+    },
+    {
+      "id": "demo-menu-20261125-impasto-tradizionale",
+      "name": "Impasto tradizionale · demo 25/11/2026",
+      "stock": 16
+    },
+    {
+      "id": "demo-menu-20261125-bocconcini",
+      "name": "Bocconcini di pane (porzione da 6) · demo 25/11/2026",
+      "stock": 0
+    },
+    {
+      "id": "demo-menu-20261125-barchetta",
+      "name": "Barchetta pronta · demo 25/11/2026",
+      "stock": 0
+    },
+    {
+      "id": "demo-menu-20261125-birra-chiara",
+      "name": "Chiara artigianale 33 cl · demo 25/11/2026",
+      "stock": 24
+    },
+    {
+      "id": "demo-menu-20261125-birra-ambrata",
+      "name": "Ambrata artigianale 33 cl · demo 25/11/2026",
+      "stock": 18
+    },
+    {
+      "id": "demo-menu-20261125-birra-ipa",
+      "name": "IPA artigianale 33 cl · demo 25/11/2026",
+      "stock": 18
+    },
+    {
+      "id": "demo-menu-20261125-apribottiglie",
+      "name": "Apribottiglie omaggio · demo 25/11/2026",
+      "stock": 20
+    },
+    {
+      "id": "demo-menu-20261125-acqua-naturale",
+      "name": "Acqua naturale 50 cl · demo 25/11/2026",
+      "stock": 48
+    },
+    {
+      "id": "demo-menu-20261125-acqua-frizzante",
+      "name": "Acqua frizzante 50 cl · demo 25/11/2026",
+      "stock": 48
+    },
+    {
+      "id": "demo-menu-20261125-coca-cola",
+      "name": "Coca-Cola 33 cl · demo 25/11/2026",
+      "stock": 24
+    },
+    {
+      "id": "demo-menu-20261125-coca-zero",
+      "name": "Coca-Cola Zero 33 cl · demo 25/11/2026",
+      "stock": 24
+    },
+    {
+      "id": "demo-menu-20261125-fanta",
+      "name": "Fanta 33 cl · demo 25/11/2026",
+      "stock": 18
+    },
+    {
+      "id": "demo-menu-20261125-sprite",
+      "name": "Sprite 33 cl · demo 25/11/2026",
+      "stock": 18
+    },
+    {
+      "id": "demo-menu-20261125-te-pesca",
+      "name": "Tè alla pesca 33 cl · demo 25/11/2026",
+      "stock": 18
+    },
+    {
+      "id": "demo-menu-20261125-te-limone",
+      "name": "Tè al limone 33 cl · demo 25/11/2026",
+      "stock": 18
+    },
+    {
+      "id": "demo-menu-20261125-bocconcini-nutella",
+      "name": "Bocconcini di pane alla Nutella (porzione da 6) · demo 25/11/2026",
+      "stock": 0
+    },
+    {
+      "id": "demo-menu-20261125-sacher",
+      "name": "Sacher (porzione) · demo 25/11/2026",
+      "stock": 1
+    },
+    {
+      "id": "demo-menu-20261125-cheesecake-rossi",
+      "name": "Cheesecake ai frutti rossi (porzione) · demo 25/11/2026",
+      "stock": 2
+    },
+    {
+      "id": "demo-menu-20261125-cheesecake-pistacchio",
+      "name": "Cheesecake al pistacchio (porzione) · demo 25/11/2026",
+      "stock": 2
+    }
+  ],
+  "provenance": {
+    "capturedAt": "2026-11-25",
+    "notes": [
+      "Menu e prezzi originali forniti da Andrea in chat; completamento con valori fittizi autorizzato il 25 novembre 2026.",
+      "Birre, bibite, box, omaggi, verdure e tris di formaggi sono esempi, non referenze verificate del produttore.",
+      "Formato standard dimostrativo 32 cm, consumo di una unità di impasto; Baby usa lo stesso formato.",
+      "Dosi: una porzione per ingrediente; scorte ordinarie 100 porzioni. Impasti, prodotti finiti e bevande hanno le quantità concordate.",
+      "Gli ingredienti esistenti hanno stock null: nessuno è stato riutilizzato né modificato. Tutte le scorte demo sono separate e riconoscibili dal suffisso.",
+      "Allergeni e tracce non forniti: schede food omesse, informazioni da verificare. Nessuna immagine caricata.",
+      "I prodotti finiti (stuzzicherie e dolci) si scalano per porzione completa; la ricetta artigianale interna resta da verificare.",
+      "Box: 3 o 6 bottiglie con ripetizioni; prezzo fisso, una bottiglia per scelta e uno o due apribottiglie omaggio.",
+      "Importazione limitata a una nuova bozza; nessuna pubblicazione, modifica a menu precedenti, ordini o scorte condivise."
+    ]
+  },
+  "draft": {
+    "id": "menu-demo-20261125-speciale",
+    "name": "La Pizza Speciale · nuovo menu demo 25/11/2026",
+    "kitchenNotice": "Menu dimostrativo. Disponibilità e referenze aggiunte sono dati di esempio. Allergeni e tracce da verificare con il personale.",
+    "products": [
+      {
+        "id": "demo-menu-20261125-bocconcini",
+        "name": "Bocconcini di pane",
+        "description": "6 bocconcini di pane appena sfornati",
+        "priceCents": 450,
+        "available": false,
+        "ingredients": {
+          "demo-menu-20261125-bocconcini": 1
+        },
+        "allergens": [],
+        "options": []
+      },
+      {
+        "id": "demo-menu-20261125-barchetta",
+        "name": "Barchetta",
+        "description": "Barchetta di pizza con pomodoro, mozzarella e origano, da condividere",
+        "priceCents": 650,
+        "available": false,
+        "ingredients": {
+          "demo-menu-20261125-barchetta": 1
+        },
+        "allergens": [],
+        "options": []
+      },
+      {
+        "id": "demo-menu-20261125-birra-chiara",
+        "name": "Chiara artigianale",
+        "description": "Birra artigianale in bottiglia da 33 cl · Referenza dimostrativa",
+        "priceCents": 600,
+        "available": true,
+        "ingredients": {
+          "demo-menu-20261125-birra-chiara": 1
+        },
+        "allergens": [],
+        "options": []
+      },
+      {
+        "id": "demo-menu-20261125-birra-ambrata",
+        "name": "Ambrata artigianale",
+        "description": "Birra artigianale in bottiglia da 33 cl · Referenza dimostrativa",
+        "priceCents": 600,
+        "available": true,
+        "ingredients": {
+          "demo-menu-20261125-birra-ambrata": 1
+        },
+        "allergens": [],
+        "options": []
+      },
+      {
+        "id": "demo-menu-20261125-birra-ipa",
+        "name": "IPA artigianale",
+        "description": "Birra artigianale in bottiglia da 33 cl · Referenza dimostrativa",
+        "priceCents": 600,
+        "available": true,
+        "ingredients": {
+          "demo-menu-20261125-birra-ipa": 1
+        },
+        "allergens": [],
+        "options": []
+      },
+      {
+        "id": "demo-menu-20261125-box-3",
+        "name": "Componi la tua box (3 birre)",
+        "description": "Scegli 3 birre da 33 cl, anche ripetute. In omaggio un apribottiglie.",
+        "priceCents": 1650,
+        "available": true,
+        "ingredients": {
+          "demo-menu-20261125-apribottiglie": 1
+        },
+        "allergens": [],
+        "options": [
+          {
+            "id": "birra-0",
+            "name": "Chiara artigianale",
+            "priceCents": 0,
+            "ingredients": {
+              "demo-menu-20261125-birra-chiara": 1
+            },
+            "available": true
+          },
+          {
+            "id": "birra-1",
+            "name": "Ambrata artigianale",
+            "priceCents": 0,
+            "ingredients": {
+              "demo-menu-20261125-birra-ambrata": 1
+            },
+            "available": true
+          },
+          {
+            "id": "birra-2",
+            "name": "IPA artigianale",
+            "priceCents": 0,
+            "ingredients": {
+              "demo-menu-20261125-birra-ipa": 1
+            },
+            "available": true
+          }
+        ],
+        "groups": [
+          {
+            "id": "birre-box",
+            "name": "Scegli 3 birre",
+            "kind": "selection",
+            "min": 3,
+            "max": 3,
+            "allowRepeat": true,
+            "optionIds": [
+              "birra-0",
+              "birra-1",
+              "birra-2"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "demo-menu-20261125-box-6",
+        "name": "Componi la tua box (6 birre)",
+        "description": "Scegli 6 birre da 33 cl, anche ripetute. In omaggio due apribottiglie.",
+        "priceCents": 3100,
+        "available": true,
+        "ingredients": {
+          "demo-menu-20261125-apribottiglie": 2
+        },
+        "allergens": [],
+        "options": [
+          {
+            "id": "birra-0",
+            "name": "Chiara artigianale",
+            "priceCents": 0,
+            "ingredients": {
+              "demo-menu-20261125-birra-chiara": 1
+            },
+            "available": true
+          },
+          {
+            "id": "birra-1",
+            "name": "Ambrata artigianale",
+            "priceCents": 0,
+            "ingredients": {
+              "demo-menu-20261125-birra-ambrata": 1
+            },
+            "available": true
+          },
+          {
+            "id": "birra-2",
+            "name": "IPA artigianale",
+            "priceCents": 0,
+            "ingredients": {
+              "demo-menu-20261125-birra-ipa": 1
+            },
+            "available": true
+          }
+        ],
+        "groups": [
+          {
+            "id": "birre-box",
+            "name": "Scegli 6 birre",
+            "kind": "selection",
+            "min": 6,
+            "max": 6,
+            "allowRepeat": true,
+            "optionIds": [
+              "birra-0",
+              "birra-1",
+              "birra-2"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "demo-menu-20261125-acqua-naturale",
+        "name": "Acqua naturale",
+        "description": "50 cl",
+        "priceCents": 150,
+        "available": true,
+        "ingredients": {
+          "demo-menu-20261125-acqua-naturale": 1
+        },
+        "allergens": [],
+        "options": []
+      },
+      {
+        "id": "demo-menu-20261125-acqua-frizzante",
+        "name": "Acqua frizzante",
+        "description": "50 cl",
+        "priceCents": 150,
+        "available": true,
+        "ingredients": {
+          "demo-menu-20261125-acqua-frizzante": 1
+        },
+        "allergens": [],
+        "options": []
+      },
+      {
+        "id": "demo-menu-20261125-coca-cola",
+        "name": "Coca-Cola",
+        "description": "33 cl",
+        "priceCents": 300,
+        "available": true,
+        "ingredients": {
+          "demo-menu-20261125-coca-cola": 1
+        },
+        "allergens": [],
+        "options": []
+      },
+      {
+        "id": "demo-menu-20261125-coca-zero",
+        "name": "Coca-Cola Zero",
+        "description": "33 cl",
+        "priceCents": 300,
+        "available": true,
+        "ingredients": {
+          "demo-menu-20261125-coca-zero": 1
+        },
+        "allergens": [],
+        "options": []
+      },
+      {
+        "id": "demo-menu-20261125-fanta",
+        "name": "Fanta",
+        "description": "33 cl",
+        "priceCents": 300,
+        "available": true,
+        "ingredients": {
+          "demo-menu-20261125-fanta": 1
+        },
+        "allergens": [],
+        "options": []
+      },
+      {
+        "id": "demo-menu-20261125-sprite",
+        "name": "Sprite",
+        "description": "33 cl",
+        "priceCents": 300,
+        "available": true,
+        "ingredients": {
+          "demo-menu-20261125-sprite": 1
+        },
+        "allergens": [],
+        "options": []
+      },
+      {
+        "id": "demo-menu-20261125-te-pesca",
+        "name": "Tè alla pesca",
+        "description": "33 cl",
+        "priceCents": 300,
+        "available": true,
+        "ingredients": {
+          "demo-menu-20261125-te-pesca": 1
+        },
+        "allergens": [],
+        "options": []
+      },
+      {
+        "id": "demo-menu-20261125-te-limone",
+        "name": "Tè al limone",
+        "description": "33 cl",
+        "priceCents": 300,
+        "available": true,
+        "ingredients": {
+          "demo-menu-20261125-te-limone": 1
+        },
+        "allergens": [],
+        "options": []
+      },
+      {
+        "id": "demo-menu-20261125-bocconcini-nutella",
+        "name": "Bocconcini di pane alla Nutella (6 pz.)",
+        "description": "Bocconcini appena sfornati, ripieni di Nutella",
+        "priceCents": 600,
+        "available": false,
+        "ingredients": {
+          "demo-menu-20261125-bocconcini-nutella": 1
+        },
+        "allergens": [],
+        "options": []
+      },
+      {
+        "id": "demo-menu-20261125-sacher",
+        "name": "Sacher",
+        "description": "Pasticceria Monfrini",
+        "priceCents": 600,
+        "available": true,
+        "ingredients": {
+          "demo-menu-20261125-sacher": 1
+        },
+        "allergens": [],
+        "options": []
+      },
+      {
+        "id": "demo-menu-20261125-cheesecake-rossi",
+        "name": "Cheesecake ai frutti rossi",
+        "description": "Pasticceria Monfrini",
+        "priceCents": 600,
+        "available": true,
+        "ingredients": {
+          "demo-menu-20261125-cheesecake-rossi": 1
+        },
+        "allergens": [],
+        "options": []
+      },
+      {
+        "id": "demo-menu-20261125-cheesecake-pistacchio",
+        "name": "Cheesecake al pistacchio",
+        "description": "Pasticceria Monfrini",
+        "priceCents": 600,
+        "available": true,
+        "ingredients": {
+          "demo-menu-20261125-cheesecake-pistacchio": 1
+        },
+        "allergens": [],
+        "options": []
+      }
+    ],
+    "sections": [
+      {
+        "id": "pizze",
+        "name": "Crea la tua pizza",
+        "description": "Scegli prima l’impasto, poi il tipo di pizza. Al prezzo della pizza si somma l’eventuale supplemento dell’impasto.",
+        "productIds": [
+          "demo-menu-20261125-speciale",
+          "demo-menu-20261125-regina",
+          "demo-menu-20261125-bufalina",
+          "demo-menu-20261125-blu-blu",
+          "demo-menu-20261125-arcobaleno",
+          "demo-menu-20261125-porciccia",
+          "demo-menu-20261125-marinara",
+          "demo-menu-20261125-happy-pork",
+          "demo-menu-20261125-diavolita",
+          "demo-menu-20261125-napoli",
+          "demo-menu-20261125-formaggi",
+          "demo-menu-20261125-monellona",
+          "demo-menu-20261125-margherita",
+          "demo-menu-20261125-baby"
+        ]
+      },
+      {
+        "id": "stuzzicherie",
+        "name": "Stuzzicherie",
+        "productIds": [
+          "demo-menu-20261125-bocconcini",
+          "demo-menu-20261125-barchetta"
+        ]
+      },
+      {
+        "id": "birre",
+        "name": "Birre speciali",
+        "description": "Birre artigianali in bottiglia del birrificio agricolo Serra Storta di Buscate, nel Parco del Ticino, prodotte prevalentemente con materie prime coltivate dall’azienda. Referenze e box dimostrativi.",
+        "productIds": [
+          "demo-menu-20261125-birra-chiara",
+          "demo-menu-20261125-birra-ambrata",
+          "demo-menu-20261125-birra-ipa",
+          "demo-menu-20261125-box-3",
+          "demo-menu-20261125-box-6"
+        ]
+      },
+      {
+        "id": "bibite",
+        "name": "Bibite",
+        "description": "Bibite e acqua",
+        "productIds": [
+          "demo-menu-20261125-acqua-naturale",
+          "demo-menu-20261125-acqua-frizzante",
+          "demo-menu-20261125-coca-cola",
+          "demo-menu-20261125-coca-zero",
+          "demo-menu-20261125-fanta",
+          "demo-menu-20261125-sprite",
+          "demo-menu-20261125-te-pesca",
+          "demo-menu-20261125-te-limone"
+        ]
+      },
+      {
+        "id": "dolci",
+        "name": "Peccati di gola",
+        "description": "Se nessuno ti vede mentre lo mangi, quel dolce non ha calorie!",
+        "productIds": [
+          "demo-menu-20261125-bocconcini-nutella",
+          "demo-menu-20261125-sacher",
+          "demo-menu-20261125-cheesecake-rossi",
+          "demo-menu-20261125-cheesecake-pistacchio"
+        ]
+      }
+    ],
+    "pizzaCatalog": {
+      "inventoryMode": "dough-format",
+      "defaults": {
+        "doughId": "tradizionale",
+        "baseId": "",
+        "formatId": "tonda"
+      },
+      "doughs": [
+        {
+          "id": "castagne",
+          "name": "Castagne – impasto del mese",
+          "description": "Impasto con castagne al vapore e farina di castagne",
+          "priceCents": 250,
+          "available": true,
+          "ingredients": {},
+          "inventoryIngredientId": "demo-menu-20261125-impasto-castagne"
+        },
+        {
+          "id": "mais",
+          "name": "Mais – special edition",
+          "description": "Impasto croccante e leggero",
+          "priceCents": 100,
+          "available": true,
+          "ingredients": {},
+          "inventoryIngredientId": "demo-menu-20261125-impasto-mais"
+        },
+        {
+          "id": "integrale",
+          "name": "Integrale",
+          "description": "Impasto con farina integrale, morbido e leggero",
+          "priceCents": 100,
+          "available": true,
+          "ingredients": {},
+          "inventoryIngredientId": "demo-menu-20261125-impasto-integrale"
+        },
+        {
+          "id": "tradizionale",
+          "name": "Tradizionale",
+          "description": "Impasto classico con la miscela di farine della pizzeria",
+          "priceCents": 0,
+          "available": true,
+          "ingredients": {},
+          "inventoryIngredientId": "demo-menu-20261125-impasto-tradizionale"
+        }
+      ],
+      "bases": [],
+      "formats": [
+        {
+          "id": "tonda",
+          "name": "Tonda 32 cm",
+          "description": "Formato standard",
+          "priceCents": 0,
+          "available": true,
+          "ingredients": {},
+          "doughQuantity": 1
+        }
+      ],
+      "toppings": [
+        {
+          "id": "recipe-pomodoro",
+          "name": "Pomodoro",
+          "description": "",
+          "priceCents": 0,
+          "available": true,
+          "category": "Ingredienti",
+          "ingredients": {
+            "demo-menu-20261125-pomodoro": 1
+          }
+        },
+        {
+          "id": "recipe-mozzarella",
+          "name": "Mozzarella",
+          "description": "",
+          "priceCents": 0,
+          "available": true,
+          "category": "Ingredienti",
+          "ingredients": {
+            "demo-menu-20261125-mozzarella": 1
+          }
+        },
+        {
+          "id": "recipe-datterini-gialli",
+          "name": "Datterini gialli",
+          "description": "",
+          "priceCents": 0,
+          "available": true,
+          "category": "Ingredienti",
+          "ingredients": {
+            "demo-menu-20261125-datterini-gialli": 1
+          }
+        },
+        {
+          "id": "recipe-datterini-rossi",
+          "name": "Datterini rossi",
+          "description": "",
+          "priceCents": 0,
+          "available": true,
+          "category": "Ingredienti",
+          "ingredients": {
+            "demo-menu-20261125-datterini-rossi": 1
+          }
+        },
+        {
+          "id": "recipe-bufala",
+          "name": "Mozzarella di bufala D.O.P.",
+          "description": "",
+          "priceCents": 0,
+          "available": true,
+          "category": "Ingredienti",
+          "ingredients": {
+            "demo-menu-20261125-bufala": 1
+          }
+        },
+        {
+          "id": "recipe-pesto",
+          "name": "Pesto di Pra’ senza aglio",
+          "description": "",
+          "priceCents": 0,
+          "available": true,
+          "category": "Ingredienti",
+          "ingredients": {
+            "demo-menu-20261125-pesto": 1
+          }
+        },
+        {
+          "id": "recipe-speck",
+          "name": "Speck croccante",
+          "description": "",
+          "priceCents": 0,
+          "available": true,
+          "category": "Ingredienti",
+          "ingredients": {
+            "demo-menu-20261125-speck": 1
+          }
+        },
+        {
+          "id": "recipe-gorgonzola",
+          "name": "Gorgonzola D.O.P.",
+          "description": "",
+          "priceCents": 0,
+          "available": true,
+          "category": "Ingredienti",
+          "ingredients": {
+            "demo-menu-20261125-gorgonzola": 1
+          }
+        },
+        {
+          "id": "recipe-bufala-cottura",
+          "name": "Mozzarella di bufala campana D.O.P. in cottura",
+          "description": "",
+          "priceCents": 0,
+          "available": true,
+          "category": "Ingredienti",
+          "ingredients": {
+            "demo-menu-20261125-bufala-cottura": 1
+          }
+        },
+        {
+          "id": "recipe-olio-puglia",
+          "name": "Olio EVO pugliese",
+          "description": "",
+          "priceCents": 0,
+          "available": true,
+          "category": "Ingredienti",
+          "ingredients": {
+            "demo-menu-20261125-olio-puglia": 1
+          }
+        },
+        {
+          "id": "recipe-tonno",
+          "name": "Tonno al naturale",
+          "description": "",
+          "priceCents": 0,
+          "available": true,
+          "category": "Ingredienti",
+          "ingredients": {
+            "demo-menu-20261125-tonno": 1
+          }
+        },
+        {
+          "id": "recipe-cipolle",
+          "name": "Cipolle fresche caramellate",
+          "description": "",
+          "priceCents": 0,
+          "available": true,
+          "category": "Ingredienti",
+          "ingredients": {
+            "demo-menu-20261125-cipolle": 1
+          }
+        },
+        {
+          "id": "recipe-zucchine",
+          "name": "Zucchine",
+          "description": "",
+          "priceCents": 0,
+          "available": true,
+          "category": "Ingredienti",
+          "ingredients": {
+            "demo-menu-20261125-zucchine": 1
+          }
+        },
+        {
+          "id": "recipe-melanzane",
+          "name": "Melanzane",
+          "description": "",
+          "priceCents": 0,
+          "available": true,
+          "category": "Ingredienti",
+          "ingredients": {
+            "demo-menu-20261125-melanzane": 1
+          }
+        },
+        {
+          "id": "recipe-peperoni",
+          "name": "Peperoni",
+          "description": "",
+          "priceCents": 0,
+          "available": true,
+          "category": "Ingredienti",
+          "ingredients": {
+            "demo-menu-20261125-peperoni": 1
+          }
+        },
+        {
+          "id": "recipe-funghi",
+          "name": "Funghi con porcini",
+          "description": "",
+          "priceCents": 0,
+          "available": true,
+          "category": "Ingredienti",
+          "ingredients": {
+            "demo-menu-20261125-funghi": 1
+          }
+        },
+        {
+          "id": "recipe-brie",
+          "name": "Brie",
+          "description": "",
+          "priceCents": 0,
+          "available": true,
+          "category": "Ingredienti",
+          "ingredients": {
+            "demo-menu-20261125-brie": 1
+          }
+        },
+        {
+          "id": "recipe-salsiccia",
+          "name": "Salsiccia fresca",
+          "description": "",
+          "priceCents": 0,
+          "available": true,
+          "category": "Ingredienti",
+          "ingredients": {
+            "demo-menu-20261125-salsiccia": 1
+          }
+        },
+        {
+          "id": "recipe-aglio",
+          "name": "Aglio bianco",
+          "description": "",
+          "priceCents": 0,
+          "available": true,
+          "category": "Ingredienti",
+          "ingredients": {
+            "demo-menu-20261125-aglio": 1
+          }
+        },
+        {
+          "id": "recipe-olio-aglio",
+          "name": "Olio EVO all’aglio",
+          "description": "",
+          "priceCents": 0,
+          "available": true,
+          "category": "Ingredienti",
+          "ingredients": {
+            "demo-menu-20261125-olio-aglio": 1
+          }
+        },
+        {
+          "id": "recipe-origano-puglia",
+          "name": "Origano pugliese bio",
+          "description": "",
+          "priceCents": 0,
+          "available": true,
+          "category": "Ingredienti",
+          "ingredients": {
+            "demo-menu-20261125-origano-puglia": 1
+          }
+        },
+        {
+          "id": "recipe-wurstel",
+          "name": "Würstel giganti del Trentino",
+          "description": "",
+          "priceCents": 0,
+          "available": true,
+          "category": "Ingredienti",
+          "ingredients": {
+            "demo-menu-20261125-wurstel": 1
+          }
+        },
+        {
+          "id": "recipe-patate",
+          "name": "Patate fresche al forno in tripla cottura",
+          "description": "",
+          "priceCents": 0,
+          "available": true,
+          "category": "Ingredienti",
+          "ingredients": {
+            "demo-menu-20261125-patate": 1
+          }
+        },
+        {
+          "id": "recipe-salame",
+          "name": "Salame piccante",
+          "description": "",
+          "priceCents": 0,
+          "available": true,
+          "category": "Ingredienti",
+          "ingredients": {
+            "demo-menu-20261125-salame": 1
+          }
+        },
+        {
+          "id": "recipe-olio-peperoncino",
+          "name": "Olio EVO al peperoncino",
+          "description": "",
+          "priceCents": 0,
+          "available": true,
+          "category": "Ingredienti",
+          "ingredients": {
+            "demo-menu-20261125-olio-peperoncino": 1
+          }
+        },
+        {
+          "id": "recipe-acciughe",
+          "name": "Acciughe del Mar Cantabrico",
+          "description": "",
+          "priceCents": 0,
+          "available": true,
+          "category": "Ingredienti",
+          "ingredients": {
+            "demo-menu-20261125-acciughe": 1
+          }
+        },
+        {
+          "id": "recipe-origano-sicilia",
+          "name": "Origano di Sicilia bio",
+          "description": "",
+          "priceCents": 0,
+          "available": true,
+          "category": "Ingredienti",
+          "ingredients": {
+            "demo-menu-20261125-origano-sicilia": 1
+          }
+        },
+        {
+          "id": "recipe-marmellata",
+          "name": "Marmellata artigianale di fico d’India",
+          "description": "",
+          "priceCents": 0,
+          "available": true,
+          "category": "Ingredienti",
+          "ingredients": {
+            "demo-menu-20261125-marmellata": 1
+          }
+        },
+        {
+          "id": "recipe-prosciutto",
+          "name": "Prosciutto cotto di Praga",
+          "description": "",
+          "priceCents": 0,
+          "available": true,
+          "category": "Ingredienti",
+          "ingredients": {
+            "demo-menu-20261125-prosciutto": 1
+          }
+        },
+        {
+          "id": "recipe-carciofi",
+          "name": "Carciofi gourmet con gambo",
+          "description": "",
+          "priceCents": 0,
+          "available": true,
+          "category": "Ingredienti",
+          "ingredients": {
+            "demo-menu-20261125-carciofi": 1
+          }
+        },
+        {
+          "id": "recipe-olive",
+          "name": "Olive taggiasche",
+          "description": "",
+          "priceCents": 0,
+          "available": true,
+          "category": "Ingredienti",
+          "ingredients": {
+            "demo-menu-20261125-olive": 1
+          }
+        },
+        {
+          "id": "recipe-pane",
+          "name": "Pane",
+          "description": "",
+          "priceCents": 0,
+          "available": true,
+          "category": "Ingredienti",
+          "ingredients": {
+            "demo-menu-20261125-pane": 1
+          }
+        },
+        {
+          "id": "recipe-nutella",
+          "name": "Nutella",
+          "description": "",
+          "priceCents": 0,
+          "available": true,
+          "category": "Ingredienti",
+          "ingredients": {
+            "demo-menu-20261125-nutella": 1
+          }
+        }
+      ],
+      "tastes": [
+        {
+          "id": "demo-menu-20261125-speciale",
+          "name": "La Pizza Speciale",
+          "description": "Best seller · Pomodoro, mozzarella, datterini gialli e rossi, bufala D.O.P. e pesto di Pra’ senza aglio",
+          "priceCents": 1300,
+          "available": true,
+          "standardDoughId": "tradizionale",
+          "standardBaseId": "",
+          "standardFormatId": "tonda",
+          "doughIds": [
+            "castagne",
+            "mais",
+            "integrale",
+            "tradizionale"
+          ],
+          "baseIds": [],
+          "formatIds": [
+            "tonda"
+          ],
+          "toppingIds": [],
+          "includedToppingIds": [
+            "recipe-pomodoro",
+            "recipe-mozzarella",
+            "recipe-datterini-gialli",
+            "recipe-datterini-rossi",
+            "recipe-bufala",
+            "recipe-pesto"
+          ]
+        },
+        {
+          "id": "demo-menu-20261125-regina",
+          "name": "Regina d’Autunno",
+          "description": "Pizza del mese · Mozzarella, speck croccante e gorgonzola D.O.P.",
+          "priceCents": 1100,
+          "available": true,
+          "standardDoughId": "tradizionale",
+          "standardBaseId": "",
+          "standardFormatId": "tonda",
+          "doughIds": [
+            "castagne",
+            "mais",
+            "integrale",
+            "tradizionale"
+          ],
+          "baseIds": [],
+          "formatIds": [
+            "tonda"
+          ],
+          "toppingIds": [],
+          "includedToppingIds": [
+            "recipe-mozzarella",
+            "recipe-speck",
+            "recipe-gorgonzola"
+          ]
+        },
+        {
+          "id": "demo-menu-20261125-bufalina",
+          "name": "Bufalina",
+          "description": "Pomodoro, mozzarella di bufala campana D.O.P. in cottura e pipetta di olio EVO pugliese",
+          "priceCents": 1000,
+          "available": true,
+          "standardDoughId": "tradizionale",
+          "standardBaseId": "",
+          "standardFormatId": "tonda",
+          "doughIds": [
+            "castagne",
+            "mais",
+            "integrale",
+            "tradizionale"
+          ],
+          "baseIds": [],
+          "formatIds": [
+            "tonda"
+          ],
+          "toppingIds": [],
+          "includedToppingIds": [
+            "recipe-pomodoro",
+            "recipe-bufala-cottura",
+            "recipe-olio-puglia"
+          ]
+        },
+        {
+          "id": "demo-menu-20261125-blu-blu",
+          "name": "Blu Blu",
+          "description": "Pomodoro, mozzarella, tonno al naturale e cipolle fresche caramellate",
+          "priceCents": 1040,
+          "available": true,
+          "standardDoughId": "tradizionale",
+          "standardBaseId": "",
+          "standardFormatId": "tonda",
+          "doughIds": [
+            "castagne",
+            "mais",
+            "integrale",
+            "tradizionale"
+          ],
+          "baseIds": [],
+          "formatIds": [
+            "tonda"
+          ],
+          "toppingIds": [],
+          "includedToppingIds": [
+            "recipe-pomodoro",
+            "recipe-mozzarella",
+            "recipe-tonno",
+            "recipe-cipolle"
+          ]
+        },
+        {
+          "id": "demo-menu-20261125-arcobaleno",
+          "name": "Arcobaleno",
+          "description": "Pomodoro, mozzarella e mix di verdure fresche secondo disponibilità: zucchine, melanzane e peperoni",
+          "priceCents": 1220,
+          "available": true,
+          "standardDoughId": "tradizionale",
+          "standardBaseId": "",
+          "standardFormatId": "tonda",
+          "doughIds": [
+            "castagne",
+            "mais",
+            "integrale",
+            "tradizionale"
+          ],
+          "baseIds": [],
+          "formatIds": [
+            "tonda"
+          ],
+          "toppingIds": [],
+          "includedToppingIds": [
+            "recipe-pomodoro",
+            "recipe-mozzarella",
+            "recipe-zucchine",
+            "recipe-melanzane",
+            "recipe-peperoni"
+          ]
+        },
+        {
+          "id": "demo-menu-20261125-porciccia",
+          "name": "Porciccia",
+          "description": "Pomodoro, mozzarella, funghi con porcini, brie e salsiccia fresca",
+          "priceCents": 1340,
+          "available": true,
+          "standardDoughId": "tradizionale",
+          "standardBaseId": "",
+          "standardFormatId": "tonda",
+          "doughIds": [
+            "castagne",
+            "mais",
+            "integrale",
+            "tradizionale"
+          ],
+          "baseIds": [],
+          "formatIds": [
+            "tonda"
+          ],
+          "toppingIds": [],
+          "includedToppingIds": [
+            "recipe-pomodoro",
+            "recipe-mozzarella",
+            "recipe-funghi",
+            "recipe-brie",
+            "recipe-salsiccia"
+          ]
+        },
+        {
+          "id": "demo-menu-20261125-marinara",
+          "name": "Marinara Sbagliata",
+          "description": "Pomodoro, datterini gialli, aglio bianco, olio EVO all’aglio e origano pugliese bio",
+          "priceCents": 1090,
+          "available": true,
+          "standardDoughId": "tradizionale",
+          "standardBaseId": "",
+          "standardFormatId": "tonda",
+          "doughIds": [
+            "castagne",
+            "mais",
+            "integrale",
+            "tradizionale"
+          ],
+          "baseIds": [],
+          "formatIds": [
+            "tonda"
+          ],
+          "toppingIds": [],
+          "includedToppingIds": [
+            "recipe-pomodoro",
+            "recipe-datterini-gialli",
+            "recipe-aglio",
+            "recipe-olio-aglio",
+            "recipe-origano-puglia"
+          ]
+        },
+        {
+          "id": "demo-menu-20261125-happy-pork",
+          "name": "Happy Pork",
+          "description": "Pomodoro, mozzarella, würstel giganti del Trentino e patate fresche al forno in tripla cottura",
+          "priceCents": 1070,
+          "available": true,
+          "standardDoughId": "tradizionale",
+          "standardBaseId": "",
+          "standardFormatId": "tonda",
+          "doughIds": [
+            "castagne",
+            "mais",
+            "integrale",
+            "tradizionale"
+          ],
+          "baseIds": [],
+          "formatIds": [
+            "tonda"
+          ],
+          "toppingIds": [],
+          "includedToppingIds": [
+            "recipe-pomodoro",
+            "recipe-mozzarella",
+            "recipe-wurstel",
+            "recipe-patate"
+          ]
+        },
+        {
+          "id": "demo-menu-20261125-diavolita",
+          "name": "Diavolita",
+          "description": "Pomodoro, mozzarella, salame piccante e olio EVO al peperoncino",
+          "priceCents": 940,
+          "available": true,
+          "standardDoughId": "tradizionale",
+          "standardBaseId": "",
+          "standardFormatId": "tonda",
+          "doughIds": [
+            "castagne",
+            "mais",
+            "integrale",
+            "tradizionale"
+          ],
+          "baseIds": [],
+          "formatIds": [
+            "tonda"
+          ],
+          "toppingIds": [],
+          "includedToppingIds": [
+            "recipe-pomodoro",
+            "recipe-mozzarella",
+            "recipe-salame",
+            "recipe-olio-peperoncino"
+          ]
+        },
+        {
+          "id": "demo-menu-20261125-napoli",
+          "name": "Super Napoli",
+          "description": "Pomodoro, mozzarella di bufala D.O.P., acciughe del Mar Cantabrico e origano di Sicilia bio",
+          "priceCents": 1280,
+          "available": true,
+          "standardDoughId": "tradizionale",
+          "standardBaseId": "",
+          "standardFormatId": "tonda",
+          "doughIds": [
+            "castagne",
+            "mais",
+            "integrale",
+            "tradizionale"
+          ],
+          "baseIds": [],
+          "formatIds": [
+            "tonda"
+          ],
+          "toppingIds": [],
+          "includedToppingIds": [
+            "recipe-pomodoro",
+            "recipe-bufala",
+            "recipe-acciughe",
+            "recipe-origano-sicilia"
+          ]
+        },
+        {
+          "id": "demo-menu-20261125-formaggi",
+          "name": "Tre Formaggi",
+          "description": "Tris di formaggi secondo disponibilità: mozzarella, gorgonzola e brie, con marmellata artigianale di fico d’India servita a parte",
+          "priceCents": 1190,
+          "available": true,
+          "standardDoughId": "tradizionale",
+          "standardBaseId": "",
+          "standardFormatId": "tonda",
+          "doughIds": [
+            "castagne",
+            "mais",
+            "integrale",
+            "tradizionale"
+          ],
+          "baseIds": [],
+          "formatIds": [
+            "tonda"
+          ],
+          "toppingIds": [],
+          "includedToppingIds": [
+            "recipe-mozzarella",
+            "recipe-gorgonzola",
+            "recipe-brie",
+            "recipe-marmellata"
+          ]
+        },
+        {
+          "id": "demo-menu-20261125-monellona",
+          "name": "Monellona",
+          "description": "Pomodoro, mozzarella, prosciutto cotto di Praga, funghi con porcini, carciofi gourmet con gambo e olive taggiasche, il tutto suddiviso in quattro spicchi",
+          "priceCents": 1390,
+          "available": true,
+          "standardDoughId": "tradizionale",
+          "standardBaseId": "",
+          "standardFormatId": "tonda",
+          "doughIds": [
+            "castagne",
+            "mais",
+            "integrale",
+            "tradizionale"
+          ],
+          "baseIds": [],
+          "formatIds": [
+            "tonda"
+          ],
+          "toppingIds": [],
+          "includedToppingIds": [
+            "recipe-pomodoro",
+            "recipe-mozzarella",
+            "recipe-prosciutto",
+            "recipe-funghi",
+            "recipe-carciofi",
+            "recipe-olive"
+          ]
+        },
+        {
+          "id": "demo-menu-20261125-margherita",
+          "name": "Margherita Tristezza",
+          "description": "Pomodoro e mozzarella",
+          "priceCents": 700,
+          "available": true,
+          "standardDoughId": "tradizionale",
+          "standardBaseId": "",
+          "standardFormatId": "tonda",
+          "doughIds": [
+            "castagne",
+            "mais",
+            "integrale",
+            "tradizionale"
+          ],
+          "baseIds": [],
+          "formatIds": [
+            "tonda"
+          ],
+          "toppingIds": [],
+          "includedToppingIds": [
+            "recipe-pomodoro",
+            "recipe-mozzarella"
+          ]
+        },
+        {
+          "id": "demo-menu-20261125-baby",
+          "name": "Baby",
+          "description": "Pomodoro e mozzarella, servita con un «8» di pane e Nutella",
+          "priceCents": 700,
+          "available": true,
+          "standardDoughId": "tradizionale",
+          "standardBaseId": "",
+          "standardFormatId": "tonda",
+          "doughIds": [
+            "castagne",
+            "mais",
+            "integrale",
+            "tradizionale"
+          ],
+          "baseIds": [],
+          "formatIds": [
+            "tonda"
+          ],
+          "toppingIds": [],
+          "includedToppingIds": [
+            "recipe-pomodoro",
+            "recipe-mozzarella",
+            "recipe-pane",
+            "recipe-nutella"
+          ]
+        }
+      ],
+      "formulas": [],
+      "customEnabled": false
+    }
+  }
+}
