@@ -1,5 +1,6 @@
 import { expect, test, type Browser, type BrowserContext, type Page } from "@playwright/test";
 import type { GroupFulfillment } from "@pizzaos/domain";
+import jsQR from "jsqr";
 
 const clientOrigin = process.env.PIZZAOS_E2E_CLIENT_URL ?? "http://127.0.0.1:3501";
 const adminOrigin = process.env.PIZZAOS_E2E_ADMIN_URL ?? "http://127.0.0.1:3502";
@@ -41,8 +42,33 @@ test("Alice, Marco and Giulia share durable collection; only host submits one at
     await expect(invitation).toHaveValue(/#invito=/);
     const link = await invitation.inputValue(); const groupId = new URL(link).pathname.split("/").at(-1)!;
     expect(new URL(link).search).toBe("");
+    await alice.page.getByRole("button", { name: "Mostra QR", exact: true }).click();
+    const qr = alice.page.getByRole("img", { name: "QR code per entrare nel gruppo", exact: true });
+    await expect(qr).toBeVisible();
+    const pixels = await qr.evaluate(async element => {
+      const image = new Image();
+      image.src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(new XMLSerializer().serializeToString(element))}`;
+      await image.decode();
+      const canvas = document.createElement("canvas");
+      canvas.width = 256; canvas.height = 256;
+      const context = canvas.getContext("2d");
+      if (!context) throw new Error("Canvas non disponibile per leggere il QR");
+      context.drawImage(image, 0, 0, canvas.width, canvas.height);
+      return { data: Array.from(context.getImageData(0, 0, canvas.width, canvas.height).data), width: canvas.width, height: canvas.height };
+    });
+    const decoded = jsQR(new Uint8ClampedArray(pixels.data), pixels.width, pixels.height);
+    expect(decoded?.data).toBe(link);
+    await alice.page.setViewportSize({ width: 375, height: 812 });
+    await expect(qr).toBeVisible();
+    expect(await alice.page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+    const qrScreenshot = testInfo.outputPath("group-invitation-qr.png");
+    await alice.page.screenshot({ path: qrScreenshot, fullPage: true });
+    await testInfo.attach("group-invitation-qr", { path: qrScreenshot, contentType: "image/png" });
+    await alice.page.getByRole("button", { name: "Nascondi QR", exact: true }).click();
+    await expect(qr).toHaveCount(0);
     await addFirst(alice.page);
-    await join(marco.page, link, "Marco"); await addFirst(marco.page);
+    await join(marco.page, decoded!.data, "Marco"); await addFirst(marco.page);
+    await expect(marco.page.getByRole("button", { name: "Mostra QR", exact: true })).toHaveCount(0);
     await join(giulia.page, link, "Giulia"); await addFirst(giulia.page);
     await expect(alice.page.getByRole("article", { name: "Marco", exact: true })).toBeVisible();
     await expect(alice.page.getByRole("article", { name: "Giulia", exact: true })).toBeVisible();

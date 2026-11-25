@@ -36,6 +36,20 @@ describe("persistent group server-backed screen", () => {
     await waitFor(() => expect(api.join).toHaveBeenCalledWith("group", { inviteToken: "invitation-secret", name: "Giulia" }));
     expect(screen.queryByRole("button", { name: "Chiudi raccolta" })).toBeNull();
     expect(screen.queryByRole("button", { name: "Verifica totale gruppo" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Mostra QR" })).toBeNull();
+  });
+
+  it("lets the host show and hide the invitation QR without clipboard support", async () => {
+    const { api, individualApi } = ports({ ...initial, role: "host", participantId: "alice", inviteToken: "invitation-secret" });
+    render(<PersistentGroupScreen api={api} individualApi={individualApi} groupId="group" />);
+    const toggle = await screen.findByRole("button", { name: "Mostra QR" });
+    expect(toggle.getAttribute("aria-expanded")).toBe("false");
+    expect(screen.queryByRole("img", { name: "QR code per entrare nel gruppo" })).toBeNull();
+    fireEvent.click(toggle);
+    expect(screen.getByRole("img", { name: "QR code per entrare nel gruppo" }).tagName).toBe("svg");
+    expect(toggle.getAttribute("aria-expanded")).toBe("true");
+    fireEvent.click(screen.getByRole("button", { name: "Nascondi QR" }));
+    expect(screen.queryByRole("img", { name: "QR code per entrare nel gruppo" })).toBeNull();
   });
 
   it("restores personal identity from the API after refresh and provides no edits for another participant", async () => {

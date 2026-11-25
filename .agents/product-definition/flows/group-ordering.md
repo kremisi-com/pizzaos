@@ -16,6 +16,12 @@ Per la consegna l’organizzatore usa lo stesso [campo indirizzo con autocomplet
 
 ## Casi limite e verifiche
 
+L'organizzatore può premere **Mostra QR** accanto al link invito e nasconderlo con **Nascondi QR**. Il QR viene generato nel browser e codifica esattamente il link completo, con origine della sede e frammento invito; nessun token è inviato a generatori esterni. Chi lo scansiona apre lo stesso ingresso degli invitati via link e inserisce il proprio nome senza account. Non cambia le autorizzazioni: dopo la chiusura la scansione mostra la raccolta chiusa, senza permettere nuove scelte. Il QR è disponibile solo all'organizzatore che riceve il token invito dal servizio, anche dopo il ricaricamento; il link resta copiabile senza mostrare il QR.
+
+La suite [browser multi-identità](../../../tests/e2e/persistent-group.spec.ts) decodifica il QR SVG e usa l'URL risultante per l'ingresso di un ospite distinto; verifica anche il layout mobile. I [test client](../../../apps/client/src/test/persistent-group.test.tsx) verificano apertura/chiusura del QR e assenza del comando per l'invitato. Questa copertura locale non attesta una scansione con fotocamera su un dispositivo fisico.
+
+Verifica locale del 25 novembre 2026 per il QR: 134 test client, lint, typecheck, build isolata `.next-qr-build` e controllo architettura superati. Passano i tre scenari browser gruppo, inclusa decodifica e ingresso via QR. La suite combinata gruppo/individuale ha 9 successi e un errore estraneo al QR: lo scenario sidebar admin attende un titolo «Menu pubblicato», mentre la schermata corrente espone questa informazione come stato. Nessuna nuova verifica online eseguita.
+
 - Un invitato tenta di cambiare le scelte altrui: il servizio nega l'azione; i contributi restano personali.
 - Scade la raccolta o l'organizzatore la chiude prima: si chiudono le scelte, senza inviare un ordine, pagare o riservare stock/slot.
 - Prezzi, prodotti o capacità cambiano durante la raccolta: l'organizzatore risolve i conflitti e riconferma prima del checkout.

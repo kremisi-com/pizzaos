@@ -1,5 +1,7 @@
 # Ordine di gruppo
 
+Nel gruppo persistente l'organizzatore può mostrare e nascondere un QR accanto al link invito. `qrcode.react` genera un SVG nel browser con lo stesso URL assoluto e frammento invito, sull'origine della sede corrente, senza servizi esterni. La scansione apre il normale ingresso con nome; autorizzazioni e scadenza restano quelle del servizio. Il POC conserva il suo QR illustrativo.
+
 La feature possiede due esperienze separate. Il POC autenticato `/group-order` conserva roster e contributi locali tramite `group-order-model.ts`; link e QR di quella schermata sono dimostrativi.
 
 Il flusso operativo `/ordina/gruppo` usa `PersistentGroupScreen` e i port pubblici `GroupOrderingApi` e `IndividualApi` iniettati dalla composizione. `/ordina/gruppo/[id]` apre una raccolta persistente su servizio, con invito nel frammento URL e capability personale esclusivamente nel cookie HttpOnly. Il browser non conserva roster o contatti nello storage. Polling riprende riepilogo e catalogo server, senza sostituire campi locali in corso; ogni scrittura usa la revisione osservata.

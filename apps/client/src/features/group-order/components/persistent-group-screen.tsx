@@ -6,6 +6,7 @@ import type {
   IndividualApi, IndividualCheckoutResult, IndividualLine, IndividualSession, IndividualStore, PromotionsApi
 } from "@pizzaos/domain";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { QRCodeSVG } from "qrcode.react";
 import { DeliveryAddressField, hasDeliveryPoint, IndividualStripeFields, OrderSlotSelect, type ConfirmIndividualPayment } from "../../individual-ordering";
 import { appendMenuLine, MenuLineDetails, MenuLineEditor, OperationalMenu, useMenuPreferences } from "../../menu";
 import { PromotionSelectionPanel, PromotionSummary } from "../../promotions";
@@ -57,6 +58,7 @@ export function PersistentGroupScreen({ api, individualApi, promotionsApi, prefe
   const [session, setSession] = useState<IndividualSession | null>(null);
   const preferences = useMenuPreferences(preferencesApi, session?.actor?.id);
   const [inviteCopied, setInviteCopied] = useState(false);
+  const [qrVisible, setQrVisible] = useState(false);
   const [stores, setStores] = useState<IndividualStore[]>([]);
   const [store, setStore] = useState<IndividualStore | null>(null);
   const [storeId, setStoreId] = useState("");
@@ -225,6 +227,11 @@ export function PersistentGroupScreen({ api, individualApi, promotionsApi, prefe
           try { await navigator.clipboard.writeText(invitation); setInviteCopied(true); } catch { setInviteCopied(false); }
         }}>Copia link</button>}
         {inviteCopied && <span role="status">Link copiato</span>}
+        <button type="button" className={styles.secondary} aria-expanded={qrVisible} aria-controls="group-invitation-qr" onClick={() => setQrVisible(current => !current)}>{qrVisible ? "Nascondi QR" : "Mostra QR"}</button>
+        <div id="group-invitation-qr" className={styles.qrCode} hidden={!qrVisible}>
+          {qrVisible && <><QRCodeSVG value={invitation} size={256} level="M" marginSize={4} role="img" aria-label="QR code per entrare nel gruppo" />
+            <p>Scansiona il QR code con la fotocamera e inserisci il tuo nome per entrare nel gruppo.</p></>}
+        </div>
       </div>}
       {host && group.status === "open" && <button type="button" disabled={busy || pending || dirty} onClick={() => void run(async () => applyGroup(await api.close(group.id, { revision: group.revision })))}>Chiudi raccolta</button>}
       {group.role === "visitor" && group.status === "open" && inviteToken && <form onSubmit={event => { event.preventDefault(); void run(join); }}><label>Nome<input required maxLength={120} value={name} disabled={busy} onChange={event => setName(event.target.value)} /></label><button type="submit" disabled={busy || !name.trim()}>Entra nel gruppo</button></form>}
