@@ -148,7 +148,7 @@ export function MenuDraftEditor({ draft: sourceDraft, storeId, ingredients, onCh
             onKeyDown={event => {
               if (event.key === "Enter") {
                 event.preventDefault();
-                if (event.currentTarget.reportValidity()) setEditingSectionId("");
+                if (event.currentTarget.reportValidity()) event.currentTarget.blur();
               }
             }} /> : <h3>{section.name || "Nuova sezione"}</h3>}
         </div>

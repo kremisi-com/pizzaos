@@ -30,7 +30,7 @@ D84 rimuove da tutte le schede la creazione manuale di gruppi e l'organizzazione
 
 Ogni riga della bozza offre **Elimina** per rimuovere il prodotto dal menu, con conferma o annullamento. Anche la rimozione dalla scheda richiede conferma. La rimozione pulisce sezioni e abbinamenti; segue il normale salvataggio della bozza e la pubblicazione. Il menu pubblicato e le altre bozze restano invariati.
 
-Nell’editor della bozza ogni sezione mostra sempre il campo **Descrizione**. **Modifica nome**, accanto alle frecce di riordino, rende modificabile il titolo nell’intestazione; Invio o l’uscita dal campo ripristinano la visualizzazione del titolo. Le modifiche seguono il normale salvataggio della bozza.
+Nell’editor della bozza ogni sezione mostra sempre il campo **Descrizione**. **Modifica nome**, accanto alle frecce di riordino, rende modificabile il titolo nell’intestazione; Invio o l’uscita dal campo ripristinano la visualizzazione del titolo e avviano il salvataggio della bozza. Il toast «Bozza salvata.» compare dopo la risposta positiva del servizio. Verifica: `src/test/menu-autosave.test.tsx`.
 
 Verifica locale con `pnpm --filter @pizzaos/admin test`. I requisiti e i contratti del catalogo persistente sono in [.agents/design/2026-11-23-menu-ordering](../../../../../.agents/design/2026-11-23-menu-ordering/design.md).
 

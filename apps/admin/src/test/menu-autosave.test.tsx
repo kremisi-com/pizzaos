@@ -24,6 +24,33 @@ async function openDraft() {
 }
 
 describe("salvataggio automatico menu", () => {
+  it.each(["Invio", "uscita dal campo"])("salva il nome della sezione con %s e conferma solo dopo la risposta", async completion => {
+    const { saveDraft, workspace, showToast } = setup();
+    let resolveSave!: (value: MenuWorkspace) => void;
+    saveDraft.mockImplementationOnce(() => new Promise(resolve => { resolveSave = resolve; }));
+    await openDraft();
+    fireEvent.click(screen.getByRole("button", { name: "Modifica nome" }));
+    const input = screen.getByRole("textbox", { name: "Nome sezione 1" });
+    fireEvent.change(input, { target: { value: "Menu Serale" } });
+    expect(saveDraft).not.toHaveBeenCalled();
+    if (completion === "Invio") fireEvent.keyDown(input, { key: "Enter" });
+    else fireEvent.blur(input);
+    expect(screen.getByRole("heading", { name: "Menu Serale" })).toBeVisible();
+    await waitFor(() => expect(saveDraft).toHaveBeenCalledTimes(1));
+    expect(saveDraft.mock.calls[0]).toEqual(["store", 1, expect.objectContaining({
+      sections: [expect.objectContaining({ id: "section", name: "Menu Serale" })]
+    })]);
+    expect(showToast).not.toHaveBeenCalled();
+    resolveSave({ ...workspace, revision: 2, drafts: [saveDraft.mock.calls[0][2]] });
+    await waitFor(() => expect(showToast).toHaveBeenCalledWith("Bozza salvata.", "success"));
+    expect(saveDraft).toHaveBeenCalledTimes(1);
+    fireEvent.change(screen.getByLabelText("Nome menu"), { target: { value: "Bozza aggiornata" } });
+    expect(saveDraft).toHaveBeenCalledTimes(1);
+    fireEvent.blur(screen.getByLabelText("Nome menu"));
+    await waitFor(() => expect(saveDraft).toHaveBeenCalledTimes(2));
+    expect(saveDraft.mock.calls[1][1]).toBe(2);
+  });
+
   it("aggiunge impasti e formati e salva i nomi soltanto al blur", async () => {
     const { saveDraft, showToast } = setup();
     await openDraft();
