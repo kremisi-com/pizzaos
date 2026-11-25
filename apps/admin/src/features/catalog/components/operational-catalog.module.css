@@ -247,6 +247,32 @@
   border-radius: 0.65rem;
 }
 
+.publishDialog {
+  position: fixed;
+  inset: 0;
+  margin: auto;
+  box-sizing: border-box;
+  width: min(30rem, calc(100% - 2rem));
+  max-height: calc(100dvh - 2rem);
+  overflow-y: auto;
+  padding: 1.5rem;
+  border: 1px solid var(--pizzaos-color-border);
+  border-radius: 0.85rem;
+  background: var(--pizzaos-color-background-accent);
+  color: var(--pizzaos-color-foreground);
+  box-shadow: 0 1rem 3rem rgb(0 0 0 / 20%);
+}
+
+.publishDialog::backdrop {
+  background: rgb(0 0 0 / 40%);
+}
+
+.publishDialog h2 {
+  margin: 0;
+  font-size: 1.25rem;
+  overflow-wrap: anywhere;
+}
+
 @media (max-width: 740px) {
   .layout {
     grid-template-columns: minmax(0, 1fr);

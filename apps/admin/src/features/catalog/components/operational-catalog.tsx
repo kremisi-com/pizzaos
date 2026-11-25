@@ -40,6 +40,18 @@ export function OperationalCatalog({ api, storeId, ingredients, onPublished, onI
   const [saving, setSaving] = useState(false);
   const [failedDraft, setFailedDraft] = useState<MenuDraft | null>(null);
   const saveInFlight = useRef(false);
+  const publishDialog = useRef<HTMLDialogElement>(null);
+
+  useEffect(() => {
+    if (confirmation !== "publish") return;
+    const dialog = publishDialog.current;
+    const trigger = document.activeElement;
+    dialog?.showModal();
+    return () => {
+      dialog?.close();
+      if (trigger instanceof HTMLElement) trigger.focus();
+    };
+  }, [confirmation]);
 
   useEffect(() => {
     const draft = Object.values(queued)[0];
@@ -193,7 +205,7 @@ export function OperationalCatalog({ api, storeId, ingredients, onPublished, onI
             <option value="">{workspace.published.name} (pubblicato)</option>
             {Array.from(availableDrafts.values()).map(draft => <option key={draft.id} value={draft.id}>{draft.name || "Bozza senza nome"}</option>)}
           </select></label>
-          <Button type="button" disabled={!selectedDraft || pending} aria-expanded={confirmation === "publish"} onClick={() => setConfirmation(value => value === "publish" ? null : "publish")}>Pubblica menu</Button>
+          <Button type="button" disabled={!selectedDraft || pending} aria-haspopup="dialog" onClick={() => setConfirmation("publish")}>Pubblica menu</Button>
         </div>
       </header>
       <div className={styles.menuTools}>
@@ -218,18 +230,27 @@ export function OperationalCatalog({ api, storeId, ingredients, onPublished, onI
                 onInventory();
               } : undefined} />
           </fieldset>}
-          {confirmation && <fieldset className={styles.confirm} disabled={pending}>
-            <legend>{confirmation === "publish" ? "Pubblicare" : "Eliminare"} {selectedDraft.name}?</legend>
-            <p>{confirmation === "publish" ? "Questo menu diventerà visibile ai clienti della sede." : "La bozza sarà rimossa dal pannello."}</p>
+          {confirmation === "delete" && <fieldset className={styles.confirm} disabled={pending}>
+            <legend>Eliminare {selectedDraft.name}?</legend>
+            <p>La bozza sarà rimossa dal pannello.</p>
             <div className={styles.actions}>
-              {confirmation === "publish"
-                ? <Button type="button" onClick={() => void publish()}>Conferma pubblicazione</Button>
-                : <Button type="button" variant="secondary" onClick={() => void deleteDraft()}>Conferma eliminazione</Button>}
+              <Button type="button" variant="secondary" onClick={() => void deleteDraft()}>Conferma eliminazione</Button>
               <Button type="button" variant="ghost" onClick={() => setConfirmation(null)}>Annulla</Button>
             </div>
           </fieldset>}
         </form> : <MenuPreview menu={menu} storeId={storeId} ingredients={ingredients} />}
       </section>
     </div>}
+    {confirmation === "publish" && selectedDraft && <dialog ref={publishDialog} className={styles.publishDialog}
+      aria-labelledby="publish-menu-title" aria-describedby="publish-menu-description"
+      onCancel={event => { event.preventDefault(); if (!busy) setConfirmation(null); }}>
+      <h2 id="publish-menu-title">Pubblicare {selectedDraft.name}?</h2>
+      <p id="publish-menu-description">Questo menu diventerà visibile ai clienti della sede.</p>
+      {error && <p role="alert">{error}</p>}
+      <div className={styles.actions}>
+        <Button type="button" disabled={pending} onClick={() => void publish()}>Conferma pubblicazione</Button>
+        <Button type="button" variant="ghost" disabled={busy} onClick={() => setConfirmation(null)}>Annulla</Button>
+      </div>
+    </dialog>}
   </div>;
 }
