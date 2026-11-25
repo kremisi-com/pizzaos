@@ -79,7 +79,14 @@ test("impasto dal Magazzino e consumo del formato arrivano dalla bozza al client
     await format.focus();
     const badge = format.locator("..").locator("span").filter({ hasText: /^\+2,00/ }).last();
     await expect(badge).toHaveCSS("color", "rgb(255, 255, 255)");
-    await expect(dialog.getByLabel("Allergeni attivi")).toContainText("Glutine");
+    await expect(dialog.getByRole("button", { name: "Informazioni ingredienti e allergeni" })).toHaveCount(0);
+    await expect(dialog.getByRole("heading", { name: "Ingredienti e allergeni" })).toHaveCount(0);
+    await expect(dialog.getByText(/Panetto integrale/)).toBeVisible();
+    const gluten = dialog.getByRole("button", { name: "Glutine", exact: true });
+    await expect(gluten).toHaveText("🌾");
+    await gluten.focus();
+    await page.keyboard.press("Enter");
+    await expect(dialog.getByRole("status")).toContainText("🌾 Glutine");
     await dialog.screenshot({ path: testInfo.outputPath("impasto-formato-mobile.png") });
     await dialog.getByRole("button", { name: /Aggiungi al carrello/ }).click();
     const quoting = page.waitForResponse(response => response.url().endsWith("/v1/pilot/quote") && response.request().method() === "POST");

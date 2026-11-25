@@ -1,0 +1,32 @@
+.details { margin-top: 16px; }
+.details p { margin: 8px 0; }
+.icons { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 8px; }
+.icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 1px solid var(--pizzaos-color-border);
+  border-radius: 50%;
+  background: var(--pizzaos-color-background-accent);
+  font-size: 1.4rem;
+  cursor: pointer;
+}
+.icon:focus-visible { outline: 2px solid var(--pizzaos-color-primary); outline-offset: 3px; }
+.toast {
+  position: fixed;
+  z-index: 10;
+  top: calc(16px + env(safe-area-inset-top, 0px));
+  left: 50%;
+  transform: translateX(-50%);
+  max-width: calc(100% - 32px);
+  padding: 12px 20px;
+  border: 1px solid var(--pizzaos-color-border);
+  border-radius: var(--pizzaos-radius-control);
+  background: var(--pizzaos-color-background-accent);
+  color: var(--pizzaos-color-foreground);
+  box-shadow: 0 4px 16px rgb(0 0 0 / 15%);
+  pointer-events: none;
+}

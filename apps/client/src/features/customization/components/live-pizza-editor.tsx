@@ -2,12 +2,12 @@
 
 import { menuAllergenKey, resolveMenuComposition } from "@pizzaos/domain";
 import type { IndividualLine, IndividualOption, IndividualProduct, IndividualStore, MenuOptionGroup, MenuSelection } from "@pizzaos/domain";
-import { Badge } from "@pizzaos/ui";
 import { useEffect, useId, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { CollapsibleSection } from "./collapsible-section";
 import styles from "./product-detail-screen.module.css";
 import live from "./live-pizza-editor.module.css";
+import { PizzaFoodDetails } from "./pizza-food-details";
 
 const euro = new Intl.NumberFormat("it-IT", { style: "currency", currency: "EUR" });
 const money = (cents: number) => euro.format(cents / 100);
@@ -57,7 +57,6 @@ export function LivePizzaEditor({ store, product, line, quantity = 1, disabled, 
   const [notes, setNotes] = useState(line?.notes ?? "");
   const [openSection, setOpenSection] = useState<string | null>(null);
   const [openCategory, setOpenCategory] = useState<string | null>(null);
-  const [showFood, setShowFood] = useState(false);
   const [pairingMessage, setPairingMessage] = useState("");
   const options = new Map(product.options.map(option => [option.id, option]));
   const allGroups = product.groups ?? [];
@@ -153,21 +152,10 @@ export function LivePizzaEditor({ store, product, line, quantity = 1, disabled, 
         </div>
         <div className={styles.titleWrapper}>
           <h1 id={titleId} className={styles.heroTitle}>{product.name}</h1>
-          <button type="button" className={styles.infoButton} onClick={() => setShowFood(current => !current)}
-            aria-expanded={showFood} aria-label="Informazioni ingredienti e allergeni">🔍</button>
         </div>
         <p className={styles.heroDescription}>{product.description}</p>
         <div className={styles.heroMeta}><span className={styles.heroPrice}>{money(preview.unitCents)}</span></div>
-        <div className={styles.allergenSummary} aria-label="Allergeni attivi">
-          {preview.composition.contains.map(label => <Badge tone="warning" key={label}>{label}</Badge>)}
-        </div>
-        {preview.composition.mayContain.length > 0 && <p>Può contenere: {preview.composition.mayContain.join(", ")}</p>}
-        {showFood && <div className={styles.modalIngredientList}>
-          <h2>Ingredienti e allergeni</h2>
-          <p>{preview.composition.ingredients.join(", ") || "Componi la tua pizza"}</p>
-          {preview.composition.contains.length > 0 && <p>Contiene: {preview.composition.contains.join(", ")}</p>}
-          {store.menu?.kitchenNotice && <p>{store.menu.kitchenNotice}</p>}
-        </div>}
+        <PizzaFoodDetails composition={preview.composition} kitchenNotice={store.menu?.kitchenNotice} />
       </section>
       {changed && <div className={live.feedback}>
         <p className={live.status} role="status">Alcune opzioni sono cambiate. Controlla le nuove scelte.</p>

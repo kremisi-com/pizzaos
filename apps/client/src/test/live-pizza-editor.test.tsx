@@ -68,6 +68,28 @@ describe("pizza choices after product selection", () => {
 });
 
 describe("persistent pizza editor using the PoC presentation", () => {
+  it("always shows ingredients and allergen icons with informative toasts as choices change", () => {
+    const { store, taste } = fixture();
+    taste.food = { contains: ["Glutine"], mayContain: ["Sesamo"] };
+    taste.foodIngredients = [{ id: "latte", name: "Latte", food: { contains: ["Latte"], mayContain: [] } }];
+    renderDom(<LivePizzaEditor store={store} product={taste} disabled={false} avoid={["Latte"]} onClose={vi.fn()} onSave={vi.fn()} />);
+    expect(domScreen.queryByRole("button", { name: "Informazioni ingredienti e allergeni" })).toBeNull();
+    expect(domScreen.queryByRole("heading", { name: "Ingredienti e allergeni" })).toBeNull();
+    expect(domScreen.getByText("Latte", { selector: "p" })).toBeTruthy();
+    const gluten = domScreen.getByRole("button", { name: "Glutine" });
+    expect(gluten.textContent).toBe("🌾");
+    domFireEvent.click(gluten);
+    expect(domScreen.getByText("🌾 Glutine")).toBeTruthy();
+    domFireEvent.click(domScreen.getByRole("button", { name: "Sesamo" }));
+    expect(domScreen.getByText("🌱 Sesamo")).toBeTruthy();
+    expect(domScreen.queryByText("🌾 Glutine")).toBeNull();
+    expect(domScreen.getByRole("group", { name: "Può contenere" })).toBeTruthy();
+    expect(domScreen.getByText(/Da verificare per le tue preferenze: Latte/)).toBeTruthy();
+    domFireEvent.click(domScreen.getByRole("button", { name: /^Ingredienti/ }));
+    domFireEvent.click(domScreen.getByRole("button", { name: "Mozzarella incluso" }));
+    expect(domScreen.queryByRole("button", { name: "Latte" })).toBeNull();
+  });
+
   it.each([true, false])("keeps menu navigation without the preview or incomplete-food notice (assets: %s)", withAssets => {
     const { store, taste } = fixture();
     if (!withAssets) {
