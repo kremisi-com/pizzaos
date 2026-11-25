@@ -55,6 +55,11 @@ test("la pubblicazione rende ordinabile la pizza componibile e la cucina riceve 
 
     await page.reload();
     await expect(page.getByText("Pizze componibili", { exact: true }).first()).toBeVisible();
+    await expect(page.getByText(draft.name, { exact: true })).toHaveCount(0);
+    await expect(page.getByRole("heading", { name: "Scegli dal menu", exact: true })).toHaveCount(0);
+    await expect(page.getByText("Scopri le proposte della pizzeria.", { exact: true })).toHaveCount(0);
+    await expect(page.getByText("Allergeni e preferenze alimentari", { exact: true })).toHaveCount(0);
+    await expect(page.getByText("Aggiornamenti in tempo reale", { exact: true })).toHaveCount(0);
     await page.getByRole("button", { name: "Aggiungi Pizza al taglio", exact: true }).click();
     const configurator = page.getByRole("dialog", { name: "Pizza al taglio", exact: true });
     await expect(configurator).toBeVisible();

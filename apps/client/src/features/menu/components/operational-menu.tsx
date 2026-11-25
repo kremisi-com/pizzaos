@@ -6,7 +6,7 @@ import Image from "next/image";
 import { useEffect, useId, useRef, useState } from "react";
 import { LivePizzaEditor, pizzaInitialSelections, pizzaPreview, type PizzaMenuChoices } from "../../customization";
 import { lineChoiceLabels, lineIssue, menuMoney, menuSelections } from "../live-menu-model";
-import { foodMatches, MenuFoodControls, MenuFoodSummary, type MenuPreferences } from "./operational-food";
+import { MenuFoodSummary, type MenuPreferences } from "./operational-food";
 import styles from "./operational-menu.module.css";
 
 function optionCount(group: MenuOptionGroup, choices: MenuSelection[]): number {
@@ -222,7 +222,6 @@ const menuItemId = (productId: string) => `voce-${productId}`;
 export function OperationalMenu({ store, preferences, disabled = false, onAdd }: {
   store: IndividualStore; preferences: MenuPreferences; disabled?: boolean; onAdd: (line: IndividualLine) => void;
 }) {
-  const [filtering, setFiltering] = useState(false);
   const [selectedSection, setSelectedSection] = useState<string | null>(null);
   const [pizzaChoices, setPizzaChoices] = useState<PizzaMenuChoices>({});
   const pizzas = store.products.filter(product => product.pizza);
@@ -249,15 +248,10 @@ export function OperationalMenu({ store, preferences, disabled = false, onAdd }:
     baseId: dimensions.find(dimension => dimension.kind === "base")?.selected
   };
   const products = new Map(store.products.map(product => [product.id, product]));
-  const productIsVisible = (product: IndividualProduct) => {
-    if (!filtering || !preferences.avoid.length || product.groups?.length) return true;
-    const food = resolveMenuComposition(product, []).composition;
-    return !foodMatches([...food.contains, ...food.mayContain], preferences.avoid).length;
-  };
   const sections = (store.menu?.sections ?? [{ id: "prodotti", name: "Prodotti", description: undefined, productIds: store.products.map(product => product.id) }])
     .map(section => ({ ...section, products: section.productIds.flatMap(id => {
       const product = products.get(id);
-      return product && productIsVisible(product) ? [product] : [];
+      return product ? [product] : [];
     }) })).filter(section => section.products.length);
   const firstSectionOfProduct = new Map<string, string>();
   for (const section of sections) {
@@ -269,19 +263,17 @@ export function OperationalMenu({ store, preferences, disabled = false, onAdd }:
   const heroProduct = sections.find(section => section.id === active)?.products.find(product => product.pizza) ?? representative;
   const heroImage = heroProduct ? pizzaPreview(heroProduct, pizzaInitialSelections(heroProduct, currentChoices), store.id) : undefined;
   return <div className={styles.menu}>
-    <header className={styles.hero}>
-      {store.menu?.name && <p className={styles.menuName}>{store.menu.name}</p>}
-      <h2>{pizzas.length ? "La pizza a modo tuo" : "Scegli dal menu"}</h2>
-      <p>{pizzas.length ? dimensions.some(dimension => dimension.kind === "base" && dimension.choices.length)
-        ? "Scegli impasto e base, poi trova la tua pizza." : "Scegli l'impasto, poi trova la tua pizza."
-        : "Scopri le proposte della pizzeria."}</p>
+    {pizzas.length > 0 && <header className={styles.hero}>
+      <h2>La pizza a modo tuo</h2>
+      <p>{dimensions.some(dimension => dimension.kind === "base" && dimension.choices.length)
+        ? "Scegli impasto e base, poi trova la tua pizza." : "Scegli l'impasto, poi trova la tua pizza."}</p>
       {pizzas.length > 0 && <div className={styles.heroPreview}>
         {heroImage?.src ? <>
           <Image unoptimized loading="eager" src={heroImage.src} alt={`Anteprima pizza ${heroProduct?.name ?? ""}`} width={360} height={360} />
           {heroImage.overlay && <Image unoptimized className={styles.heroOverlay} src={heroImage.overlay} alt="" width={330} height={330} />}
         </> : <div className={styles.emptyPreview}><span aria-hidden="true">🍕</span><p>La tua pizza prende forma qui.</p></div>}
       </div>}
-    </header>
+    </header>}
     {dimensions.filter(dimension => dimension.choices.length > 0).map(dimension => <fieldset className={styles.initialChoice} key={dimension.kind} disabled={disabled}>
       <legend>{dimension.kind === "dough" ? "Impasto" : "Base pizza"}</legend>
       <div className={styles.choiceList}>{dimension.choices.map(choice => <label className={styles.choice} key={choice.sourceId}>
@@ -292,7 +284,6 @@ export function OperationalMenu({ store, preferences, disabled = false, onAdd }:
         {!choice.available && <small className={styles.unavailable}>Esaurito</small>}
       </label>)}</div>
     </fieldset>)}
-    <MenuFoodControls preferences={preferences} filtering={filtering} onFilter={setFiltering} kitchenNotice={store.menu?.kitchenNotice} />
     {sections.length > 1 && <nav className={styles.categoryPicker} aria-label="Categorie del menu">
       <h3>Da dove vuoi iniziare?</h3>
       <div className={styles.categoryCards}>{sections.map(section => <a key={section.id} href={`#categoria-${encodeURIComponent(section.id)}`}
@@ -304,7 +295,7 @@ export function OperationalMenu({ store, preferences, disabled = false, onAdd }:
       {sections.map(section => <a key={section.id} href={`#categoria-${encodeURIComponent(section.id)}`}
         aria-current={active === section.id ? "location" : undefined} onClick={() => setSelectedSection(section.id)}>{section.name}</a>)}
     </nav>}
-    {!sections.length && <p>{filtering ? "Nessun prodotto corrisponde al filtro." : "Il menu non contiene ancora prodotti."}</p>}
+    {!sections.length && <p>Il menu non contiene ancora prodotti.</p>}
     {sections.map(section => <section className={styles.category} key={section.id} id={`categoria-${section.id}`}>
       {store.menu && <><h3>{section.name}</h3>{section.description && <p>{section.description}</p>}</>}
       <div className={styles.items}>{section.products.map(product => <div key={product.id} id={firstSectionOfProduct.get(product.id) === section.id ? menuItemId(product.id) : undefined}>

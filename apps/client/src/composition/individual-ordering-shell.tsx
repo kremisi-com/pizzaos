@@ -27,13 +27,13 @@ export function IndividualOrderingShell({ storefront }: { storefront?: boolean }
         try {
           const update = await api.events(cursor);
           cursor = Math.max(cursor, update.cursor);
-          if (alive) { setConnection(stream?.readyState === 1 ? "Aggiornamenti in tempo reale" : "Aggiornamenti periodici attivi"); if (update.events.length) changed(); }
+          if (alive) { setConnection(stream?.readyState === 1 ? "" : "Aggiornamenti periodici attivi"); if (update.events.length) changed(); }
         } catch { if (alive) setConnection("Connessione interrotta. Riprovo automaticamente."); }
         finally { pollingInFlight = false; }
       };
       if (typeof EventSource !== "undefined") {
         stream = new EventSource("/api/pilot/v1/pilot/stream?cursor=0");
-        stream.onopen = () => { if (alive) setConnection("Aggiornamenti in tempo reale"); };
+        stream.onopen = () => { if (alive) setConnection(""); };
         stream.onmessage = event => {
           try {
             const envelope = JSON.parse(event.data) as { cursor?: number; events?: unknown[] };

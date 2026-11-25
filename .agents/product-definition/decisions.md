@@ -208,3 +208,6 @@ La scelta del 20 novembre di sospendere il worker e attendere il reset gratuito 
 ## Stabilizzazione e punto zero
 
 La richiesta utente del 25 novembre 2026 autorizza correzione dei problemi emersi, consolidamento dello stato corrente e archiviazione dei documenti superati, senza interferire con modifiche in corso. Il [disegno](../design/2026-11-25-stabilization/design.md) delimita la base isolata e la protezione dei salvataggi concorrenti. Non modifica D16/D31, non autorizza apertura commerciale e non attesta un nuovo deploy.
+
+
+Su richiesta esplicita di Andrea, il Client operativo omette il nome del menu pubblicato, l’introduzione generica «Scegli dal menu»/«Scopri le proposte della pizzeria.» e il pannello «Allergeni e preferenze alimentari». Le preferenze restano gestibili dal profilo e gli avvisi restano sulle schede. La dicitura «Aggiornamenti in tempo reale» non viene mostrata; il meccanismo di aggiornamento rimane attivo. Comportamento corrente nel [flusso menu](flows/menu-ordering.md).
