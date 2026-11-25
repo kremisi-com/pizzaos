@@ -89,7 +89,7 @@ export function MenuFoodFields({ food, onChange }: {
     ...(food?.mayContain ?? [])
   ].map(value => [menuAllergenKey(value), value])).values());
 
-  return <details className={styles.food}>
+  return <details className={styles.food} open>
     <summary>Allergeni · {declared ? "verificati" : "da verificare"}</summary>
     <label className={styles.check}>
       <input type="checkbox" checked={declared} onChange={event => {
@@ -97,28 +97,21 @@ export function MenuFoodFields({ food, onChange }: {
       }} />
       Informazioni allergeni verificate
     </label>
-    {food && <div className={styles.foodGrid}>
+    <div className={styles.foodGrid}>
       {([["contains", "Contiene"], ["mayContain", "Può contenere"]] as const).map(([key, title]) =>
-        <fieldset key={key} className={styles.inner}>
-          <legend>{title}</legend>
-          <div className={styles.checkGrid}>
-            {allergens.map(allergen => {
-              const normalized = menuAllergenKey(allergen);
-              return <label className={styles.check} key={normalized}>
-                <input type="checkbox" checked={food[key].some(value => menuAllergenKey(value) === normalized)} onChange={event => {
-                  const selected = food[key].filter(value => menuAllergenKey(value) !== normalized);
-                  const other = key === "contains" ? "mayContain" : "contains";
-                  onChange(event.target.checked
-                    ? { ...food, [key]: [...selected, allergen], [other]: food[other].filter(value => menuAllergenKey(value) !== normalized) }
-                    : { ...food, [key]: selected });
-                }} />
-                {allergen}
-              </label>;
-            })}
-          </div>
-        </fieldset>
+        <label key={key} className={styles.inner}>{title}
+          <select multiple size={5} disabled={!food} value={allergens.filter(allergen => food?.[key].some(value => menuAllergenKey(value) === menuAllergenKey(allergen)))} onChange={event => {
+            if (!food) return;
+            const selected = Array.from(event.target.selectedOptions, option => option.value);
+            const normalized = new Set(selected.map(menuAllergenKey));
+            const other = key === "contains" ? "mayContain" : "contains";
+            onChange({ ...food, [key]: selected, [other]: food[other].filter(value => !normalized.has(menuAllergenKey(value))) });
+          }}>
+            {allergens.map(allergen => <option key={menuAllergenKey(allergen)} value={allergen}>{allergen}</option>)}
+          </select>
+        </label>
       )}
-    </div>}
+    </div>
   </details>;
 }
 
