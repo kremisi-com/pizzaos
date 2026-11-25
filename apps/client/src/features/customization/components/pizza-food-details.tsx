@@ -22,10 +22,11 @@ export function PizzaFoodDetails({ composition, kitchenNotice }: {
     return () => clearTimeout(timer);
   }, [toast]);
 
-  function allergenIcon(label: string) {
+  function allergenIcon(label: string, mayContain: boolean) {
     const icon = iconByKey.get(menuAllergenKey(label)) ?? "❓";
-    return <button key={label} type="button" className={styles.icon} aria-label={label}
-      onClick={() => setToast({ message: `${icon} ${label}` })}>
+    const relation = mayContain ? "Può Contenere" : "Contiene";
+    return <button key={label} type="button" className={`${styles.icon} ${mayContain ? styles.possible : ""}`}
+      aria-label={`${relation} ${label}`} onClick={() => setToast({ message: `${icon} ${relation} ${label}` })}>
       <span aria-hidden="true">{icon}</span>
     </button>;
   }
@@ -33,10 +34,10 @@ export function PizzaFoodDetails({ composition, kitchenNotice }: {
   return <div className={styles.details}>
     <p>{composition.ingredients.join(", ") || "Componi la tua pizza"}</p>
     {composition.contains.length > 0 && <div className={styles.icons} role="group" aria-label="Allergeni attivi">
-      {composition.contains.map(allergenIcon)}
+      {composition.contains.map(label => allergenIcon(label, false))}
     </div>}
     {composition.mayContain.length > 0 && <div className={styles.icons} role="group" aria-label="Può contenere">
-      <span>Può contenere:</span>{composition.mayContain.map(allergenIcon)}
+      <span>Può contenere:</span>{composition.mayContain.map(label => allergenIcon(label, true))}
     </div>}
     {kitchenNotice && <p>{kitchenNotice}</p>}
     <div role="status" aria-live="polite" aria-atomic="true">

@@ -15,8 +15,8 @@ test("impasto dal Magazzino e consumo del formato arrivano dalla bozza al client
     expect(storeResponse.ok(), await storeResponse.text()).toBe(true);
     const store = await storeResponse.json() as IndividualStore;
     const ingredients = [
-      { id: "panetto-classico", name: "Panetto classico", stock: 100, food: { contains: ["Glutine"], mayContain: [] } },
-      { id: "panetto-integrale", name: "Panetto integrale", stock: 6, food: { contains: ["Glutine"], mayContain: [] } },
+      { id: "panetto-classico", name: "Panetto classico", stock: 100, food: { contains: ["Glutine"], mayContain: ["Sesamo"] } },
+      { id: "panetto-integrale", name: "Panetto integrale", stock: 6, food: { contains: ["Glutine"], mayContain: ["Sesamo"] } },
       { id: "pomodoro-stock", name: "Pomodoro", stock: 100, food: { contains: [], mayContain: [] } },
     ];
     const stored = await operator.request.put(`${adminOrigin}/api/pilot/v1/pilot/stores/roma`, { headers: { origin: adminOrigin },
@@ -82,11 +82,18 @@ test("impasto dal Magazzino e consumo del formato arrivano dalla bozza al client
     await expect(dialog.getByRole("button", { name: "Informazioni ingredienti e allergeni" })).toHaveCount(0);
     await expect(dialog.getByRole("heading", { name: "Ingredienti e allergeni" })).toHaveCount(0);
     await expect(dialog.getByText(/Panetto integrale/)).toBeVisible();
-    const gluten = dialog.getByRole("button", { name: "Glutine", exact: true });
+    const gluten = dialog.getByRole("button", { name: "Contiene Glutine", exact: true });
     await expect(gluten).toHaveText("🌾");
     await gluten.focus();
     await page.keyboard.press("Enter");
-    await expect(dialog.getByRole("status")).toContainText("🌾 Glutine");
+    await expect(dialog.getByRole("status")).toContainText("🌾 Contiene Glutine");
+    await expect(gluten.locator("span")).toHaveCSS("filter", "none");
+    const sesame = dialog.getByRole("button", { name: "Può Contenere Sesamo", exact: true });
+    await expect(sesame).toHaveCSS("background-color", "rgb(245, 245, 245)");
+    await expect(sesame).toHaveCSS("border-top-color", "rgb(102, 102, 102)");
+    await expect(sesame.locator("span")).toHaveCSS("filter", "brightness(0) invert(0.4)");
+    await sesame.click();
+    await expect(dialog.getByRole("status")).toContainText("🌱 Può Contenere Sesamo");
     await dialog.screenshot({ path: testInfo.outputPath("impasto-formato-mobile.png") });
     await dialog.getByRole("button", { name: /Aggiungi al carrello/ }).click();
     const quoting = page.waitForResponse(response => response.url().endsWith("/v1/pilot/quote") && response.request().method() === "POST");

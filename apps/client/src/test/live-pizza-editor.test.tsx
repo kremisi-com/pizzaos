@@ -76,18 +76,18 @@ describe("persistent pizza editor using the PoC presentation", () => {
     expect(domScreen.queryByRole("button", { name: "Informazioni ingredienti e allergeni" })).toBeNull();
     expect(domScreen.queryByRole("heading", { name: "Ingredienti e allergeni" })).toBeNull();
     expect(domScreen.getByText("Latte", { selector: "p" })).toBeTruthy();
-    const gluten = domScreen.getByRole("button", { name: "Glutine" });
+    const gluten = domScreen.getByRole("button", { name: "Contiene Glutine" });
     expect(gluten.textContent).toBe("🌾");
     domFireEvent.click(gluten);
-    expect(domScreen.getByText("🌾 Glutine")).toBeTruthy();
-    domFireEvent.click(domScreen.getByRole("button", { name: "Sesamo" }));
-    expect(domScreen.getByText("🌱 Sesamo")).toBeTruthy();
-    expect(domScreen.queryByText("🌾 Glutine")).toBeNull();
+    expect(domScreen.getByText("🌾 Contiene Glutine")).toBeTruthy();
+    domFireEvent.click(domScreen.getByRole("button", { name: "Può Contenere Sesamo" }));
+    expect(domScreen.getByText("🌱 Può Contenere Sesamo")).toBeTruthy();
+    expect(domScreen.queryByText("🌾 Contiene Glutine")).toBeNull();
     expect(domScreen.getByRole("group", { name: "Può contenere" })).toBeTruthy();
     expect(domScreen.getByText(/Da verificare per le tue preferenze: Latte/)).toBeTruthy();
     domFireEvent.click(domScreen.getByRole("button", { name: /^Ingredienti/ }));
     domFireEvent.click(domScreen.getByRole("button", { name: "Mozzarella incluso" }));
-    expect(domScreen.queryByRole("button", { name: "Latte" })).toBeNull();
+    expect(domScreen.queryByRole("button", { name: "Contiene Latte" })).toBeNull();
   });
 
   it.each([true, false])("keeps menu navigation without the preview or incomplete-food notice (assets: %s)", withAssets => {
