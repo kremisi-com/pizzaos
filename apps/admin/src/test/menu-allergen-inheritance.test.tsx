@@ -39,7 +39,10 @@ describe("Allergeni dal Magazzino", () => {
   it("mantiene la dichiarazione degli allergeni sulle schede del Magazzino", () => {
     const onChange = vi.fn();
     render(<MenuFoodFields onChange={onChange} />);
-    fireEvent.click(screen.getByLabelText("Informazioni allergeni verificate"));
-    expect(onChange).toHaveBeenCalledWith({ contains: [], mayContain: [] });
+    fireEvent.click(screen.getByText("Allergeni", { selector: "summary" }));
+    screen.getByText("Allergeni", { selector: "summary" }).parentElement!.setAttribute("open", "");
+    fireEvent.click(screen.getByRole("button", { name: "Seleziona allergeni: Contiene" }));
+    fireEvent.click(screen.getByLabelText("Glutine"));
+    expect(onChange).toHaveBeenCalledWith({ contains: ["Glutine"], mayContain: [] });
   });
 });

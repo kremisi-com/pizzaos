@@ -1,7 +1,7 @@
 import { MENU_ALLERGENS, menuAllergenKey } from "@pizzaos/domain";
 import type { IndividualIngredient, MenuFoodInformation } from "@pizzaos/domain";
 import { Button } from "@pizzaos/ui";
-import { useState } from "react";
+import { useId, useRef, useState } from "react";
 import styles from "./operational-catalog.module.css";
 
 export function MenuRecipeFields({ label, ingredients, recipe, onChange, singleUnit = false }: {
@@ -78,38 +78,68 @@ export function MenuRecipeFields({ label, ingredients, recipe, onChange, singleU
   </fieldset>;
 }
 
+function AllergenSelect({ title, allergens, selected, onChange }: {
+  title: string;
+  allergens: readonly string[];
+  selected: readonly string[];
+  onChange: (values: string[]) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const [search, setSearch] = useState("");
+  const optionsId = useId();
+  const labelId = useId();
+  const trigger = useRef<HTMLButtonElement>(null);
+  const matching = allergens.filter(value => value.toLocaleLowerCase("it-IT").includes(search.trim().toLocaleLowerCase("it-IT")));
+  const has = (value: string) => selected.some(item => menuAllergenKey(item) === menuAllergenKey(value));
+  function toggle(value: string, checked: boolean) {
+    const remaining = selected.filter(item => menuAllergenKey(item) !== menuAllergenKey(value));
+    onChange(checked ? [...remaining, value] : remaining);
+  }
+  function close() {
+    setOpen(false);
+    trigger.current?.focus();
+  }
+  return <div className={styles.ingredientSelect} role="group" aria-labelledby={labelId} onKeyDown={event => {
+    if (event.key === "Escape" && open) { event.preventDefault(); event.stopPropagation(); close(); }
+  }}>
+    <span id={labelId} className={styles.fieldLabel}>{title}</span>
+    <button type="button" ref={trigger} className={styles.selectTrigger} aria-label={`Seleziona allergeni: ${title}`}
+      aria-expanded={open} aria-controls={open ? optionsId : undefined} onClick={() => setOpen(value => !value)}>
+      <span>{selected.length ? selected.join(", ") : "Scegli gli allergeni"}</span><span aria-hidden="true">⌄</span>
+    </button>
+    {selected.length > 0 && <div className={styles.chips}>{selected.map(value => <button type="button" key={menuAllergenKey(value)}
+      aria-label={`Rimuovi ${value} da ${title}`} onClick={() => toggle(value, false)}>{value} ×</button>)}</div>}
+    {open && <div id={optionsId} className={styles.ingredientOptions}>
+      <label>Filtra allergeni: {title}<input type="search" value={search} onChange={event => setSearch(event.target.value)} /></label>
+      {matching.map(value => <label key={menuAllergenKey(value)} className={styles.check}>
+        <input type="checkbox" checked={has(value)} onChange={event => toggle(value, event.target.checked)} />{value}
+      </label>)}
+      {!matching.length && <p>Nessun allergene corrisponde alla ricerca.</p>}
+      <Button type="button" variant="ghost" onClick={close}>Chiudi allergeni: {title}</Button>
+    </div>}
+  </div>;
+}
+
 export function MenuFoodFields({ food, onChange }: {
   food?: MenuFoodInformation;
-  onChange: (food?: MenuFoodInformation) => void;
+  onChange: (food: MenuFoodInformation) => void;
 }) {
-  const declared = food !== undefined;
+  const declaration = food ?? { contains: [], mayContain: [] };
   const allergens = Array.from(new Map([
     ...MENU_ALLERGENS,
-    ...(food?.contains ?? []),
-    ...(food?.mayContain ?? [])
+    ...declaration.contains,
+    ...declaration.mayContain
   ].map(value => [menuAllergenKey(value), value])).values());
 
-  return <details className={styles.food} open>
-    <summary>Allergeni · {declared ? "verificati" : "da verificare"}</summary>
-    <label className={styles.check}>
-      <input type="checkbox" checked={declared} onChange={event => {
-        onChange(event.target.checked ? { contains: [], mayContain: [] } : undefined);
-      }} />
-      Informazioni allergeni verificate
-    </label>
+  return <details className={styles.food}>
+    <summary>Allergeni</summary>
     <div className={styles.foodGrid}>
       {([["contains", "Contiene"], ["mayContain", "Può contenere"]] as const).map(([key, title]) =>
-        <label key={key} className={styles.inner}>{title}
-          <select multiple size={5} disabled={!food} value={allergens.filter(allergen => food?.[key].some(value => menuAllergenKey(value) === menuAllergenKey(allergen)))} onChange={event => {
-            if (!food) return;
-            const selected = Array.from(event.target.selectedOptions, option => option.value);
-            const normalized = new Set(selected.map(menuAllergenKey));
-            const other = key === "contains" ? "mayContain" : "contains";
-            onChange({ ...food, [key]: selected, [other]: food[other].filter(value => !normalized.has(menuAllergenKey(value))) });
-          }}>
-            {allergens.map(allergen => <option key={menuAllergenKey(allergen)} value={allergen}>{allergen}</option>)}
-          </select>
-        </label>
+        <AllergenSelect key={key} title={title} allergens={allergens} selected={declaration[key]} onChange={selected => {
+          const normalized = new Set(selected.map(menuAllergenKey));
+          const other = key === "contains" ? "mayContain" : "contains";
+          onChange({ ...declaration, [key]: selected, [other]: declaration[other].filter(value => !normalized.has(menuAllergenKey(value))) });
+        }} />
       )}
     </div>
   </details>;

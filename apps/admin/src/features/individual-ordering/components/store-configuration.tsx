@@ -21,7 +21,10 @@ export function StoreConfiguration({ store, isNew, section, busy, orderingDomain
   onSave: (draft: IndividualStore, original: IndividualStore, addressConfirmation?: string) => Promise<boolean | void>;
 }) {
   const [original] = useState(store);
-  const [draft, setDraft] = useState(store);
+  const [draft, setDraft] = useState(() => isNew || section === "inventory" ? {
+    ...store,
+    ingredients: store.ingredients.map(ingredient => ({ ...ingredient, food: ingredient.food ?? { contains: [], mayContain: [] } }))
+  } : store);
   const automatic = !isNew && section === "inventory";
   const baseline = useRef(store);
   const form = useRef<HTMLFormElement>(null);
@@ -69,7 +72,7 @@ export function StoreConfiguration({ store, isNew, section, busy, orderingDomain
       if (event.target instanceof Element && event.target.closest("button")) editingText.current = false;
     }}
     onBlur={event => {
-      if (!automatic || !(event.target instanceof HTMLInputElement) || ["checkbox", "radio"].includes(event.target.type)) return;
+      if (!automatic || !(event.target instanceof HTMLInputElement) || ["checkbox", "radio", "search"].includes(event.target.type)) return;
       editingText.current = false;
       queueSave(draft);
     }} onSubmit={event => {
@@ -128,7 +131,7 @@ export function StoreConfiguration({ store, isNew, section, busy, orderingDomain
         </div>}
         <MenuFoodFields food={ingredient.food} onChange={food => update("ingredients", draft.ingredients.map(item =>
           item.id === ingredient.id ? { ...item, food } : item))} />
-      </div>)}<button className={styles.secondary} type="button" onClick={() => update("ingredients", [...draft.ingredients, { id: crypto.randomUUID(), name: "", stock: 0 }])}>Aggiungi ingrediente</button>
+      </div>)}<button className={styles.secondary} type="button" onClick={() => update("ingredients", [...draft.ingredients, { id: crypto.randomUUID(), name: "", stock: 0, food: { contains: [], mayContain: [] } }])}>Aggiungi ingrediente</button>
     </fieldset>}
 
     {isNew && <fieldset disabled={busy}><legend>Menu e prodotti</legend>

@@ -18,43 +18,75 @@ function fixture() {
   return { store, onSave };
 }
 
-function selectValues(select: HTMLSelectElement, values: string[]) {
-  for (const option of select.options) option.selected = values.includes(option.value);
-  fireEvent.change(select);
+function openIngredient(index: number) {
+  const summary = screen.getAllByText("Allergeni", { selector: "summary" })[index];
+  fireEvent.click(summary);
+  summary.parentElement!.setAttribute("open", "");
+  return within(summary.parentElement!);
+}
+
+function openSelect(ingredient: ReturnType<typeof openIngredient>, title: string) {
+  fireEvent.click(ingredient.getByRole("button", { name: `Seleziona allergeni: ${title}` }));
+  return within(ingredient.getByRole("group", { name: title }));
 }
 
 describe("multiselect allergeni del Magazzino", () => {
-  it("mostra la lista statica e conserva selezioni salvate e voci importate", () => {
+  it("parte chiuso senza conferma e conserva selezioni e voci importate", () => {
     fixture();
-    const selects = screen.getAllByRole<HTMLSelectElement>("listbox", { name: "Contiene" });
-    expect(selects).toHaveLength(2);
-    for (const allergen of MENU_ALLERGENS) expect(within(selects[0]).getByRole("option", { name: allergen })).toBeTruthy();
-    expect(Array.from(selects[0].selectedOptions, option => option.value)).toEqual(["Glutine"]);
-    const traces = screen.getAllByRole<HTMLSelectElement>("listbox", { name: "Può contenere" })[0];
-    expect(Array.from(traces.selectedOptions, option => option.value)).toEqual(["Senape", "Voce importata"]);
-    expect(selects[1].disabled).toBe(true);
+    for (const summary of screen.getAllByText("Allergeni", { selector: "summary" })) {
+      expect(summary.parentElement!.hasAttribute("open")).toBe(false);
+    }
+    expect(screen.queryByLabelText("Informazioni allergeni verificate")).toBeNull();
+    const ingredient = openIngredient(0);
+    const contains = openSelect(ingredient, "Contiene");
+    for (const allergen of MENU_ALLERGENS) expect(contains.getByRole("checkbox", { name: allergen })).toBeTruthy();
+    expect((contains.getByLabelText("Glutine") as HTMLInputElement).checked).toBe(true);
+    const traces = openSelect(ingredient, "Può contenere");
+    expect((traces.getByLabelText("Senape") as HTMLInputElement).checked).toBe(true);
+    expect((traces.getByLabelText("Voce importata") as HTMLInputElement).checked).toBe(true);
   });
 
-  it("salva più allergeni per ingrediente, sposta le tracce ed elimina una selezione", async () => {
+  it("filtra entrambe le liste senza salvare o perdere selezioni e ripristina il focus con Escape", () => {
+    const { onSave } = fixture();
+    const ingredient = openIngredient(0);
+    for (const title of ["Contiene", "Può contenere"]) {
+      const select = openSelect(ingredient, title);
+      const search = select.getByRole("searchbox");
+      fireEvent.change(search, { target: { value: "inesistente" } });
+      expect(select.queryAllByRole("checkbox")).toHaveLength(0);
+      fireEvent.blur(search);
+      expect(onSave).not.toHaveBeenCalled();
+      fireEvent.change(search, { target: { value: " glut " } });
+      expect(select.getAllByRole("checkbox")).toHaveLength(1);
+      fireEvent.keyDown(search, { key: "Escape" });
+      expect(document.activeElement).toBe(select.getByRole("button", { name: `Seleziona allergeni: ${title}` }));
+    }
+    expect(ingredient.getByRole("button", { name: "Rimuovi Glutine da Contiene" })).toBeTruthy();
+  });
+
+  it("salva più allergeni, sposta tra liste in entrambe le direzioni e rimuove tramite chip", async () => {
     const { store, onSave } = fixture();
-    const contains = screen.getAllByRole<HTMLSelectElement>("listbox", { name: "Contiene" })[0];
-    selectValues(contains, ["Glutine", "Senape", "Uova"]);
-    selectValues(contains, ["Senape", "Uova"]);
-    fireEvent.click(screen.getAllByLabelText("Informazioni allergeni verificate")[1]);
-    selectValues(screen.getAllByRole<HTMLSelectElement>("listbox", { name: "Contiene" })[1], ["Latte"]);
+    const ingredient = openIngredient(0);
+    const contains = openSelect(ingredient, "Contiene");
+    fireEvent.click(contains.getByLabelText("Senape"));
+    fireEvent.click(contains.getByLabelText("Uova"));
+    fireEvent.click(contains.getByRole("button", { name: "Rimuovi Glutine da Contiene" }));
+    const traces = openSelect(ingredient, "Può contenere");
+    fireEvent.click(traces.getByLabelText("Uova"));
+    const second = openSelect(openIngredient(1), "Contiene");
+    fireEvent.click(second.getByLabelText("Latte"));
     await waitFor(() => expect(onSave).toHaveBeenLastCalledWith(expect.objectContaining({ ingredients: [
-      { ...store.ingredients[0], food: { contains: ["Uova", "Senape"], mayContain: ["Voce importata"] } },
+      { ...store.ingredients[0], food: { contains: ["Senape"], mayContain: ["Voce importata", "Uova"] } },
       { ...store.ingredients[1], food: { contains: ["Latte"], mayContain: [] } }
     ] }), expect.objectContaining({ id: store.id })));
   });
 
-  it("distingue una dichiarazione vuota dai dati da verificare", async () => {
+  it("salva liste vuote verificate di default anche senza aprire la sezione", async () => {
     const { onSave } = fixture();
-    fireEvent.click(screen.getAllByLabelText("Informazioni allergeni verificate")[0]);
-    fireEvent.click(screen.getAllByLabelText("Informazioni allergeni verificate")[1]);
+    expect(onSave).not.toHaveBeenCalled();
+    const stock = screen.getByLabelText("Scorta Latte");
+    fireEvent.change(stock, { target: { value: "5" } });
+    fireEvent.blur(stock);
     await waitFor(() => expect(onSave.mock.lastCall?.[0].ingredients[1].food).toEqual({ contains: [], mayContain: [] }));
-    const saved: IndividualStore = onSave.mock.lastCall![0];
-    expect(saved.ingredients[0].food).toBeUndefined();
-    expect(saved.ingredients[1].food).toEqual({ contains: [], mayContain: [] });
   });
 });
