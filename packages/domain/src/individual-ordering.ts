@@ -19,7 +19,7 @@ export interface IndividualOption extends MenuSpecificOption {
 }
 export interface IndividualProduct {
   id: string; name: string; description: string; priceCents: number; available: boolean;
-  /** null keeps the ingredient reference while its recipe dose awaits verification. */
+  /** null keeps the ingredient reference with untracked consumption; it does not block ordering. */
   allergens: string[]; ingredients: Record<string, number | null>; options: IndividualOption[];
   groups?: MenuOptionGroup[]; extraOffer?: MenuExtraOffer; pairingProductIds?: string[]; imageId?: string;
   food?: MenuFoodInformation;

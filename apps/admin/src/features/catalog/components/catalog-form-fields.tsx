@@ -33,7 +33,6 @@ export function MenuRecipeFields({ label, ingredients, recipe, onChange, singleU
     const matching = ingredients.filter(ingredient => ingredient.name.toLocaleLowerCase("it-IT").includes(search.toLocaleLowerCase("it-IT")));
     return <fieldset className={styles.inner}>
       <legend>{label}</legend>
-      {Object.values(recipe).includes(null) && <p>Rimuovi e riseleziona gli ingredienti con dose da verificare per confermare una unità.</p>}
       <div className={styles.ingredientSelect}>
         <button type="button" className={styles.selectTrigger} aria-label={`Seleziona ingredienti per ${label}`} aria-expanded={open} onClick={() => setOpen(value => !value)}>
           <span>{selected.size ? [...selected].map(id => names.get(id) || "Ingrediente da verificare").join(", ") : "Scegli gli ingredienti"}</span><span aria-hidden="true">⌄</span>
@@ -55,7 +54,6 @@ export function MenuRecipeFields({ label, ingredients, recipe, onChange, singleU
 
   return <fieldset className={styles.inner}>
     <legend>{label}</legend>
-    {Object.values(recipe).includes(null) && <p>Completa le dosi da verificare prima di pubblicare il menu.</p>}
     {Object.entries(recipe).map(([id, units]) => {
       const name = ingredients.find(ingredient => ingredient.id === id)?.name || "Ingrediente da verificare";
       return <div className={styles.row} key={id}>

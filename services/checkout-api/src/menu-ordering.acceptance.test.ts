@@ -205,7 +205,7 @@ const pizza = product("crea-pizza", {
 });
 
 describe("Ricette importate da verificare", () => {
-  it("richiede la dose ma permette pubblicazione e ordine con scorta non tracciata", async () => {
+  it("permette pubblicazione e ordine con dose e scorta non tracciate", async () => {
     const f = fixture();
     let store = json<IndividualStore>(await f.request("GET", catalog, "operator"));
     store.ingredients.push({ id: "pesto-importato", name: "Pesto di Pra’ senza aglio", stock: null });
@@ -213,12 +213,7 @@ describe("Ricette importate da verificare", () => {
     const imported = draft("importato", product("speciale", { ingredients: { "pesto-importato": null } }));
     const saved = await f.save((await f.workspace()).revision, imported);
     expect(saved.drafts[0].products[0].ingredients).toEqual({ "pesto-importato": null });
-    const blocked = await f.request("POST", `${menu}/publish`, "operator", { revision: saved.revision, draftId: imported.id });
-    expect(blocked.statusCode).toBe(400);
-    expect(blocked.json().message).toContain("verifica dosi e scorte");
-    imported.products[0].ingredients["pesto-importato"] = 2;
-    const dosed = await f.save(saved.revision, imported);
-    expect((await f.request("POST", `${menu}/publish`, "operator", { revision: dosed.revision, draftId: imported.id })).statusCode).toBe(200);
+    expect((await f.request("POST", `${menu}/publish`, "operator", { revision: saved.revision, draftId: imported.id })).statusCode).toBe(200);
     expect((await f.quoteRequest(orderCart(line("speciale")))).statusCode).toBe(200);
     store = json<IndividualStore>(await f.request("GET", catalog, "operator"));
     store.ingredients.find(item => item.id === "pesto-importato")!.stock = 8;

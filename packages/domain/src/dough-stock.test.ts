@@ -86,11 +86,13 @@ describe("impasto e formato determinano il consumo della voce Magazzino scelta",
     expect(result.unitCents).toBe(1300);
   });
 
-  it("considera non ordinabile una composizione con quantità impasto ancora da verificare", () => {
+  it("considera ordinabile una composizione con quantità impasto non tracciata", () => {
     const source = draft();
     source.pizzaCatalog!.formats[0].doughQuantity = null;
     const product = materializePizzaMenu(source).products[0];
-    expect(resolveMenuComposition(product, choices(product, "classico", "tonda")).valid).toBe(false);
+    const result = resolveMenuComposition(product, choices(product, "classico", "tonda"));
+    expect(result.valid).toBe(true);
+    expect(result.recipe["panetto-classico"]).toBeNull();
   });
 
   it("trasferisce la base standard fra gli ingredienti inclusi conservando input, prezzi e identità", () => {

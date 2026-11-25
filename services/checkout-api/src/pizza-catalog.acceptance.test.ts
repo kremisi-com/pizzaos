@@ -244,18 +244,17 @@ describe("catalogo pizza autorevole via HTTP", () => {
     expect(unavailable.json()).toMatchObject({ code: "inventory_changed" });
   });
 
-  it("blocca la pubblicazione con dose ignota di un extra abilitato", async () => {
+  it("pubblica con dose ignota di un extra abilitato", async () => {
     const f = fixture();
     const store = (await f.request("GET", "/v1/pilot/stores/roma")).json<IndividualStore>();
     const ingredient = store.ingredients.find(({ id }) => id === "latte")!;
     ingredient.extra = { enabled: true, priceCents: 200, dose: null };
     expect((await f.request("PUT", "/v1/pilot/stores/roma", { ...store })).statusCode).toBe(200);
-    const before = (await f.workspace()).published;
     const saved = await f.save(inventoryDraft());
     expect(saved.statusCode, saved.body).toBe(200);
-    const blocked = await f.publish("pizza");
-    expect(blocked.statusCode, blocked.body).toBe(400);
-    expect((await f.workspace()).published).toEqual(before);
+    const published = await f.publish("pizza");
+    expect(published.statusCode, published.body).toBe(200);
+    expect((await f.workspace()).published.pizzaCatalog?.toppings.find(item => item.inventoryIngredientId === "latte")?.ingredients.latte).toBeNull();
   });
 
   it("permette di ordinare un gusto con topping disattivato soltanto dopo averlo rimosso", async () => {
@@ -384,18 +383,17 @@ describe("catalogo pizza autorevole via HTTP", () => {
     expect(await f.workspace()).toEqual(before);
   });
 
-  it("conserva dosi sconosciute in bozza e blocca la pubblicazione senza modificare il menu attivo", async () => {
+  it("conserva dosi sconosciute in bozza e nel menu pubblicato", async () => {
     const f = fixture();
-    const before = (await f.workspace()).published;
     const candidate = draft();
     candidate.pizzaCatalog!.doughs[0].ingredients.farina = null;
     const saved = await f.save(candidate);
     expect(saved.statusCode, saved.body).toBe(200);
     expect(saved.json<MenuWorkspace>().drafts[0].pizzaCatalog?.doughs[0].ingredients.farina).toBeNull();
-    const blocked = await f.publish(candidate.id);
-    expect(blocked.statusCode, blocked.body).toBe(400);
-    expect((await f.workspace()).published).toEqual(before);
-    expect((await f.request("GET", "/v1/pilot/stores/roma")).json<IndividualStore>().products).toEqual([]);
+    const published = await f.publish(candidate.id);
+    expect(published.statusCode, published.body).toBe(200);
+    expect((await f.workspace()).published.pizzaCatalog?.doughs[0].ingredients.farina).toBeNull();
+    expect((await f.request("GET", "/v1/pilot/stores/roma")).json<IndividualStore>().products[0].available).toBe(true);
   });
 
   it.each(["duplicate", "missing", "standard"])("rifiuta riferimenti %s senza scritture parziali", async kind => {
@@ -749,7 +747,7 @@ describe("classificazione ed extra comuni: contratto HTTP indipendente", () => {
     expect(quote.json<IndividualQuote>().lines[0].unitCents).toBe(800);
   });
 
-  it.each([{ enabled: true, priceCents: null, dose: 2 }, { enabled: true, priceCents: 150, dose: null }])("non pubblica extra incompleti: %j", async (extra) => {
+  it.each([{ enabled: true, priceCents: null, dose: 2 }])("non pubblica extra senza prezzo: %j", async (extra) => {
     const f = fixture();
     await configureLatte(f, extra);
     const candidate = draft();

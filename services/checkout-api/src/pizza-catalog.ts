@@ -43,7 +43,6 @@ export function validatePizzaCatalog(value: unknown, ingredientIds: Set<string>,
       if (Object.keys(item.ingredients).length > 1000) invalid("Ricetta del componente pizza troppo grande.");
       for (const [id, dose] of Object.entries(item.ingredients)) {
         if (!ingredientIds.has(id) || (dose !== null && (typeof dose !== "number" || !Number.isSafeInteger(dose) || dose < 1))) invalid("Ricetta del componente pizza non valida.");
-        if (publishing && dose === null) invalid(`«${item.name}»: verifica dosi e scorte prima di pubblicare.`);
       }
     }
   }
@@ -56,7 +55,6 @@ export function validatePizzaCatalog(value: unknown, ingredientIds: Set<string>,
     for (const format of catalog.formats) {
       if (Object.keys(format.ingredients).length || format.inventoryIngredientId !== undefined) invalid("Il formato indica soltanto la quantità di impasto.");
       if (format.doughQuantity != null && (!Number.isSafeInteger(format.doughQuantity) || format.doughQuantity < 1)) invalid("Indica una quantità intera positiva di impasto per il formato.");
-      if (publishing && format.doughQuantity == null) invalid(`«${format.name}»: verifica la quantità di impasto prima di pubblicare.`);
     }
   }
   const inventoryReferences = new Set<string>();
@@ -149,7 +147,7 @@ export function preparePizzaMenu(draft: MenuDraft, ingredientIds: Set<string>, i
       invalid("Gli extra del Magazzino sono cambiati. Ricarica gli ingredienti, controlla e salva la bozza prima di pubblicare.");
     }
     if (publishing) for (const item of inventory.filter(item => item.extra?.enabled)) {
-      if (item.extra?.priceCents == null || item.extra.dose == null) invalid(`«${item.name}»: verifica prezzo e dose extra nel Magazzino prima di pubblicare.`);
+      if (item.extra?.priceCents == null) invalid(`«${item.name}»: verifica prezzo e dose extra nel Magazzino prima di pubblicare.`);
     }
     draft = refreshed;
     validatePizzaCatalog(draft.pizzaCatalog, ingredientIds, invalid, publishing);

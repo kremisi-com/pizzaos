@@ -4,7 +4,7 @@ import { menuAllergenKey, type MenuComposition, type MenuFoodInformation, type M
 export interface ResolvedMenuComposition {
   valid: boolean;
   unitCents: number;
-  recipe: Record<string, number>;
+  recipe: Record<string, number | null>;
   composition: MenuComposition;
 }
 
@@ -34,14 +34,17 @@ export function resolveMenuComposition(product: IndividualProduct, selections: r
   }
 
   const removed = new Set(selected.filter(({ option }) => !option.pizza).flatMap(({ option }) => option.removesIngredientIds ?? []));
-  const recipe = new Map<string, number>();
+  const recipe = new Map<string, number | null>();
+  function addDose(id: string, units: number | null) {
+    const previous = recipe.get(id);
+    recipe.set(id, units === null || previous === null ? null : (previous ?? 0) + units);
+  }
   const removedToppings = new Set(selected.filter(({ option }) => option.pizza?.kind === "removal").map(({ option }) => option.pizza?.sourceId));
   const pizzaBase = product.pizzaRecipeSources?.filter(source => !removedToppings.has(source.sourceId)).flatMap(source => Object.entries(source.ingredients))
     ?? product.pizza?.includedToppings?.filter(source => !removedToppings.has(source.sourceId)).flatMap(source => source.ingredientIds.map(id => [id, 1] as const));
   const base = pizzaBase ?? product.baseIngredientIds?.map(id => [id, 1] as const) ?? Object.entries(product.ingredients);
   for (const [id, units] of base) {
-    if (units === null) { valid = false; continue; }
-    if (!removed.has(id)) recipe.set(id, (recipe.get(id) ?? 0) + units);
+    if (!removed.has(id)) addDose(id, units);
   }
   const contains = new Map<string, string>();
   const mayContain = new Map<string, string>();
@@ -62,16 +65,15 @@ export function resolveMenuComposition(product: IndividualProduct, selections: r
   const format = selected.find(({ option }) => option.pizza?.kind === "format")?.option.pizza;
   const visibleIngredientIds = new Set(base.map(([id]) => id));
   const doughQuantity = format?.doughQuantity;
-  if (doughQuantity !== undefined && (doughQuantity === null || !Number.isSafeInteger(doughQuantity) || doughQuantity < 1)) valid = false;
+  if (doughQuantity != null && (!Number.isSafeInteger(doughQuantity) || doughQuantity < 1)) valid = false;
   for (const { option, quantity } of selected) {
     const references = option.ingredientIds?.map(id => [id, 1] as const) ?? Object.entries(option.ingredients);
     const ownRemovals = new Set(option.removesIngredientIds);
     for (const [id, units] of references) {
       if (option.pizza?.kind !== "dough" || doughQuantity === undefined) visibleIngredientIds.add(id);
-      if (units === null) { valid = false; continue; }
-      const dose = option.pizza?.kind === "dough" && doughQuantity != null ? doughQuantity : units;
+      const dose = option.pizza?.kind === "dough" && doughQuantity !== undefined ? doughQuantity : units;
       if (!removed.has(id) || ownRemovals.has(id) || option.pizza?.kind === "dough" && doughQuantity !== undefined) {
-        recipe.set(id, (recipe.get(id) ?? 0) + dose * quantity);
+        addDose(id, dose === null ? null : dose * quantity);
       }
     }
     if (option.food) { includeFood(option.food); identifiedFood = true; }
@@ -102,7 +104,7 @@ export function resolveMenuComposition(product: IndividualProduct, selections: r
     subtotalCents: option.priceCents * quantity - (discounts.get(option.id) ?? 0) }));
   const unitCents = choices.reduce((sum, item) => sum + item.subtotalCents, product.priceCents);
   return {
-    valid: valid && unitCents >= 0 && Number.isSafeInteger(unitCents) && [...recipe.values()].every(Number.isSafeInteger),
+    valid: valid && unitCents >= 0 && Number.isSafeInteger(unitCents) && [...recipe.values()].every(units => units === null || Number.isSafeInteger(units)),
     unitCents,
     recipe: Object.fromEntries(recipe),
     composition: {

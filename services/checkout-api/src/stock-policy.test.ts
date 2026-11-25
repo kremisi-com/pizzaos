@@ -159,9 +159,9 @@ describe("politica delle scorte", () => {
     expect(state().stores.store.ingredients.find((ingredient) => ingredient.id === "tracked")?.stock).toBe(3);
   });
 
-  it.each(["missing", "dose-null"] as const)("una ricetta incompleta %s resta non pubblicabile", async (kind) => {
+  it("un riferimento ingrediente assente resta non pubblicabile", async () => {
     const { service, state } = setup(null, "allow");
-    const recipe: Record<string, number | null> = kind === "missing" ? { missing: 1 } : { ingredient: null };
+    const recipe: Record<string, number | null> = { missing: 1 };
     const products = state().stores.store.products.map((product) => ({ ...product, ingredients: recipe }));
     const workspace = await service.menu.workspace(operator, "store");
     const draft = { id: "draft", name: "Menu", sections: [{ id: "section", name: "Pizze", productIds: ["product"] }], products };

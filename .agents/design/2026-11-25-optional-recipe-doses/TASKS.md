@@ -1,0 +1,1 @@
+- [x] **optional-doses**: consentire dosi mancanti lungo pubblicazione, catalogo, preventivo e checkout, conservando policy zero e consumo noto.

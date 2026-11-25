@@ -91,9 +91,9 @@ export function validateMenuDraft(draft: MenuDraft, store: IndividualStore, inva
   for (const product of draft.products) {
     if (checkRecipeReadiness) {
       for (const recipe of [product.ingredients, ...product.options.map(option => option.ingredients)]) {
-        for (const [id, dose] of Object.entries(recipe)) {
+        for (const id of Object.keys(recipe)) {
           const ingredient = store.ingredients.find(ingredient => ingredient.id === id);
-          if (dose === null || !ingredient) {
+          if (!ingredient) {
             invalid(`«${product.name}»: verifica dosi e scorte degli ingredienti prima di pubblicare.`);
           }
         }

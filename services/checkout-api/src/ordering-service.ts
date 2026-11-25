@@ -182,14 +182,16 @@ function publicProduct(product: IndividualProduct, store: IndividualStore, reser
   const remaining = new Map(store.ingredients.map(item => [item.id, bypassStock(item, store) ? Infinity : (item.stock ?? 0) - (reserved[item.id] ?? 0)]));
   const removable = new Set(product.options.flatMap(option => option.removesIngredientIds ?? []));
   const specificRemovable = new Set(product.options.filter(option => !option.pizza).flatMap(option => option.removesIngredientIds ?? []));
-  const possible = (recipe: Record<string, number | null>, allowRemovals = false) => Object.entries(recipe).every(([id, units]) => units !== null && ((allowRemovals && removable.has(id)) || (remaining.get(id) ?? 0) >= units));
+  const ingredientPossible = (id: string, units: number | null) => remaining.has(id)
+    && (units === null ? store.ingredients.some(item => item.id === id && (item.stock !== 0 || store.outOfStockBehavior === "allow")) : (remaining.get(id) ?? 0) >= units);
+  const possible = (recipe: Record<string, number | null>, allowRemovals = false) => Object.entries(recipe).every(([id, units]) => ((allowRemovals && removable.has(id)) || ingredientPossible(id, units)));
   const base = Object.entries(product.ingredients).filter(([id]) => !removable.has(id));
   const managed = Boolean(store.menu || product.groups);
-  const maxAvailable = managed && base.length ? Math.max(0, Math.min(...base.map(([id, units]) => units === null ? 0 : Math.floor((remaining.get(id) ?? 0) / units)))) : undefined;
+  const maxAvailable = managed && base.length ? Math.max(0, Math.min(...base.map(([id, units]) => units === null ? Infinity : Math.floor((remaining.get(id) ?? 0) / units)))) : undefined;
   function optionPossible(option: IndividualProduct["options"][number]) {
     const component = option.pizza && ["dough", "base", "format"].includes(option.pizza.kind);
-    return Object.entries(option.ingredients).every(([id, units]) => units !== null
-      && (component && specificRemovable.has(id) || (remaining.get(id) ?? 0) >= units));
+    return Object.entries(option.ingredients).every(([id, units]) =>
+      (component && specificRemovable.has(id) || ingredientPossible(id, units)));
   }
   const zeroBlocked = store.outOfStockBehavior !== "allow" && hasZeroStock(product.ingredients, store);
   const soldOut = product.available && (zeroBlocked || base.some(([id, units]) => units !== null && (remaining.get(id) ?? 0) < units));
@@ -293,7 +295,10 @@ export function createOrderingService(options: OrderingServiceOptions): RiderOrd
       if (line.kind !== undefined && line.kind !== expectedKind) fail("customization_changed", "Il tipo di pizza è cambiato: scegli nuovamente la composizione.");
       const addRecipe = (requirements: Record<string, number | null>) => {
         for (const [ingredientId, units] of Object.entries(requirements)) {
-          if (units === null) fail("inventory_changed", "Quantità della ricetta da verificare.");
+          const ingredient = store.ingredients.find(item => item.id === ingredientId);
+          if (!ingredient) fail("inventory_changed", "Ingrediente non più disponibile.");
+          if (ingredient.stock === 0 && store.outOfStockBehavior !== "allow") fail("inventory_changed", "Un ingrediente è esaurito: correggi il carrello.");
+          if (units === null) continue;
           const next = (recipe[ingredientId] ?? 0) + units * line.quantity;
           if (!Number.isSafeInteger(next)) fail("invalid_input", "Quantità troppo grande.");
           recipe[ingredientId] = next;
@@ -312,13 +317,17 @@ export function createOrderingService(options: OrderingServiceOptions): RiderOrd
         return { ...result, unitCents: resolved.unitCents, composition: resolved.composition };
       }
       if (line.selections?.length) fail("customization_changed", "Personalizzazione non più disponibile.");
-      addRecipe(product.ingredients);
+      const requirements = { ...product.ingredients };
       for (const optionId of line.optionIds) {
         const option = product.options.find(item => item.id === optionId);
         if (!option || option.available === false) fail("invalid_input", "Personalizzazione non più disponibile.");
         result.unitCents += option.priceCents;
-        addRecipe(option.ingredients);
+        for (const [id, units] of Object.entries(option.ingredients)) {
+          const previous = requirements[id];
+          requirements[id] = units === null || previous === null ? null : (previous ?? 0) + units;
+        }
       }
+      addRecipe(requirements);
       subtotalCents += result.unitCents * line.quantity;
       if (!Number.isSafeInteger(subtotalCents) || !Number.isSafeInteger(result.unitCents)) invalid("Totale non valido.");
       return result;
