@@ -26,7 +26,7 @@ function catalog(): PizzaCatalog {
 
 describe("validazione autorevole impasti e formati", () => {
   it("pubblica il catalogo nuovo senza richiedere basi", () => {
-    expect(() => validatePizzaCatalog(catalog(), ingredientIds, invalid, true, new Map([["panetto", 20], ["pomodoro", 10]]))).not.toThrow();
+    expect(() => validatePizzaCatalog(catalog(), ingredientIds, invalid, true)).not.toThrow();
   });
   it("salva associazioni e quantità mancanti soltanto in bozza", () => {
     const source = catalog();
@@ -45,8 +45,10 @@ describe("validazione autorevole impasti e formati", () => {
     source.doughs[0].inventoryIngredientId = "assente";
     expect(() => validatePizzaCatalog(source, ingredientIds, invalid)).toThrow();
   });
-  it("blocca la pubblicazione quando la scorta dell'impasto non è verificata", () => {
-    expect(() => validatePizzaCatalog(catalog(), ingredientIds, invalid, true, new Map([["panetto", null], ["pomodoro", 10]]))).toThrow();
+  it("pubblica quando la scorta dell'impasto non è tracciata", () => {
+    const inventory = [{ id: "panetto", name: "Panetto", stock: null }, { id: "pomodoro", name: "Pomodoro", stock: 10 }];
+    const draft = preparePizzaMenu({ id: "menu", name: "Menu", products: [], sections: [], pizzaCatalog: catalog() }, ingredientIds, invalid, false, inventory);
+    expect(() => preparePizzaMenu(draft, ingredientIds, invalid, true, inventory)).not.toThrow();
   });
   it("ricompone le pizze dalla sorgente ignorando una proiezione contraffatta del browser", () => {
     const draft: MenuDraft = { id: "menu", name: "Menu", pizzaCatalog: catalog(),

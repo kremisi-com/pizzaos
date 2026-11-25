@@ -1,0 +1,1 @@
+- [x] **stock-policy**: configurazione Profilo, pubblicazione senza scorte, disponibilità cliente e controlli autorevoli con avviso admin; test, documentazione e verifica.

@@ -106,7 +106,20 @@ export function StoreConfiguration({ store, isNew, section, busy, orderingDomain
       onConfirm={candidate => { setAddress(candidate.address); setConfirmedAddress(candidate); }} />
     <label className={styles.check}><input type="checkbox" checked={draft.acceptingOrders} onChange={event => update("acceptingOrders", event.target.checked)} />Accetta nuovi ordini</label></fieldset>}
 
-    {(isNew || section === "inventory") && <fieldset disabled={busy && !automatic}><legend>Magazzino ingredienti</legend><p>Le quantità sono espresse nelle stesse unità delle ricette. La disponibilità per nuovi ordini tiene conto delle riserve. Una scorta vuota è da verificare; inserisci zero solo se l’ingrediente è esaurito.</p>
+    {(isNew || section === "profile") && <fieldset disabled={busy}><legend>Disponibilità dei prodotti</legend>
+      <label>Prodotti con ingredienti esauriti<select value={draft.outOfStockBehavior ?? "disable"} onChange={event => {
+        const value = event.target.value;
+        if (value === "allow" || value === "disable" || value === "hide") update("outOfStockBehavior", value);
+      }}>
+        <option value="allow">Visibili e ordinabili</option>
+        <option value="disable">Visibili con Esaurito</option>
+        <option value="hide">Nascosti</option>
+      </select></label>
+      <p>La scelta vale quando un ingrediente ha scorta zero. Le scorte vuote non sono tracciate e non bloccano la pubblicazione o gli ordini.</p>
+      {draft.outOfStockBehavior === "allow" && <p>I prodotti restano ordinabili anche con ingredienti esauriti. Gli avvisi sono visibili soltanto nell’admin.</p>}
+    </fieldset>}
+
+    {(isNew || section === "inventory") && <fieldset disabled={busy && !automatic}><legend>Magazzino ingredienti</legend><p>Le quantità sono espresse nelle stesse unità delle ricette. La disponibilità per nuovi ordini tiene conto delle riserve. Una scorta vuota non è tracciata; inserisci zero solo se l’ingrediente è esaurito. Il comportamento dei prodotti esauriti si sceglie in Profilo.</p>
       {draft.ingredients.map((ingredient, index) => <div className={styles.productEditor} key={ingredient.id}>
         <div className={styles.repeatRow}>
           <label>Nome ingrediente {index + 1}<input required value={ingredient.name} onChange={event => update("ingredients", draft.ingredients.map((item, i) => i === index ? { ...item, name: event.target.value } : item))} /></label>

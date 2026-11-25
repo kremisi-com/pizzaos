@@ -6,7 +6,7 @@ import type { MenuSpecificOption } from "./menu-choice-types";
 
 /** Durable pilot contracts. EUR amounts are integer cents, dates are UTC ISO strings. */
 export interface IndividualActor { id: string; email: string; name: string; }
-/** null means the stock has not been verified; it cannot fulfil an order. */
+/** null means stock is not tracked; zero means explicitly exhausted. */
 export interface IndividualIngredient {
   id: string; name: string; stock: number | null; food?: MenuFoodInformation;
   /** Commercial configuration is copied to a draft and becomes public only on publication. */
@@ -23,6 +23,8 @@ export interface IndividualProduct {
   allergens: string[]; ingredients: Record<string, number | null>; options: IndividualOption[];
   groups?: MenuOptionGroup[]; extraOffer?: MenuExtraOffer; pairingProductIds?: string[]; imageId?: string;
   food?: MenuFoodInformation;
+  /** Public projection of exhaustion; manual unavailability remains separate. */
+  soldOut?: boolean;
   pizza?: import("./pizza-types").PizzaProductIdentity;
   /** Authoritative included topping recipes; omitted from public catalog responses. */
   pizzaRecipeSources?: { sourceId: string; ingredients: Record<string, number | null> }[];
@@ -60,7 +62,11 @@ export function createDefaultWeeklyOrderSchedule(): WeeklyOrderSchedule {
     windows: startHours.map(hour => ({ startMinute: hour * 60, endMinute: (hour + 1) * 60, capacity: 5 }))
   })) };
 }
+export type OutOfStockBehavior = "allow" | "disable" | "hide";
+
 export interface IndividualStore {
+  /** Store policy for ingredients at zero; absent means disable. */
+  outOfStockBehavior?: OutOfStockBehavior;
   /** Opaque operator-only version. Required when saving an existing store. */
   configurationRevision?: string;
   orderingSubdomain?: string;

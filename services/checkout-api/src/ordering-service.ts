@@ -1,5 +1,6 @@
 import { preparePizzaMenu } from "./pizza-catalog";
-import { inventoryExtraProducts, untrackedExtraStock } from "./inventory-extras";
+import { inventoryExtraProducts } from "./inventory-extras";
+import { bypassStock, hasZeroStock, trackedRecipe } from "./stock-availability";
 import { createHash, randomUUID } from "node:crypto";
 import { createDefaultWeeklyOrderSchedule, isOrderingSubdomain, resolveMenuComposition } from "@pizzaos/domain";
 import type {
@@ -90,6 +91,9 @@ export function validateStoreConfiguration(store: IndividualStore): void {
   }
   if (store.contactEmail !== undefined && store.contactEmail !== "") email(store.contactEmail);
   if (store.contactPhone !== undefined) text(store.contactPhone, 100, true);
+  if (store.outOfStockBehavior !== undefined && !["allow", "disable", "hide"].includes(store.outOfStockBehavior)) {
+    invalid("Comportamento dei prodotti esauriti non valido.");
+  }
   if (typeof store.acceptingOrders !== "boolean" || !Array.isArray(store.ingredients) || !Array.isArray(store.products)
     || !Array.isArray(store.slots) || !Array.isArray(store.deliveryBands)) fail("invalid_input", "Configurazione sede incompleta.");
   if (store.products.length > 500 || store.ingredients.length > 1000 || store.slots.length > 5000 || store.deliveryBands.length > 100) fail("invalid_input", "Configurazione troppo grande.");
@@ -175,7 +179,7 @@ function describeFood(product: IndividualProduct, store: IndividualStore): Indiv
 }
 
 function publicProduct(product: IndividualProduct, store: IndividualStore, reserved: Record<string, number>): IndividualProduct {
-  const remaining = new Map(store.ingredients.map(item => [item.id, untrackedExtraStock(item) ? Infinity : (item.stock ?? 0) - (reserved[item.id] ?? 0)]));
+  const remaining = new Map(store.ingredients.map(item => [item.id, bypassStock(item, store) ? Infinity : (item.stock ?? 0) - (reserved[item.id] ?? 0)]));
   const removable = new Set(product.options.flatMap(option => option.removesIngredientIds ?? []));
   const specificRemovable = new Set(product.options.filter(option => !option.pizza).flatMap(option => option.removesIngredientIds ?? []));
   const possible = (recipe: Record<string, number | null>, allowRemovals = false) => Object.entries(recipe).every(([id, units]) => units !== null && ((allowRemovals && removable.has(id)) || (remaining.get(id) ?? 0) >= units));
@@ -187,14 +191,18 @@ function publicProduct(product: IndividualProduct, store: IndividualStore, reser
     return Object.entries(option.ingredients).every(([id, units]) => units !== null
       && (component && specificRemovable.has(id) || (remaining.get(id) ?? 0) >= units));
   }
-  const hiddenExtras = new Set(product.options.filter(option => option.pizza?.kind === "topping"
-    && Object.keys(option.ingredients).some(id => store.ingredients.find(item => item.id === id)?.stock === 0)).map(option => option.id));
-  return { ...(managed ? describeFood(product, store) : product), available: product.available && possible(product.ingredients, true),
+  const zeroBlocked = store.outOfStockBehavior !== "allow" && hasZeroStock(product.ingredients, store);
+  const soldOut = product.available && (zeroBlocked || base.some(([id, units]) => units !== null && (remaining.get(id) ?? 0) < units));
+  const hiddenOptions = new Set(store.outOfStockBehavior === "hide"
+    ? product.options.filter(option => hasZeroStock(option.ingredients, store)).map(option => option.id) : []);
+  return { ...(managed ? describeFood(product, store) : product), available: product.available && !zeroBlocked && possible(product.ingredients, true),
+    soldOut,
     ...(managed ? { baseIngredientIds: Object.keys(product.ingredients), ...(maxAvailable !== undefined && Number.isFinite(maxAvailable) ? { maxAvailable } : {}) } : {}),
-    ...(product.groups ? { groups: product.groups.map(group => ({ ...group, optionIds: group.optionIds.filter(id => !hiddenExtras.has(id)) })) } : {}),
-    pizzaRecipeSources: undefined, ingredients: {}, options: product.options.filter(option => !hiddenExtras.has(option.id)).map(option => ({ ...option,
+    ...(product.groups ? { groups: product.groups.map(group => ({ ...group, optionIds: group.optionIds.filter(id => !hiddenOptions.has(id)) })) } : {}),
+    pizzaRecipeSources: undefined, ingredients: {}, options: product.options.filter(option => !hiddenOptions.has(option.id)).map(option => ({ ...option,
       ...(option.pizza ? { pizza: { ...option.pizza, doughQuantity: undefined } } : {}), ingredients: {},
-      ...(managed ? { ingredientIds: Object.keys(option.ingredients), available: option.available !== false && optionPossible(option) } : {}) })) };
+      available: option.available !== false && optionPossible(option),
+      ...(managed ? { ingredientIds: Object.keys(option.ingredients) } : {}) })) };
 }
 
 function distanceKm(a: { latitude: number; longitude: number }, b: { latitude: number; longitude: number }): number {
@@ -278,6 +286,9 @@ export function createOrderingService(options: OrderingServiceOptions): RiderOrd
     const lines = cart.lines.map(line => {
       const product = products.find(item => item.id === line.productId);
       if (!product?.available) fail("product_unavailable", "Un prodotto non è disponibile: correggi il carrello.");
+      if (store.outOfStockBehavior !== "allow" && hasZeroStock(product.ingredients, store)) {
+        fail("inventory_changed", "Un prodotto è esaurito: correggi il carrello.");
+      }
       const expectedKind = product.pizza ? product.pizza.kind === "taste" ? "pizza_taste" : "pizza_formula" : "product";
       if (line.kind !== undefined && line.kind !== expectedKind) fail("customization_changed", "Il tipo di pizza è cambiato: scegli nuovamente la composizione.");
       const addRecipe = (requirements: Record<string, number | null>) => {
@@ -304,7 +315,7 @@ export function createOrderingService(options: OrderingServiceOptions): RiderOrd
       addRecipe(product.ingredients);
       for (const optionId of line.optionIds) {
         const option = product.options.find(item => item.id === optionId);
-        if (!option) fail("invalid_input", "Personalizzazione non più disponibile.");
+        if (!option || option.available === false) fail("invalid_input", "Personalizzazione non più disponibile.");
         result.unitCents += option.priceCents;
         addRecipe(option.ingredients);
       }
@@ -315,7 +326,8 @@ export function createOrderingService(options: OrderingServiceOptions): RiderOrd
     const reserved = ingredientsReserved(state, store.id);
     for (const [ingredientId, quantity] of Object.entries(recipe)) {
       const ingredient = store.ingredients.find(item => item.id === ingredientId);
-      if (untrackedExtraStock(ingredient)) continue;
+      if (!ingredient) fail("inventory_changed", "Ingrediente non più disponibile.");
+      if (bypassStock(ingredient, store)) continue;
       const available = ingredient?.stock ?? 0;
       if (quantity > available - (reserved[ingredientId] ?? 0)) fail("inventory_changed", "Ingredienti non sufficienti: correggi il carrello.");
     }
@@ -335,7 +347,7 @@ export function createOrderingService(options: OrderingServiceOptions): RiderOrd
     if (!Number.isSafeInteger(totalCents)) fail("invalid_input", "Totale non valido.");
     const details = { subtotalCents, deliveryCents, totalCents, slotId: slot.id, slotStartsAt: slot.startsAt,
       ...(slot.endsAt ? { slotEndsAt: slot.endsAt, slotTimeZone: slot.timeZone } : {}), lines };
-    return { quote: { ...details, fingerprint: hash({ cart: cleanCart(cart), details, recipe, ...(store.menu ? { menu: store.menu.id } : {}) }) }, recipe };
+    return { quote: { ...details, fingerprint: hash({ cart: cleanCart(cart), details, recipe, ...(store.menu ? { menu: store.menu.id } : {}) }) }, recipe: trackedRecipe(recipe, store) };
   }
   function submitted(order: IndividualOrder) {
     const instant = now().getTime(); const minutes = (Date.parse(order.quote.slotStartsAt) - instant) / 60_000;
@@ -616,7 +628,18 @@ export function createOrderingService(options: OrderingServiceOptions): RiderOrd
     delete publicStore.protectedOrderDates;
     if (publicStore.menu) delete publicStore.menu.pizzaCatalog;
     publicStore.ingredients = [];
-    publicStore.products = inventoryExtraProducts(store).map(product => publicProduct(product, store, reserved));
+    const products = inventoryExtraProducts(store);
+    const hiddenProductIds = new Set(store.outOfStockBehavior === "hide"
+      ? products.filter(product => hasZeroStock(product.ingredients, store)).map(product => product.id) : []);
+    publicStore.products = products
+      .filter(product => !hiddenProductIds.has(product.id))
+      .map(product => publicProduct(product, store, reserved));
+    for (const product of publicStore.products) {
+      if (product.pairingProductIds) product.pairingProductIds = product.pairingProductIds.filter(id => !hiddenProductIds.has(id));
+    }
+    if (publicStore.menu && hiddenProductIds.size > 0) publicStore.menu.sections = publicStore.menu.sections
+      .map(section => ({ ...section, productIds: section.productIds.filter(id => !hiddenProductIds.has(id)) }))
+      .filter(section => section.productIds.length > 0);
     publicStore.slots = remainingSlots(state, store, instant);
     return publicStore;
   }
@@ -676,7 +699,7 @@ export function createOrderingService(options: OrderingServiceOptions): RiderOrd
             const store = getStore(state, order.storeId); const recipe = reservations(state)[order.id]?.ingredients ?? {};
             for (const [ingredientId, quantity] of Object.entries(recipe)) {
               const ingredient = store.ingredients.find(item => item.id === ingredientId);
-              if (untrackedExtraStock(ingredient)) continue;
+              if (ingredient?.stock === null) continue;
               if (!ingredient || ingredient.stock === null || ingredient.stock < quantity) fail("inventory_changed", "Scorte incoerenti con le riserve dell'ordine.");
               ingredient.stock -= quantity;
             }
@@ -719,7 +742,7 @@ export function createOrderingService(options: OrderingServiceOptions): RiderOrd
           menuRevision(current, revision);
           validateDraftHeader(draft, invalid);
           if (draft.id === current.published.id) invalid("Duplica il menu pubblicato per modificarlo.");
-          draft = preparePizzaMenu(draft, new Set(store.ingredients.map(item => item.id)), invalid, false, undefined, store.ingredients);
+          draft = preparePizzaMenu(draft, new Set(store.ingredients.map(item => item.id)), invalid, false, store.ingredients);
           validateStoreConfiguration({ ...store, products: draft.products });
           validateMenuDraft(draft, store, invalid);
           const previous = current.drafts.findIndex(item => item.id === draft.id);
@@ -751,7 +774,7 @@ export function createOrderingService(options: OrderingServiceOptions): RiderOrd
           menuRevision(current, revision);
           let draft = current.drafts.find(item => item.id === draftId);
           if (!draft) fail("not_found", "Bozza del menu non trovata.");
-          draft = preparePizzaMenu(draft, new Set(store.ingredients.map(item => item.id)), invalid, true, new Map(store.ingredients.map(item => [item.id, item.stock])), store.ingredients);
+          draft = preparePizzaMenu(draft, new Set(store.ingredients.map(item => item.id)), invalid, true, store.ingredients);
           validateStoreConfiguration({ ...store, products: draft.products });
           validateMenuDraft(draft, store, invalid, true);
           const { products, ...menu } = copy(draft);
@@ -967,7 +990,8 @@ export function createOrderingService(options: OrderingServiceOptions): RiderOrd
             fail("revision_conflict", "Il sottodominio è già assegnato. Scegli un indirizzo disponibile per una sede senza sottodominio.");
           }
         }
-        let next = input;
+        let next = input.outOfStockBehavior === undefined && existing?.outOfStockBehavior !== undefined
+          ? { ...input, outOfStockBehavior: existing.outOfStockBehavior } : input;
         if (confirmation !== undefined) {
           const geocoding = options.storeGeocoding;
           const confirmed = geocoding && readAddressConfirmation(confirmation, user.id, input.id, now().getTime(), geocoding.signingSecret);
@@ -976,13 +1000,13 @@ export function createOrderingService(options: OrderingServiceOptions): RiderOrd
           if (currentLocation !== confirmed.previous && currentLocation !== storeLocationKey(confirmed.location)) {
             fail("revision_conflict", "L’indirizzo della sede è cambiato. Ricarica la sede e cerca di nuovo l’indirizzo.");
           }
-          next = { ...input, ...confirmed.location };
+          next = { ...next, ...confirmed.location };
         } else if (existing?.address) {
           if ((input.address !== undefined && input.address !== existing.address) ||
             input.latitude !== existing.latitude || input.longitude !== existing.longitude) {
             fail("invalid_input", "Cerca e conferma l’indirizzo prima di modificare la posizione.");
           }
-          next = { ...input, address: existing.address };
+          next = { ...next, address: existing.address };
         } else if (input.address !== undefined) {
           fail("invalid_input", "Cerca e conferma l’indirizzo prima di salvarlo.");
         }
@@ -990,7 +1014,7 @@ export function createOrderingService(options: OrderingServiceOptions): RiderOrd
         const reserved = ingredientsReserved(state, input.id);
         for (const [ingredientId, quantity] of Object.entries(reserved)) {
           const ingredient = input.ingredients.find(item => item.id === ingredientId);
-          if (untrackedExtraStock(ingredient)) continue;
+          if (ingredient?.stock === null) continue;
           if (!ingredient || ingredient.stock === null || ingredient.stock < quantity) fail("inventory_changed", "Le nuove scorte non coprono gli ordini riservati.");
         }
         const instant = now().getTime();

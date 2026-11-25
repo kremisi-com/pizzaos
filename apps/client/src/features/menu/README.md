@@ -1,5 +1,8 @@
 # Menu
 
+Il catalogo operativo applica la policy della sede per scorte zero: prodotti ordinabili, prodotti disabilitati con **Esaurito**, oppure prodotti assenti. `IndividualProduct.soldOut` distingue esaurimento e indisponibilità manuale (**Non disponibile**). Opzioni e abbinamenti arrivano già filtrati dal servizio. Scorte null non limitano gli acquisti; non vengono mostrati gli avvisi riservati all’admin. Test: `src/test/stock-policy.test.tsx` e `pnpm exec playwright test --config playwright.stock-policy.config.ts` dalla root.
+
+
 Owns customer menu browsing: sections, visible product availability, and slot presentation. `MenuScreen` accepts an optional initial section and group-order mode; the menu view model derives display states from shared domain data.
 
 The client demo state supplies the menu and products. Product customization owns selection rules and prices; this module only uses those choices for the browsing preview. It does not own cart persistence or checkout.

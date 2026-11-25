@@ -1,5 +1,8 @@
 # Gestione catalogo
 
+Scorte vuote/null non bloccano la pubblicazione. Con scorte zero la disponibilità cliente segue la scelta salvata in Profilo, senza modificare o ripubblicare la bozza. In modalità **Visibili e ordinabili**, il Menu admin avvisa degli ingredienti esauriti; il cliente non riceve questo avviso. [Regole della sede](../../../../../.agents/product-definition/flows/store-configuration.md#scorte-non-tracciate-e-prodotti-esauriti). Verifica: `src/test/stock-policy.test.tsx`.
+
+
 Nella bozza, **Pizza custom** precede **Extra comuni dal Magazzino**. La card degli extra non mostra il conteggio degli extra abilitati e la nota sui prezzi e sulle dosi visibili dopo la pubblicazione.
 
 Su desktop la rotella sulla scheda di modifica fa scorrere prima la colonna destra, limitata all’altezza della finestra; raggiunto il fondo, prosegue con la pagina e l’elenco a sinistra. Risalendo, raggiunto l’inizio della scheda prosegue verso l’alto nella pagina. Se la scheda non ha contenuto da scorrere, la pagina scorre subito. Nel layout a colonna singola torna il normale scroll della pagina. Verifica browser: `tests/menu-ordering/menu-detail-scroll.spec.ts`.
@@ -40,7 +43,7 @@ Nell’editor della bozza ogni sezione mostra sempre il campo **Descrizione**. *
 
 Verifica locale con `pnpm --filter @pizzaos/admin test`. I requisiti e i contratti del catalogo persistente sono in [.agents/design/2026-11-23-menu-ordering](../../../../../.agents/design/2026-11-23-menu-ordering/design.md).
 
-Gli ingredienti importati sono selezionabili dalla stessa lista del Magazzino. Una dose vuota resta da verificare e si può salvare in bozza; pubblicazione e ordinazione richiedono dosi e scorte verificate. Le descrizioni promozionali non sono la fonte strutturata della ricetta.
+Gli ingredienti importati sono selezionabili dalla stessa lista del Magazzino. Una dose vuota resta da verificare e si può salvare in bozza; pubblicazione e ordinazione richiedono dosi verificate; le scorte vuote non sono tracciate. Le descrizioni promozionali non sono la fonte strutturata della ricetta.
 
 ### Salvataggio automatico delle bozze
 

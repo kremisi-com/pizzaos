@@ -18,7 +18,7 @@ This package does not own app-specific rendering concerns.
 
 Entry point: `@pizzaos/domain`
 
-`IndividualIngredient.stock` e le dosi di `IndividualProduct.ingredients` / `IndividualOption.ingredients` ammettono `null` per dati importati da verificare. La chiave resta l'ID del magazzino; il dato ignoto non equivale a zero. Riserve e composizioni ordinabili conservano quantità numeriche positive. Il servizio blocca pubblicazione e ordinazione delle composizioni incomplete; fanno eccezione le scorte nulle degli ingredienti abilitati come extra, che restano ordinabili con prezzo e dose completi. L’editor permette di completare i dati mancanti.
+`IndividualIngredient.stock` ammette null per scorta non tracciata; le dosi di `IndividualProduct.ingredients` / `IndividualOption.ingredients` ammettono null per dati da completare. Zero indica esaurimento esplicito. `IndividualStore.outOfStockBehavior` sceglie `allow`, `disable` (default) o `hide` per gli ingredienti zero; la scelta appartiene alla sede e non alla bozza menu. `IndividualProduct.soldOut` è proiezione pubblica dell’esaurimento e distingue la dicitura Esaurito dalla disabilitazione manuale. Scorte null non bloccano pubblicazione/ordine; dosi incomplete restano bloccanti. [Regole correnti](../../.agents/product-definition/flows/store-configuration.md#scorte-non-tracciate-e-prodotti-esauriti).
 
 `src/index.ts` is the stable public entry. The entity and status model lives in `src/model.ts`; client API contracts import that model directly, so the entry point has no internal dependency cycle.
 

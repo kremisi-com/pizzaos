@@ -1,6 +1,6 @@
 "use client";
 
-import type { IndividualIngredient, MenuAdminApi, MenuDraft, MenuWorkspace } from "@pizzaos/domain";
+import type { IndividualIngredient, MenuAdminApi, MenuDraft, MenuWorkspace, OutOfStockBehavior } from "@pizzaos/domain";
 import { materializePizzaMenu, syncPizzaInventory } from "@pizzaos/domain";
 import { Button } from "@pizzaos/ui";
 import { useEffect, useMemo, useRef, useState, type SyntheticEvent } from "react";
@@ -20,13 +20,14 @@ function isTextEdit(event: SyntheticEvent) {
     && !["checkbox", "radio", "file", "button", "submit"].includes(target.type);
 }
 
-export function OperationalCatalog({ api, storeId, ingredients, onPublished, onInventory, loadIngredients }: {
+export function OperationalCatalog({ api, storeId, ingredients, onPublished, onInventory, loadIngredients, outOfStockBehavior }: {
   api: MenuAdminApi;
   storeId: string;
   ingredients: readonly IndividualIngredient[];
   onPublished: () => void;
   onInventory?: () => void;
   loadIngredients?: (storeId: string) => Promise<readonly IndividualIngredient[]>;
+  outOfStockBehavior?: OutOfStockBehavior;
 }) {
   const showToast = useAdminToast();
   const [workspace, setWorkspace] = useState<MenuWorkspace | null>(null);
@@ -214,6 +215,9 @@ export function OperationalCatalog({ api, storeId, ingredients, onPublished, onI
   for (const draft of Object.values(edits)) availableDrafts.set(draft.id, draft);
 
   return <div className={styles.catalog} aria-busy={busy || saving}>
+    {outOfStockBehavior === "allow" && ingredients.some(item => item.stock === 0) && <p role="alert">
+      Scorte esaurite: {ingredients.filter(item => item.stock === 0).map(item => item.name).join(", ")}. I prodotti restano visibili e ordinabili secondo la scelta in Profilo.
+    </p>}
     {error && confirmation !== "publish" && <div className={styles.actions}>
       <p role="alert">{error}</p>
       {failedDraft && <Button type="button" variant="secondary" disabled={busy || saving} onClick={() => setFailedDraft(null)}>Riprova salvataggio</Button>}

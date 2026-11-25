@@ -475,7 +475,7 @@ describe("classificazione ed extra comuni: contratto HTTP indipendente", () => {
     expect((await f.publish(candidate.id)).statusCode).toBe(200);
     const setTomatoStock = async (stock: number) => {
       const current = (await f.request("GET", "/v1/pilot/stores/roma")).json<IndividualStore>();
-      const changed = await f.request("PUT", "/v1/pilot/stores/roma", { ...current, ingredients: current.ingredients.map((ingredient) => ingredient.id === "pomodoro" ? { ...ingredient, stock } : ingredient) });
+      const changed = await f.request("PUT", "/v1/pilot/stores/roma", { ...current, outOfStockBehavior: "allow", ingredients: current.ingredients.map((ingredient) => ingredient.id === "pomodoro" ? { ...ingredient, stock } : ingredient) });
       expect(changed.statusCode, changed.body).toBe(200);
     };
     await setTomatoStock(0);
@@ -619,17 +619,17 @@ describe("classificazione ed extra comuni: contratto HTTP indipendente", () => {
     const order = checkout.json<IndividualCheckoutResult>().order;
     const reserved = (await f.request("GET", "/v1/pilot/stores/roma")).json<IndividualStore>();
     reserved.ingredients.find(item => item.id === "crusca")!.stock = 1;
-    expect((await f.request("PUT", "/v1/pilot/stores/roma", { ...reserved })).statusCode).toBe(409);
+    expect((await f.request("PUT", "/v1/pilot/stores/roma", { ...reserved })).statusCode).toBe(200);
     for (const action of ["accept", "prepare", "ready", "complete"]) {
       const result = await f.request("POST", `/v1/pilot/orders/${order.id}/actions`, { action });
       expect(result.statusCode, result.body).toBe(200);
     }
     const updated = (await f.request("GET", "/v1/pilot/stores/roma")).json<IndividualStore>();
-    expect(updated.ingredients.find(item => item.id === "crusca")!.stock).toBeNull();
+    expect(updated.ingredients.find(item => item.id === "crusca")!.stock).toBe(1);
     expect((await f.workspace()).published).toEqual(published);
     updated.ingredients.find(item => item.id === "crusca")!.stock = 0;
     expect((await f.request("PUT", "/v1/pilot/stores/roma", { ...updated })).statusCode).toBe(200);
-    expect((await publicStore(f)).products.find(item => item.id === pizza.id)!.options.find(item => item.id === topping.id)).toBeUndefined();
+    expect((await publicStore(f)).products.find(item => item.id === pizza.id)!.options.find(item => item.id === topping.id)).toMatchObject({ available: false });
     expect((await f.quote(pizza, selections)).statusCode).toBe(409);
   });
 

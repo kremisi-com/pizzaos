@@ -46,7 +46,7 @@ export function planIsolatedDemoMenu(input: OrderingState, source: IsolatedDemoM
     }
   }
   const privateIds = new Set(source.ingredients.map(item => item.id));
-  const draft = preparePizzaMenu(structuredClone(source.draft), privateIds, invalid, false, undefined, store.ingredients);
+  const draft = preparePizzaMenu(structuredClone(source.draft), privateIds, invalid, false, store.ingredients);
   const references = draft.products.flatMap(product => [product.ingredients, ...product.options.map(option => option.ingredients)]);
   if (references.some(recipe => Object.keys(recipe).some(id => !privateIds.has(id)))) {
     throw new Error("La bozza demo non può consumare scorte condivise.");

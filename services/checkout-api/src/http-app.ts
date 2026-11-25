@@ -49,6 +49,7 @@ const foodLabels = { type: "array", maxItems: 32, uniqueItems: true, items: { ty
 const food = { type: "object", additionalProperties: false, required: ["contains", "mayContain"], properties: { contains: foodLabels, mayContain: foodLabels } };
 const store = { type: "object", additionalProperties: false, required: ["id", "name", "latitude", "longitude", "acceptingOrders", "deliveryBands", "ingredients", "products", "slots"], properties: {
   configurationRevision: { type: "string", pattern: "^[a-f0-9]{64}$" },
+  outOfStockBehavior: { enum: ["allow", "disable", "hide"] },
   orderingSubdomain: { type: "string", minLength: 1, maxLength: 63 },
   address: { type: "string", minLength: 1, maxLength: storeAddressLimit },
   addressConfirmation: { type: "string", minLength: 1, maxLength: 4044 },

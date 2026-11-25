@@ -1,5 +1,8 @@
 # @pizzaos/checkout-api
 
+La policy `IndividualStore.outOfStockBehavior` governa scorte zero: `allow`, `disable` (default), `hide`. Si salva con la configurazione sede e con la revisione corrente; omissione in un aggiornamento preserva il valore precedente. Scorta null è non tracciata per ogni ingrediente e non blocca pubblicazione/ordine. Il servizio proietta `soldOut` per distinguere Esaurito dall’indisponibilità manuale, filtra i riferimenti nascosti e valida quote/checkout con le stesse regole anche per gruppi e aggiunte. Le riserve registrano soltanto ingredienti tracciati al checkout: un rifornimento successivo non viene consumato dagli ordini accettati con null/zero consentito. Nessun DDL richiesto sullo snapshot JSONB. Test: `src/stock-policy.test.ts`, suite HTTP menu/pizza/impasti e `pnpm exec playwright test --config playwright.stock-policy.config.ts`. [Specifica corrente](../../.agents/product-definition/flows/store-configuration.md#scorte-non-tracciate-e-prodotti-esauriti).
+
+
 ## Responsibility
 
 Owns durable individual ordering for the pilot: Auth.js identity, store configuration and operator invitations, authoritative catalog/prices/recipes, delivery bands, slot and inventory reservations, checkout, Stripe payments/refunds, restaurant acceptance and fulfillment, and resumable events. Client and admin call versioned HTTP contracts; neither accesses this implementation or its database.
@@ -156,7 +159,7 @@ Il primo comando esegue soltanto SELECT e analisi. Il secondo ricalcola e applic
 
 La ricerca normalizza maiuscole, accenti, spazi e apostrofi. I refusi si risolvono con alias espliciti confrontati con la fonte, mai unendo automaticamente nomi simili. Nomi composti e varianti rimangono distinti. Non ricavare ingredienti dalle nuove descrizioni catchy.
 
-Scorte e dosi `null` mantengono il dato da verificare. Magazzino ed editor mostrano campi vuoti **Da verificare**; zero indica scorta esaurita confermata. Dosi note e scorte esistenti si conservano. Le unità restano intere nella stessa convenzione delle ricette e del magazzino; la fonte non fornisce equivalenze in grammi. Dosi/scorte sconosciute bloccano pubblicazione e ordinazione delle composizioni coinvolte. Allergeni assenti restano non verificati. Nessun DDL aggiuntivo sullo snapshot JSONB: distribuire API e admin compatibili prima del backfill.
+Le dosi `null` mantengono il dato da verificare; le scorte `null` indicano giacenze non tracciate. Magazzino ed editor mostrano campi vuoti **Da verificare**; zero indica scorta esaurita confermata. Dosi note e scorte esistenti si conservano. Le unità restano intere nella stessa convenzione delle ricette e del magazzino; la fonte non fornisce equivalenze in grammi. Le dosi sconosciute bloccano pubblicazione e ordinazione delle composizioni coinvolte, le scorte null no. Allergeni assenti restano non verificati. Nessun DDL aggiuntivo sullo snapshot JSONB: distribuire API e admin compatibili prima del backfill.
 
 Verifiche: `src/menu-import.acceptance.test.ts`, `src/menu-ordering.acceptance.test.ts` e test editor admin. [Analisi e riesame](../../.agents/design/2026-11-24-menu-import/REVIEW.md).
 
