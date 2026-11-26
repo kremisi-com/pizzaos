@@ -32,6 +32,3 @@
 .optionControl:has(input:disabled) { opacity: .55; }
 .stepper { display: flex; align-items: center; gap: 10px; }
 .stepper button { border: 1px solid var(--pizzaos-color-border); border-radius: 50%; width: 32px; height: 32px; background: var(--pizzaos-color-background-accent); font: inherit; cursor: pointer; }
-.extraCategoryHeader {
-  padding: 18px 20px;
-}

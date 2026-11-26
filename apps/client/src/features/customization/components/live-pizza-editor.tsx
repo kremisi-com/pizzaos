@@ -141,7 +141,6 @@ export function LivePizzaEditor({ store, product, line, quantity = 1, disabled, 
 
   const removals = product.options.filter(option => option.pizza?.kind === "removal");
   const extras = product.options.filter(option => extraIds.has(option.id));
-  const categories = [...new Set(extras.map(option => option.pizza?.category ?? "Altri extra"))];
 
   if (typeof document === "undefined") return null;
 
@@ -179,7 +178,7 @@ export function LivePizzaEditor({ store, product, line, quantity = 1, disabled, 
           const sectionDelta = matching.flatMap(group => group.optionIds).reduce((sum, id) =>
             sum + (preview.composition.choices.find(choice => choice.optionId === id)?.subtotalCents ?? 0), 0);
           const value = section.kind === "ingredients" ? chosenNames.length ? chosenNames.join(", ") : "Ricetta originale"
-            : section.kind === "extras" ? extraCount ? `${extraCount} selezionati` : "Nessun extra"
+            : section.kind === "extras" ? extraCount ? `${extraCount} selezionati` : "Per ancora più gusto!"
               : chosenNames.join(", ") || "Scegli una voce";
           return <CollapsibleSection key={section.kind} {...section} currentValue={value} delta={sectionDelta}
             advice={section.kind === "dough" ? doughAdvice : undefined}
@@ -211,45 +210,36 @@ export function LivePizzaEditor({ store, product, line, quantity = 1, disabled, 
                 <span className={styles.bundleQuotaIcon} aria-hidden="true">✨</span>
                 <p className={styles.bundleQuotaText}>Hai <span className={styles.bundleQuotaCount}>{Math.max(0, product.extraOffer.quota - extraCount)}</span> slot scontati al <span className={styles.bundleQuotaCount}>{product.extraOffer.percent}%</span> rimanenti.</p>
               </div>}
-              {categories.map(category => <section className={styles.extraCategory} key={category}>
-                <div className={live.extraCategoryHeader}>
-                  <div className={styles.sectionTitleGroup}><h3 className={styles.extraCategoryTitle}>{category}</h3>
-                    <span className={styles.extraCategoryCount}>{extras.filter(option => (option.pizza?.category ?? "Altri extra") === category).length} opzioni disponibili</span>
+              {extras.map(option => {
+                const group = extraGroups.find(candidate => candidate.optionIds.includes(option.id));
+                const count = selected(option.id);
+                const amount = optionPrice(option);
+                const atLimit = group && selectionCount(group, selections) >= group.max;
+                return <div key={option.id} className={`${styles.extraRow} ${live.ingredientRow}`}>
+                  <div className={styles.extraInfo}><h3 className={styles.extraName}>{option.name}</h3>
+                    {option.description && <p className={styles.extraDesc}>{option.description}</p>}
+                    <div className={styles.extraPriceGroup}>
+                      {amount < option.priceCents && <span className={styles.extraPriceStrikethrough}>{delta(option.priceCents)}</span>}
+                      <span className={amount < option.priceCents ? styles.extraPriceDiscounted : styles.extraPrice}>{delta(amount)}</span>
+                    </div>
+                    {option.available === false && <p className={live.status}>Esaurito</p>}
                   </div>
-                </div>
-                <div>
-                  {extras.filter(option => (option.pizza?.category ?? "Altri extra") === category).map(option => {
-                    const group = extraGroups.find(candidate => candidate.optionIds.includes(option.id));
-                    const count = selected(option.id);
-                    const amount = optionPrice(option);
-                    const atLimit = group && selectionCount(group, selections) >= group.max;
-                    return <div key={option.id} className={`${styles.extraRow} ${live.ingredientRow}`}>
-                      <div className={styles.extraInfo}><h3 className={styles.extraName}>{option.name}</h3>
-                        {option.description && <p className={styles.extraDesc}>{option.description}</p>}
-                        <div className={styles.extraPriceGroup}>
-                          {amount < option.priceCents && <span className={styles.extraPriceStrikethrough}>{delta(option.priceCents)}</span>}
-                          <span className={amount < option.priceCents ? styles.extraPriceDiscounted : styles.extraPrice}>{delta(amount)}</span>
-                        </div>
-                        {option.available === false && <p className={live.status}>Esaurito</p>}
-                      </div>
-                      <div className={live.ingredientActions}>
-                      {group?.allowRepeat && count > 0 && <div className={live.stepper}>
-                        <button type="button" aria-label={`Togli ${option.name}`} disabled={disabled || count === 0} onClick={() => choose(option, count - 1, group)}>−</button>
-                        <output aria-label={`Quantità ${option.name}`}>{count}</output>
-                        <button type="button" aria-label={`Aggiungi ${option.name}`} disabled={disabled || option.available === false || Boolean(atLimit)} onClick={() => choose(option, count + 1, group)}>+</button>
-                      </div>}
-                      <button type="button" className={`${styles.ingredientToggle} ${count ? styles.ingredientToggleActive : ""}`}
-                        aria-pressed={count > 0} aria-label={`${option.name} ${count ? "incluso" : "escluso"}`}
-                        disabled={disabled || count === 0 && (option.available === false || Boolean(atLimit))}
-                        onClick={() => choose(option, count ? 0 : 1, group)}>
-                        <span className={styles.ingredientToggleIndicator} aria-hidden="true" />
-                        <span className={styles.ingredientToggleLabel}>{count ? "Incluso" : "Escluso"}</span>
-                      </button>
-                      </div>
-                    </div>;
-                  })}
-                </div>
-              </section>)}
+                  <div className={live.ingredientActions}>
+                  {group?.allowRepeat && count > 0 && <div className={live.stepper}>
+                    <button type="button" aria-label={`Togli ${option.name}`} disabled={disabled || count === 0} onClick={() => choose(option, count - 1, group)}>−</button>
+                    <output aria-label={`Quantità ${option.name}`}>{count}</output>
+                    <button type="button" aria-label={`Aggiungi ${option.name}`} disabled={disabled || option.available === false || Boolean(atLimit)} onClick={() => choose(option, count + 1, group)}>+</button>
+                  </div>}
+                  <button type="button" className={`${styles.ingredientToggle} ${count ? styles.ingredientToggleActive : ""}`}
+                    aria-pressed={count > 0} aria-label={`${option.name} ${count ? "incluso" : "escluso"}`}
+                    disabled={disabled || count === 0 && (option.available === false || Boolean(atLimit))}
+                    onClick={() => choose(option, count ? 0 : 1, group)}>
+                    <span className={styles.ingredientToggleIndicator} aria-hidden="true" />
+                    <span className={styles.ingredientToggleLabel}>{count ? "Incluso" : "Escluso"}</span>
+                  </button>
+                  </div>
+                </div>;
+              })}
               {!extras.length && <p className={live.feedback}>Nessun extra disponibile.</p>}
             </div> : matching.map(group => <div key={group.id}>{renderOptions(group)}</div>)}
           </CollapsibleSection>;

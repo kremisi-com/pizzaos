@@ -275,18 +275,20 @@ describe("persistent pizza editor using the PoC presentation", () => {
     expect(resolveMenuComposition(taste, normal)).toMatchObject({ valid: true, unitCents: 600, recipe: { latte: 1 } });
   });
 
-  it("shows every extra category after one click and keeps selections when reopened", () => {
+  it("shows only the extra list after one click and keeps selections when reopened", () => {
     const { store, formula } = fixture();
     renderDom(<LivePizzaEditor store={store} product={formula} disabled={false} avoid={[]} onClose={vi.fn()} onSave={vi.fn()} />);
     const toggle = domScreen.getByRole("button", { name: /^Extra/ });
+    expect(toggle.textContent).toContain("Per ancora più gusto!");
     const mozzarella = domScreen.getByRole("button", { name: "Mozzarella escluso" });
     const basilico = domScreen.getByRole("button", { name: "Basilico escluso" });
     expect(mozzarella.closest("[inert]")).not.toBeNull();
     domFireEvent.click(toggle);
     for (const option of [mozzarella, basilico]) expect(option.closest("[inert]")).toBeNull();
     for (const category of ["Latticini", "Vegetali"]) {
-      expect(domScreen.getByRole("heading", { name: category }).closest("button")).toBeNull();
+      expect(domScreen.queryByRole("heading", { name: category })).toBeNull();
     }
+    expect(domScreen.queryByText(/opzioni disponibili/)).toBeNull();
     domFireEvent.click(basilico);
     expect(toggle.textContent).toContain("1 selezionati");
     domFireEvent.click(toggle);
