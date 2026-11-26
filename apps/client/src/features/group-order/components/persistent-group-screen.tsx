@@ -249,7 +249,7 @@ export function PersistentGroupScreen({ api, individualApi, promotionsApi, prefe
             }} /></label><button type="button" className={styles.secondary} onClick={() => editLines(ownLines.filter((_, i) => i !== index))}>Rimuovi mia scelta</button></div>
               <label>Note per {title}<input maxLength={500} value={line.notes} onChange={event => editLines(ownLines.map((item, i) => i === index ? { ...item, notes: event.target.value } : item))} /></label>
               <MenuLineDetails product={product} line={line} products={store?.products} avoid={preferences.avoid} showUnknown={Boolean(store?.menu)} />
-              {store && product && (product.options.length > 0 || product.meal) && <MenuLineEditor store={store} product={product} line={line} disabled={busy} avoid={preferences.avoid}
+              {store && product && (product.options.length > 0 || product.meal || line.optionIds.length > 0 || Boolean(line.selections?.length)) && <MenuLineEditor store={store} product={product} line={line} disabled={busy} avoid={preferences.avoid}
                 onSave={updated => void run(() => saveOwn(ownLines.map((item, i) => i === index ? updated : item)))} />}
             </li>;
           })}</ul><button type="button" disabled={!dirty} onClick={() => void run(() => saveOwn(ownLines))}>Salva le mie scelte</button></fieldset>

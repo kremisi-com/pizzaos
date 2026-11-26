@@ -187,19 +187,21 @@ describe("persistent pizza editor using the PoC presentation", () => {
     expect(save).toHaveBeenCalledWith(expect.objectContaining({ quantity: 3, notes: "Tagliata", selections: taste.pizza!.defaultSelections }));
   });
 
-  it.each(["missing", "unavailable"])("requires correction for %s initial menu selections", kind => {
+  it.each(["missing", "unavailable"])("requires an explicit replacement for %s required selections", kind => {
     const { store, taste } = fixture();
     const save = vi.fn();
     const selection = kind === "missing" ? "dough:scomparso" : "dough:integrale";
     if (kind === "unavailable") taste.options.find(({ id }) => id === selection)!.available = false;
     renderDom(<LivePizzaEditor store={store} product={taste} disabled={false} avoid={[]} onClose={vi.fn()} onSave={save}
-      initialSelections={[{ optionId: selection, quantity: 1 }]} />);
-    const submit = domScreen.getByRole("button", { name: /Aggiungi al carrello/ });
+      line={{ productId: taste.id, quantity: 1, notes: "", optionIds: [], selections: [
+        ...taste.pizza!.defaultSelections.filter(choice => choice.optionId !== "dough:classico"), { optionId: selection, quantity: 1 }
+      ] }} />);
+    const submit = domScreen.getByRole("button", { name: "Conferma modifica" });
     expect(submit.hasAttribute("disabled")).toBe(true);
     domFireEvent.click(submit);
     expect(save).not.toHaveBeenCalled();
-    domFireEvent.click(domScreen.getByRole("button", { name: "Riparti dalle scelte standard" }));
-    domFireEvent.click(domScreen.getByRole("button", { name: /Aggiungi al carrello/ }));
+    domFireEvent.click(domScreen.getByRole("radio", { name: /Classico/ }));
+    domFireEvent.click(domScreen.getByRole("button", { name: "Conferma modifica" }));
     expect(save).toHaveBeenCalledOnce();
     expect(save.mock.calls[0][0].selections).not.toContainEqual({ optionId: selection, quantity: 1 });
   });
@@ -332,7 +334,7 @@ describe("persistent pizza editor using the PoC presentation", () => {
     expect(resolveMenuComposition(formula, selected)).toMatchObject({ valid: true, unitCents: 970, recipe: { latte: 4 } });
   });
 
-  it("preserves edit quantity and notes and rejects disappeared selections", () => {
+  it("preserves edit quantity and notes and confirms removal of disappeared selections", () => {
     const { store, taste } = fixture();
     const save = vi.fn();
     renderDom(<LivePizzaEditor store={store} product={taste} disabled={false} avoid={[]} onClose={vi.fn()} onSave={save}
@@ -340,11 +342,10 @@ describe("persistent pizza editor using the PoC presentation", () => {
         ...taste.pizza!.defaultSelections, { optionId: "missing", quantity: 1 }
       ] }} />);
     expect(domScreen.getByLabelText("Messaggio opzionale").getAttribute("maxlength")).toBe("500");
-    expect(domScreen.getByRole("button", { name: /Aggiorna scelta/ }).hasAttribute("disabled")).toBe(true);
-    expect(domScreen.getByText("Alcune opzioni sono cambiate. Controlla le nuove scelte.")).toBeTruthy();
+    expect(domScreen.getByRole("button", { name: "Conferma modifica" }).hasAttribute("disabled")).toBe(false);
+    expect(domScreen.getAllByRole("status").some(node => /opzioni non sono più disponibili e sono state rimosse/.test(node.textContent ?? ""))).toBe(true);
     expect(save).not.toHaveBeenCalled();
-    domFireEvent.click(domScreen.getByRole("button", { name: "Riparti dalle scelte standard" }));
-    domFireEvent.click(domScreen.getByRole("button", { name: /Aggiorna scelta/ }));
+    domFireEvent.click(domScreen.getByRole("button", { name: "Conferma modifica" }));
     expect(save).toHaveBeenCalledWith(expect.objectContaining({ quantity: 3, notes: "Tagliata" }));
   });
 });

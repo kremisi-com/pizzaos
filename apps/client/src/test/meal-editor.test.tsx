@@ -107,19 +107,18 @@ it("preserves previous phases and clears only the changed alternative's removals
   ] }));
 });
 
-it("lets the customer explicitly reset removed phases rather than trapping an obsolete cart line", () => {
+it("lets the customer replace removed phases without resetting the entire Menu", () => {
   const onSave = vi.fn();
   const line: IndividualLine = { productId: meal.id, quantity: 1, optionIds: [], notes: "", mealSelections: [
     { stepId: "fase-rimossa", productId: base.id, removedIngredientIds: [], notes: "" }
   ] };
   renderDom(<MenuLineEditor store={store} product={meal} line={line} avoid={[]} onSave={onSave} />);
   domFireEvent.click(domScreen.getByRole("button", { name: "Modifica Menu pranzo" }));
-  expect(domScreen.getByText(/Alcune scelte del Menu sono cambiate/)).toBeTruthy();
-  domFireEvent.click(domScreen.getByRole("button", { name: "Azzera scelte" }));
+  expect(domScreen.getByRole("status").textContent).toMatch(/scelte del Menu non sono più disponibili/);
   domFireEvent.click(domScreen.getByRole("radio", { name: /Panino/ }));
   domFireEvent.click(domScreen.getByRole("button", { name: "Avanti" }));
   domFireEvent.click(domScreen.getByRole("radio", { name: /Acqua/ }));
-  domFireEvent.click(domScreen.getByRole("button", { name: "Aggiorna scelta" }));
+  domFireEvent.click(domScreen.getByRole("button", { name: "Conferma modifica" }));
   expect(onSave).toHaveBeenCalledWith(expect.objectContaining({ mealSelections: [
     { stepId: "portata", productId: base.id, removedIngredientIds: [], notes: "" },
     { stepId: "bibita", productId: water.id, removedIngredientIds: [], notes: "" }

@@ -7,25 +7,46 @@ import { menuMoney } from "../live-menu-model";
 import { MenuFoodSummary } from "./operational-food";
 import styles from "./operational-menu.module.css";
 
+function validPhase(product: IndividualProduct, index: number, selection: MealSelection | undefined, products: IndividualProduct[]) {
+  const step = product.meal?.steps[index];
+  return Boolean(step && selection && resolveMealComposition({ ...product, priceCents: 0, meal: { steps: [{ ...step,
+    alternatives: step.alternatives.map(item => ({ ...item, priceCents: 0 })) }] } }, [selection], products).valid);
+}
+
+function firstInvalidPhase(product: IndividualProduct, selections: MealSelection[], products: IndividualProduct[]) {
+  return product.meal?.steps.findIndex((step, index) => !validPhase(product, index, selections.find(item => item.stepId === step.id), products)) ?? -1;
+}
+
 export function MealConfigurationDialog({ store, product, line, quantity = 1, disabled, avoid, onClose, onSave, edit }: {
   store: IndividualStore; product: IndividualProduct; line?: IndividualLine; quantity?: number; disabled: boolean;
   avoid: string[]; onClose: () => void; onSave: (line: IndividualLine) => void; edit?: boolean;
 }) {
   const dialog = useRef<HTMLDialogElement>(null);
   const title = useId();
-  const [selections, setSelections] = useState<MealSelection[]>(() => structuredClone(line?.mealSelections ?? []));
-  const [phase, setPhase] = useState(0);
+  const [draft, setDraft] = useState(() => ({ selections: structuredClone(line?.mealSelections ?? []), recovered: false }));
+  const [phase, setPhase] = useState(() => line ? Math.max(0, firstInvalidPhase(product, line.mealSelections ?? [], store.products)) : 0);
   const [customizing, setCustomizing] = useState(false);
   const steps = product.meal?.steps ?? [];
+  const selections = draft.selections.flatMap(choice => {
+    const source = store.products.find(item => item.id === choice.productId);
+    if (!source || !source.available || !steps.some(step => step.id === choice.stepId && step.alternatives.some(item => item.productId === choice.productId))) return [];
+    return [{ ...choice, removedIngredientIds: choice.removedIngredientIds.filter(id => mealRemovableIngredientIds(source).includes(id)) }];
+  });
+  const corrected = JSON.stringify(selections) !== JSON.stringify(draft.selections);
+  if (corrected) setDraft({ selections, recovered: true });
+  const recovered = draft.recovered || corrected;
+  const catalog = JSON.stringify({ product, products: store.products });
+  const [previousCatalog, setPreviousCatalog] = useState(catalog);
+  if (previousCatalog !== catalog) {
+    setPreviousCatalog(catalog);
+    const invalid = firstInvalidPhase(product, selections, store.products);
+    setPhase(invalid >= 0 ? invalid : Math.min(phase, Math.max(0, steps.length - 1)));
+    setCustomizing(false);
+  }
   const step = steps[phase];
   const selection = selections.find(item => item.stepId === step?.id);
   const child = store.products.find(item => item.id === selection?.productId);
   const preview = resolveMealComposition(product, selections, store.products);
-  const outdated = selections.some(choice => {
-    const source = store.products.find(item => item.id === choice.productId);
-    return !steps.some(item => item.id === choice.stepId && item.alternatives.some(alternative => alternative.productId === choice.productId))
-      || !source || choice.removedIngredientIds.some(id => !mealRemovableIngredientIds(source).includes(id));
-  });
   const count = line?.quantity ?? quantity;
   useEffect(() => {
     const panel = dialog.current;
@@ -36,16 +57,14 @@ export function MealConfigurationDialog({ store, product, line, quantity = 1, di
 
   function choose(productId: string) {
     if (!step || selection?.productId === productId) return;
-    setSelections(current => [...current.filter(item => item.stepId !== step.id), { stepId: step.id, productId, removedIngredientIds: [], notes: "" }]);
+    setDraft(current => ({ ...current, selections: [...current.selections.filter(item => item.stepId !== step.id), { stepId: step.id, productId, removedIngredientIds: [], notes: "" }] }));
     setCustomizing(false);
   }
   function update(change: Partial<MealSelection>) {
-    setSelections(current => current.map(item => item.stepId === step?.id ? { ...item, ...change } : item));
+    setDraft(current => ({ ...current, selections: current.selections.map(item => item.stepId === step?.id ? { ...item, ...change } : item) }));
   }
   function phaseValid(value: MealSelection) {
-    if (!step) return false;
-    return resolveMealComposition({ ...product, priceCents: 0, meal: { steps: [{ ...step,
-      alternatives: step.alternatives.map(item => ({ ...item, priceCents: 0 })) }] } }, [value], store.products).valid;
+    return validPhase(product, phase, value, store.products);
   }
   function save() {
     if (disabled || !preview.valid) return;
@@ -58,9 +77,7 @@ export function MealConfigurationDialog({ store, product, line, quantity = 1, di
       <header className={styles.dialogHead}><div><h2 id={title}>{product.name}</h2><p>{product.description}</p></div>
         <button type="button" className={styles.closeButton} onClick={onClose} aria-label="Chiudi personalizzazione">×</button></header>
       <div className={styles.dialogBody}>
-        {outdated && <div className={styles.warning}><p>Alcune scelte del Menu sono cambiate. Ricomponi il Menu prima di confermare.</p>
-          <button type="button" className={styles.textButton} onClick={() => { setSelections([]); setPhase(0); setCustomizing(false); }}>Azzera scelte</button>
-        </div>}
+        {recovered && <p className={styles.warning} role="status">Alcune scelte del Menu non sono più disponibili e sono state rimosse. Controlla le fasi e il prezzo prima di confermare la modifica.</p>}
         {step ? <>
           <p className={styles.groupHint}>Fase {phase + 1} di {steps.length}</p>
           <fieldset className={styles.group} disabled={disabled}><legend>{step.name}</legend>
@@ -96,7 +113,7 @@ export function MealConfigurationDialog({ store, product, line, quantity = 1, di
         </> : <p>Questo Menu non contiene fasi disponibili.</p>}
       </div>
       <footer className={styles.dialogFoot}><div aria-live="polite"><strong>{menuMoney(preview.unitCents * count)}</strong>{count > 1 && <small>{count} × {menuMoney(preview.unitCents)}</small>}</div>
-        <button type="submit" disabled={disabled || !preview.valid || phase !== steps.length - 1}>{edit ? "Aggiorna scelta" : "Aggiungi"}</button></footer>
+        <button type="submit" disabled={disabled || !preview.valid || phase !== steps.length - 1}>{recovered ? "Conferma modifica" : edit ? "Aggiorna scelta" : "Aggiungi"}</button></footer>
     </form>
   </dialog>;
 }

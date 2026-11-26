@@ -251,3 +251,7 @@ Andrea autorizza il 26 novembre 2026 il collegamento Git e i deploy automatici d
 ## Permessi dell'organizzatore sui contributi altrui
 
 Andrea conferma il 26 novembre 2026 che l'organizzatore può rimuovere articoli o ridurre quantità dei contributi altrui, conservandone personalizzazioni e note. Il client operativo non deve offrire l'editor di personalizzazione su quelle righe; conserva la personalizzazione del proprio contributo. La correzione allinea la UI ai permessi esistenti del servizio. Precisa D61/D63; [flusso corrente](flows/group-ordering.md).
+
+## Conferma delle personalizzazioni obsolete
+
+Andrea approva il recupero delle opzioni rimosse o esaurite con proposta locale, avviso e una sola **Conferma modifica** con prezzo corrente, senza ulteriori finestre o checkbox. Chiudere senza confermare conserva la riga originale; una scelta obbligatoria mancante richiede un'alternativa esplicita. Quote, revisioni gruppo, idempotenza e snapshot ordini restano autorevoli nel servizio. Il cambio di significato di un'opzione mantenendo lo stesso ID è esplicitamente escluso per ora. [Flusso corrente](flows/menu-ordering.md#recupero-delle-personalizzazioni-obsolete), [SDD](../design/2026-11-26-customization-recovery/design.md).

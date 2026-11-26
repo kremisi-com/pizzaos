@@ -8,6 +8,7 @@ import { CollapsibleSection } from "./collapsible-section";
 import styles from "./product-detail-screen.module.css";
 import live from "./live-pizza-editor.module.css";
 import { PizzaFoodDetails } from "./pizza-food-details";
+import { useSelectionRecovery } from "../use-selection-recovery";
 
 const euro = new Intl.NumberFormat("it-IT", { style: "currency", currency: "EUR" });
 const money = (cents: number) => euro.format(cents / 100);
@@ -51,7 +52,7 @@ export function LivePizzaEditor({ store, product, line, quantity = 1, disabled, 
 }) {
   const dialog = useRef<HTMLDialogElement>(null);
   const titleId = useId();
-  const [selections, setSelections] = useState<MenuSelection[]>(() => line
+  const { selections, setSelections, recovered, recoveryMessage } = useSelectionRecovery(product, () => line
     ? line.selections ?? line.optionIds.map(optionId => ({ optionId, quantity: 1 }))
     : newSelections(product, initialSelections));
   const [notes, setNotes] = useState(line?.notes ?? "");
@@ -67,7 +68,16 @@ export function LivePizzaEditor({ store, product, line, quantity = 1, disabled, 
   const preview = resolveMenuComposition(product, selections);
   const lineQuantity = line?.quantity ?? quantity;
   const canSave = !disabled && product.available && preview.valid;
-  const changed = selections.some(choice => !options.has(choice.optionId) || options.get(choice.optionId)?.available === false);
+  const requiredGroup = allGroups.find(group => selectionCount(group, selections) < group.min);
+  const requiredGroupId = requiredGroup?.id;
+  const requiredSection = requiredGroup && groups.some(group => group.id === requiredGroup.id) ? requiredGroup.kind : null;
+  const requiredRef = useRef<HTMLDivElement>(null);
+  const specificRequiredRef = useRef<HTMLFieldSetElement>(null);
+  const [previousRequired, setPreviousRequired] = useState(requiredGroup?.id);
+  if (previousRequired !== requiredGroup?.id) {
+    setPreviousRequired(requiredGroup?.id);
+    if (requiredSection) setOpenSection(requiredSection);
+  }
   const selected = (id: string) => selections.find(choice => choice.optionId === id)?.quantity ?? 0;
   const pairings = onPairing ? store.products.filter(item => item.available && !item.groups?.length && product.pairingProductIds?.includes(item.id)) : [];
   const extraGroups = groups.filter(group => group.kind === "extras");
@@ -85,6 +95,10 @@ export function LivePizzaEditor({ store, product, line, quantity = 1, disabled, 
       if (trigger instanceof HTMLElement && trigger.isConnected) trigger.focus({ preventScroll: true });
     };
   }, []);
+
+  useEffect(() => {
+    if (requiredGroupId) (requiredSection ? requiredRef.current : specificRequiredRef.current)?.focus();
+  }, [requiredGroupId, requiredSection]);
 
   function choose(option: IndividualOption, count: number, group?: MenuOptionGroup) {
     setSelections(current => {
@@ -158,10 +172,8 @@ export function LivePizzaEditor({ store, product, line, quantity = 1, disabled, 
         <div className={styles.heroMeta}><span className={styles.heroPrice}>{money(preview.unitCents)}</span></div>
         <PizzaFoodDetails composition={preview.composition} kitchenNotice={store.menu?.kitchenNotice} />
       </section>
-      {changed && <div className={live.feedback}>
-        <p className={live.status} role="status">Alcune opzioni sono cambiate. Controlla le nuove scelte.</p>
-        <button type="button" className={live.ingredientExtra} disabled={disabled}
-          onClick={() => setSelections(product.pizza?.defaultSelections.map(choice => ({ ...choice })) ?? [])}>Riparti dalle scelte standard</button>
+      {recovered && <div className={live.feedback}>
+        <p className={live.status} role="status">{recoveryMessage}</p>
       </div>}
       {relevant.length > 0 && <p className={`${live.feedback} ${live.status}`} role="status">Da verificare per le tue preferenze: {relevant.join(", ")}.</p>}
       <div className={styles.customizationArea}>
@@ -169,7 +181,7 @@ export function LivePizzaEditor({ store, product, line, quantity = 1, disabled, 
           if (section.kind === "base") return groups.some(group => group.kind === "base");
           if (section.kind === "dough" || section.kind === "format") {
             return groups.some(group => group.kind === section.kind
-              && group.optionIds.filter(id => options.has(id) && options.get(id)?.available !== false).length > 1);
+              && (group.id === requiredGroup?.id || group.optionIds.filter(id => options.has(id) && options.get(id)?.available !== false).length > 1));
           }
           return true;
         }).map(section => {
@@ -180,9 +192,9 @@ export function LivePizzaEditor({ store, product, line, quantity = 1, disabled, 
           const value = section.kind === "ingredients" ? chosenNames.length ? chosenNames.join(", ") : "Ricetta originale"
             : section.kind === "extras" ? extraCount ? `${extraCount} selezionati` : "Per ancora più gusto!"
               : chosenNames.join(", ") || "Scegli una voce";
-          return <CollapsibleSection key={section.kind} {...section} currentValue={value} delta={sectionDelta}
+          return <div key={section.kind} ref={requiredSection === section.kind ? requiredRef : undefined} tabIndex={-1}><CollapsibleSection {...section} currentValue={value} delta={sectionDelta}
             advice={section.kind === "dough" ? doughAdvice : undefined}
-            isOpen={openSection === section.kind} onToggle={() => setOpenSection(current => current === section.kind ? null : section.kind)}>
+            isOpen={(openSection ?? requiredSection) === section.kind} onToggle={() => setOpenSection(current => current === section.kind ? null : section.kind)}>
             {section.kind === "ingredients" ? <div className={styles.ingredientList}>
               {!removals.length && <p className={live.feedback}>Nessun ingrediente del gusto predefinito.</p>}
               {removals.map(removal => {
@@ -242,9 +254,10 @@ export function LivePizzaEditor({ store, product, line, quantity = 1, disabled, 
               })}
               {!extras.length && <p className={live.feedback}>Nessun extra disponibile.</p>}
             </div> : matching.map(group => <div key={group.id}>{renderOptions(group)}</div>)}
-          </CollapsibleSection>;
+          </CollapsibleSection></div>;
         })}
-        {specificGroups.map(group => <fieldset key={group.id} className={live.specificChoices} disabled={disabled}>
+        {specificGroups.map(group => <fieldset key={group.id} className={live.specificChoices} disabled={disabled}
+          ref={requiredGroup?.id === group.id ? specificRequiredRef : undefined} tabIndex={-1}>
           <legend>{group.name}</legend>
           <p>{group.min === group.max ? `${group.min} scelte richieste` : `Da ${group.min} a ${group.max} scelte`}</p>
           <div className={styles.optionList}>{group.optionIds.map(id => {
@@ -300,9 +313,9 @@ export function LivePizzaEditor({ store, product, line, quantity = 1, disabled, 
       <div className={styles.stickyCtaWrapper} aria-live="polite">
         {!preview.valid && <p className={live.status}>Controlla le scelte prima di aggiungere la pizza.</p>}
         <button type="button" className={styles.stickyCtaButton} disabled={!canSave} onClick={save}
-          aria-label={`${money(preview.unitCents * lineQuantity)} – ${line ? "Aggiorna scelta" : "Aggiungi al carrello"}`}>
+          aria-label={recovered ? "Conferma modifica" : `${money(preview.unitCents * lineQuantity)} – ${line ? "Aggiorna scelta" : "Aggiungi al carrello"}`}>
           <span className={styles.ctaPrice} data-testid="customization-total-value">{money(preview.unitCents * lineQuantity)}</span>
-          <span className={styles.ctaDot}>·</span><span className={styles.ctaLabel}>{line ? "Aggiorna scelta" : "Aggiungi al carrello"}</span>
+          <span className={styles.ctaDot}>·</span><span className={styles.ctaLabel}>{recovered ? "Conferma modifica" : line ? "Aggiorna scelta" : "Aggiungi al carrello"}</span>
         </button>
         {preview.composition.extraDiscountCents > 0 && <small>Sconto extra {money(preview.composition.extraDiscountCents * lineQuantity)}</small>}
       </div>

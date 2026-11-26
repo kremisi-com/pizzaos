@@ -280,7 +280,7 @@ export function IndividualOrderingScreen({ view = "all", api, promotionsApi, pre
             <MenuLineDetails product={product} line={line} products={store?.products} avoid={preferences.avoid} showUnknown={Boolean(store?.menu)} />
             <div className={styles.quantity}><label>Quantità {name}<input type="number" min="1" max="100" value={line.quantity} onChange={event => adjust(Number(event.target.value))} /></label>
               <button type="button" className={styles.secondary} onClick={() => changeCart({ ...cart, lines: cart.lines.filter((_, i) => i !== index) })}>Rimuovi</button></div>
-            {store && product && (product.options.length > 0 || product.meal) && <MenuLineEditor store={store} product={product} line={line} avoid={preferences.avoid}
+            {store && product && (product.options.length > 0 || product.meal || line.optionIds.length > 0 || Boolean(line.selections?.length)) && <MenuLineEditor store={store} product={product} line={line} avoid={preferences.avoid}
               onSave={next => replaceLine(index, next)} />}
             <label>Note per {name}<input maxLength={500} value={line.notes} onChange={event => replaceLine(index, { ...line, notes: event.target.value })} /></label></li>;
         })}</ul>}

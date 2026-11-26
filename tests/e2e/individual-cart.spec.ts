@@ -1,6 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
 import { mkdir } from "node:fs/promises";
-import type { IndividualCheckoutResult } from "@pizzaos/domain";
+import type { IndividualCart, IndividualCheckoutResult, IndividualStore } from "@pizzaos/domain";
 
 // Uses the isolated individual ordering harness and its public Roma/Pizza fixture.
 const clientOrigin = process.env.PIZZAOS_E2E_CLIENT_URL ?? "http://127.0.0.1:3741";
@@ -98,4 +98,44 @@ test("il checkout del carrello invia un ordine contanti tramite IndividualApi", 
   await expect(page.getByRole("heading", { name: "In attesa del ristorante", exact: true })).toBeVisible();
   await page.reload();
   await expect(page.getByRole("heading", { name: "In attesa del ristorante", exact: true })).toBeVisible();
+});
+
+test("recupera un extra rimosso dal carrello soltanto dopo conferma e conserva il risultato al reload", async ({ page }) => {
+  // Current public catalog: every former option has disappeared and the price changed.
+  await page.route(/\/v1\/pilot\/stores(?:\/roma)?$/, async route => {
+    const response = await route.fetch();
+    const body = await response.json() as IndividualStore | IndividualStore[];
+    const current = (store: IndividualStore): IndividualStore => ({ ...store, products: store.products.map(product =>
+      product.id === "pizza" ? { ...product, priceCents: 900, options: [] } : product) });
+    await route.fulfill({ response, json: Array.isArray(body) ? body.map(current) : current(body) });
+  });
+  await page.goto(`${clientOrigin}/ordina`);
+  const original: IndividualCart = { storeId: "roma", mode: "pickup", slotId: null, notes: "", lines: [
+    { productId: "pizza", quantity: 2, optionIds: ["extra-rimosso"], notes: "Ben cotta" }
+  ] };
+  await page.evaluate(cart => {
+    localStorage.setItem("pizzaos.individual-cart.v1", JSON.stringify({ version: 1, updatedAt: new Date().toISOString(), cart }));
+  }, original);
+  const persisted = () => page.evaluate(() => {
+    const raw = localStorage.getItem("pizzaos.individual-cart.v1");
+    return raw ? (JSON.parse(raw) as { cart: IndividualCart }).cart : null;
+  });
+  await page.goto(`${clientOrigin}/ordina/carrello`);
+  await page.getByRole("button", { name: "Modifica Pizza", exact: true }).click();
+  const dialog = page.getByRole("dialog", { name: "Pizza", exact: true });
+  await expect(dialog.getByText(/rimo|eliminat|esaurit|non.*disponibil/i)).toBeVisible();
+  await expect(dialog.getByText(/18,00\s*€/)).toBeVisible();
+  await expect.poll(persisted).toEqual(original);
+  await dialog.getByRole("button", { name: "Chiudi personalizzazione", exact: true }).click();
+  await expect.poll(persisted).toEqual(original);
+  await page.reload();
+  await expect.poll(persisted).toEqual(original);
+  await page.getByRole("button", { name: "Modifica Pizza", exact: true }).click();
+  await dialog.getByRole("button", { name: "Conferma modifica", exact: true }).click();
+  const corrected = { ...original, lines: [{ ...original.lines[0], optionIds: [] }] };
+  await expect.poll(persisted).toMatchObject(corrected);
+  await page.reload();
+  await expect.poll(persisted).toMatchObject(corrected);
+  await expect(page.getByLabel("Note per Pizza", { exact: true })).toHaveValue("Ben cotta");
+  await expect(page.getByText(/18,00\s*€/).first()).toBeVisible();
 });

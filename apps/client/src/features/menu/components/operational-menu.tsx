@@ -4,7 +4,7 @@ import { productType, resolveMealComposition, resolveMenuComposition } from "@pi
 import type { IndividualLine, IndividualProduct, IndividualStore, MenuOptionGroup, MenuSelection } from "@pizzaos/domain";
 import Image from "next/image";
 import { useEffect, useId, useRef, useState } from "react";
-import { LivePizzaEditor, pizzaInitialSelections, pizzaPreview } from "../../customization";
+import { LivePizzaEditor, pizzaInitialSelections, pizzaPreview, useSelectionRecovery } from "../../customization";
 import { lineChoiceLabels, lineIssue, menuMoney, menuSelections } from "../live-menu-model";
 import { MenuFoodSummary, type MenuPreferences } from "./operational-food";
 import { MealConfigurationDialog } from "./meal-configuration-dialog";
@@ -36,17 +36,15 @@ function GenericConfigurationDialog({ store, product, line, disabled, avoid, onC
 }) {
   const dialog = useRef<HTMLDialogElement>(null);
   const title = useId();
-  const [selections, setSelections] = useState(() => line ? menuSelections(line) : []);
+  const { selections: choices, setSelections, recovered, recoveryMessage } = useSelectionRecovery(product, () => line ? menuSelections(line) : []);
   const [notes, setNotes] = useState(line?.notes ?? "");
-  const choices = selections.filter(choice => product.options.some(option => option.id === choice.optionId));
   const groups = product.groups ?? [];
-  const changed = selections.length !== choices.length
-    || choices.some(choice => product.options.find(option => option.id === choice.optionId)?.available === false)
-    || groups.some(group => optionCount(group, choices) > group.max);
+  const requiredGroup = groups.find(group => optionCount(group, choices) < group.min)?.id;
+  const requiredRef = useRef<HTMLFieldSetElement>(null);
   const configured = groups.length > 0;
   const lineQuantity = line?.quantity ?? quantity;
   const preview = resolveMenuComposition(product, choices);
-  const canSave = !disabled && product.available && (configured ? preview.valid : choices.every(choice => product.options.find(option => option.id === choice.optionId)?.available !== false));
+  const canSave = !disabled && product.available && preview.valid;
 
   useEffect(() => {
     const panel = dialog.current;
@@ -57,6 +55,8 @@ function GenericConfigurationDialog({ store, product, line, disabled, avoid, onC
       if (trigger instanceof HTMLElement) trigger.focus({ preventScroll: true });
     };
   }, []);
+
+  useEffect(() => { if (requiredGroup) requiredRef.current?.focus(); }, [requiredGroup]);
 
   function choose(id: string, quantity: number, group?: MenuOptionGroup) {
     setSelections(current => {
@@ -82,10 +82,11 @@ function GenericConfigurationDialog({ store, product, line, disabled, avoid, onC
         <button type="button" className={styles.closeButton} onClick={onClose} aria-label="Chiudi personalizzazione">×</button>
       </header>
       <div className={styles.dialogBody}>
-        {changed && <p className={styles.warning}>Alcune opzioni sono cambiate. Controlla le nuove scelte.</p>}
+        {recovered && <p className={styles.warning} role="status">{recoveryMessage}</p>}
         {groups.map(group => {
           const count = optionCount(group, choices);
-          return <fieldset className={styles.group} key={group.id} disabled={disabled}>
+          return <fieldset className={styles.group} key={group.id} disabled={disabled}
+            ref={requiredGroup === group.id ? requiredRef : undefined} tabIndex={-1}>
             <legend>{group.name}</legend>
             {group.min > 0 && <p className={styles.groupHint}>{group.min === group.max
               ? group.min === 1 ? "Scegli una voce" : `Scegli ${group.min} unità · ${count}/${group.max}`
@@ -124,11 +125,10 @@ function GenericConfigurationDialog({ store, product, line, disabled, avoid, onC
         {!configured && product.options.length > 0 && <fieldset className={styles.group}>
           <legend>Opzioni</legend>
           {product.options.map(option => <label className={styles.option} key={option.id}>
-            <input type="checkbox" checked={choices.some(choice => choice.optionId === option.id)} onChange={event => choose(option.id, event.target.checked ? 1 : 0)} />
+            <input type="checkbox" disabled={disabled || option.available === false} checked={choices.some(choice => choice.optionId === option.id)} onChange={event => choose(option.id, event.target.checked ? 1 : 0)} />
             <span className={styles.optionName}>{option.name}</span><span>{option.priceCents ? `+${menuMoney(option.priceCents)}` : ""}</span>
           </label>)}
         </fieldset>}
-        {changed && <button type="button" className={styles.textButton} onClick={() => setSelections([])}>Azzera scelte</button>}
         {preview.composition.ingredients.length > 0 && <p className={styles.ingredients}>Ingredienti: {preview.composition.ingredients.join(", ")}</p>}
         <MenuFoodSummary food={preview.composition} avoid={avoid} showUnknown={Boolean(store.menu)} announce />
         {store.menu?.kitchenNotice && <p className={styles.ingredients}>{store.menu.kitchenNotice}</p>}
@@ -139,7 +139,7 @@ function GenericConfigurationDialog({ store, product, line, disabled, avoid, onC
           {lineQuantity > 1 && <small>{lineQuantity} × {menuMoney(preview.unitCents)}</small>}
           {preview.composition.extraDiscountCents > 0 && <small>Sconto extra {menuMoney(preview.composition.extraDiscountCents * lineQuantity)}</small>}
         </div>
-        <button type="submit" disabled={!canSave}>{edit ? "Aggiorna scelta" : "Aggiungi"}</button>
+        <button type="submit" disabled={!canSave}>{recovered ? "Conferma modifica" : edit ? "Aggiorna scelta" : "Aggiungi"}</button>
       </footer>
     </form>
   </dialog>;

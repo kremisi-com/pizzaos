@@ -1,0 +1,1 @@
+- [x] **recovery**: Conferma unica delle composizioni obsolete, conservazione delle bozze, scelte obbligatorie e regressioni di consistenza individuale/gruppo/checkout.
