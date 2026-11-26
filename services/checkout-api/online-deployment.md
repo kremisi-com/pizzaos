@@ -2,11 +2,11 @@
 
 ## Ultimo stato registrato
 
-Verifica e rilascio del 25 novembre 2026 dal candidato `9784e70`, che integra la stabilizzazione `5bb1174` e `main` a `5f72b69`. Ambiente pubblico: **test**, con dati fittizi e Stripe sandbox. Rider appartiene ad admin; API e worker sono il backend condiviso.
+Rilascio backend del 26 novembre 2026 da `8bb1ee0`; verifiche delle altre superfici del 25 novembre 2026 dal candidato `9784e70`, che integra la stabilizzazione `5bb1174` e `main` a `5f72b69`. Ambiente pubblico: **test**, con dati fittizi e Stripe sandbox. Rider appartiene ad admin; API e worker sono il backend condiviso.
 
 | Risorsa | Ultima evidenza disponibile | Stato registrato |
 |---|---|---|
-| API `api.pizzaos.app` | 25 novembre, `9784e70`, `dpl_AdiJXSTL584HvRWBZojvvJm3nNqY` | Ready, promossa; health 200 e salvataggio bozza 200 |
+| API `api.pizzaos.app` | 26 novembre, `8bb1ee0`, `dpl_FRpN2bsbhAK4EPe6u6xZQb4UGs8U` | Ready, alias verificato; health e sessione anonima via proxy admin 200. Creazione prodotto verificata localmente, senza nuove scritture online |
 | Admin/rider | 25 novembre, `9784e70`, `dpl_4Sr4aXjd5rx4NufyC6Wi88YqUkHR` | Ready e promossa; menu autenticato e proxy sessione verificati |
 | Client | 25 novembre, `9784e70`, `dpl_2uf3tbA3ctytvqETnLjGhHVxRSwj` | Ready e promossa; proxy sessione anonima 200 |
 | Landing | 23 novembre, accesso automatico ai POC D74 | Pass verificati; ID non rideterminato nel verbale D74 |
@@ -16,6 +16,12 @@ Verifica e rilascio del 25 novembre 2026 dal candidato `9784e70`, che integra la
 | Email operative | 23 novembre | `test_open` sul pilota; non l'allowlist iniziale del 5 novembre |
 
 La stabilizzazione del 25 novembre è inclusa in questi deploy. Menu compilato in bozza, menu pubblicato dal gestore e versione del codice sono tre stati distinti. [Punto zero e limiti](../../.agents/product-definition/current-state.md), [runbook corrente](pilot-operations.md).
+
+## Backend e preparazione deploy Git del 26 novembre 2026
+
+- Su richiesta esplicita pubblicato subito il backend corrente da `8bb1ee0`: `dpl_FRpN2bsbhAK4EPe6u6xZQb4UGs8U`, Ready e assegnato a `api.pizzaos.app`. Verificati `/health` 200, sessione anonima dal proxy admin 200 con `x-request-id` e destinazione dell'alias tramite API Vercel. Nessuna migrazione o pubblicazione del menu. Il manifest del rilascio conserva `reconciliation` a `fra1=0`; non è una prova di attività del worker.
+- Il rilascio include la validazione delle bozze con nomi prodotto/opzione incompleti del commit `70bdd85`. La suite HTTP `product-types.acceptance.test.ts` verifica il salvataggio del nome vuoto e il rifiuto della pubblicazione incompleta. Controlli locali: lint, typecheck, build e 702 test servizio passati, 22 test PostgreSQL/Auth saltati per assenza del database di test; confini architetturali e test documentazione passati. Non è stata eseguita una nuova scrittura nel menu online.
+- Preparazione Git su `main` nel commit `6297027`: handler TypeScript, build con controlli, Dockerfile worker e manifest versionati. Impostazioni cloud aggiornate sul progetto esistente: root `services/checkout-api`, file esterni inclusi, Other e Node 24. Il collegamento a `kremisi-com/pizzaos` è ancora bloccato da Vercel: l'account `development@kremisi.com` deve aggiungere prima una Login Connection GitHub. La sola configurazione non attesta deploy automatici attivi.
 
 ## Allineamento catalogo e rilascio del 25 novembre 2026
 
