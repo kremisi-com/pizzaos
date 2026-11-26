@@ -6,6 +6,8 @@ Feature screens may use the provider and demo-state contract. The existing order
 
 `session-mode.ts` selects the POC only after service verification of the origin-bound demo session. The root layout mounts the local API provider only in demo, exposes its banner/logout and selects the matching navigation. Middleware protects legacy POC routes; the default home uses the persistent ordering composition. Real and demo carts keep separate storage contracts. Access configuration and browser acceptance commands are in the app README.
 
+`IndividualOrderingShell` seleziona le viste operative `menu`, `cart` e `checkout`, iniettando gli stessi port HTTP. `/ordina/carrello` e `/ordina/checkout` ricaricano il draft individuale; la navigazione Carrello punta alla schermata dedicata. In modalità live, `/cart` e `/checkout` reindirizzano ai rispettivi percorsi operativi. In demo mantengono le schermate POC e il repository locale.
+
 `group-ordering-shell.tsx` monta la raccolta live `/ordina/gruppo` con i port HTTP `GroupOrderingApi` e `IndividualApi`. Legge l'invito dal frammento URL; il trasporto same-origin inoltra i cookie personali HttpOnly senza esporre capability al JavaScript. Roster, scadenza, quote e tentativo checkout restano autorevoli nel servizio. La schermata gruppo effettua polling revisionato e usa il checkout individuale canonico, distinto dal precedente POC locale.
 
 Le shell live individuale e gruppo forniscono anche `PromotionsApi` tramite `api/promotions-api.ts`; il saldo proprio arriva dal servizio, la selezione commerciale passa nel carrello/fulfillment e il riepilogo usa il breakdown canonico. Il repository locale demo non viene montato nel percorso promozioni persistente.

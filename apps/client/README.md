@@ -65,6 +65,8 @@ la [configurazione runtime del servizio](../../services/checkout-api/README.md#e
 numero carta deve essere inserito in `localStorage`, props, contratti di dominio o log. Il backend è la source of truth
 per tentativi, idempotenza e conferma operativa.
 
+Il carrello operativo è in `/ordina/carrello`, con controlli e riepilogo nello stile del POC; il checkout dedicato è in `/ordina/checkout`. Le due schermate condividono il draft reale e gli adapter HTTP. Il riepilogo del carrello è una stima dei prodotti; il servizio conferma disponibilità, consegna e totale al checkout. Per il pilota sandbox usare `pk_test_…` nel client, `sk_test_…`, webhook test e `PIZZAOS_ENVIRONMENT=test` nel servizio. La demo autenticata continua a simulare i pagamenti. Prova browser isolata: `pnpm exec playwright test --config playwright.individual-cart.config.ts` (porte 3741/3744, `.next-client-cart-e2e`).
+
 ## Shared Dependencies
 
 - `@pizzaos/brand`

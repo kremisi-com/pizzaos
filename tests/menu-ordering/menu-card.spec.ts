@@ -31,7 +31,12 @@ test("la card compatta apre il dettaglio da descrizione, prezzo, spazio e tastie
   await trigger.click();
   await expect(dialog).toBeVisible();
   await dialog.getByRole("button", { name: "Chiudi personalizzazione" }).click();
-  await expect(page.getByText("Il carrello è vuoto. Scegli dal menu.")).toBeVisible();
+  await expect(page.getByRole("link", { name: /^Carrello/ })).toHaveCount(0);
+  await expect.poll(async () => page.evaluate(() => {
+    const raw = localStorage.getItem("pizzaos.individual-cart.v1");
+    const draft = raw ? JSON.parse(raw) as { cart: { lines: unknown[] } } : null;
+    return draft?.cart.lines.length ?? 0;
+  })).toBe(0);
   const descriptionBox = await card.getByText("Pizza del pilota", { exact: true }).boundingBox();
   await card.click({ position: { x: descriptionBox!.x - cardBox!.x + 10, y: descriptionBox!.y - cardBox!.y + 5 } });
   await confirmProduct();
@@ -45,7 +50,8 @@ test("la card compatta apre il dettaglio da descrizione, prezzo, spazio e tastie
   await page.keyboard.press("Space");
   await confirmProduct();
   const quoting = page.waitForResponse(response => response.url().endsWith("/v1/pilot/quote") && response.request().method() === "POST");
-  await page.getByRole("link", { name: "Vai a consegna e pagamento", exact: true }).click();
+  await page.getByRole("link", { name: /^Carrello/ }).click();
+  await page.getByRole("link", { name: /Vai al checkout/ }).click();
   await page.getByRole("button", { name: "Verifica disponibilità e totale", exact: true }).click();
   const response = await quoting;
   expect(response.ok(), await response.text()).toBe(true);

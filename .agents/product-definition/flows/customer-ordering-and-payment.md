@@ -56,6 +56,10 @@ La home mostra il checkout «Consegna e pagamento» solo dopo il clic su «Vai a
 
 ## Persistenza e autorità dei dati
 
+Il cliente apre **Carrello** dalla navigazione o dal menu: `/ordina/carrello` mostra prodotti, personalizzazioni, note, quantità a passi, rimozione e svuotamento con la presentazione del POC. Diminuire da uno elimina la riga. Il carrello vuoto propone il menu senza accesso al checkout. I prodotti rimossi dal catalogo o esauriti restano visibili e rimovibili. La stima include le personalizzazioni correnti di Pizza e Menu; non aggiunge un costo di consegna fittizio. **Vai al checkout** apre `/ordina/checkout` con consegna e pagamento già aperti. Menu, carrello e checkout rileggono lo stesso draft locale; il preventivo server conferma disponibilità, benefici e importo da pagare.
+
+Il pagamento carta del pilota usa Stripe Elements e credenziali sandbox; non usa il pagamento simulato del POC. Il recupero del tentativo e la riconciliazione restano nel servizio: una risposta incerta non autorizza un secondo ordine. Dal menu, **Completa pagamento esistente** raggiunge il checkout per riprendere il pagamento sicuro anche a carrello vuoto. Le vecchie rotte `/cart` e `/checkout` in modalità operativa raggiungono le schermate corrispondenti; la sessione demo conserva l'isolamento POC. [Contratti e prove del carrello](../../design/2026-11-26-client-cart/design.md).
+
 - `localStorage` conserva carrello, personalizzazioni, note, sede, modalità e slot. Non sincronizza il carrello su altri dispositivi e non è il registro autorevole degli ordini.
 - Non memorizzare credenziali, segreti o dati della carta nel browser storage.
 - Dopo l'invio, il client deve poter recuperare ordine e stato pagamento dal servizio anche dopo reload o perdita della sessione UI.

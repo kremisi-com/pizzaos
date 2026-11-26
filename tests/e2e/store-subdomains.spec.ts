@@ -45,7 +45,12 @@ test("il superadmin pubblica Roma e il link apre menu e gruppo della stessa sede
   await expect(page.getByRole("combobox", { name: "Scegli la sede" })).toHaveCount(0);
   await page.getByRole("button", { name: "Aggiungi Pizza", exact: true }).click();
   await page.getByRole("dialog").getByRole("button", { name: "Aggiungi", exact: true }).click();
-  await expect(page.getByRole("spinbutton", { name: "Quantità Pizza" })).toHaveValue("1");
+  await expect(page.getByRole("link", { name: "Carrello · 1 articolo", exact: true })).toBeVisible();
+  await page.getByRole("link", { name: /^Carrello/ }).click();
+  await expect(page).toHaveURL(`${assigned}/ordina/carrello`);
+  await expect(page.getByRole("button", { name: "Aumenta quantità Pizza", exact: true })).toBeVisible();
+  await expect(page.getByRole("article").filter({ has: page.getByRole("button", { name: "Aumenta quantità Pizza", exact: true }) }).getByText("1", { exact: true })).toBeVisible();
+  await page.getByRole("link", { name: /Menu$/ }).click();
 
   await context.addCookies([{ name: "pizzaos-e2e-actor", value: "alice", url: assigned, httpOnly: true, secure: true }]);
   await page.getByRole("navigation", { name: "Inizia a ordinare" }).getByRole("link", { name: "Ordine di gruppo" }).click();

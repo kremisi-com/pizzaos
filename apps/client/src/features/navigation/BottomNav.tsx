@@ -30,7 +30,7 @@ const CartIcon = () => (
 export function BottomNav({ live = false }: { live?: boolean }): ReactElement {
   const pathname = usePathname();
   const router = useRouter();
-  const durable = live || pathname === "/ordina" || pathname === "/accesso";
+  const durable = live || pathname.startsWith("/ordina") || pathname === "/accesso";
 
   const items: BottomNavigationItem[] = [
     {
@@ -50,7 +50,7 @@ export function BottomNav({ live = false }: { live?: boolean }): ReactElement {
       id: "cart",
       label: "Carrello",
       icon: <CartIcon />,
-      href: durable ? "/ordina#il-tuo-ordine" : "/cart"
+      href: durable ? "/ordina/carrello" : "/cart"
     }
   ];
 
@@ -59,6 +59,8 @@ export function BottomNav({ live = false }: { live?: boolean }): ReactElement {
   if (pathname === "/orders" || pathname.startsWith("/orders/")) {
     activeItemId = "orders";
   } else if (
+    pathname === "/ordina/carrello" ||
+    pathname === "/ordina/checkout" ||
     pathname === "/cart" ||
     pathname.startsWith("/cart/") ||
     pathname === "/checkout" ||

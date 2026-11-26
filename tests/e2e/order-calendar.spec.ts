@@ -64,7 +64,8 @@ test("la settimana tipo del Profilo governa entrambi i checkout", async ({ brows
     await page.goto(`${clientOrigin}/ordina`);
     await page.getByRole("button", { name: "Aggiungi Pizza", exact: true }).click();
     await page.getByRole("dialog").getByRole("button", { name: "Aggiungi", exact: true }).click();
-    await page.getByRole("link", { name: "Vai a consegna e pagamento", exact: true }).click();
+    await page.getByRole("link", { name: /^Carrello/ }).click();
+    await page.getByRole("link", { name: /Vai al checkout/ }).click();
     await page.getByLabel("Quando?").selectOption(exclusive!.id);
     await page.getByRole("button", { name: "Verifica disponibilità e totale" }).click();
     await expect(page.getByText(`Orario: ${exclusiveLabel}`, { exact: true })).toBeVisible();

@@ -161,7 +161,8 @@ test("cinque tipi espliciti in bozza e Menu pubblicato con sole rimozioni e note
     await editor.screenshot({ path: testInfo.outputPath("menu-cliente-mobile.png") });
     await editor.getByRole("button", { name: "Aggiungi", exact: true }).click();
     const quoting = page.waitForResponse(response => response.url().endsWith("/v1/pilot/quote") && response.request().method() === "POST");
-    await page.getByRole("link", { name: "Vai a consegna e pagamento", exact: true }).click();
+    await page.getByRole("link", { name: /^Carrello/ }).click();
+    await page.getByRole("link", { name: /Vai al checkout/ }).click();
     await page.getByRole("button", { name: "Verifica disponibilità e totale", exact: true }).click();
     const quoted = await quoting;
     expect(quoted.ok(), await quoted.text()).toBe(true);

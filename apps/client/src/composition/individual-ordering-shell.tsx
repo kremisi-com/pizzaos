@@ -1,12 +1,12 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { IndividualOrderingScreen } from "../features/individual-ordering/components/individual-ordering-screen";
+import { IndividualOrderingScreen, type IndividualOrderingView } from "../features/individual-ordering/components/individual-ordering-screen";
 import { createIndividualApi } from "./api/individual-api";
 import { createFoodPreferencesApi } from "./api/food-preferences-api";
 import { createPromotionsApi } from "./api/promotions-api";
 
-export function IndividualOrderingShell({ storefront }: { storefront?: boolean }) {
+export function IndividualOrderingShell({ storefront, view = "menu" }: { storefront?: boolean; view?: IndividualOrderingView }) {
   const api = useMemo(() => createIndividualApi(), []);
   const preferencesApi = useMemo(() => createFoodPreferencesApi(), []);
   const promotionsApi = useMemo(() => createPromotionsApi(), []);
@@ -48,5 +48,5 @@ export function IndividualOrderingShell({ storefront }: { storefront?: boolean }
     }).catch(() => { if (alive) setConnection("Servizio non raggiungibile"); });
     return () => { alive = false; stream?.close(); if (polling) clearInterval(polling); };
   }, [api]);
-  return <IndividualOrderingScreen api={api} promotionsApi={promotionsApi} preferencesApi={preferencesApi} refreshVersion={refreshVersion} connection={connection} storefront={storefront} />;
+  return <IndividualOrderingScreen key={view} view={view} api={api} promotionsApi={promotionsApi} preferencesApi={preferencesApi} refreshVersion={refreshVersion} connection={connection} storefront={storefront} />;
 }

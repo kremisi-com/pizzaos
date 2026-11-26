@@ -1,0 +1,1 @@
+- [x] **cart-checkout**: schermate operative dedicate, persistenza tra percorsi, controlli del POC e pagamento sicuro, con regressioni locali e browser.

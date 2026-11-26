@@ -24,7 +24,7 @@ function SecureCard({ onReady }: { onReady: (confirm: ConfirmIndividualPayment |
 
 export function IndividualStripeFields({ onReady }: { onReady: (confirm: ConfirmIndividualPayment | null) => void }) {
   const key = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY;
-  const stripe = useMemo(() => key ? loadStripe(key) : null, [key]);
+  const stripe = useMemo(() => key ? loadStripe(key, { locale: "it" }) : null, [key]);
   if (!stripe) return <p role="alert">Pagamento carta non configurato. Puoi scegliere i contanti.</p>;
   return <Elements stripe={stripe}><SecureCard onReady={onReady} /></Elements>;
 }

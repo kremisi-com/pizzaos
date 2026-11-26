@@ -38,7 +38,8 @@ async function createIndividual(page: Page, note: string, code?: string) {
   await page.goto(`${clientOrigin}/ordina`);
   await page.getByRole("button", { name: "Aggiungi Pizza", exact: true }).click();
   await page.getByRole("dialog").getByRole("button", { name: "Aggiungi", exact: true }).click();
-  await page.getByRole("link", { name: "Vai a consegna e pagamento", exact: true }).click();
+  await page.getByRole("link", { name: /^Carrello/ }).click();
+  await page.getByRole("link", { name: /Vai al checkout/ }).click();
   await page.locator("textarea").first().fill(note);
   if (code) {
     await page.getByLabel("Codici coupon").fill(code);

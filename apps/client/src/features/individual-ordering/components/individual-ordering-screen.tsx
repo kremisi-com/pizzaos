@@ -13,6 +13,7 @@ import { PromotionSelectionPanel, PromotionSummary } from "../../promotions";
 import { appendMenuLine, lineIssue, MealCompositionDetails, MenuLineDetails, MenuLineEditor, OperationalMenu, useMenuPreferences } from "../../menu";
 import { OrderTimeline } from "../../orders/components/operational-order-timeline";
 import { OrderingCover } from "../../menu/components/ordering-cover";
+import { IndividualCartScreen } from "../../cart";
 import styles from "./individual-ordering.module.css";
 
 const EMPTY_CART: IndividualCart = { storeId: "", lines: [], mode: "pickup", slotId: null, notes: "" };
@@ -52,7 +53,9 @@ function errorText(error: unknown): string {
   return messages[code] ?? "Non è stato possibile completare l'operazione. Riprova senza inviare un nuovo ordine.";
 }
 
-export function IndividualOrderingScreen({ api, promotionsApi, preferencesApi, refreshVersion = 0, connection = "", storefront = false }: { api: IndividualApi; promotionsApi?: PromotionsApi; preferencesApi?: FoodPreferencesApi; refreshVersion?: number; connection?: string; storefront?: boolean }) {
+export type IndividualOrderingView = "all" | "menu" | "cart" | "checkout";
+
+export function IndividualOrderingScreen({ view = "all", api, promotionsApi, preferencesApi, refreshVersion = 0, connection = "", storefront = false }: { view?: IndividualOrderingView; api: IndividualApi; promotionsApi?: PromotionsApi; preferencesApi?: FoodPreferencesApi; refreshVersion?: number; connection?: string; storefront?: boolean }) {
   const [session, setSession] = useState<IndividualSession | null>(null);
   const [stores, setStores] = useState<IndividualStore[]>([]);
   const [store, setStore] = useState<IndividualStore | null>(null);
@@ -67,7 +70,7 @@ export function IndividualOrderingScreen({ api, promotionsApi, preferencesApi, r
   const [notice, setNotice] = useState("");
   const [busy, setBusy] = useState(false);
   const [loaded, setLoaded] = useState(false);
-  const [checkoutOpen, setCheckoutOpen] = useState(false);
+  const [checkoutOpen, setCheckoutOpen] = useState(view === "checkout");
   const checkoutRef = useRef<HTMLElement>(null);
   const [editedNotes, setEditedNotes] = useState<Record<string, string>>({});
   const [resumeOrderId, setResumeOrderId] = useState<string | null>(null);
@@ -106,7 +109,7 @@ export function IndividualOrderingScreen({ api, promotionsApi, preferencesApi, r
     } catch (failure) { setError(errorText(failure)); setLoaded(true); }
   }, [api, reloadOrders]);
   useEffect(() => { void load(); }, [load]);
-  useEffect(() => { if (checkoutOpen) checkoutRef.current?.focus(); }, [checkoutOpen]);
+  useEffect(() => { if (checkoutOpen) checkoutRef.current?.focus(); }, [checkoutOpen, loaded, stores.length]);
   useEffect(() => { if (confirmation) confirmationRef.current?.focus(); }, [confirmation]);
   useEffect(() => {
     if (!cart.storeId) { storeRef.current = null; setStore(null); return; }
@@ -233,21 +236,22 @@ export function IndividualOrderingScreen({ api, promotionsApi, preferencesApi, r
   const unresolved = orders.some(order => (order.status === "pending_payment" && (order.payment === "requires_action" || order.payment === "processing")) || order.additions?.some(item => !item.applied && ["requires_action", "processing"].includes(item.payment)));
 
   return <>
-    <OrderingCover profileHref={session?.actor ? "/ordina/profilo" : undefined} />
-    <div className={styles.page}>
-    <header className={styles.header}>
+    {(view === "all" || view === "menu") && <OrderingCover profileHref={session?.actor ? "/ordina/profilo" : undefined} />}
+    <div className={view === "cart" ? styles.cartPage : `${styles.page} ${view === "checkout" ? styles.dedicated : ""}`}>
+    {(view === "all" || view === "menu") && <><header className={styles.header}>
       <div><h1>La tua prossima pizza.</h1>{store && <p>{store.name} · {store.acceptingOrders ? "Ordini aperti" : "Ordini sospesi"}</p>}</div>
       {!session?.actor && <a href="/accesso">Accedi</a>}
     </header>
     <nav className={styles.heroActions} aria-label="Inizia a ordinare">
       {stores.length > 0 && <a className={styles.linkButton} href="#il-menu">Sfoglia il menu</a>}
       <a className={styles.groupLink} href="/ordina/gruppo">Ordine di gruppo</a>
-    </nav>
+    </nav></>}
+    {view === "checkout" && <nav className={styles.heroActions} aria-label="Navigazione checkout"><a href="/ordina/carrello">← Carrello</a><a href="/ordina#il-menu">Menu</a></nav>}
     {connection && <p className={styles.connection} role="status">{connection}</p>}
     {error && <div className={styles.error} role="alert">{error}<div><button type="button" className={styles.secondary} disabled={busy} onClick={() => void load()}>Riprova caricamento</button></div></div>}
     {confirmation && <section ref={confirmationRef} tabIndex={-1} className={styles.confirmation} aria-labelledby="conferma-ordine">
       <div><h2 id="conferma-ordine">Ordine inviato</h2><p>Segui lo stato aggiornato nei tuoi ordini.</p></div>
-      <a className={styles.linkButton} href={`#ordine-${encodeURIComponent(confirmation)}`}>Segui l&apos;ordine</a>
+      <a className={styles.linkButton} href={`${view === "checkout" ? "/ordina" : ""}#ordine-${encodeURIComponent(confirmation)}`}>Segui l&apos;ordine</a>
       <button type="button" className={styles.secondary} onClick={() => setConfirmation(null)}>Chiudi riepilogo</button>
     </section>}
     {notice && <div className={styles.notice} role="status">{notice}</div>}
@@ -258,11 +262,12 @@ export function IndividualOrderingScreen({ api, promotionsApi, preferencesApi, r
     {!loaded && <p role="status">Caricamento del menu…</p>}
     {loaded && stores.length === 0 && <section className={styles.card}><h2>Menu non ancora disponibile</h2><p>Non ci sono sedi disponibili per ordinare.</p><button type="button" onClick={() => void load()}>Riprova</button></section>}
     {stores.length > 0 && <>
-      {!storefront && <div className={styles.storeSelector}><label>Scegli la sede<select aria-label="Scegli la sede" value={cart.storeId} disabled={busy || unresolved} onChange={event => changeCart({ ...EMPTY_CART, storeId: event.target.value })}>{stores.map(item => <option key={item.id} value={item.id}>{item.name}</option>)}</select></label></div>}
-      <fieldset className={styles.layout} disabled={busy} aria-label="Composizione dell'ordine"><section id="il-menu" tabIndex={-1}><h2>Il menu</h2>{!store && <p>Caricamento della sede…</p>}{store && !store.acceptingOrders && <p className={styles.error}>Gli ordini sono temporaneamente sospesi.</p>}
+      {(view === "all" || view === "menu") && !storefront && <div className={styles.storeSelector}><label>Scegli la sede<select aria-label="Scegli la sede" value={cart.storeId} disabled={busy || unresolved} onChange={event => changeCart({ ...EMPTY_CART, storeId: event.target.value })}>{stores.map(item => <option key={item.id} value={item.id}>{item.name}</option>)}</select></label></div>}
+      {view === "cart" && loaded && <IndividualCartScreen cart={cart} store={store} avoid={preferences.avoid} disabled={busy} onChange={changeCart} />}
+      {view !== "cart" && <fieldset className={`${styles.layout} ${view !== "all" ? styles.singleColumn : ""}`} disabled={busy} aria-label="Composizione dell'ordine">{(view === "all" || view === "menu") && <section id="il-menu" tabIndex={-1}><h2>Il menu</h2>{!store && <p>Caricamento della sede…</p>}{store && !store.acceptingOrders && <p className={styles.error}>Gli ordini sono temporaneamente sospesi.</p>}
         {store && <OperationalMenu key={store.id} store={store} preferences={preferences} onAdd={add} />}
-      </section><div className={styles.orderPanel}>
-      <section className={styles.card} id="il-tuo-ordine" aria-labelledby="cart-title" tabIndex={-1}>
+      </section>}{view !== "menu" && <div className={styles.orderPanel}>
+      {view === "all" && <section className={styles.card} id="il-tuo-ordine" aria-labelledby="cart-title" tabIndex={-1}>
         <div className={styles.headingRow}><h2 id="cart-title">Il tuo ordine</h2>{cartCount > 0 && <span className={styles.cartCount}>{cartCount}</span>}</div>
         {cart.lines.length === 0 ? <p>Il carrello è vuoto. Scegli dal menu.</p> : <ul className={styles.cartLines}>{cart.lines.map((line, index) => {
           const product = store?.products.find(item => item.id === line.productId);
@@ -280,7 +285,7 @@ export function IndividualOrderingScreen({ api, promotionsApi, preferencesApi, r
             <label>Note per {name}<input maxLength={500} value={line.notes} onChange={event => replaceLine(index, { ...line, notes: event.target.value })} /></label></li>;
         })}</ul>}
         {cartCount > 0 && <a className={styles.checkoutJump} href="#checkout-ordine" aria-expanded={checkoutOpen} aria-controls="checkout-ordine" onClick={event => { event.preventDefault(); setCheckoutOpen(true); checkoutRef.current?.focus(); }}>Vai a consegna e pagamento</a>}
-      </section>{checkoutOpen && <section ref={checkoutRef} tabIndex={-1} className={styles.card} id="checkout-ordine" aria-labelledby="checkout-title">
+      </section>}{checkoutOpen && <section ref={checkoutRef} tabIndex={-1} className={styles.card} id="checkout-ordine" aria-labelledby="checkout-title">
         <h2 id="checkout-title">Consegna e pagamento</h2>
         {cart.lines.length > 0 && store?.menu?.kitchenNotice && <p className={styles.small}>{store.menu.kitchenNotice}</p>}
         <label>Modalità<select aria-label="Modalità" value={cart.mode} onChange={event => changeCart({ ...cart, mode: event.target.value === "delivery" ? "delivery" : "pickup", address: undefined })}><option value="pickup">Ritiro in pizzeria</option><option value="delivery">Consegna a domicilio</option></select></label>
@@ -310,10 +315,10 @@ export function IndividualOrderingScreen({ api, promotionsApi, preferencesApi, r
           <p className={styles.small}>Il ristorante deve accettare l&apos;ordine. Se viene annullato, il rimborso della carta viene avviato automaticamente.</p>
         </> : <div className={styles.login}><h3>Accedi quando sei pronto</h3><p>Il carrello resta su questo dispositivo mentre accedi con Google o con un link via email.</p><a className={styles.linkButton} href="/accesso">Accedi per completare l&apos;ordine</a></div>}
         {unresolved && <p className={styles.notice}>Hai un pagamento da verificare. Recuperalo nei tuoi ordini prima di inviarne un altro.</p>}
-      </section>}</div></fieldset>
-      {cartCount > 0 && <div className={styles.mobileCart}><a href="#il-tuo-ordine">Carrello · {cartCount} {cartCount === 1 ? "articolo" : "articoli"}</a></div>}
+      </section>}</div>}</fieldset>}
+      {cartCount > 0 && (view === "all" || view === "menu") && <div className={view === "menu" ? styles.cartEntry : styles.mobileCart}><a href={view === "menu" ? "/ordina/carrello" : "#il-tuo-ordine"}>Carrello · {cartCount} {cartCount === 1 ? "articolo" : "articoli"}</a></div>}
     </>}
-    {session?.actor && <section className={styles.history} id="i-tuoi-ordini"><div className={styles.headingRow}><h2>I tuoi ordini</h2><button type="button" className={styles.secondary} disabled={busy} onClick={() => void reloadOrders().catch(failure => setError(errorText(failure)))}>Aggiorna ordini</button></div>
+    {session?.actor && view !== "cart" && <section className={styles.history} id="i-tuoi-ordini"><div className={styles.headingRow}><h2>I tuoi ordini</h2><button type="button" className={styles.secondary} disabled={busy} onClick={() => void reloadOrders().catch(failure => setError(errorText(failure)))}>Aggiorna ordini</button></div>
       {orders.length === 0 && <p>Non hai ancora inviato ordini.</p>}
       {orders.map(order => <article id={`ordine-${encodeURIComponent(order.id)}`} key={order.id} className={`${styles.order} ${order.status === "awaiting_customer" ? styles.waiting : ""}`}><div className={styles.headingRow}><div><p className={styles.small}>Ordine {order.id}</p><h3>{statusLabels[order.status]}</h3></div><strong>{money(order.quote.totalCents)}</strong></div>
         <OrderTimeline status={order.status} mode={order.cart.mode} />
@@ -328,7 +333,7 @@ export function IndividualOrderingScreen({ api, promotionsApi, preferencesApi, r
         {["pending_payment", "awaiting_acceptance", "awaiting_customer", "accepted"].includes(order.status) && <div><label>Note ordine {order.id}<textarea maxLength={1000} value={editedNotes[order.id] ?? order.notes} onChange={event => setEditedNotes(current => ({ ...current, [order.id]: event.target.value }))} /></label><button type="button" className={styles.secondary} disabled={busy} onClick={() => void orderAction(order, "notes")}>Aggiorna note</button></div>}
         <IndividualAdditions api={api} order={order} avoid={preferences.avoid} onChanged={reloadOrders} />
         <div className={styles.actions}>
-          {order.status === "pending_payment" && order.payment !== "failed" && <><button type="button" disabled={busy} onClick={() => void recover(order, false)}>Verifica pagamento</button>{order.payment === "requires_action" && <button type="button" disabled={busy} onClick={() => { setCheckoutOpen(true); setMethod("card"); setResumeOrderId(order.id); setNotice("Completa i dati della carta nel pagamento sicuro e premi Riprendi pagamento."); window.scrollTo({ top: 0, behavior: "smooth" }); }}>Completa pagamento esistente</button>}</>}
+          {order.status === "pending_payment" && order.payment !== "failed" && <><button type="button" disabled={busy} onClick={() => void recover(order, false)}>Verifica pagamento</button>{order.payment === "requires_action" && (view === "menu" ? <a className={styles.linkButton} href={`/ordina/checkout#ordine-${encodeURIComponent(order.id)}`}>Completa pagamento esistente</a> : <button type="button" disabled={busy} onClick={() => { setCheckoutOpen(true); setMethod("card"); setResumeOrderId(order.id); setNotice("Completa i dati della carta nel pagamento sicuro e premi Riprendi pagamento."); window.scrollTo({ top: 0, behavior: "smooth" }); }}>Completa pagamento esistente</button>)}</>}
           {["awaiting_acceptance", "awaiting_customer"].includes(order.status) && <button type="button" className={styles.secondary} disabled={busy} onClick={() => void orderAction(order, "cancel")}>Annulla ordine</button>}
           {(order.status === "cancelled" || order.status === "completed" || order.payment === "failed") && <button type="button" className={styles.secondary} disabled={busy || unresolved} onClick={() => repeat(order)}>{order.status === "cancelled" ? "Ripeti ordine annullato" : "Ripeti ordine"}</button>}
         </div>
