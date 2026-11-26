@@ -56,7 +56,6 @@ export function LivePizzaEditor({ store, product, line, quantity = 1, disabled, 
     : newSelections(product, initialSelections));
   const [notes, setNotes] = useState(line?.notes ?? "");
   const [openSection, setOpenSection] = useState<string | null>(null);
-  const [openCategory, setOpenCategory] = useState<string | null>(null);
   const [pairingMessage, setPairingMessage] = useState("");
   const options = new Map(product.options.map(option => [option.id, option]));
   const recommendedDough = options.get(product.pizza?.recommendedDoughOptionId ?? "");
@@ -213,13 +212,12 @@ export function LivePizzaEditor({ store, product, line, quantity = 1, disabled, 
                 <p className={styles.bundleQuotaText}>Hai <span className={styles.bundleQuotaCount}>{Math.max(0, product.extraOffer.quota - extraCount)}</span> slot scontati al <span className={styles.bundleQuotaCount}>{product.extraOffer.percent}%</span> rimanenti.</p>
               </div>}
               {categories.map(category => <section className={styles.extraCategory} key={category}>
-                <button type="button" className={`${styles.extraCategoryHeader} ${openCategory === category ? styles.extraCategoryHeaderOpen : ""}`}
-                  aria-expanded={openCategory === category} onClick={() => setOpenCategory(current => current === category ? null : category)}>
+                <div className={live.extraCategoryHeader}>
                   <div className={styles.sectionTitleGroup}><h3 className={styles.extraCategoryTitle}>{category}</h3>
                     <span className={styles.extraCategoryCount}>{extras.filter(option => (option.pizza?.category ?? "Altri extra") === category).length} opzioni disponibili</span>
-                  </div><span className={styles.extraCategoryChevron} aria-hidden="true">{openCategory === category ? "▴" : "▾"}</span>
-                </button>
-                <div className={`${styles.extraCategoryContent} ${openCategory === category ? styles.extraCategoryContentOpen : ""}`} inert={openCategory !== category}>
+                  </div>
+                </div>
+                <div>
                   {extras.filter(option => (option.pizza?.category ?? "Altri extra") === category).map(option => {
                     const group = extraGroups.find(candidate => candidate.optionIds.includes(option.id));
                     const count = selected(option.id);

@@ -87,6 +87,8 @@ test("gusti e formule usano la scheda PoC, il prezzo server e l'ordine cucina", 
     }
     await page.getByRole("button", { name: "Aggiungi Wild", exact: true }).click();
     const editor = page.getByRole("dialog", { name: "Wild", exact: true });
+    await editor.getByRole("button", { name: /^Extra/ }).click();
+    await expect(editor.getByRole("button", { name: "Olive escluso", exact: true })).toBeVisible();
     await editor.getByRole("button", { name: /Impasto/ }).click();
     await editor.getByText("Integrale", { exact: true }).click();
     await expect(editor.getByRole("radio", { name: /Integrale/ })).toBeChecked();
@@ -229,7 +231,7 @@ test("Magazzino e formula libera arrivano al preventivo con impasto e base scelt
     await editor.getByRole("heading", { name: "Extra", exact: true }).first().locator("..").click();
     const publicStore = await (await context.request.get(`${clientOrigin}/api/pilot/v1/pilot/stores/roma`)).json() as IndividualStore;
     const extraCategory = publicStore.products.find(({ id }) => id === "libera")!.options.find(({ pizza }) => pizza?.kind === "topping")!.pizza!.category!;
-    await editor.getByRole("heading", { name: extraCategory, exact: true }).last().locator("..").click();
+    for (const { name } of additions) await expect(editor.getByRole("button", { name: `${name} escluso`, exact: true })).toBeVisible();
     for (const { name } of additions) await editor.getByRole("button", { name: `${name} escluso`, exact: true }).click();
     await expect(editor.getByTestId("customization-total-value")).toContainText("14,20");
     await editor.getByRole("heading", { name: extraCategory, exact: true }).last().scrollIntoViewIfNeeded();

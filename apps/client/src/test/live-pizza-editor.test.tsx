@@ -275,6 +275,27 @@ describe("persistent pizza editor using the PoC presentation", () => {
     expect(resolveMenuComposition(taste, normal)).toMatchObject({ valid: true, unitCents: 600, recipe: { latte: 1 } });
   });
 
+  it("shows every extra category after one click and keeps selections when reopened", () => {
+    const { store, formula } = fixture();
+    renderDom(<LivePizzaEditor store={store} product={formula} disabled={false} avoid={[]} onClose={vi.fn()} onSave={vi.fn()} />);
+    const toggle = domScreen.getByRole("button", { name: /^Extra/ });
+    const mozzarella = domScreen.getByRole("button", { name: "Mozzarella escluso" });
+    const basilico = domScreen.getByRole("button", { name: "Basilico escluso" });
+    expect(mozzarella.closest("[inert]")).not.toBeNull();
+    domFireEvent.click(toggle);
+    for (const option of [mozzarella, basilico]) expect(option.closest("[inert]")).toBeNull();
+    for (const category of ["Latticini", "Vegetali"]) {
+      expect(domScreen.getByRole("heading", { name: category }).closest("button")).toBeNull();
+    }
+    domFireEvent.click(basilico);
+    expect(toggle.textContent).toContain("1 selezionati");
+    domFireEvent.click(toggle);
+    expect(basilico.closest("[inert]")).not.toBeNull();
+    domFireEvent.click(toggle);
+    expect(domScreen.getByRole("button", { name: "Basilico incluso" }).getAttribute("aria-pressed")).toBe("true");
+    expect(basilico.closest("[inert]")).toBeNull();
+  });
+
   it("starts a formula without taste and discounts repeated extra units", () => {
     const { store, formula } = fixture();
     const save = vi.fn();
@@ -282,7 +303,6 @@ describe("persistent pizza editor using the PoC presentation", () => {
     domFireEvent.click(domScreen.getByRole("heading", { name: "Ingredienti" }).closest("button") as HTMLButtonElement);
     expect(domScreen.getByText("Nessun ingrediente del gusto predefinito.")).toBeTruthy();
     domFireEvent.click(domScreen.getByRole("heading", { name: "Extra" }).closest("button") as HTMLButtonElement);
-    domFireEvent.click(domScreen.getByRole("heading", { name: "Latticini" }).closest("button") as HTMLButtonElement);
     domFireEvent.click(domScreen.getByRole("button", { name: "Mozzarella escluso" }));
     domFireEvent.click(domScreen.getByRole("button", { name: "Aggiungi Mozzarella" }));
     expect(domScreen.getByTestId("customization-total-value").textContent).toContain("8,40");
@@ -301,7 +321,6 @@ describe("persistent pizza editor using the PoC presentation", () => {
     const save = vi.fn();
     renderDom(<LivePizzaEditor store={store} product={formula} disabled={false} avoid={[]} onClose={vi.fn()} onSave={save} />);
     domFireEvent.click(domScreen.getByRole("heading", { name: "Extra" }).closest("button") as HTMLButtonElement);
-    domFireEvent.click(domScreen.getByRole("heading", { name: "Latticini" }).closest("button") as HTMLButtonElement);
     domFireEvent.click(domScreen.getByRole("button", { name: "Mozzarella escluso" }));
     domFireEvent.click(domScreen.getByRole("button", { name: "Provola escluso" }));
     expect(domScreen.getByTestId("customization-total-value").textContent).toContain("9,70");
