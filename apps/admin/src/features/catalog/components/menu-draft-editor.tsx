@@ -56,8 +56,6 @@ export function MenuDraftEditor({ draft: sourceDraft, storeId, ingredients, onCh
   const taste = catalog.tastes.find(item => item.id === editingId);
   const classificationPlan = classification?.productId === editingId
     ? planProductClassification(draft, editingId, classification.pizza, ingredients, { newProduct: newProductIds.includes(editingId) }) : undefined;
-  const refreshedCatalog = draft.pizzaCatalog ? syncPizzaInventory(draft, ingredients).pizzaCatalog : undefined;
-  const extrasChanged = refreshedCatalog?.inventorySignature !== draft.pizzaCatalog?.inventorySignature;
 
   function ingredientSummary(product: IndividualProduct) {
     const entry = catalog.tastes.find(item => item.id === product.id);
@@ -208,19 +206,6 @@ export function MenuDraftEditor({ draft: sourceDraft, storeId, ingredients, onCh
             pizzaCatalog: { ...catalog, customEnabled: true, inventoryExtras: true, formulas: [...catalog.formulas, { ...entry, extraOffer: { quota: 0, percent: 0 } }] } }, ingredients)));
         } else addPizza(section, "formula");
       }} />
-    {(catalog.tastes.length > 0 || catalog.formulas.length > 0) && <section className={styles.section} aria-label="Extra comuni dal Magazzino">
-      <h3>Extra comuni dal Magazzino</h3>
-      <p>Tutte le pizze propongono gli ingredienti con la spunta “Possibile extra”. Prezzi e dosi si gestiscono una sola volta nel Magazzino; le scorte determinano la disponibilità.</p>
-      <ul>{ingredients.filter(item => item.extra?.enabled).map(item => <li key={item.id}>
-        {item.name} · {item.extra?.priceCents == null ? "Prezzo da verificare" : money.format(item.extra.priceCents / 100)}
-        {item.extra?.dose == null ? " · Dose da verificare" : ` · Dose ${item.extra.dose}`}
-        {item.stock === null ? " · Scorta da verificare" : item.stock === 0 ? " · Esaurito" : ""}
-      </li>)}</ul>
-      {!ingredients.some(item => item.extra?.enabled) && <p>Nessun ingrediente ha la spunta Possibile extra.</p>}
-      {extrasChanged && <p role="status">Gli extra della bozza sono da aggiornare. Controlla le scelte prima di pubblicare.</p>}
-      {extrasChanged && <Button type="button" variant="secondary" onClick={() => onChange(syncPizzaInventory(draft, ingredients))}>Aggiorna extra della bozza</Button>}
-      {onInventory && <Button type="button" variant="ghost" onClick={onInventory}>Apri Magazzino</Button>}
-    </section>}
     {removingId && !draft.products.some(product => product.id === removingId) && <fieldset className={styles.confirm}>
       <legend>Eliminare {catalog.formulas.find(item => item.id === removingId)?.name || "combinazione"} dal menu?</legend>
       <Button type="button" onClick={() => confirmRemoveProduct(removingId)}>Conferma eliminazione prodotto</Button>

@@ -84,8 +84,8 @@ describe("classificazione dal menu amministrativo", () => {
     expect((screen.getByRole("checkbox", { name: /^Pizza$/i }) as HTMLInputElement).checked).toBe(false);
   });
 
-  it("conferma esplicitamente il cambio e mostra extra comuni e apertura Magazzino", () => {
-    const { changes, inventory } = setup();
+  it("conferma esplicitamente il cambio senza mostrare la card degli extra comuni", () => {
+    const { changes } = setup();
     fireEvent.click(screen.getByRole("button", { name: /^Modifica Specialità$/i }));
     fireEvent.click(screen.getByRole("checkbox", { name: /^Pizza$/i }));
     fireEvent.click(screen.getByRole("button", { name: /^Conferma cambio tipo$/i }));
@@ -94,10 +94,9 @@ describe("classificazione dal menu amministrativo", () => {
     expect(resulting.products.find((product) => product.id === "specialita")).toMatchObject({ name: "Specialità", description: "Ricetta del giorno", priceCents: 800, pizza: { kind: "taste" } });
     expect(resulting.sections).toEqual(fixture().sections);
     expect((screen.getByRole("checkbox", { name: /^Pizza$/i }) as HTMLInputElement).checked).toBe(true);
-    expect(screen.getByText(/Extra comuni dal Magazzino/i)).toBeTruthy();
+    expect(screen.queryByRole("region", { name: "Extra comuni dal Magazzino" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Aggiorna extra della bozza" })).toBeNull();
     expect(screen.queryByRole("button", { name: /Aggiungi gruppo di scelte|Organizza le scelte in un gruppo|Aggiungi personalizzazione/i })).toBeNull();
     expect(screen.queryByText("Scelte specifiche del prodotto")).toBeNull();
-    fireEvent.click(screen.getByRole("button", { name: /^Apri Magazzino$/i }));
-    expect(inventory).toHaveBeenCalledOnce();
   });
 });

@@ -56,7 +56,7 @@ test("classificazione confermata in bozza, extra comuni e scelte specifiche arri
     await admin.getByRole("checkbox", { name: "Pizza", exact: true }).click();
     await admin.getByRole("button", { name: "Conferma cambio tipo", exact: true }).click();
     await expect(admin.getByRole("checkbox", { name: "Pizza", exact: true })).toBeChecked();
-    await expect(admin.getByText("Extra comuni dal Magazzino", { exact: false })).toBeVisible();
+    await expect(admin.getByRole("region", { name: "Extra comuni dal Magazzino" })).toHaveCount(0);
     await admin.screenshot({ path: testInfo.outputPath("classificazione-pizza-desktop.png"), fullPage: true });
     const saving = admin.waitForResponse((response) => response.url().endsWith(`${menuPath}/drafts`) && response.request().method() === "PUT");
     await admin.getByRole("button", { name: "Salva bozza", exact: true }).click();
