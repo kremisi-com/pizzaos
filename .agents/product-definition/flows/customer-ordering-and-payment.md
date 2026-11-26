@@ -25,6 +25,8 @@ Consentire al cliente di comporre un ordine come ospite, autenticarsi al termine
 
 Le azioni iniziali del client sono «Sfoglia il menu» e «Ordine di gruppo». Il pulsante «I tuoi ordini» non compare in questo blocco; gli ordini restano accessibili dalla navigazione inferiore e lo storico mantiene le azioni di recupero e gestione.
 
+La navigazione inferiore evidenzia **Ordini** su `/ordina#i-tuoi-ordini` e sulle ancore del singolo ordine `/ordina#ordine-…`, anche all'apertura diretta, al reload e usando indietro/avanti. Il ritorno a `/ordina` o al menu ripristina **Ordina**; carrello e checkout mantengono **Carrello**. La POC conserva `/orders`. Verifiche locali: [navigazione](../../../apps/client/src/test/bottom-nav.test.tsx) e [browser](../../../tests/e2e/individual-cart.spec.ts); nessuna nuova evidenza online.
+
 Nel menu operativo, se una sola sezione contiene prodotti visibili, il suo titolo non compare sotto «Il menu». Con più sezioni visibili, il client mostra titoli e navigazione delle categorie. Le descrizioni restano visibili anche per la sezione singola; i nomi salvati nell'admin non cambiano.
 
 La home mostra il checkout «Consegna e pagamento» solo dopo il clic su «Vai a consegna e pagamento», disponibile quando il carrello contiene articoli. Il focus passa alla sezione aperta. Un reload conserva il draft ma richiede nuovamente il clic per aprire il checkout; il recupero «Completa pagamento esistente» apre i campi necessari anche senza articoli nel carrello. Verifica browser: `tests/e2e/individual-ordering.spec.ts`.

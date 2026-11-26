@@ -2,7 +2,7 @@
 
 import { BottomNavigation, BottomNavigationItem } from "@pizzaos/ui";
 import { usePathname, useRouter } from "next/navigation";
-import type { ReactElement } from "react";
+import { useEffect, useState, type ReactElement } from "react";
 
 const ReceiptIcon = () => (
   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -30,7 +30,19 @@ const CartIcon = () => (
 export function BottomNav({ live = false }: { live?: boolean }): ReactElement {
   const pathname = usePathname();
   const router = useRouter();
+  const [hash, setHash] = useState("");
   const durable = live || pathname.startsWith("/ordina") || pathname === "/accesso";
+
+  useEffect(() => {
+    const syncHash = () => setHash(window.location.hash);
+    syncHash();
+    window.addEventListener("hashchange", syncHash);
+    window.addEventListener("popstate", syncHash);
+    return () => {
+      window.removeEventListener("hashchange", syncHash);
+      window.removeEventListener("popstate", syncHash);
+    };
+  }, [pathname]);
 
   const items: BottomNavigationItem[] = [
     {
@@ -54,9 +66,10 @@ export function BottomNav({ live = false }: { live?: boolean }): ReactElement {
     }
   ];
 
-  // Determine active item id based on pathname
+  // Operational order history and order details share the menu pathname.
   let activeItemId = "order"; // Default to central
-  if (pathname === "/orders" || pathname.startsWith("/orders/")) {
+  if (pathname === "/orders" || pathname.startsWith("/orders/")
+    || pathname === "/ordina" && (hash === "#i-tuoi-ordini" || hash.startsWith("#ordine-"))) {
     activeItemId = "orders";
   } else if (
     pathname === "/ordina/carrello" ||
@@ -72,6 +85,8 @@ export function BottomNav({ live = false }: { live?: boolean }): ReactElement {
   }
 
   const handleNavigate = (href: string) => {
+    // Next can update same-page anchors through pushState, without hashchange.
+    setHash(new URL(href, window.location.href).hash);
     router.push(href);
   };
 
