@@ -1,10 +1,11 @@
 import { MenuPairingSelect } from "./menu-pairing-select";
-import { menuImagePath, PIZZA_EXTRA_OFFERS } from "@pizzaos/domain";
+import { menuImagePath, productType, PIZZA_EXTRA_OFFERS } from "@pizzaos/domain";
 import type { IndividualIngredient, IndividualOption, IndividualProduct, MenuOptionGroup, OrderingMenuSection } from "@pizzaos/domain";
 import { Button } from "@pizzaos/ui";
 import Image from "next/image";
 import { useState, type ReactNode } from "react";
 import { MenuPriceField, MenuRecipeFields } from "./catalog-form-fields";
+import { MenuMealFields } from "./menu-meal-fields";
 import styles from "./operational-catalog.module.css";
 
 const groupNames: Record<MenuOptionGroup["kind"], string> = {
@@ -124,6 +125,9 @@ export function MenuProductChoices({ product, ingredients, onChange }: {
     {!product.groups && product.options.map(option => <MenuOptionForm key={option.id} option={option} baseRecipe={product.ingredients} ingredients={ingredients}
       onChange={change => onChange({ options: product.options.map(item => item.id === option.id ? { ...item, ...change } : item) })}
       onRemove={() => onChange({ options: product.options.filter(item => item.id !== option.id) })} />)}
+    {productType(product) === "box" && <Button type="button" variant="secondary" onClick={() => onChange({ groups: [...groups, {
+      id: crypto.randomUUID(), name: "", kind: "selection", min: 1, max: 1, allowRepeat: false, optionIds: []
+    }] })}>Aggiungi gruppo di scelte</Button>}
   </>;
 }
 
@@ -143,6 +147,7 @@ export function MenuProductForm({ storeId, product, index, ingredients, products
   onUpload: (image: File) => void;
 }) {
   const [failedImage, setFailedImage] = useState<string>();
+  const type = productType(product);
   const imageSource = product.imageId ? menuImagePath(storeId, product.imageId) : undefined;
   const groups = product.groups ?? [];
   const presets = Object.entries(PIZZA_EXTRA_OFFERS);
@@ -180,13 +185,15 @@ export function MenuProductForm({ storeId, product, index, ingredients, products
       onChange={event => onChange({ description: event.target.value })} /></label>
     <label className={styles.check}><input type="checkbox" checked={product.available}
       onChange={event => onChange({ available: event.target.checked })} />Disponibile per l’ordinazione</label>
-    <MenuRecipeFields label="Ricetta base" recipe={product.ingredients} ingredients={ingredients} onChange={changeRecipe} singleUnit />
+    {type !== "meal" && <MenuRecipeFields label="Ricetta base" recipe={product.ingredients} ingredients={ingredients} onChange={changeRecipe} singleUnit />}
+    {type === "meal" && <MenuMealFields product={product} products={products} onChange={onChange} />}
+    {type === "sandwich" && <p className={styles.small}>Gli ingredienti inclusi sono rimovibili dal cliente. Gli extra comuni si gestiscono nel Magazzino.</p>}
     {product.allergens.length > 0 && <div className={styles.row}>
       <p className={styles.small}>Allergeni del catalogo precedente · {product.allergens.join(", ")}</p>
       <Button type="button" variant="ghost" onClick={() => onChange({ allergens: [] })}>Rimuovi diciture precedenti</Button>
     </div>}
-    <MenuProductChoices product={product} ingredients={ingredients} onChange={onChange} />
-    {(groups.some(group => group.kind === "extras") || currentOffer) && <label>Formula sconto extra
+    {type !== "meal" && type !== "sandwich" && <MenuProductChoices product={product} ingredients={ingredients} onChange={onChange} />}
+    {type !== "meal" && type !== "sandwich" && (groups.some(group => group.kind === "extras") || currentOffer) && <label>Formula sconto extra
       <select value={selectedOffer} onChange={event => onChange({ extraOffer: presets.find(([name]) => name === event.target.value)?.[1] })}>
         <option value="">Nessuna formula</option>
         {selectedOffer === "personalizzata" && <option value="personalizzata">{currentOffer?.quota} extra, {currentOffer?.percent}%</option>}

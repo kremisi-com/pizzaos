@@ -9,6 +9,7 @@ import { OrderingError } from "./ordering-service";
 import { normalizePromotionSelection } from "./promotions/selection";
 import { registerMenuRoutes } from "./menu-http";
 import { validateMenuSelections } from "./menu-catalog";
+import { validateMealSelections } from "./product-types";
 import type { MenuImages } from "./menu-images";
 import { storeAddressLimit } from "./store-address";
 import { authorizeOrderingSiteRoute, findOrderingSite, orderingSubdomainForOrigin, type OrderingSite, type OrderingSites } from "./ordering-sites";
@@ -35,7 +36,10 @@ const line = { type: "object", additionalProperties: false, required: ["productI
   kind: { enum: ["product", "pizza_taste", "pizza_formula"] }, productId: text, quantity: { type: "integer", minimum: 1, maximum: 100 },
   optionIds: { type: "array", maxItems: 50, uniqueItems: true, items: text }, notes,
   selections: { type: "array", maxItems: 50, items: { type: "object", additionalProperties: false,
-    required: ["optionId", "quantity"], properties: { optionId: text, quantity: { type: "integer", minimum: 1, maximum: 100 } } } }
+    required: ["optionId", "quantity"], properties: { optionId: text, quantity: { type: "integer", minimum: 1, maximum: 100 } } } },
+  mealSelections: { type: "array", maxItems: 30, items: { type: "object", additionalProperties: false,
+    required: ["stepId", "productId", "removedIngredientIds", "notes"], properties: { stepId: text, productId: text,
+      removedIngredientIds: { type: "array", maxItems: 100, uniqueItems: true, items: text }, notes: { type: "string", maxLength: 1000 } } } }
 } };
 const cart = { type: "object", additionalProperties: false, required: ["storeId", "lines", "mode", "slotId", "notes"], properties: {
   storeId: text, lines: { type: "array", minItems: 1, maxItems: 100, items: line },
@@ -74,6 +78,7 @@ const store = { type: "object", additionalProperties: false, required: ["id", "n
   } } },
   products: { type: "array", maxItems: 1000, items: { type: "object", additionalProperties: false, required: ["id", "name", "description", "priceCents", "available", "allergens", "ingredients", "options"], properties: {
     id: text, name: text, description: notes, priceCents: cents, available: { type: "boolean" }, ingredients: recipe,
+    productType: { enum: ["pizza", "sandwich", "product", "box", "meal"] }, meal: { type: "object" },
     allergens: { type: "array", maxItems: 50, items: text },
     options: { type: "array", maxItems: 100, items: { type: "object", additionalProperties: false, required: ["id", "name", "priceCents", "ingredients"], properties: { id: text, name: text, priceCents: cents, ingredients: recipe } } }
   } } },
@@ -192,8 +197,9 @@ export function buildOrderingApp(options: OrderingHttpOptions) {
     if (Array.isArray(cartInput.lines)) for (const entry of cartInput.lines) {
       if (!entry || typeof entry !== "object" || Array.isArray(entry)) return invalid();
       const row = entry as Record<string, unknown>;
-      if (Object.keys(row).some(key => !["kind", "productId", "quantity", "optionIds", "notes", "selections"].includes(key)) || typeof row.quantity !== "number" || typeof row.productId !== "string" || typeof row.notes !== "string" || !Array.isArray(row.optionIds) || row.optionIds.some(value => typeof value !== "string")) return invalid();
+      if (Object.keys(row).some(key => !["kind", "productId", "quantity", "optionIds", "notes", "selections", "mealSelections"].includes(key)) || typeof row.quantity !== "number" || typeof row.productId !== "string" || typeof row.notes !== "string" || !Array.isArray(row.optionIds) || row.optionIds.some(value => typeof value !== "string")) return invalid();
       if (row.selections !== undefined) validateMenuSelections(row.selections, message => { throw new OrderingError("invalid_input", message); });
+      if (row.mealSelections !== undefined) validateMealSelections(row.mealSelections, message => { throw new OrderingError("invalid_input", message); });
     }
     if (cartInput.address !== undefined) {
       if (!cartInput.address || typeof cartInput.address !== "object" || Array.isArray(cartInput.address)) return invalid();
@@ -203,14 +209,27 @@ export function buildOrderingApp(options: OrderingHttpOptions) {
   }
   app.post<{ Body: { cart: IndividualCart } }>("/v1/pilot/quote", { preValidation: rawEconomicInput, schema: { body: { type: "object", required: ["cart"], additionalProperties: false, properties: { cart } } } }, async request => service.quote(request.body.cart, await options.authenticate(request)));
   app.post<{ Body: IndividualCheckout }>("/v1/pilot/checkouts", { preValidation: rawEconomicInput, schema: { body: { type: "object", required: ["cart", "fingerprint", "phone", "method", "idempotencyKey"], additionalProperties: false, properties: { cart, fingerprint: text, phone: text, method: { enum: ["card", "cash"] }, idempotencyKey: text } } } }, async request => service.checkout(await options.authenticate(request), request.body));
+  async function rawAdditionInput(request: FastifyRequest) {
+    const value = request.body;
+    if (!value || typeof value !== "object" || Array.isArray(value)) throw new OrderingError("invalid_input", "Aggiunta non valida.");
+    const input = value as Record<string, unknown>;
+    const allowed = request.routeOptions.url?.endsWith("/quote") ? ["lines"] : ["lines", "fingerprint", "idempotencyKey"];
+    if (Object.keys(input).some(key => !allowed.includes(key)) || !Array.isArray(input.lines)) throw new OrderingError("invalid_input", "Aggiunta non valida.");
+    for (const value of input.lines) {
+      if (!value || typeof value !== "object" || Array.isArray(value)) throw new OrderingError("invalid_input", "Riga aggiunta non valida.");
+      const row = value as Record<string, unknown>;
+      if (Object.keys(row).some(key => !["kind", "productId", "quantity", "optionIds", "notes", "selections", "mealSelections"].includes(key))) throw new OrderingError("invalid_input", "Campi riga non validi.");
+      if (row.mealSelections !== undefined) validateMealSelections(row.mealSelections, message => { throw new OrderingError("invalid_input", message); });
+    }
+  }
   app.get<{ Querystring: { storeId?: string } }>("/v1/pilot/orders", async request => {
     const actor = await authenticate(request);
     const site = requestSites.get(request);
     return site ? service.orders(actor, undefined, site.storeId) : service.orders(actor, request.query.storeId);
   });
   app.post<{ Params: { id: string } }>("/v1/pilot/orders/:id/reconcile", async request => service.reconcile(await authenticate(request), request.params.id));
-  app.post<{ Params: { id: string }; Body: { lines: IndividualLine[] } }>("/v1/pilot/orders/:id/additions/quote", { schema: { body: { type: "object", required: ["lines"], additionalProperties: false, properties: { lines: { type: "array", minItems: 1, maxItems: 100, items: line } } } } }, async request => service.additionQuote(await authenticate(request), request.params.id, request.body.lines));
-  app.post<{ Params: { id: string }; Body: IndividualAdditionRequest }>("/v1/pilot/orders/:id/additions", { schema: { body: { type: "object", required: ["lines", "fingerprint", "idempotencyKey"], additionalProperties: false, properties: { lines: { type: "array", minItems: 1, maxItems: 100, items: line }, fingerprint: text, idempotencyKey: text } } } }, async request => service.additions(await authenticate(request), request.params.id, request.body));
+  app.post<{ Params: { id: string }; Body: { lines: IndividualLine[] } }>("/v1/pilot/orders/:id/additions/quote", { preValidation: rawAdditionInput, schema: { body: { type: "object", required: ["lines"], additionalProperties: false, properties: { lines: { type: "array", minItems: 1, maxItems: 100, items: line } } } } }, async request => service.additionQuote(await authenticate(request), request.params.id, request.body.lines));
+  app.post<{ Params: { id: string }; Body: IndividualAdditionRequest }>("/v1/pilot/orders/:id/additions", { preValidation: rawAdditionInput, schema: { body: { type: "object", required: ["lines", "fingerprint", "idempotencyKey"], additionalProperties: false, properties: { lines: { type: "array", minItems: 1, maxItems: 100, items: line }, fingerprint: text, idempotencyKey: text } } } }, async request => service.additions(await authenticate(request), request.params.id, request.body));
   app.post<{ Params: { id: string }; Body: IndividualAction }>("/v1/pilot/orders/:id/actions", { schema: { body: { type: "object", additionalProperties: false, required: ["action"], properties: { action: { enum: ["accept", "wait_for_customer", "cancel", "prepare", "ready", "dispatch", "complete", "retry_refund"] }, unavailableProductIds: { type: "array", uniqueItems: true, maxItems: 100, items: text } } } } }, async request => service.action(await authenticate(request), request.params.id, request.body, requestSites.has(request)));
   app.patch<{ Params: { id: string }; Body: { notes: string } }>("/v1/pilot/orders/:id/notes", { schema: { body: { type: "object", required: ["notes"], additionalProperties: false, properties: { notes } } } }, async request => service.notes(await authenticate(request), request.params.id, request.body.notes));
   app.post<{ Params: { id: string }; Body: { query: string } }>("/v1/pilot/stores/:id/address-search", {

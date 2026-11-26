@@ -8,7 +8,7 @@ import type {
 import { useCallback, useEffect, useRef, useState } from "react";
 import { QRCodeSVG } from "qrcode.react";
 import { DeliveryAddressField, hasDeliveryPoint, IndividualStripeFields, OrderSlotSelect, type ConfirmIndividualPayment } from "../../individual-ordering";
-import { appendMenuLine, MenuLineDetails, MenuLineEditor, OperationalMenu, useMenuPreferences } from "../../menu";
+import { appendMenuLine, MealCompositionDetails, MenuLineDetails, MenuLineEditor, OperationalMenu, useMenuPreferences } from "../../menu";
 import { PromotionSelectionPanel, PromotionSummary } from "../../promotions";
 import styles from "./persistent-group-screen.module.css";
 
@@ -248,8 +248,8 @@ export function PersistentGroupScreen({ api, individualApi, promotionsApi, prefe
               const quantity = Number(event.target.value); if (Number.isInteger(quantity) && quantity >= 1 && quantity <= 100) editLines(ownLines.map((item, i) => i === index ? { ...item, quantity } : item));
             }} /></label><button type="button" className={styles.secondary} onClick={() => editLines(ownLines.filter((_, i) => i !== index))}>Rimuovi mia scelta</button></div>
               <label>Note per {title}<input maxLength={500} value={line.notes} onChange={event => editLines(ownLines.map((item, i) => i === index ? { ...item, notes: event.target.value } : item))} /></label>
-              <MenuLineDetails product={product} line={line} avoid={preferences.avoid} showUnknown={Boolean(store?.menu)} />
-              {store && product && product.options.length > 0 && <MenuLineEditor store={store} product={product} line={line} disabled={busy} avoid={preferences.avoid}
+              <MenuLineDetails product={product} line={line} products={store?.products} avoid={preferences.avoid} showUnknown={Boolean(store?.menu)} />
+              {store && product && (product.options.length > 0 || product.meal) && <MenuLineEditor store={store} product={product} line={line} disabled={busy} avoid={preferences.avoid}
                 onSave={updated => void run(() => saveOwn(ownLines.map((item, i) => i === index ? updated : item)))} />}
             </li>;
           })}</ul><button type="button" disabled={!dirty} onClick={() => void run(() => saveOwn(ownLines))}>Salva le mie scelte</button></fieldset>
@@ -259,8 +259,8 @@ export function PersistentGroupScreen({ api, individualApi, promotionsApi, prefe
           const product = store?.products.find(item => item.id === line.productId);
           return <li key={`${line.productId}-${index}`}>
           <strong>{line.quantity} × {product?.name ?? line.productId}</strong>{line.notes && <p>{line.notes}</p>}
-          <MenuLineDetails product={product} line={line} />
-          {host && !person.host && group.status !== "submitted" && store && product && product.options.length > 0 &&
+          <MenuLineDetails product={product} line={line} products={store?.products} />
+          {host && !person.host && group.status !== "submitted" && store && product && (product.options.length > 0 || product.meal) &&
             <MenuLineEditor store={store} product={product} line={line} disabled={busy || pending || dirty} avoid={[]}
               onSave={updated => void run(async () => {
                 const lines = person.lines.map((item, current) => current === index ? updated : item);
@@ -284,7 +284,8 @@ export function PersistentGroupScreen({ api, individualApi, promotionsApi, prefe
         {promotionsApi && <PromotionSelectionPanel api={promotionsApi} storeId={group.storeId} selection={fulfillment.benefits} disabled={busy || pending} onChange={benefits => changeFulfillment({ ...fulfillment, benefits })} onTermsChange={invalidateQuote} />}
         <button type="button" disabled={!canCheckout || dirty || !group.participants.some(person => person.lines.length) || (fulfillment.mode === "delivery" && !hasDeliveryPoint(fulfillment.address))} onClick={() => void run(verify)}>Verifica totale gruppo</button>
         {validQuote && <section aria-label="Riepilogo da confermare"><h3>Riepilogo da confermare</h3>{quote.quote.lines.map((line, index) => <p key={`${line.productId}-${index}`}>{line.quantity} × {line.name} · {money(line.quantity * line.unitCents)}<br /><span className={styles.small}>{line.notes}</span>
-          {Boolean(line.composition?.choices.length) && <><br /><span className={styles.small}>{line.composition?.choices.map(choice => `${choice.quantity > 1 ? `${choice.quantity} × ` : ""}${choice.name}`).join(", ")}</span></>}
+          <MealCompositionDetails composition={line.composition} />
+            {Boolean(line.composition?.choices.length) && <><br /><span className={styles.small}>{line.composition?.choices.map(choice => `${choice.quantity > 1 ? `${choice.quantity} × ` : ""}${choice.name}`).join(", ")}</span></>}
         </p>)}
           <PromotionSummary quote={quote.quote} />
           {!quote.quote.promotions && <><p>Consegna: {money(quote.quote.deliveryCents)}</p><p className={styles.total}>Totale: <strong>{money(quote.quote.totalCents)}</strong></p></>}<p>Orario: {formatOrderWindow(quote.quote.slotStartsAt, quote.quote.slotEndsAt, quote.quote.slotTimeZone)}</p></section>}

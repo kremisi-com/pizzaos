@@ -1,4 +1,4 @@
-import type { IndividualCart, IndividualDraft, MenuSelection, PromotionSelection } from "@pizzaos/domain";
+import type { IndividualCart, IndividualDraft, MealSelection, MenuSelection, PromotionSelection } from "@pizzaos/domain";
 
 const KEY = "pizzaos.individual-cart.v1";
 const MAX_AGE = 7 * 24 * 60 * 60 * 1000;
@@ -20,6 +20,16 @@ function isMenuSelection(value: unknown): value is MenuSelection {
     && Number.isInteger(selection.quantity) && (selection.quantity ?? 0) > 0;
 }
 
+function isMealSelection(value: unknown): value is MealSelection {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return false;
+  const selection = value as Partial<MealSelection>;
+  return typeof selection.stepId === "string" && selection.stepId.length > 0
+    && typeof selection.productId === "string" && selection.productId.length > 0
+    && typeof selection.notes === "string" && selection.notes.length <= 1000
+    && Array.isArray(selection.removedIngredientIds) && selection.removedIngredientIds.every(id => typeof id === "string")
+    && new Set(selection.removedIngredientIds).size === selection.removedIngredientIds.length;
+}
+
 export function isIndividualCart(value: unknown): value is IndividualCart {
   if (!value || typeof value !== "object") return false;
   const cart = value as Partial<IndividualCart>;
@@ -32,7 +42,9 @@ export function isIndividualCart(value: unknown): value is IndividualCart {
       && Number.isInteger(line.quantity) && line.quantity > 0 && typeof line.notes === "string"
       && Array.isArray(line.optionIds) && line.optionIds.every((id: unknown) => typeof id === "string")
       && (line.selections === undefined || (Array.isArray(line.selections) && line.selections.every(isMenuSelection)
-        && new Set(line.selections.map(selection => selection.optionId)).size === line.selections.length)))
+        && new Set(line.selections.map(selection => selection.optionId)).size === line.selections.length))
+      && (line.mealSelections === undefined || (Array.isArray(line.mealSelections) && line.mealSelections.every(isMealSelection)
+        && new Set(line.mealSelections.map(selection => selection.stepId)).size === line.mealSelections.length)))
     && (cart.address === undefined || (typeof cart.address.text === "string"
       && Number.isFinite(cart.address.latitude) && Number.isFinite(cart.address.longitude)));
 }
@@ -69,7 +81,8 @@ export function copyIndividualCart(cart: IndividualCart): IndividualCart {
     lines: cart.lines.map(line => ({
       ...(line.kind ? { kind: line.kind } : {}),
       productId: line.productId, quantity: line.quantity, optionIds: [...line.optionIds], notes: line.notes,
-      ...(line.selections ? { selections: line.selections.map(({ optionId, quantity }) => ({ optionId, quantity })) } : {})
+      ...(line.selections ? { selections: line.selections.map(({ optionId, quantity }) => ({ optionId, quantity })) } : {}),
+      ...(line.mealSelections ? { mealSelections: line.mealSelections.map(({ stepId, productId, removedIngredientIds, notes }) => ({ stepId, productId, removedIngredientIds: [...removedIngredientIds], notes })) } : {})
     })),
     mode: cart.mode, slotId: cart.slotId, notes: cart.notes,
     ...(cart.benefits ? { benefits: { couponCodes: [...cart.benefits.couponCodes], redeemReward: cart.benefits.redeemReward } } : {}),

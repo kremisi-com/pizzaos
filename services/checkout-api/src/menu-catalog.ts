@@ -1,5 +1,6 @@
 import { menuAllergenKey, type FoodPreferences, type IndividualProduct, type IndividualStore,
   type MenuDraft, type MenuFoodInformation, type MenuSelection, type MenuWorkspace } from "@pizzaos/domain";
+import { validateProductType } from "./product-types";
 
 type Invalid = (message: string) => never;
 const kinds = new Set(["dough", "base", "format", "ingredients", "extras", "recipe", "selection"]);
@@ -100,10 +101,11 @@ export function validateMenuDraft(draft: MenuDraft, store: IndividualStore, inva
       }
     }
     if (!only(product as unknown as Record<string, unknown>,
-      ["id", "name", "description", "priceCents", "available", "allergens", "ingredients", "options", "groups", "extraOffer", "pairingProductIds", "imageId", "food", "pizza", "pizzaRecipeSources"])) invalid("Prodotto del menu non valido.");
+      ["id", "name", "description", "priceCents", "available", "allergens", "ingredients", "options", "groups", "extraOffer", "pairingProductIds", "imageId", "food", "pizza", "pizzaRecipeSources", "productType", "meal"])) invalid("Prodotto del menu non valido.");
+    validateProductType(product, draft.products, invalid, publishing);
     if (product.imageId !== undefined && !isId(product.imageId)) invalid("Foto prodotto non valida.");
     if (product.food !== undefined) validateMenuFood(product.food, invalid);
-    if (product.options.length > (product.pizza ? 500 : 100)) invalid("Il prodotto ha troppe opzioni.");
+    if (product.options.length > (product.pizza || product.productType === "sandwich" ? 500 : 100)) invalid("Il prodotto ha troppe opzioni.");
     if (product.pairingProductIds !== undefined && (!isUniqueStrings(product.pairingProductIds, 20) ||
       product.pairingProductIds.some(id => id === product.id || (!productIds.has(id) && !hiddenFormulaIds.has(id))))) invalid("Controlla gli abbinamenti del prodotto.");
     for (const option of product.options) {
@@ -129,7 +131,7 @@ function validateGroups(product: IndividualProduct, invalid: Invalid, publishing
     const label = isMenuRecord(group) && isText(group.name) ? `Il gruppo «${group.name}»` : `Il gruppo ${index + 1}`;
     if (!isMenuRecord(group) || !only(group, ["id", "name", "kind", "min", "max", "allowRepeat", "optionIds"]) ||
       !isId(group.id) || groupIds.has(group.id)) invalid(`Il gruppo ${index + 1} contiene dati non validi. Rimuovilo e aggiungilo di nuovo.`);
-    if (!isText(group.name)) invalid(`Inserisci un nome per il gruppo ${index + 1}.`);
+    if (typeof group.name !== "string" || group.name.length > 200 || publishing && !isText(group.name)) invalid(`Inserisci un nome per il gruppo ${index + 1}.`);
     if (!kinds.has(group.kind)) invalid(`${label}: seleziona un tipo di scelta valido.`);
     if (!whole(group.min, 0, 100)) invalid(`${label}: la quantità minima deve essere un numero intero da 0 a 100.`);
     if (!whole(group.max, group.min, 100)) invalid(`${label}: la quantità massima deve essere un numero intero maggiore o uguale alla minima, fino a 100.`);

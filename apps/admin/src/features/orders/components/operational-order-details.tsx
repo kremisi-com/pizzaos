@@ -58,6 +58,12 @@ export function OperationalOrderDetails({ order, timeZone, busy, action }: {
     <ul>{order.quote.lines.map((line, index) => <li key={`${line.productId}-${index}`}>
       <strong>{line.quantity} × {line.name}</strong>
       {line.composition && <>
+        {line.composition.mealSteps?.map(step => <div key={step.stepId} className={styles.small}>
+          <strong>{step.name}: {step.productName}</strong>{step.priceCents !== 0 && ` (${step.priceCents > 0 ? "+" : ""}${money(step.priceCents)})`}
+          {step.composition.choices.length > 0 && <p>{step.composition.choices.map(choice => choice.name).join(" · ")}</p>}
+          {step.composition.ingredients.length > 0 && <p>Ingredienti · {step.composition.ingredients.join(", ")}</p>}
+          {step.notes && <p>Note cucina: {step.notes}</p>}
+        </div>)}
         {line.composition.choices.length > 0 && <p>{line.composition.choices.map(choice => (
           choice.quantity > 1 ? `${choice.quantity} × ${choice.name}` : choice.name
         )).join(" · ")}</p>}

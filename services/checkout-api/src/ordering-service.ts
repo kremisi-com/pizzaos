@@ -1,8 +1,9 @@
 import { preparePizzaMenu } from "./pizza-catalog";
 import { inventoryExtraProducts } from "./inventory-extras";
+import { normalizeProductTypes, validateImmutableProductTypes, validateMealSelections, validateProductType } from "./product-types";
 import { bypassStock, hasZeroStock, trackedRecipe } from "./stock-availability";
 import { createHash, randomUUID } from "node:crypto";
-import { createDefaultWeeklyOrderSchedule, isOrderingSubdomain, resolveMenuComposition } from "@pizzaos/domain";
+import { createDefaultWeeklyOrderSchedule, isOrderingSubdomain, productType, resolveMealComposition, resolveMenuComposition } from "@pizzaos/domain";
 import type {
   IndividualActor, IndividualCart, IndividualCheckoutResult, IndividualErrorCode,
   IndividualOrder, IndividualProduct, IndividualQuote, IndividualSlot, IndividualStore, MenuDraft, MenuWorkspace, IndividualAction, IndividualAddition, IndividualAdditionQuote, IndividualLine
@@ -80,7 +81,7 @@ function recipeValid(recipe: unknown, ingredientIds: Set<string>): asserts recip
     if (quantity !== null) integer(quantity, 1);
   }
 }
-export function validateStoreConfiguration(store: IndividualStore): void {
+export function validateStoreConfiguration(store: IndividualStore, allowIncompleteProductNames = false): void {
   if (!record(store)) fail("invalid_input", "Configurazione sede non valida.");
   identifier(store.id); text(store.name); coordinate(store.latitude, 90); coordinate(store.longitude, 180);
   if (store.address !== undefined) text(store.address, storeAddressLimit);
@@ -112,12 +113,12 @@ export function validateStoreConfiguration(store: IndividualStore): void {
   const ids = new Set(store.ingredients.map(item => item.id));
   for (const product of store.products) {
     if (!record(product)) fail("invalid_input", "Prodotto non valido.");
-    identifier(product.id); text(product.name); text(product.description, 2000, true); integer(product.priceCents);
+    identifier(product.id); text(product.name, 200, allowIncompleteProductNames); text(product.description, 2000, true); integer(product.priceCents);
     if (typeof product.available !== "boolean" || !Array.isArray(product.options) || !Array.isArray(product.allergens)) fail("invalid_input", "Prodotto incompleto.");
     product.allergens.forEach(allergen => text(allergen)); recipeValid(product.ingredients, ids);
     for (const option of product.options) {
       if (!record(option)) invalid("Opzione prodotto non valida.");
-      identifier(option.id); text(option.name); integer(option.priceCents, product.pizza ? -Number.MAX_SAFE_INTEGER : 0); recipeValid(option.ingredients, ids);
+      identifier(option.id); text(option.name, 200, allowIncompleteProductNames); integer(option.priceCents, product.pizza ? -Number.MAX_SAFE_INTEGER : 0); recipeValid(option.ingredients, ids);
     }
     unique(product.options.map(option => option.id));
   }
@@ -141,7 +142,7 @@ function validCart(value: IndividualCart): void {
   if (!Array.isArray(value.lines) || value.lines.length === 0 || value.lines.length > 100) fail("invalid_input", "Inserisci almeno un prodotto.");
   for (const line of value.lines) {
     if (!record(line)) fail("invalid_input", "Riga carrello non valida.");
-    if (Object.keys(line).some(key => !["kind", "productId", "quantity", "notes", "optionIds", "selections"].includes(key))) fail("invalid_input", "Campi riga non validi.");
+    if (Object.keys(line).some(key => !["kind", "productId", "quantity", "notes", "optionIds", "selections", "mealSelections"].includes(key))) fail("invalid_input", "Campi riga non validi.");
     if (line.kind !== undefined && !["product", "pizza_taste", "pizza_formula"].includes(line.kind)) invalid("Tipo di riga non valido.");
     text(line.productId); integer(line.quantity, 1); text(line.notes, 1000, true);
     if (line.quantity > 100 || !Array.isArray(line.optionIds)) fail("invalid_input", "Quantità o opzioni non valide.");
@@ -149,6 +150,10 @@ function validCart(value: IndividualCart): void {
     if (line.selections !== undefined) {
       if (line.optionIds.length) invalid("Usa un solo formato per le scelte prodotto.");
       validateMenuSelections(line.selections, invalid);
+    }
+    if (line.mealSelections !== undefined) {
+      if (line.optionIds.length || line.selections?.length) invalid("Il Menu ammette solo le scelte delle proprie fasi.");
+      validateMealSelections(line.mealSelections, invalid);
     }
   }
   if (value.mode === "delivery") {
@@ -162,7 +167,9 @@ function cleanCart(cart: IndividualCart): IndividualCart {
     storeId: cart.storeId, mode: cart.mode, slotId: cart.slotId, notes: cart.notes,
     lines: cart.lines.map(line => ({ ...(line.kind ? { kind: line.kind } : {}), productId: line.productId, quantity: line.quantity, notes: line.notes, optionIds: [...line.optionIds].sort(),
       ...(line.selections !== undefined ? { selections: [...line.selections].sort((left, right) => left.optionId.localeCompare(right.optionId))
-        .map(({ optionId, quantity }) => ({ optionId, quantity })) } : {}) })),
+        .map(({ optionId, quantity }) => ({ optionId, quantity })) } : {}),
+      ...(line.mealSelections !== undefined ? { mealSelections: [...line.mealSelections].sort((left, right) => left.stepId.localeCompare(right.stepId))
+        .map(({ stepId, productId, removedIngredientIds, notes }) => ({ stepId, productId, removedIngredientIds: [...removedIngredientIds].sort(), notes })) } : {}) })),
     ...(cart.benefits && (cart.benefits.couponCodes.length || cart.benefits.redeemReward) ? { benefits: normalizePromotionSelection(cart.benefits) } : {}),
     ...(cart.mode === "delivery" && cart.address ? { address: { text: cart.address.text, latitude: cart.address.latitude, longitude: cart.address.longitude } } : {})
   };
@@ -306,6 +313,16 @@ export function createOrderingService(options: OrderingServiceOptions): RiderOrd
       };
       const optionIds = [...line.optionIds].sort();
       const result = { productId: product.id, name: product.name, quantity: line.quantity, unitCents: product.priceCents, optionIds, notes: line.notes };
+      if (productType(product) === "meal") {
+        if (line.optionIds.length || line.selections?.length) invalid("Il Menu ammette solo le scelte delle proprie fasi.");
+        const resolved = resolveMealComposition(describeFood(product, store), line.mealSelections ?? [], products.map(item => describeFood(item, store)));
+        if (!resolved.valid) fail("customization_changed", "Controlla le fasi e le personalizzazioni del Menu.");
+        addRecipe(resolved.recipe);
+        subtotalCents += resolved.unitCents * line.quantity;
+        if (!Number.isSafeInteger(subtotalCents)) invalid("Totale non valido.");
+        return { ...result, unitCents: resolved.unitCents, composition: resolved.composition };
+      }
+      if (line.mealSelections !== undefined) invalid("Le fasi sono disponibili soltanto per un Menu.");
       if (store.menu || product.groups) {
         const selections = line.selections ?? optionIds.map(optionId => ({ optionId, quantity: 1 }));
         const ordered = [...selections].sort((left, right) => left.optionId.localeCompare(right.optionId));
@@ -643,6 +660,27 @@ export function createOrderingService(options: OrderingServiceOptions): RiderOrd
     publicStore.products = products
       .filter(product => !hiddenProductIds.has(product.id))
       .map(product => publicProduct(product, store, reserved));
+    const described = products.map(product => describeFood(product, store));
+    for (const meal of publicStore.products.filter(product => productType(product) === "meal")) {
+      const source = products.find(product => product.id === meal.id)!;
+      const steps = source.meal?.steps ?? [];
+      const available = steps.length > 0 && steps.every(step => step.alternatives.some(alternative => {
+        if (hiddenProductIds.has(alternative.productId)) return false;
+        const resolved = resolveMealComposition({ ...source, priceCents: 0, meal: { steps: [{ ...step,
+          alternatives: [{ ...alternative, priceCents: 0 }] }] } }, [{ stepId: step.id, productId: alternative.productId, removedIngredientIds: [], notes: "" }], described);
+        return resolved.valid && Object.entries(resolved.recipe).every(([id, units]) => {
+          const ingredient = store.ingredients.find(item => item.id === id);
+          return ingredient && (bypassStock(ingredient, store) || ingredient.stock !== 0
+            && (units === null || (ingredient.stock ?? 0) - (reserved[id] ?? 0) >= units));
+        });
+      }));
+      meal.available = meal.available && available;
+      meal.soldOut = source.available && !available;
+      if (store.outOfStockBehavior === "hide" && meal.soldOut) hiddenProductIds.add(meal.id);
+      if (meal.meal) meal.meal = { steps: meal.meal.steps.map(step => ({ ...step,
+        alternatives: step.alternatives.filter(alternative => !hiddenProductIds.has(alternative.productId)) })) };
+    }
+    publicStore.products = publicStore.products.filter(product => !hiddenProductIds.has(product.id));
     for (const product of publicStore.products) {
       if (product.pairingProductIds) product.pairingProductIds = product.pairingProductIds.filter(id => !hiddenProductIds.has(id));
     }
@@ -751,8 +789,11 @@ export function createOrderingService(options: OrderingServiceOptions): RiderOrd
           menuRevision(current, revision);
           validateDraftHeader(draft, invalid);
           if (draft.id === current.published.id) invalid("Duplica il menu pubblicato per modificarlo.");
+          validateImmutableProductTypes(draft, current, invalid);
           draft = preparePizzaMenu(draft, new Set(store.ingredients.map(item => item.id)), invalid, false, store.ingredients);
-          validateStoreConfiguration({ ...store, products: draft.products });
+          validateStoreConfiguration({ ...store, products: draft.products }, true);
+          draft = normalizeProductTypes(draft, store.ingredients);
+          validateStoreConfiguration({ ...store, products: draft.products }, true);
           validateMenuDraft(draft, store, invalid);
           const previous = current.drafts.findIndex(item => item.id === draft.id);
           if (previous < 0 && current.drafts.length >= 20) invalid("Hai raggiunto il numero massimo di bozze.");
@@ -784,6 +825,11 @@ export function createOrderingService(options: OrderingServiceOptions): RiderOrd
           let draft = current.drafts.find(item => item.id === draftId);
           if (!draft) fail("not_found", "Bozza del menu non trovata.");
           draft = preparePizzaMenu(draft, new Set(store.ingredients.map(item => item.id)), invalid, true, store.ingredients);
+          validateStoreConfiguration({ ...store, products: draft.products });
+          if (draft.products.some(product => productType(product) === "sandwich")) for (const item of store.ingredients.filter(item => item.extra?.enabled)) {
+            if (item.extra?.priceCents == null) invalid(`«${item.name}»: verifica il prezzo extra nel Magazzino prima di pubblicare.`);
+          }
+          draft = normalizeProductTypes(draft, store.ingredients);
           validateStoreConfiguration({ ...store, products: draft.products });
           validateMenuDraft(draft, store, invalid, true);
           const { products, ...menu } = copy(draft);
@@ -1055,6 +1101,11 @@ export function createOrderingService(options: OrderingServiceOptions): RiderOrd
           delete next.menu;
         }
         validateStoreConfiguration(next);
+        if (!existing?.menu) {
+          if (existing) validateImmutableProductTypes(initialMenuWorkspace(next).published, initialMenuWorkspace(existing), invalid);
+          next = { ...next, products: normalizeProductTypes(initialMenuWorkspace(next).published, next.ingredients).products };
+          for (const product of next.products) validateProductType(product, next.products, invalid, true);
+        }
         if (next.menu) validateMenuDraft({ ...next.menu, products: next.products }, next, invalid, true, false);
         if (existing) protectCalendarChanges(state, existing, next, instant, occupied);
         const saved = copy(next);

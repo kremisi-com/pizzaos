@@ -14,6 +14,12 @@ export function emailText(order: IndividualOrder, title: string, date: string, t
       return [
         `${line.quantity} × ${line.name} — ${money(line.unitCents * line.quantity)}`,
         choices?.length ? choices.join(" · ") : "",
+        ...(line.composition?.mealSteps?.map(step => [
+          `${step.name}: ${step.productName}${step.priceCents ? ` (${step.priceCents > 0 ? "+" : ""}${money(step.priceCents)})` : ""}`,
+          step.composition.ingredients.length ? `Ingredienti: ${step.composition.ingredients.join(", ")}` : "",
+          ...step.composition.choices.map(choice => choice.name),
+          step.notes ? `Note cucina: ${step.notes}` : ""
+        ].filter(Boolean).join("\n")) ?? []),
         line.notes ? `Note prodotto / partecipante: ${line.notes}` : ""
       ].filter(Boolean).join("\n");
     }),

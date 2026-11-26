@@ -35,6 +35,7 @@ export interface MenuSelection {
 }
 
 export interface MenuComposition {
+  mealSteps?: { stepId: string; name: string; productId: string; productName: string; priceCents: number; removedIngredientIds: string[]; removedIngredientNames?: string[]; notes: string; composition: MenuComposition }[];
   choices: (MenuSelection & { name: string; subtotalCents: number })[];
   ingredients: string[];
   contains: string[];

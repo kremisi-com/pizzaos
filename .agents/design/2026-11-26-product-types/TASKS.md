@@ -1,0 +1,1 @@
+- [x] **product-types**: Contratti, tipi immutabili, Panino, Box, Menu sequenziale, integrazione autorevole e verifica completa.

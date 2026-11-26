@@ -1,5 +1,5 @@
-import { materializePizzaMenu, planProductClassification, PIZZA_EXTRA_OFFERS, simplifyPizzaInventory, syncPizzaInventory } from "@pizzaos/domain";
-import type { IndividualIngredient, IndividualProduct, MenuDraft, OrderingMenuSection, PizzaEntry } from "@pizzaos/domain";
+import { materializePizzaMenu, productType, PIZZA_EXTRA_OFFERS, simplifyPizzaInventory, syncPizzaInventory } from "@pizzaos/domain";
+import type { IndividualIngredient, IndividualProduct, MenuDraft, OrderingMenuSection, PizzaEntry, ProductType } from "@pizzaos/domain";
 import { Button } from "@pizzaos/ui";
 import { useState } from "react";
 import { MenuProductForm } from "./menu-product-form";
@@ -45,8 +45,7 @@ export function MenuDraftEditor({ draft: sourceDraft, storeId, ingredients, onCh
   const [editingSectionId, setEditingSectionId] = useState("");
   const [settings, setSettings] = useState(false);
   const [activeSectionId, setActiveSectionId] = useState("");
-  const [classification, setClassification] = useState<{ productId: string; pizza: boolean } | null>(null);
-  const [newProductIds, setNewProductIds] = useState<string[]>([]);
+  const [addingToSection, setAddingToSection] = useState("");
   const productIndex = draft.products.findIndex(product => product.id === editingId);
   const editing = draft.products[productIndex];
   const editingSection = draft.sections.find(section => section.productIds.includes(editingId));
@@ -54,8 +53,6 @@ export function MenuDraftEditor({ draft: sourceDraft, storeId, ingredients, onCh
   const activeSection = draft.sections.find(section => section.id === activeSectionId) ?? draft.sections[0];
   const catalog = draft.pizzaCatalog ?? blankPizzaCatalog();
   const taste = catalog.tastes.find(item => item.id === editingId);
-  const classificationPlan = classification?.productId === editingId
-    ? planProductClassification(draft, editingId, classification.pizza, ingredients, { newProduct: newProductIds.includes(editingId) }) : undefined;
 
   function ingredientSummary(product: IndividualProduct) {
     const entry = catalog.tastes.find(item => item.id === product.id);
@@ -69,19 +66,20 @@ export function MenuDraftEditor({ draft: sourceDraft, storeId, ingredients, onCh
     onChange({ ...draft, sections: draft.sections.map(section => section.id === id ? { ...section, ...change } : section) });
   }
 
-  function addProduct(section: OrderingMenuSection, source?: IndividualProduct) {
+  function addProduct(section: OrderingMenuSection, source?: IndividualProduct, type: ProductType = "product") {
     if (source?.pizza) { addPizza(section, source.pizza.kind, source.id); return; }
+    if (!source && type === "pizza") { addPizza(section, "taste"); setAddingToSection(""); return; }
     const id = crypto.randomUUID();
-    if (!source) setNewProductIds(current => [...current, id]);
     const product: IndividualProduct = source
-      ? { ...structuredClone(source), id, name: `Copia di ${source.name}` }
-      : { id, name: "", description: "", priceCents: 0, available: true, allergens: [], ingredients: {}, options: [] };
+      ? { ...structuredClone(source), productType: productType(source), id, name: `Copia di ${source.name}` }
+      : { id, productType: type, name: "", description: "", priceCents: 0, available: true, allergens: [], ingredients: {}, options: [], ...(type === "box" ? { groups: [] } : {}), ...(type === "meal" ? { meal: { steps: [] } } : {}) };
     onChange({
       ...draft,
       products: [...draft.products, product],
       sections: draft.sections.map(item => item.id === section.id ? { ...item, productIds: [...item.productIds, id] } : item)
     });
     setEditingId(id);
+    setAddingToSection("");
     setSettings(false);
   }
 
@@ -105,6 +103,7 @@ export function MenuDraftEditor({ draft: sourceDraft, storeId, ingredients, onCh
   }
 
   function confirmRemoveProduct(id: string) {
+    if (draft.products.some(product => product.meal?.steps.some(step => step.alternatives.some(alternative => alternative.productId === id)))) return;
     onChange({
       ...draft,
       ...(draft.pizzaCatalog ? { pizzaCatalog: { ...draft.pizzaCatalog,
@@ -182,15 +181,21 @@ export function MenuDraftEditor({ draft: sourceDraft, storeId, ingredients, onCh
             {removingId === id && <fieldset className={styles.confirm}>
               <legend>Eliminare {product.name || "questo prodotto"} dal menu?</legend>
               <p>Il prodotto e i suoi abbinamenti saranno rimossi dalla bozza. Pubblica il menu per aggiornare quello visibile ai clienti.</p>
+              {draft.products.some(item => item.meal?.steps.some(step => step.alternatives.some(alternative => alternative.productId === id))) && <p role="alert">Rimuovi prima questo prodotto dalle fasi dei Menu che lo utilizzano.</p>}
               <div className={styles.actions}>
-                <Button type="button" variant="secondary" onClick={() => confirmRemoveProduct(id)}>Conferma eliminazione prodotto</Button>
+                <Button type="button" variant="secondary" disabled={draft.products.some(item => item.meal?.steps.some(step => step.alternatives.some(alternative => alternative.productId === id)))} onClick={() => confirmRemoveProduct(id)}>Conferma eliminazione prodotto</Button>
                 <Button type="button" variant="ghost" onClick={() => setRemovingId("")}>Annulla</Button>
               </div>
             </fieldset>}
           </li>;
         })}
       </ul>
-      <div className={styles.actions}><Button type="button" variant="secondary" onClick={() => addProduct(section)}>Aggiungi prodotto</Button></div>
+      <div className={styles.actions}><Button type="button" variant="secondary" aria-expanded={addingToSection === section.id} onClick={() => setAddingToSection(current => current === section.id ? "" : section.id)}>Aggiungi prodotto</Button>
+        {addingToSection === section.id && <label>Tipo di prodotto<select autoFocus value="" onChange={event => {
+          const type = event.target.value as ProductType;
+          if (type) addProduct(section, undefined, type);
+        }}><option value="">Scegli il tipo</option><option value="pizza">Pizza</option><option value="sandwich">Panino</option><option value="product">Prodotto</option><option value="box">Box</option><option value="meal">Menu</option></select></label>}
+      </div>
     </section>; })}
     <button type="button" className={`${styles.settingsCard} ${settings ? styles.selectedCard : ""}`} onClick={() => {
       setSettings(true); setEditingId("");
@@ -213,30 +218,11 @@ export function MenuDraftEditor({ draft: sourceDraft, storeId, ingredients, onCh
     </fieldset>}
     </div>
     <aside className={styles.menuDetail} aria-label="Scheda di modifica">
-      {!settings && editing && editing.pizza?.kind !== "formula" && (editing.pizza || classificationPlan) && <div className={styles.stack}>
-        {editing.pizza && <p className={styles.small}>Impasti, basi, formati ed extra comuni; ingredienti della ricetta rimovibili.</p>}
-        {classificationPlan && <fieldset className={styles.confirm}>
-          <legend>Cambiare tipo di prodotto?</legend>
-          <ul>{classificationPlan.changes.map(change => <li key={change}>{change}</li>)}</ul>
-          {classificationPlan.errors.map(error => <p key={error} role="alert">{error}</p>)}
-          <p>La modifica riguarda questa bozza. Il menu cliente cambia soltanto alla pubblicazione.</p>
-          <div className={styles.actions}>
-            <Button type="button" disabled={!classificationPlan.draft} onClick={() => {
-              if (!classification) return;
-              const plan = planProductClassification(draft, editingId, classification.pizza, ingredients, { newProduct: newProductIds.includes(editingId) });
-              if (plan.draft) { onChange(plan.draft); setClassification(null); }
-            }}>Conferma cambio tipo</Button>
-            <Button type="button" variant="ghost" onClick={() => setClassification(null)}>Annulla cambio tipo</Button>
-          </div>
-        </fieldset>}
-      </div>}
       {settings ? <PizzaSettingsPanel draft={draft} ingredients={ingredients} onChange={onChange} onClose={() => setSettings(false)} /> : taste ? <PizzaTastePanel key={taste.id} draft={draft} taste={taste} ingredients={ingredients} onChange={onChange}
-        headerActions={<label className={styles.check}><input type="checkbox" checked={Boolean(editing?.pizza)}
-          onChange={event => setClassification({ productId: editingId, pizza: event.target.checked })} />Pizza</label>} onClose={() => setEditingId("")} onRemove={() => removeProduct(taste.id)} onUpload={file => onUpload(taste.id, file)} />
+        headerActions={<span>Pizza</span>} onClose={() => setEditingId("")} onRemove={() => removeProduct(taste.id)} onUpload={file => onUpload(taste.id, file)} />
       : editing && !editing.pizza ? <MenuProductForm key={editing.id} storeId={storeId} product={editing} index={productIndex}
         ingredients={ingredients} products={draft.products} sections={draft.sections} sectionId={editingSection?.id}
-        headerActions={<label className={styles.check}><input type="checkbox" checked={Boolean(editing?.pizza)}
-          onChange={event => setClassification({ productId: editingId, pizza: event.target.checked })} />Pizza</label>}
+        headerActions={<span>{({ pizza: "Pizza", sandwich: "Panino", product: "Prodotto", box: "Box", meal: "Menu" })[productType(editing)]}</span>}
         onChange={change => onChange({ ...draft, products: draft.products.map(product => product.id === editing.id ? { ...product, ...change } : product) })}
         onMove={sectionId => onChange({ ...draft, sections: draft.sections.map(section => ({ ...section,
           productIds: section.id === sectionId ? [...section.productIds.filter(id => id !== editing.id), editing.id] : section.productIds.filter(id => id !== editing.id)

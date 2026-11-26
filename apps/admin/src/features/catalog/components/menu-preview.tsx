@@ -48,6 +48,11 @@ export function MenuPreview({ menu, storeId, ingredients }: {
                 })}</ul>
               </div>) : <ul>{product.options.map(option => <li key={option.id}>{option.name} · {money.format(option.priceCents / 100)}</li>)}</ul>}
             </details>}
+            {product.meal && <details><summary>Mostra fasi</summary>
+              {product.meal.steps.map(step => <div key={step.id}><p><strong>{step.name}</strong></p>
+                <ul>{step.alternatives.map(alternative => <li key={alternative.productId}>{products.get(alternative.productId)?.name ?? "Prodotto non disponibile"} · {alternative.priceCents > 0 ? "+" : ""}{money.format(alternative.priceCents / 100)}</li>)}</ul>
+              </div>)}
+            </details>}
           </div>
           <strong>{!product.pizza && product.groups?.some(group => group.min > 0) && "Base "}{money.format(product.priceCents / 100)}</strong>
         </article>;

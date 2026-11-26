@@ -55,6 +55,16 @@ A pending/uncertain payment blocks duplicate checkout. Provider idempotency keys
 
 ## Persistence and scaling
 
+### Tipi prodotto e Menu a fasi
+
+`IndividualProduct.productType` distingue Pizza, Panino, Prodotto, Box e Menu. Il tipo scelto alla creazione è immutabile anche tramite API; la duplicazione lo conserva. Gli snapshot precedenti si classificano dalla struttura (identità pizza, gruppi di selezione, altrimenti prodotto), senza usare nomi commerciali o riscrivere gli ordini storici. Il Panino riceve rimozioni della ricetta ed extra correnti dal Magazzino, senza impasti e formati; la proiezione cliente omette dosi e scorte.
+
+Il salvataggio automatico della bozza conserva anche nomi di prodotto, gruppo e scelta ancora vuoti, senza completarli automaticamente. Pubblicazione e configurazione diretta della sede richiedono i nomi compilati; prezzi e riferimenti restano validati anche durante il salvataggio della bozza.
+
+Il Menu conserva fasi ordinate con un prodotto obbligatorio per fase e variazioni di prezzo positive o negative. Pubblicazione rifiuta fasi incomplete, riferimenti assenti, Box/Menu/formule custom come alternative e combinazioni con totale negativo. Una riga invia solo `mealSelections` (fase, prodotto, rimozioni e note); prezzi, ricette e consumi vengono ricostruiti dal servizio. La pizza inclusa usa l'impasto consigliato o, se assente, lo standard, con formato standard e senza supplementi autonomi: il totale è il prezzo fisso Menu più le sole variazioni delle alternative. Un consiglio indisponibile non viene sostituito. Nessun extra o cambio dimensione è accettato nelle fasi.
+
+Ordini individuali, gruppi e aggiunte condividono preventivo e riserve canoniche; le ricette dei prodotti selezionati si aggregano prima del controllo scorte. Lo snapshot delle fasi conserva prodotti, rimozioni, note e variazioni per cucina, storico ed email, senza dipendere dal catalogo successivo. Una fase senza alternative disponibili rende il Menu esaurito; la policy della sede determina disabilitazione o omissione dal catalogo. Test HTTP: `src/product-types.acceptance.test.ts`. Queste verifiche locali non attestano un rilascio online.
+
 ### Catalogo pizza e conversione delle bozze
 
 Il catalogo pizza mantiene entità esplicite per impasti, formati, topping, gusti e formule nello snapshot PostgreSQL esistente. Con `inventoryMode="dough-format"`, ogni impasto associa una voce di Magazzino e ogni formato indica la quantità da scalare da quella voce. La base è un ingrediente ordinario. Gli snapshot precedenti restano leggibili; la bozza convertita dall'Admin conserva gli ingredienti della base standard. Salvataggio e pubblicazione rigenerano prezzi, ricette e gruppi dalla sorgente; i prodotti derivati ricevuti dal browser non sono autorevoli. Le formule mantengono la propria identità e gli eventuali ingredienti inclusi trasferiti. La pubblicazione richiede associazioni valide; le quantità possono restare null e, se compilate, devono essere intere positive. Dosi e scorte null non bloccano pubblicazione e ordine. Il catalogo cliente omette sorgente e dosi, incluso `doughQuantity`. Quantità del formato, ingredienti ed extra si riservano insieme e vengono scaricati al completamento. Ordini e snapshot storici restano invariati. Test: `src/dough-stock.test.ts`.

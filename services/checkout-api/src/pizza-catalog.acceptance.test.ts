@@ -455,7 +455,7 @@ describe("classificazione ed extra comuni: contratto HTTP indipendente", () => {
     expect(quote.json<IndividualQuote>().lines[0].unitCents).toBe(700);
   });
 
-  it("una scelta specifica può rimuovere pomodoro esaurito anche dopo conversione e nella proiezione cliente", async () => {
+  it("una scelta specifica può rimuovere pomodoro esaurito anche su una nuova pizza e nella proiezione cliente", async () => {
     const f = fixture();
     const candidate = draft();
     candidate.id = "rimozioni-ordinario";
@@ -481,20 +481,23 @@ describe("classificazione ed extra comuni: contratto HTTP indipendente", () => {
     expect(baselineQuote.statusCode, baselineQuote.body).toBe(200);
     await setTomatoStock(30);
     candidate.id = "rimozioni-pizza";
+    const pizzaId = "pizza-rimozioni";
+    candidate.products.push({ ...structuredClone(generic), id: pizzaId });
+    candidate.sections[0].productIds.push(pizzaId);
     const store = (await f.request("GET", "/v1/pilot/stores/roma")).json<IndividualStore>();
-    const plan = planProductClassification(candidate, generic.id, true, store.ingredients);
+    const plan = planProductClassification(candidate, pizzaId, true, store.ingredients);
     expect(plan.errors).toEqual([]);
     const saved = await f.save(plan.draft!);
     expect(saved.statusCode, saved.body).toBe(200);
     expect((await f.publish(candidate.id)).statusCode).toBe(200);
     await setTomatoStock(0);
-    const pizza = (await f.workspace()).published!.products.find((product) => product.id === generic.id)!;
+    const pizza = (await f.workspace()).published!.products.find((product) => product.id === pizzaId)!;
     const selections = [...pizza.pizza!.defaultSelections, { optionId: "salsa-rimozioni", quantity: 1 }];
     const quote = await f.quote(pizza, selections);
     expect.soft(quote.statusCode, quote.body).toBe(200);
     if (quote.statusCode === 200) expect(quote.json<IndividualQuote>().lines[0].unitCents).toBe(870);
     const clientStore = (await f.request("GET", "/v1/pilot/stores/roma", undefined, "customer")).json<IndividualStore>();
-    const clientPizza = clientStore.products.find((product) => product.id === generic.id)!;
+    const clientPizza = clientStore.products.find((product) => product.id === pizzaId)!;
     expect(resolveMenuComposition(clientPizza, selections).valid).toBe(true);
   });
 

@@ -18,6 +18,9 @@ export interface IndividualOption extends MenuSpecificOption {
   ingredientIds?: string[];
 }
 export interface IndividualProduct {
+  /** Explicit behavior; absent only in catalogs saved before product types. */
+  productType?: import("./product-type-contracts").ProductType;
+  meal?: { steps: import("./product-type-contracts").MealStep[] };
   id: string; name: string; description: string; priceCents: number; available: boolean;
   /** null keeps the ingredient reference with untracked consumption; it does not block ordering. */
   allergens: string[]; ingredients: Record<string, number | null>; options: IndividualOption[];
@@ -85,7 +88,7 @@ export interface IndividualStore {
   protectedOrderDates?: string[];
 }
 export type IndividualLineKind = "product" | "pizza_taste" | "pizza_formula";
-export interface IndividualLine { kind?: IndividualLineKind; productId: string; quantity: number; optionIds: string[]; notes: string; selections?: MenuSelection[]; }
+export interface IndividualLine { kind?: IndividualLineKind; productId: string; quantity: number; optionIds: string[]; notes: string; selections?: MenuSelection[]; mealSelections?: import("./product-type-contracts").MealSelection[]; }
 export interface IndividualDeliveryAddress { text: string; latitude: number; longitude: number; }
 export const DELIVERY_ADDRESS_QUERY_MIN_LENGTH = 3;
 export const DELIVERY_ADDRESS_QUERY_MAX_LENGTH = 200;

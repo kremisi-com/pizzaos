@@ -143,13 +143,14 @@ export function MenuFoodFields({ food, onChange }: {
   </details>;
 }
 
-export function MenuPriceField({ label, cents, onChange }: {
+export function MenuPriceField({ label, cents, onChange, allowNegative = false }: {
   label: string;
   cents: number;
   onChange: (value: number) => void;
+  allowNegative?: boolean;
 }) {
   return <label>{label}
-    <input type="number" min={0} step="0.01" inputMode="decimal" required
+    <input type="number" min={allowNegative ? undefined : 0} step="0.01" inputMode="decimal" required
       value={cents / 100} onChange={event => onChange(Math.round(Number(event.target.value) * 100))} />
   </label>;
 }

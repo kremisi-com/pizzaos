@@ -24,3 +24,7 @@ D16/D31 restano rinviate: privacy, obblighi operativi/fiscali e conservazione de
 Abbonamenti cliente/PizzaOS e fatturazione, marketing automatico, recensioni, AI/BI avanzata, export analytics, GPS/ottimizzazione, POS/contabilità, CRM/trial e onboarding self-service restano esclusi dagli incrementi o da definire secondo il [registro decisioni](decisions.md). La loro priorità commerciale richiede una scelta esplicita; questa roadmap non ne approva il rinvio generale. Coupon/fedeltà, gruppo, email operative e aggiunte con delta sono già nel perimetro implementato e non vanno riproposti come capacità da autorizzare.
 
 Ogni avanzamento aggiorna la fonte proprietaria, il criterio residuo e l'evidenza con versione e ambiente. Una prova locale non chiude una riga che richiede il rilascio online.
+
+## Incremento cinque tipi di prodotto
+
+Pizza, Panino, Prodotto, Box e Menu sequenziale sono approvati nella [specifica proprietaria](flows/menu-ordering.md#tipi-di-prodotto-panino-box-e-menu). Implementazione e verifiche locali nel [riesame SDD](../design/2026-11-26-product-types/REVIEW.md). Resta separato il rilascio coordinato API/admin/client e il collaudo online; nessun deploy incluso nell'incremento.

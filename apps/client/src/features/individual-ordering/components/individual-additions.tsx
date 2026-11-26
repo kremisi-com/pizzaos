@@ -75,14 +75,14 @@ export function IndividualAdditions({ api, order, avoid, onChanged }: { api: Ind
     {error && <p className={styles.error} role="alert">{error}</p>}{notice && <p className={styles.notice} role="status">{notice}</p>}
     {!pending && <><label>Prodotto da aggiungere<select value={productId} onChange={event => setProductId(event.target.value)}>{store?.products.filter(item => item.available).map(item => <option key={item.id} value={item.id}>{item.name} · {money(item.priceCents)}</option>)}</select></label>
       <label>Quantità da aggiungere<input type="number" min="1" max="99" step="1" value={quantity} onChange={event => setQuantity(Number(event.target.value))} /></label>
-      {store && product && product.options.length > 0 && <MenuLineEditor key={product.id} store={store} product={product} quantity={quantity} disabled={busy || !Number.isInteger(quantity) || quantity < 1 || quantity > 100}
+      {store && product && (product.options.length > 0 || product.meal) && <MenuLineEditor key={product.id} store={store} product={product} quantity={quantity} disabled={busy || !Number.isInteger(quantity) || quantity < 1 || quantity > 100}
         avoid={avoid} onSave={addLine} />}
-      {!product?.groups?.length && <button type="button" className={styles.secondary} disabled={busy || !product || !Number.isInteger(quantity) || quantity < 1 || quantity > 100}
+      {!product?.groups?.length && !product?.meal && <button type="button" className={styles.secondary} disabled={busy || !product || !Number.isInteger(quantity) || quantity < 1 || quantity > 100}
         onClick={() => addLine({ productId, quantity, optionIds: [], notes: "" })}>Inserisci nell&apos;aggiunta</button>}
       {lines.length > 0 && <ul>{lines.map((line, index) => {
         const entry = store?.products.find(item => item.id === line.productId);
         return <li key={`${line.productId}-${index}`}>{line.quantity} × {entry?.name ?? line.productId}
-          <MenuLineDetails product={entry} line={line} avoid={avoid} showUnknown={Boolean(store?.menu)} />
+          <MenuLineDetails product={entry} line={line} products={store?.products} avoid={avoid} showUnknown={Boolean(store?.menu)} />
           <button type="button" className={styles.secondary} disabled={busy} onClick={() => { setLines(current => current.filter((_, i) => i !== index)); setQuote(null); }}>Rimuovi dall&apos;aggiunta</button>
         </li>;
       })}</ul>}

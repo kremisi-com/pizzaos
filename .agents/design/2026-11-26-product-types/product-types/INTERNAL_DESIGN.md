@@ -1,0 +1,8 @@
+# Disegno interno
+
+- Contratti senza dipendenze in product-type-contracts.ts; risolutori in product-types.ts, per evitare cicli con IndividualProduct. Usare productType per normalizzazione legacy senza modificare storico. materializePizzaMenu proietta productType=pizza. Per Panino generare rimozioni con removesIngredientIds e gruppo extras dal Magazzino; omettere gruppi vuoti, non inventare impasti. I contributi extra si aggiungono indipendentemente dalla rimozione della ricetta inclusa.
+- resolveMealComposition usa resolveMenuComposition per ricette standard e ricostruisce un prodotto figlio ridotto: dimensioni standard pizza a prezzo zero e rimozioni esplicite degli inclusi. Non offrire personalizzazioni generiche. Aggregare ricette e informazioni alimentari, ignorare listini figli e differenziali delle dimensioni incluse. Snapshot rimozioni con nomi e choices leggibili.
+- Servizio integra normalizzazione in salvataggio/pubblicazione/catalogo, controlli tipo prima della proiezione, composizione Menu in quote e pipeline scorte. Proiezioni pubbliche senza dosi. Snapshot fasi in composizione per renderer e notifiche.
+- Admin estende editor corrente senza ripristinare la card Extra comuni rimossa da modifiche preesistenti. Nuovi componenti configurazione Box/Menu isolati.
+- Client instrada per tipo e riusa editor esistente per Prodotto/Box; Panino offre ingredienti/extra/note; Menu ha stato per fase e personalizzazione ridotta. Riutilizzare renderer composizione per riepiloghi persistenti.
+- Checklist: cinque tipi; immutabilità; extra Panino; Box creabile; Menu sequenziale; prezzi +/-; rimozioni/note; standard consigliato; API autorevole; scorte; gruppo/aggiunte; snapshot; migrazione legacy; test/lint/build; documentazione; commit selettivo/push.

@@ -11,7 +11,7 @@ function setup(stock: number | null, behavior?: OutOfStockBehavior) {
   let state: OrderingState = {
     stores: { store: { id: "store", name: "Sede", latitude: 45, longitude: 9, acceptingOrders: true, outOfStockBehavior: behavior,
       ingredients: [{ id: "ingredient", name: "Pomodoro", stock }],
-      products: [{ id: "product", name: "Pizza", description: "", priceCents: 800, available: true, allergens: [], ingredients: { ingredient: null }, options: [] }],
+      products: [{ id: "product", productType: "product", name: "Pizza", description: "", priceCents: 800, available: true, allergens: [], ingredients: { ingredient: null }, options: [] }],
       slots: [{ id: "slot", startsAt: "2030-01-01T19:00:00Z", capacity: 50 }], deliveryBands: [] } },
     memberships: [{ storeId: "store", email: operator.email }], orders: {}, idempotency: {}, events: [], cursor: 0,
   };

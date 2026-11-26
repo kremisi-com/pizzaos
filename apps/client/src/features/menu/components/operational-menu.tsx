@@ -1,12 +1,14 @@
 "use client";
 
-import { resolveMenuComposition } from "@pizzaos/domain";
+import { productType, resolveMealComposition, resolveMenuComposition } from "@pizzaos/domain";
 import type { IndividualLine, IndividualProduct, IndividualStore, MenuOptionGroup, MenuSelection } from "@pizzaos/domain";
 import Image from "next/image";
 import { useEffect, useId, useRef, useState } from "react";
 import { LivePizzaEditor, pizzaInitialSelections, pizzaPreview } from "../../customization";
 import { lineChoiceLabels, lineIssue, menuMoney, menuSelections } from "../live-menu-model";
 import { MenuFoodSummary, type MenuPreferences } from "./operational-food";
+import { MealConfigurationDialog } from "./meal-configuration-dialog";
+import { MealCompositionDetails } from "./meal-composition-details";
 import styles from "./operational-menu.module.css";
 
 function optionCount(group: MenuOptionGroup, choices: MenuSelection[]): number {
@@ -14,6 +16,7 @@ function optionCount(group: MenuOptionGroup, choices: MenuSelection[]): number {
 }
 
 function ConfigurationDialog(props: Parameters<typeof GenericConfigurationDialog>[0]) {
+  if (productType(props.product) === "meal") return <MealConfigurationDialog {...props} />;
   return props.product.pizza
     ? <LivePizzaEditor {...props} onPairing={props.line ? undefined : props.onSave} />
     : <GenericConfigurationDialog {...props} />;
@@ -155,14 +158,17 @@ export function MenuLineEditor({ store, product, line, quantity, disabled = fals
   </>;
 }
 
-export function MenuLineDetails({ product, line, avoid = [], showUnknown = false }: {
-  product: IndividualProduct | undefined; line: IndividualLine; avoid?: string[]; showUnknown?: boolean;
+export function MenuLineDetails({ product, line, products = [], avoid = [], showUnknown = false }: {
+  product: IndividualProduct | undefined; line: IndividualLine; products?: readonly IndividualProduct[]; avoid?: string[]; showUnknown?: boolean;
 }) {
   const names = lineChoiceLabels(product, line);
   const issue = lineIssue(product, line);
-  const preview = product && resolveMenuComposition(product, menuSelections(line));
+  const preview = product && (productType(product) === "meal"
+    ? resolveMealComposition(product, line.mealSelections ?? [], products)
+    : resolveMenuComposition(product, menuSelections(line)));
   return <>
     {names.length > 0 && <p className={styles.ingredients}>{names.join(", ")}</p>}
+    {preview && <MealCompositionDetails composition={preview.composition} />}
     {issue && <p className={styles.warning}>{issue}</p>}
     {preview && <MenuFoodSummary food={preview.composition} avoid={avoid} showUnknown={showUnknown} />}
   </>;
@@ -173,7 +179,7 @@ function MenuItem({ store, product, preferences, disabled, onAdd }: {
   disabled: boolean; onAdd: (line: IndividualLine) => void;
 }) {
   const [configuring, setConfiguring] = useState(false);
-  const needsChoices = Boolean(product.groups?.length);
+  const needsChoices = Boolean(product.groups?.length) || productType(product) === "meal";
   const pairing = store.products.filter(item => item.available && product.pairingProductIds?.includes(item.id));
   const initialSelections = pizzaInitialSelections(product, {});
   const preview = resolveMenuComposition(product, initialSelections);

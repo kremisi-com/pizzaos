@@ -138,7 +138,7 @@ function projectPizza(catalog: PizzaCatalog, entry: PizzaTaste | PizzaFormula, k
       ? [{ id: "product-choices", name: "Scelte del prodotto", kind: "selection" as const, min: 0,
         max: customizations.options.length, optionIds: customizations.options.map(option => option.id) }] : [])));
   }
-  return { id: entry.id, name: entry.name, description: entry.description, priceCents: entry.priceCents,
+  return { id: entry.id, productType: "pizza", name: entry.name, description: entry.description, priceCents: entry.priceCents,
     available: entry.available, ingredients, allergens: taste?.allergens ? [...taste.allergens] : [], options, groups,
     ...(taste?.food ? { food: copyFood(taste.food) } : {}),
     pizza: { kind, sourceId: entry.id, defaultSelections,

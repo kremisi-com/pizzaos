@@ -268,6 +268,26 @@
   overscroll-behavior: contain;
 }
 
+.lineNotes {
+  display: grid;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.lineNotes :is(input, textarea) {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 44px;
+  border: 1px solid var(--pizzaos-color-border);
+  border-radius: 11px;
+  padding: 10px;
+  font: inherit;
+  color: var(--pizzaos-color-foreground);
+  background: var(--pizzaos-color-background-accent);
+}
+
+.lineNotes textarea { min-height: 88px; resize: vertical; }
+
 .dialog .group {
   border: 0;
   padding: 0;

@@ -44,56 +44,39 @@ describe("classificazione dal menu amministrativo", () => {
     }
     render(<Harness />);
     fireEvent.click(screen.getByRole("button", { name: /^Aggiungi prodotto$/i }));
-    const added = changes.mock.lastCall![0] as MenuDraft;
-    const id = added.products[0].id;
-    expect(added.products[0].ingredients).toEqual({});
-    fireEvent.click(screen.getByRole("checkbox", { name: /^Pizza$/i }));
-    fireEvent.click(screen.getByRole("button", { name: /^Conferma cambio tipo$/i }));
+    fireEvent.change(screen.getByLabelText("Tipo di prodotto"), { target: { value: "pizza" } });
     const resulting = changes.mock.lastCall![0] as MenuDraft;
-    const pizza = resulting.products.find((product) => product.id === id)!;
+    const pizza = resulting.products[0];
     expect(pizza.pizza?.kind).toBe("taste");
     expect(resolveMenuComposition(pizza, pizza.pizza!.defaultSelections).recipe).toEqual({ farina: 2 });
     expect(resulting.pizzaCatalog?.bases).toEqual([]);
-    expect((screen.getByRole("checkbox", { name: /^Pizza$/i }) as HTMLInputElement).checked).toBe(true);
+    expect(screen.queryByRole("checkbox", { name: /^Pizza$/i })).toBeNull();
   });
 
-  it("offre Aggiungi prodotto e apre una scheda con Pizza disattivata", () => {
+  it("offre Aggiungi prodotto con tipo vincolante e chiusura della scheda", () => {
     setup();
     fireEvent.click(screen.getByRole("button", { name: /^Aggiungi prodotto$/i }));
-    expect((screen.getByRole("checkbox", { name: /^Pizza$/i }) as HTMLInputElement).checked).toBe(false);
-    const checkbox = screen.getByRole("checkbox", { name: /^Pizza$/i });
+    fireEvent.change(screen.getByLabelText("Tipo di prodotto"), { target: { value: "product" } });
+    expect(screen.queryByRole("checkbox", { name: /^Pizza$/i })).toBeNull();
     const close = screen.getByRole("button", { name: /^Chiudi scheda$/i });
-    expect(close.textContent).toBe("×");
-    expect(close.parentElement?.contains(checkbox)).toBe(true);
-    expect(checkbox.compareDocumentPosition(close) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(screen.queryByText(/Prodotto normale/)).toBeNull();
+    expect(close.textContent).toBe("\u00d7");
     expect(screen.queryByRole("button", { name: /Aggiungi gruppo di scelte|Organizza le scelte in un gruppo|Aggiungi personalizzazione/i })).toBeNull();
     fireEvent.click(close);
     expect(screen.queryByRole("region", { name: "Modifica prodotto" })).toBeNull();
   });
 
-  it("annullare il cambio tipo conserva integralmente la bozza", () => {
+  it("non offre riclassificazione dei prodotti esistenti e conserva la bozza", () => {
     const { changes } = setup();
-    fireEvent.click(screen.getByRole("button", { name: /^Modifica Specialità$/i }));
-    const callsBefore = changes.mock.calls.length;
-    fireEvent.click(screen.getByRole("checkbox", { name: /^Pizza$/i }));
-    expect(screen.getByRole("button", { name: /^Conferma cambio tipo$/i })).toBeTruthy();
-    expect(changes).toHaveBeenCalledTimes(callsBefore);
-    fireEvent.click(screen.getByRole("button", { name: /^Annulla cambio tipo$/i }));
-    expect(changes).toHaveBeenCalledTimes(callsBefore);
-    expect((screen.getByRole("checkbox", { name: /^Pizza$/i }) as HTMLInputElement).checked).toBe(false);
+    fireEvent.click(screen.getByRole("button", { name: /^Modifica Specialit.$/i }));
+    expect(screen.queryByRole("checkbox", { name: /^Pizza$/i })).toBeNull();
+    expect(screen.queryByLabelText("Tipo di prodotto")).toBeNull();
+    expect(screen.queryByRole("button", { name: /^Conferma cambio tipo$/i })).toBeNull();
+    expect(changes).not.toHaveBeenCalled();
   });
 
-  it("conferma esplicitamente il cambio senza mostrare la card degli extra comuni", () => {
-    const { changes } = setup();
-    fireEvent.click(screen.getByRole("button", { name: /^Modifica Specialità$/i }));
-    fireEvent.click(screen.getByRole("checkbox", { name: /^Pizza$/i }));
-    fireEvent.click(screen.getByRole("button", { name: /^Conferma cambio tipo$/i }));
-    expect(changes).toHaveBeenCalled();
-    const resulting = changes.mock.lastCall![0] as MenuDraft;
-    expect(resulting.products.find((product) => product.id === "specialita")).toMatchObject({ name: "Specialità", description: "Ricetta del giorno", priceCents: 800, pizza: { kind: "taste" } });
-    expect(resulting.sections).toEqual(fixture().sections);
-    expect((screen.getByRole("checkbox", { name: /^Pizza$/i }) as HTMLInputElement).checked).toBe(true);
+  it("non mostra la card degli extra comuni nella scheda", () => {
+    setup();
+    fireEvent.click(screen.getByRole("button", { name: /^Modifica Specialit.$/i }));
     expect(screen.queryByRole("region", { name: "Extra comuni dal Magazzino" })).toBeNull();
     expect(screen.queryByRole("button", { name: "Aggiorna extra della bozza" })).toBeNull();
     expect(screen.queryByRole("button", { name: /Aggiungi gruppo di scelte|Organizza le scelte in un gruppo|Aggiungi personalizzazione/i })).toBeNull();

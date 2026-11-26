@@ -10,7 +10,7 @@ import { IndividualAdditions } from "./individual-additions";
 import { OrderSlotSelect } from "./order-slot-select";
 import { DeliveryAddressField, hasDeliveryPoint } from "./delivery-address-field";
 import { PromotionSelectionPanel, PromotionSummary } from "../../promotions";
-import { appendMenuLine, lineIssue, MenuLineDetails, MenuLineEditor, OperationalMenu, useMenuPreferences } from "../../menu";
+import { appendMenuLine, lineIssue, MealCompositionDetails, MenuLineDetails, MenuLineEditor, OperationalMenu, useMenuPreferences } from "../../menu";
 import { OrderTimeline } from "../../orders/components/operational-order-timeline";
 import { OrderingCover } from "../../menu/components/ordering-cover";
 import styles from "./individual-ordering.module.css";
@@ -272,10 +272,10 @@ export function IndividualOrderingScreen({ api, promotionsApi, preferencesApi, r
             if (Number.isInteger(quantity) && quantity > 0 && quantity <= 100) replaceLine(index, { ...line, quantity });
           };
           return <li key={`${line.productId}-${index}`} className={issue ? styles.needsReview : undefined}><strong>{name}</strong>
-            <MenuLineDetails product={product} line={line} avoid={preferences.avoid} showUnknown={Boolean(store?.menu)} />
+            <MenuLineDetails product={product} line={line} products={store?.products} avoid={preferences.avoid} showUnknown={Boolean(store?.menu)} />
             <div className={styles.quantity}><label>Quantità {name}<input type="number" min="1" max="100" value={line.quantity} onChange={event => adjust(Number(event.target.value))} /></label>
               <button type="button" className={styles.secondary} onClick={() => changeCart({ ...cart, lines: cart.lines.filter((_, i) => i !== index) })}>Rimuovi</button></div>
-            {store && product && product.options.length > 0 && <MenuLineEditor store={store} product={product} line={line} avoid={preferences.avoid}
+            {store && product && (product.options.length > 0 || product.meal) && <MenuLineEditor store={store} product={product} line={line} avoid={preferences.avoid}
               onSave={next => replaceLine(index, next)} />}
             <label>Note per {name}<input maxLength={500} value={line.notes} onChange={event => replaceLine(index, { ...line, notes: event.target.value })} /></label></li>;
         })}</ul>}
@@ -295,6 +295,7 @@ export function IndividualOrderingScreen({ api, promotionsApi, preferencesApi, r
         <button type="button" disabled={busy || !cart.lines.length || !store?.acceptingOrders || unresolved || (cart.mode === "delivery" && !hasDeliveryPoint(cart.address))} onClick={() => void verifyQuote()}>Verifica disponibilità e totale</button>
         {quote && <div className={styles.summary}><h3>Riepilogo da confermare</h3>{quote.lines.map((line, index) => <div className={styles.quoteLine} key={`${line.productId}-${index}`}>
           <span>{line.quantity} × {line.name}
+            <MealCompositionDetails composition={line.composition} />
             {Boolean(line.composition?.choices.length) && <small>{line.composition?.choices.map(choice => `${choice.quantity > 1 ? `${choice.quantity} × ` : ""}${choice.name}`).join(", ")}</small>}
             {Boolean(line.composition?.extraDiscountCents) && <small>Sconto extra {money((line.composition?.extraDiscountCents ?? 0) * line.quantity)}</small>}
           </span><strong>{money(line.unitCents * line.quantity)}</strong>
@@ -320,7 +321,8 @@ export function IndividualOrderingScreen({ api, promotionsApi, preferencesApi, r
         {order.acceptanceDeadline && order.status === "awaiting_acceptance" && <p>Risposta del ristorante entro le {new Date(order.acceptanceDeadline).toLocaleTimeString("it-IT", { hour: "2-digit", minute: "2-digit" })}</p>}
         <ul>{order.quote.lines.map((line, index) => <li key={`${line.productId}-${index}`}>
           {line.quantity} × {line.name}{line.notes ? ` — ${line.notes}` : ""}
-          {Boolean(line.composition?.choices.length) && <p className={styles.small}>{line.composition?.choices.map(choice => `${choice.quantity > 1 ? `${choice.quantity} × ` : ""}${choice.name}`).join(", ")}</p>}
+          <MealCompositionDetails composition={line.composition} />
+            {Boolean(line.composition?.choices.length) && <p className={styles.small}>{line.composition?.choices.map(choice => `${choice.quantity > 1 ? `${choice.quantity} × ` : ""}${choice.name}`).join(", ")}</p>}
         </li>)}</ul>
         {order.status === "awaiting_customer" && <p className={styles.notice}>Il ristorante ti contatta via email o WhatsApp per un prodotto indisponibile. L&apos;ordine resta in attesa della tua risposta.</p>}
         {["pending_payment", "awaiting_acceptance", "awaiting_customer", "accepted"].includes(order.status) && <div><label>Note ordine {order.id}<textarea maxLength={1000} value={editedNotes[order.id] ?? order.notes} onChange={event => setEditedNotes(current => ({ ...current, [order.id]: event.target.value }))} /></label><button type="button" className={styles.secondary} disabled={busy} onClick={() => void orderAction(order, "notes")}>Aggiorna note</button></div>}

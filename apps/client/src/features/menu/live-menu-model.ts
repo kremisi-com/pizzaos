@@ -1,4 +1,4 @@
-import { resolveMenuComposition } from "@pizzaos/domain";
+import { productType, resolveMenuComposition } from "@pizzaos/domain";
 import type { IndividualLine, IndividualProduct, MenuSelection } from "@pizzaos/domain";
 
 const euro = new Intl.NumberFormat("it-IT", { style: "currency", currency: "EUR" });
@@ -18,6 +18,13 @@ export function lineIssue(product: IndividualProduct | undefined, line: Individu
   if (product.maxAvailable !== undefined && line.quantity > product.maxAvailable) {
     return `Disponibili al massimo ${product.maxAvailable} unità. Riduci la quantità.`;
   }
+  if (productType(product) === "meal") {
+    if ((line.mealSelections?.length ?? 0) !== product.meal?.steps.length || line.optionIds.length || line.selections?.length
+      || product.meal?.steps.some(step => !step.alternatives.some(item => item.productId === line.mealSelections?.find(choice => choice.stepId === step.id)?.productId))) {
+      return "Controlla le scelte: alcune potrebbero essere cambiate.";
+    }
+    return;
+  }
   if (product.groups?.length) {
     if (!resolveMenuComposition(product, menuSelections(line)).valid) return "Controlla le scelte: alcune potrebbero essere cambiate.";
   } else if (line.selections?.length || line.optionIds.some(id => !product.options.some(option => option.id === id && option.available !== false))) {
@@ -32,7 +39,8 @@ export function menuSelections(line: IndividualLine): MenuSelection[] {
 export function appendMenuLine(lines: IndividualLine[], added: IndividualLine): IndividualLine[] {
   const key = (line: IndividualLine) => JSON.stringify([
     line.productId, line.notes, [...line.optionIds].sort(),
-    line.selections?.map(({ optionId, quantity }) => [optionId, quantity]).sort()
+    line.selections?.map(({ optionId, quantity }) => [optionId, quantity]).sort(),
+    line.mealSelections?.map(choice => [choice.stepId, choice.productId, [...choice.removedIngredientIds].sort(), choice.notes]).sort()
   ]);
   const addedKey = key(added);
   const index = lines.findIndex(line => key(line) === addedKey && line.quantity + added.quantity <= 100);

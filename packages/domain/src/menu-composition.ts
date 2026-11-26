@@ -72,7 +72,8 @@ export function resolveMenuComposition(product: IndividualProduct, selections: r
     for (const [id, units] of references) {
       if (option.pizza?.kind !== "dough" || doughQuantity === undefined) visibleIngredientIds.add(id);
       const dose = option.pizza?.kind === "dough" && doughQuantity !== undefined ? doughQuantity : units;
-      if (!removed.has(id) || ownRemovals.has(id) || option.pizza?.kind === "dough" && doughQuantity !== undefined) {
+      if (!removed.has(id) || ownRemovals.has(id) || groupByOption.get(option.id)?.kind === "extras"
+        || option.pizza?.kind === "dough" && doughQuantity !== undefined) {
         addDose(id, dose === null ? null : dose * quantity);
       }
     }

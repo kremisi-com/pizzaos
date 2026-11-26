@@ -329,14 +329,15 @@ describe("menu publication and access", () => {
     const unnamed = draft("gruppo-senza-nome", product("pizza", {
       groups: [{ id: "scelte", name: " ", kind: "selection", min: 0, max: 1, optionIds: [] }],
     }));
-    const saveError = await f.request("PUT", `${menu}/drafts`, "operator", { revision: before.revision, draft: unnamed });
-    expect(saveError.statusCode).toBe(400);
-    expect(saveError.json<{ message: string }>().message).toBe("Inserisci un nome per il gruppo 1.");
+    const unnamedSaved = await f.save(before.revision, unnamed);
+    const nameError = await f.request("POST", `${menu}/publish`, "operator", { revision: unnamedSaved.revision, draftId: unnamed.id });
+    expect(nameError.statusCode).toBe(400);
+    expect(nameError.json<{ message: string }>().message).toBe("Inserisci un nome per il gruppo 1.");
 
-    const empty = draft("gruppo-vuoto", product("pizza", {
+    const empty = draft("gruppo-vuoto", product("pizza-vuota", {
       groups: [{ id: "impasto", name: "Impasto", kind: "dough", min: 1, max: 1, optionIds: [] }],
     }));
-    const saved = await f.save(before.revision, empty);
+    const saved = await f.save(unnamedSaved.revision, empty);
     const publishError = await f.request("POST", `${menu}/publish`, "operator", { revision: saved.revision, draftId: empty.id });
     expect(publishError.statusCode).toBe(400);
     expect(publishError.json<{ message: string }>().message).toBe("Il gruppo «Impasto»: aggiungi almeno una scelta prima di pubblicare.");
