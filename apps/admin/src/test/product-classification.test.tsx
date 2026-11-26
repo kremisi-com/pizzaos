@@ -43,8 +43,7 @@ describe("classificazione dal menu amministrativo", () => {
         onChange={(next) => { changes(next); setDraft(next); }} onUpload={vi.fn()} />;
     }
     render(<Harness />);
-    fireEvent.click(screen.getByRole("button", { name: /^Aggiungi prodotto$/i }));
-    fireEvent.change(screen.getByLabelText("Tipo di prodotto"), { target: { value: "pizza" } });
+    fireEvent.change(screen.getByRole("combobox", { name: "Aggiungi prodotto" }), { target: { value: "pizza" } });
     const resulting = changes.mock.lastCall![0] as MenuDraft;
     const pizza = resulting.products[0];
     expect(pizza.pizza?.kind).toBe("taste");
@@ -55,8 +54,7 @@ describe("classificazione dal menu amministrativo", () => {
 
   it("offre Aggiungi prodotto con tipo vincolante e chiusura della scheda", () => {
     setup();
-    fireEvent.click(screen.getByRole("button", { name: /^Aggiungi prodotto$/i }));
-    fireEvent.change(screen.getByLabelText("Tipo di prodotto"), { target: { value: "product" } });
+    fireEvent.change(screen.getByRole("combobox", { name: "Aggiungi prodotto" }), { target: { value: "product" } });
     expect(screen.queryByRole("checkbox", { name: /^Pizza$/i })).toBeNull();
     const close = screen.getByRole("button", { name: /^Chiudi scheda$/i });
     expect(close.textContent).toBe("\u00d7");

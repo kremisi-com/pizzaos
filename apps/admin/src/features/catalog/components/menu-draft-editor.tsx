@@ -45,7 +45,6 @@ export function MenuDraftEditor({ draft: sourceDraft, storeId, ingredients, onCh
   const [editingSectionId, setEditingSectionId] = useState("");
   const [settings, setSettings] = useState(false);
   const [activeSectionId, setActiveSectionId] = useState("");
-  const [addingToSection, setAddingToSection] = useState("");
   const productIndex = draft.products.findIndex(product => product.id === editingId);
   const editing = draft.products[productIndex];
   const editingSection = draft.sections.find(section => section.productIds.includes(editingId));
@@ -68,7 +67,7 @@ export function MenuDraftEditor({ draft: sourceDraft, storeId, ingredients, onCh
 
   function addProduct(section: OrderingMenuSection, source?: IndividualProduct, type: ProductType = "product") {
     if (source?.pizza) { addPizza(section, source.pizza.kind, source.id); return; }
-    if (!source && type === "pizza") { addPizza(section, "taste"); setAddingToSection(""); return; }
+    if (!source && type === "pizza") { addPizza(section, "taste"); return; }
     const id = crypto.randomUUID();
     const product: IndividualProduct = source
       ? { ...structuredClone(source), productType: productType(source), id, name: `Copia di ${source.name}` }
@@ -79,7 +78,6 @@ export function MenuDraftEditor({ draft: sourceDraft, storeId, ingredients, onCh
       sections: draft.sections.map(item => item.id === section.id ? { ...item, productIds: [...item.productIds, id] } : item)
     });
     setEditingId(id);
-    setAddingToSection("");
     setSettings(false);
   }
 
@@ -190,11 +188,11 @@ export function MenuDraftEditor({ draft: sourceDraft, storeId, ingredients, onCh
           </li>;
         })}
       </ul>
-      <div className={styles.actions}><Button type="button" variant="secondary" aria-expanded={addingToSection === section.id} onClick={() => setAddingToSection(current => current === section.id ? "" : section.id)}>Aggiungi prodotto</Button>
-        {addingToSection === section.id && <label>Tipo di prodotto<select autoFocus value="" onChange={event => {
+      <div className={styles.actions}>
+        <select className={styles.addProductSelect} aria-label="Aggiungi prodotto" value="" onChange={event => {
           const type = event.target.value as ProductType;
           if (type) addProduct(section, undefined, type);
-        }}><option value="">Scegli il tipo</option><option value="pizza">Pizza</option><option value="sandwich">Panino</option><option value="product">Prodotto</option><option value="box">Box</option><option value="meal">Menu</option></select></label>}
+        }}><option value="" disabled>Aggiungi prodotto</option><option value="pizza">Pizza</option><option value="sandwich">Panino</option><option value="product">Prodotto</option><option value="box">Box</option><option value="meal">Menu</option></select>
       </div>
     </section>; })}
     <button type="button" className={`${styles.settingsCard} ${settings ? styles.selectedCard : ""}`} onClick={() => {

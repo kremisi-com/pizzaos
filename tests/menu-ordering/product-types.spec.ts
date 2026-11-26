@@ -47,15 +47,14 @@ test("cinque tipi espliciti in bozza e Menu pubblicato con sole rimozioni e note
     await admin.goto(`${adminOrigin}/operazioni/menu`);
     await expect(async () => {
       await admin.getByLabel("Menu da modificare").selectOption(seed.id);
-      await expect(admin.getByRole("button", { name: "Aggiungi prodotto", exact: true })).toBeVisible({ timeout: 2000 });
+      await expect(admin.getByRole("combobox", { name: "Aggiungi prodotto", exact: true })).toBeVisible({ timeout: 2000 });
     }).toPass({ timeout: 60_000 });
 
     for (const [type, name] of [
       ["pizza", "Pizza prova"], ["sandwich", "Panino prova"], ["product", "Acqua prova"],
       ["box", "Box prova"], ["meal", "Menu prova"]
     ] as const) {
-      await admin.getByRole("button", { name: "Aggiungi prodotto", exact: true }).click();
-      await admin.getByLabel("Tipo di prodotto").selectOption(type);
+      await admin.getByRole("combobox", { name: "Aggiungi prodotto", exact: true }).selectOption(type);
       const nameInput = type === "pizza" ? admin.getByLabel("Nome pizza", { exact: true }) : admin.getByLabel(/^Nome prodotto/).last();
       await nameInput.fill(name);
       await admin.getByLabel(type === "pizza" ? "Prezzo in euro" : "Prezzo base in euro", { exact: true }).last().fill(type === "meal" ? "12" : "8");
