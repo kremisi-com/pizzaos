@@ -40,9 +40,9 @@ await writeFile(path.join(output, "vercel.json"), JSON.stringify({
   functions: { "api/index.mjs": { maxDuration: 300, memory: 1024 } },
   rewrites: [{ source: "/(.*)", destination: "/api/index" }],
   daemons: { reconciliation: {
-    root: "worker", entrypoint: "Dockerfile", instances: { fra1: 1 },
+    root: "worker", entrypoint: "Dockerfile", instances: { fra1: 0 },
     resources: { requests: { memory: "1Gi" } }, terminationGracePeriodSeconds: 50,
     livenessProbe: { httpGet: { port: 3005, path: "/health" }, initialDelaySeconds: 10 }
   } }
 }, null, 2) + "\n");
-process.stdout.write(`Artefatto backend creato in ${output}\nWorker pilota: una istanza minima; usare soltanto il piano Hobby gratuito e verificarne la quota residua prima del deploy.\n`);
+process.stdout.write(`Artefatto backend creato in ${output}\nWorker pilota fermo (fra1=0); l'attivazione richiede una scelta esplicita e la verifica delle quote correnti.\n`);

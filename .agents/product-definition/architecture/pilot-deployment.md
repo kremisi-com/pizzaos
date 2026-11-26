@@ -18,6 +18,8 @@ Gli attuali host operativi pubblici ospitano il pilota test. L'ambiente Vercel d
 
 ## Configurazione hosting e riferimenti
 
+Andrea ha autorizzato il 26 novembre 2026 i deploy automatici del backend dal solo branch `main`, per ora unico branch di rilascio. Il progetto esistente `pizzaos-api` usa il repository `kremisi-com/pizzaos`, root `services/checkout-api`, con i file esterni alla root inclusi. Configurazione e controlli appartengono al servizio: [runtime e deploy](../../../services/checkout-api/README.md#runtime-e-artefatto-vercel). API e worker vengono preparati dalla stessa revisione; il worker resta fermo (`fra1=0`). Migrazioni e pubblicazione dei menu non sono conseguenze del push. La verifica effettiva del collegamento e dei rilasci è distinta dalla scelta ed è registrata nel [verbale online](../../../services/checkout-api/online-deployment.md).
+
 Le associazioni sotto derivano dai verbali del pilota. Non attestano disponibilità o numero istanze al momento della lettura; prima di un rilascio applicare il [runbook](../../../services/checkout-api/pilot-operations.md).
 
 - Progetto corretto: [`kremisis-projects/pizzaos-admin`](https://vercel.com/kremisis-projects/pizzaos-admin), ID `prj_KzbNoKFKlPO2c8VhzHi5pfDCxDuO`. `admin.pizzaos.app` era già associato; `rider.pizzaos.app` è stato aggiunto allo stesso progetto senza redirect.

@@ -4,6 +4,8 @@ Runbook corrente dal 25 novembre 2026. [Runtime e comandi](README.md), [ultimo s
 
 ## Prima di un rilascio
 
+Per il backend il branch autorizzato è `main`. Il progetto Vercel esistente deve essere collegato a `kremisi-com/pizzaos`, con root `services/checkout-api` e accesso ai file esterni; il manifest del servizio definisce installazione, controlli e handler. Verificare che il deployment avviato dal push sia Ready e che l'alias `api.pizzaos.app` punti al suo commit. Una build fallita conserva il precedente alias: il push riuscito da solo non prova un rilascio. Il worker resta configurato a zero istanze. Il comando `build:deployment` rimane disponibile per interventi manuali.
+
 Identificare commit candidato, progetto backend `pizzaos-api` nel team corretto, database `pizzaos_test`, origini app e chiavi Stripe sandbox. Non usare il nome Vercel Production come prova di un ambiente commerciale: gli alias pubblici del pilota servono test. Il database commerciale separato non va usato dalle prove.
 
 Eseguire suite e build dal candidato; `pnpm --filter @pizzaos/checkout-api build:deployment` prepara l'artefatto API/worker. Applicare le migrazioni richieste da quella versione con la connessione diretta del database corretto. La protezione `configurationRevision` del 25 novembre non richiede una migrazione ma richiede un admin aggiornato: pubblicare servizio/admin coordinati e far rileggere le configurazioni prima del salvataggio. Non aprire una sede durante un disallineamento.

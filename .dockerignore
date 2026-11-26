@@ -1,0 +1,9 @@
+.git
+.codex
+**/node_modules
+**/.next*
+**/.env*
+**/dist
+**/coverage
+test-results
+playwright-report

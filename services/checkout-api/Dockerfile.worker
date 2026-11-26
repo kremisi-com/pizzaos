@@ -1,0 +1,16 @@
+FROM node:24-slim AS build
+WORKDIR /workspace
+RUN corepack enable
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY packages ./packages
+COPY services/checkout-api ./services/checkout-api
+RUN pnpm install --frozen-lockfile --filter @pizzaos/checkout-api...
+RUN pnpm --filter @pizzaos/checkout-api build:deployment
+RUN cd .codex/deployments/pizzaos-api && npm install --package-lock-only --ignore-scripts
+
+FROM node:24-slim
+WORKDIR /app
+COPY --from=build /workspace/.codex/deployments/pizzaos-api/package.json /workspace/.codex/deployments/pizzaos-api/package-lock.json ./
+RUN npm ci --omit=dev --ignore-scripts
+COPY --from=build /workspace/.codex/deployments/pizzaos-api/worker/index.mjs ./index.mjs
+CMD ["node", "--enable-source-maps", "index.mjs"]
