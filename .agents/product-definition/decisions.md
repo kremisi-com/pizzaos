@@ -247,3 +247,7 @@ Menu collega prodotti della stessa bozza in fasi ordinate, una scelta obbligator
 ## Deploy automatici da main
 
 Andrea autorizza il 26 novembre 2026 il collegamento Git e i deploy automatici del backend, con tutti i rilasci su main per ora, e chiede di pubblicare subito la versione corrente. Il progetto e gli alias esistenti restano quelli del pilota test. Il worker conserva lo stato fermo. Configurazione, controlli ed evidenze sono distinti: [architettura del pilota](architecture/pilot-deployment.md), [runbook](../../services/checkout-api/pilot-operations.md), [registro online](../../services/checkout-api/online-deployment.md).
+
+## Permessi dell'organizzatore sui contributi altrui
+
+Andrea conferma il 26 novembre 2026 che l'organizzatore può rimuovere articoli o ridurre quantità dei contributi altrui, conservandone personalizzazioni e note. Il client operativo non deve offrire l'editor di personalizzazione su quelle righe; conserva la personalizzazione del proprio contributo. La correzione allinea la UI ai permessi esistenti del servizio. Precisa D61/D63; [flusso corrente](flows/group-ordering.md).

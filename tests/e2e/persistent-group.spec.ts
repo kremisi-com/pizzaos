@@ -25,6 +25,7 @@ async function join(page: Page, link: string, name: string) {
 }
 async function addFirst(page: Page) {
   await page.getByRole("button", { name: /^Aggiungi/ }).first().click();
+  await page.getByRole("dialog").getByRole("button", { name: "Aggiungi", exact: true }).click();
   await expect(page.getByLabel("Le mie scelte", { exact: true }).getByRole("spinbutton").first()).toBeVisible();
 }
 

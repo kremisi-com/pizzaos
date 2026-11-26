@@ -63,6 +63,43 @@ describe("persistent group server-backed screen", () => {
     expect(api.replaceLines).not.toHaveBeenCalled();
   });
 
+  it.each(["open", "closed"] as const)("keeps guest customization read-only for the host in a %s collection while allowing removal", async (status) => {
+    const guestLine = { productId: "pizza", quantity: 2, optionIds: ["extra"], notes: "Ben cotta" };
+    const remainingLine = { ...guestLine, notes: "Senza sale" };
+    const group: GroupSnapshot = { ...initial, status, role: "host", participantId: "alice",
+      participants: initial.participants.map(person => person.id === "marco" ? { ...person, lines: [guestLine, remainingLine] } : person) };
+    const { api, individualApi } = ports(group);
+    vi.mocked(individualApi.catalog).mockResolvedValue({ ...store, products: [{ ...store.products[0], options: [{ id: "extra", name: "Extra", priceCents: 100, ingredients: {}, removesIngredientIds: [] }] }] });
+    render(<PersistentGroupScreen api={api} individualApi={individualApi} groupId="group" />);
+    await waitFor(() => expect(within(screen.getByRole("article", { name: "Marco" })).getAllByText("Extra").length).toBeGreaterThanOrEqual(2));
+    const marco = within(screen.getByRole("article", { name: "Marco" }));
+    expect(marco.queryAllByRole("button", { name: "Modifica Pizza" })).toHaveLength(0);
+    expect(marco.queryByRole("textbox")).toBeNull();
+    expect(marco.getByText("Ben cotta")).toBeTruthy();
+    expect(api.replaceLines).not.toHaveBeenCalled();
+    fireEvent.click(marco.getAllByRole("button", { name: "Rimuovi articolo di Marco" })[0]);
+    await waitFor(() => expect(api.replaceLines).toHaveBeenCalledWith("group", { participantId: "marco", revision: 2, lines: [remainingLine] }));
+    await waitFor(() => expect(marco.getByRole("button", { name: "Rimuovi partecipante Marco" })).toHaveProperty("disabled", false));
+    fireEvent.click(marco.getByRole("button", { name: "Rimuovi partecipante Marco" }));
+    await waitFor(() => expect(api.removeParticipant).toHaveBeenCalledWith("group", { participantId: "marco", revision: 2 }));
+  });
+
+  it.each(["host", "participant"] as const)("preserves customization of the %s's own contribution", async (role) => {
+    const group: GroupSnapshot = { ...initial, role, participantId: "marco",
+      participants: initial.participants.map(person => ({ ...person, host: role === "host" ? person.id === "marco" : person.host })) };
+    const { api, individualApi } = ports(group);
+    vi.mocked(individualApi.catalog).mockResolvedValue({ ...store, products: [{ ...store.products[0], options: [{ id: "extra", name: "Extra", priceCents: 100, ingredients: {}, removesIngredientIds: [] }] }] });
+    render(<PersistentGroupScreen api={api} individualApi={individualApi} groupId="group" />);
+    const own = await screen.findByLabelText("Le mie scelte");
+    fireEvent.click(await within(own).findByRole("button", { name: "Modifica Pizza" }));
+    const dialog = within(screen.getByRole("dialog", { name: "Pizza" }));
+    fireEvent.click(dialog.getByRole("checkbox", { name: /Extra/ }));
+    fireEvent.change(dialog.getByLabelText("Note per la cucina"), { target: { value: "Senza sale" } });
+    fireEvent.click(dialog.getByRole("button", { name: "Aggiorna scelta" }));
+    await waitFor(() => expect(api.replaceLines).toHaveBeenCalledWith("group", { participantId: "marco", revision: 2,
+      lines: [{ productId: "pizza", quantity: 1, optionIds: ["extra"], notes: "Senza sale" }] }));
+  });
+
   it("renders a closed guest collection without active editing or checkout actions", async () => {
     const { api, individualApi } = ports({ ...initial, status: "closed" });
     render(<PersistentGroupScreen api={api} individualApi={individualApi} groupId="group" />);

@@ -260,12 +260,6 @@ export function PersistentGroupScreen({ api, individualApi, promotionsApi, prefe
           return <li key={`${line.productId}-${index}`}>
           <strong>{line.quantity} × {product?.name ?? line.productId}</strong>{line.notes && <p>{line.notes}</p>}
           <MenuLineDetails product={product} line={line} products={store?.products} />
-          {host && !person.host && group.status !== "submitted" && store && product && (product.options.length > 0 || product.meal) &&
-            <MenuLineEditor store={store} product={product} line={line} disabled={busy || pending || dirty} avoid={[]}
-              onSave={updated => void run(async () => {
-                const lines = person.lines.map((item, current) => current === index ? updated : item);
-                applyGroup(await api.replaceLines(group.id, { participantId: person.id, revision: group.revision, lines }));
-              })} />}
           {host && group.status !== "submitted" && <button type="button" className={styles.secondary} disabled={busy || pending || dirty} onClick={() => void run(async () => {
             const next = await api.replaceLines(group.id, { participantId: person.id, revision: group.revision, lines: person.lines.filter((_, i) => i !== index) }); applyGroup(next);
           })}>Rimuovi articolo di {person.name}</button>}

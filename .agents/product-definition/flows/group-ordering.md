@@ -1,6 +1,6 @@
 # Ordine di gruppo
 
-Fonte: D61-D63. L'organizzatore autenticato apre una raccolta per ristorante e sceglie la scadenza; condivide un link. Gli invitati entrano con nome senza account e possono modificare solo le proprie scelte. L'organizzatore può eliminare articoli e partecipanti. Gli inviti funzionano tra dispositivi distinti con dati persistenti server.
+Fonte: D61-D63. L'organizzatore autenticato apre una raccolta per ristorante e sceglie la scadenza; condivide un link. Gli invitati entrano con nome senza account e possono modificare solo le proprie scelte. L'organizzatore può eliminare articoli e partecipanti; sui contributi altrui il servizio consente soltanto rimozioni e riduzioni di quantità, mantenendo personalizzazioni e note. Gli inviti funzionano tra dispositivi distinti con dati persistenti server.
 
 La scadenza chiude la raccolta automaticamente; l'organizzatore può chiuderla prima. Non rappresenta uno slot di consegna e non genera ordini o pagamenti. Durante raccolta non si riservano ingredienti o capacità. Alla conferma l'organizzatore verifica prezzi/disponibilità correnti, corregge conflitti, sceglie un solo indirizzo e slot, conferma e paga il totale con carta o contanti.
 
@@ -22,6 +22,9 @@ La suite [browser multi-identità](../../../tests/e2e/persistent-group.spec.ts) 
 
 Verifica locale del 25 novembre 2026 per il QR: 134 test client, lint, typecheck, build isolata `.next-qr-build` e controllo architettura superati. Passano i tre scenari browser gruppo, inclusa decodifica e ingresso via QR. La suite combinata gruppo/individuale ha 9 successi e un errore estraneo al QR: lo scenario sidebar admin attende un titolo «Menu pubblicato», mentre la schermata corrente espone questa informazione come stato. Nessuna nuova verifica online eseguita.
 
+Verifica locale del 26 novembre 2026 per i permessi UI dell'organizzatore: 176 test client (14 nella suite gruppo persistente) e 28 test servizio gruppo superati, inclusi i due test calendario segnalati intermittenti nell'audit. Lint, typecheck, build client isolata `.next-group-permissions-build` e controllo architettura superati. I tre scenari browser gruppo passano dopo aver aggiornato il passaggio di aggiunta prodotto del test alla conferma nel dettaglio già prevista dal menu corrente. Nessuna nuova verifica online eseguita.
+
+- L'organizzatore vede un articolo personalizzato di un invitato, a raccolta aperta o chiusa: dettagli e note restano leggibili, ma la riga non offre l'editor di personalizzazione né campi note. Restano disponibili rimozione dell'articolo e del partecipante, con i blocchi esistenti durante un tentativo di checkout o dopo l'invio. L'organizzatore conserva l'editor per il proprio contributo. I [test client](../../../apps/client/src/test/persistent-group.test.tsx) verificano l'assenza dell'editor altrui, le rimozioni e il salvataggio di personalizzazioni e note proprie per host e invitato. Nessun ampliamento dei permessi del servizio.
 - Un invitato tenta di cambiare le scelte altrui: il servizio nega l'azione; i contributi restano personali.
 - Scade la raccolta o l'organizzatore la chiude prima: si chiudono le scelte, senza inviare un ordine, pagare o riservare stock/slot.
 - Prezzi, prodotti o capacità cambiano durante la raccolta: l'organizzatore risolve i conflitti e riconferma prima del checkout.
