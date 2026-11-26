@@ -219,6 +219,7 @@
   padding: 0;
   overflow: hidden;
   width: min(100% - 24px, 545px);
+  max-width: none;
   max-height: min(86dvh, 780px);
   border: 1px solid var(--pizzaos-color-border);
   border-radius: 22px;
@@ -235,7 +236,7 @@
   display: grid;
   grid-template-rows: auto minmax(0, 1fr) auto;
   gap: 0;
-  max-height: min(86dvh, 780px);
+  max-height: calc(min(86dvh, 780px) - 2px);
   margin: 0;
 }
 
