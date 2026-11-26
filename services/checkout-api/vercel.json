@@ -6,7 +6,7 @@
   "buildCommand": "pnpm lint && pnpm typecheck && pnpm test && pnpm build && pnpm build:vercel",
   "outputDirectory": "public",
   "regions": ["fra1"],
-  "git": { "deploymentEnabled": { "main": true, "*": false } },
+  "git": { "deploymentEnabled": { "main": true, "**": false } },
   "functions": { "api/index.mjs": { "maxDuration": 300, "memory": 1024 } },
   "rewrites": [{ "source": "/(.*)", "destination": "/api/index" }],
   "daemons": {
