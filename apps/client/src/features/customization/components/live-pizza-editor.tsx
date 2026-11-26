@@ -283,7 +283,7 @@ export function LivePizzaEditor({ store, product, line, quantity = 1, disabled, 
         </div>
         <label className={styles.noteField}><span className={styles.noteLabel}>Messaggio opzionale</span>
           <textarea className={styles.noteTextarea} value={notes} maxLength={500} rows={4} disabled={disabled}
-            placeholder="Es. taglia a spicchi piccoli, consegna senza suonare" onChange={event => setNotes(event.target.value)} />
+            placeholder="Es. taglia a spicchi piccoli, metti poca mozzarella" onChange={event => setNotes(event.target.value)} />
         </label>
       </section>
       {pairings.length > 0 && <section className={styles.pairingsSection}>

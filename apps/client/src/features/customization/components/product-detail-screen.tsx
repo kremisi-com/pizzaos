@@ -338,7 +338,7 @@ export function ProductDetailScreen(props: ProductDetailScreenProps): ReactEleme
           <textarea
             className={styles.noteTextarea}
             name="customer-note"
-            placeholder="Es. taglia a spicchi piccoli, consegna senza suonare"
+            placeholder="Es. taglia a spicchi piccoli, metti poca mozzarella"
             value={customerNote}
             onChange={(event) => setCustomerNote(event.target.value)}
             maxLength={180}

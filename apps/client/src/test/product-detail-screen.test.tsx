@@ -44,7 +44,7 @@ describe("product detail screen", () => {
     ).toBe("Note per la cucina");
     expect(
       domScreen.getByLabelText("Messaggio opzionale").getAttribute("placeholder"),
-    ).toBe("Es. taglia a spicchi piccoli, consegna senza suonare");
+    ).toBe("Es. taglia a spicchi piccoli, metti poca mozzarella");
 
     domFireEvent.click(
       domScreen.getByRole("heading", { name: "Extra" }).closest("button") as HTMLButtonElement,
