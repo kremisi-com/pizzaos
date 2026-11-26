@@ -31,6 +31,15 @@ function MoveButtons({ label, index, count, onMove }: {
   </>;
 }
 
+function AddProductSelect({ onAdd }: { onAdd: (type: ProductType) => void }) {
+  return <div className={styles.actions}>
+    <select className={styles.addProductSelect} aria-label="Aggiungi prodotto" value="" onChange={event => {
+      const type = event.target.value as ProductType;
+      if (type) onAdd(type);
+    }}><option value="" disabled>Aggiungi prodotto</option><option value="pizza">Pizza</option><option value="sandwich">Panino</option><option value="product">Prodotto</option><option value="box">Box</option><option value="meal">Menu</option></select>
+  </div>;
+}
+
 export function MenuDraftEditor({ draft: sourceDraft, storeId, ingredients, onChange, onUpload, onInventory }: {
   draft: MenuDraft;
   storeId: string;
@@ -154,6 +163,7 @@ export function MenuDraftEditor({ draft: sourceDraft, storeId, ingredients, onCh
       </div>
       <label>Descrizione<textarea value={section.description ?? ""} maxLength={1000}
         onChange={event => updateSection(section.id, { description: event.target.value || undefined })} /></label>
+      <AddProductSelect onAdd={type => addProduct(section, undefined, type)} />
       <ul className={styles.productList}>
         {section.productIds.map((id, position) => {
           const product = products.get(id);
@@ -188,12 +198,7 @@ export function MenuDraftEditor({ draft: sourceDraft, storeId, ingredients, onCh
           </li>;
         })}
       </ul>
-      <div className={styles.actions}>
-        <select className={styles.addProductSelect} aria-label="Aggiungi prodotto" value="" onChange={event => {
-          const type = event.target.value as ProductType;
-          if (type) addProduct(section, undefined, type);
-        }}><option value="" disabled>Aggiungi prodotto</option><option value="pizza">Pizza</option><option value="sandwich">Panino</option><option value="product">Prodotto</option><option value="box">Box</option><option value="meal">Menu</option></select>
-      </div>
+      <AddProductSelect onAdd={type => addProduct(section, undefined, type)} />
     </section>; })}
     <button type="button" className={`${styles.settingsCard} ${settings ? styles.selectedCard : ""}`} onClick={() => {
       setSettings(true); setEditingId("");

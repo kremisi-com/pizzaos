@@ -47,7 +47,7 @@ describe("Eliminazione prodotto dal menu", () => {
     const empty: MenuDraft = JSON.parse(screen.getByLabelText("Bozza").textContent ?? "{}");
     expect(empty.products).toEqual([]);
     expect(empty.sections[0].productIds).toEqual([]);
-    expect(screen.getByRole("combobox", { name: "Aggiungi prodotto" })).toBeVisible();
+    expect(screen.getAllByRole("combobox", { name: "Aggiungi prodotto" })[0]).toBeVisible();
   });
 
   it("richiede conferma anche dalla scheda e la chiude dopo l'eliminazione", () => {

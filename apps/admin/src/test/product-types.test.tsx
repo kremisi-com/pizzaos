@@ -20,7 +20,7 @@ function setup() {
 
 it.each([["Panino", "sandwich"], ["Prodotto", "product"], ["Box", "box"], ["Menu", "meal"]])("creates %s with its permanent type", (label, type) => {
   const changed = setup();
-  fireEvent.change(screen.getByRole("combobox", { name: "Aggiungi prodotto" }), { target: { value: type } });
+  fireEvent.change(screen.getAllByRole("combobox", { name: "Aggiungi prodotto" })[0], { target: { value: type } });
   const draft = changed.mock.lastCall![0] as MenuDraft;
   expect(draft.products.at(-1)?.productType).toBe(type);
   expect(screen.queryByRole("checkbox", { name: "Pizza" })).toBeNull();
@@ -31,7 +31,7 @@ it.each([["Panino", "sandwich"], ["Prodotto", "product"], ["Box", "box"], ["Menu
 
 it("configures Menu phases using catalog products with signed price differences", () => {
   const changed = setup();
-  fireEvent.change(screen.getByRole("combobox", { name: "Aggiungi prodotto" }), { target: { value: "meal" } });
+  fireEvent.change(screen.getAllByRole("combobox", { name: "Aggiungi prodotto" })[0], { target: { value: "meal" } });
   fireEvent.click(screen.getByRole("button", { name: "Aggiungi fase" }));
   fireEvent.click(screen.getByRole("checkbox", { name: "Acqua" }));
   fireEvent.change(screen.getByLabelText("Variazione Acqua in euro"), { target: { value: "-0.5" } });
@@ -39,9 +39,11 @@ it("configures Menu phases using catalog products with signed price differences"
   expect(menu.meal?.steps[0].alternatives).toEqual([{ productId: "acqua", priceCents: -50 }]);
 });
 
-it("keeps the selection ready for consecutive additions of the same type", () => {
+it.each([0, 1])("keeps control %s ready for consecutive additions of the same type", position => {
   const changed = setup();
-  const select = screen.getByRole("combobox", { name: "Aggiungi prodotto" }) as HTMLSelectElement;
+  const controls = screen.getAllByRole("combobox", { name: "Aggiungi prodotto" });
+  expect(controls).toHaveLength(2);
+  const select = controls[position] as HTMLSelectElement;
   expect(select.value).toBe("");
   expect(changed).not.toHaveBeenCalled();
   expect(Array.from(select.options).filter(option => !option.disabled).map(option => option.text)).toEqual(["Pizza", "Panino", "Prodotto", "Box", "Menu"]);
