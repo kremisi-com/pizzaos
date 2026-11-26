@@ -35,7 +35,9 @@ async function setup(options: { draft?: MenuDraft; ingredients?: IndividualIngre
   render(<AdminToastContext.Provider value={{ showToast }}>
     <OperationalCatalog api={api} storeId="store" ingredients={options.ingredients ?? []} loadIngredients={options.loadIngredients} onPublished={onPublished} />
   </AdminToastContext.Provider>);
-  fireEvent.change(await screen.findByRole("combobox", { name: "Menu da modificare" }), { target: { value: "draft" } });
+  const menuSelect = await screen.findByRole("combobox", { name: "Menu da modificare" });
+  expect(screen.queryByRole("button", { name: "Pubblica menu" })).toBeNull();
+  fireEvent.change(menuSelect, { target: { value: "draft" } });
   const trigger = screen.getByRole("button", { name: "Pubblica menu" });
   trigger.focus();
   fireEvent.click(trigger);
@@ -71,6 +73,7 @@ describe("conferma pubblicazione menu", () => {
     finish({ revision: 2, published: { id: "draft", name: "Bozza", sections: [], products: [] }, drafts: [] });
     await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
     expect(onPublished).toHaveBeenCalledTimes(1);
+    expect(screen.queryByRole("button", { name: "Pubblica menu" })).toBeNull();
   });
 
   it("mantiene il modal aperto e mostra l'errore al suo interno per riprovare", async () => {

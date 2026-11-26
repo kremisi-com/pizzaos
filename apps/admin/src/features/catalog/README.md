@@ -1,5 +1,7 @@
 # Gestione catalogo
 
+Il comando **Pubblica menu** appare solo con una bozza selezionata; selezionando il menu pubblicato o dopo una pubblicazione riuscita il comando non appare. Verifica locale: `apps/admin/src/test/menu-publish-confirmation.test.tsx` (dalla root del repository).
+
 Scorte vuote/null non bloccano la pubblicazione. Con scorte zero la disponibilità cliente segue la scelta salvata in Profilo, senza modificare o ripubblicare la bozza. In modalità **Visibili e ordinabili**, il Menu admin avvisa degli ingredienti esauriti; il cliente non riceve questo avviso. [Regole della sede](../../../../../.agents/product-definition/flows/store-configuration.md#scorte-non-tracciate-e-prodotti-esauriti). Verifica: `src/test/stock-policy.test.tsx`.
 
 

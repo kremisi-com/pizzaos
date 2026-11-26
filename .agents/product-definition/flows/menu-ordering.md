@@ -1,5 +1,7 @@
 # Menu, composizione e preferenze alimentari
 
+Il comando **Pubblica menu** appare solo con una bozza selezionata; selezionando il menu pubblicato o dopo una pubblicazione riuscita il comando non appare. Verifica locale: `apps/admin/src/test/menu-publish-confirmation.test.tsx` (dalla root del repository).
+
 La pubblicazione non richiede scorte compilate: null indica scorta non tracciata per ogni ingrediente. Le dosi delle ricette, degli extra e dei formati impasto possono restare null: non bloccano pubblicazione e ordinazione. Le altre configurazioni commerciali restano validate. I prodotti con ingredienti base a zero seguono la scelta salvata in Profilo: ordinabili con alert soltanto admin, visibili disabilitati con **Esaurito** (default scelto da Andrea), oppure nascosti. Le opzioni zero seguono la medesima policy, senza rendere esaurito un prodotto base che non le richiede. La disabilitazione manuale resta prioritaria. La scelta aggiorna subito il catalogo e i controlli su carrelli precedenti, senza pubblicare il menu. [Regole e casi limite](store-configuration.md#scorte-non-tracciate-e-prodotti-esauriti). Verifiche locali: `stock-policy.test.ts`, `stock-policy.test.tsx` nei moduli coinvolti e `pnpm exec playwright test --config playwright.stock-policy.config.ts`; nessun rilascio online implicito.
 
 

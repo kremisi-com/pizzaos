@@ -246,7 +246,7 @@ export function OperationalCatalog({ api, storeId, ingredients, onPublished, onI
             <option value="">{workspace.published.name} (pubblicato)</option>
             {Array.from(availableDrafts.values()).map(draft => <option key={draft.id} value={draft.id}>{draft.name || "Bozza senza nome"}</option>)}
           </select></label>
-          <Button type="button" disabled={!selectedDraft || pending} aria-haspopup="dialog" onClick={() => void reviewPublication()}>Pubblica menu</Button>
+          {selectedDraft && <Button type="button" disabled={pending} aria-haspopup="dialog" onClick={() => void reviewPublication()}>Pubblica menu</Button>}
         </div>
       </header>
       <div className={styles.menuTools}>
