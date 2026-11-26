@@ -15,6 +15,7 @@ test("guest draft survives reload and sign-in, cash pickup reaches completed in 
   await expect(page.getByLabel("Scegli la sede")).toBeVisible();
   await page.getByLabel("Scegli la sede").selectOption({ label: "Roma" });
   await page.getByRole("button", { name: "Aggiungi Pizza", exact: true }).click();
+  await page.getByRole("dialog").getByRole("button", { name: "Aggiungi", exact: true }).click();
   await expect(page.getByRole("heading", { name: "Consegna e pagamento", exact: true })).toHaveCount(0);
   await expect.poll(async () => page.evaluate(() => {
     const raw = window.localStorage.getItem("pizzaos.individual-cart.v1");
@@ -102,6 +103,7 @@ test("guest delivery requires a selected street number and sends its point to th
   await page.goto(`${clientOrigin}/ordina`);
   await page.getByLabel("Scegli la sede").selectOption("roma");
   await page.getByRole("button", { name: "Aggiungi Pizza", exact: true }).click();
+  await page.getByRole("dialog").getByRole("button", { name: "Aggiungi", exact: true }).click();
   await page.getByRole("link", { name: "Vai a consegna e pagamento", exact: true }).click();
   await page.getByLabel("Modalità", { exact: true }).selectOption("delivery");
   const address = page.getByLabel("Indirizzo completo", { exact: true });

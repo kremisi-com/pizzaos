@@ -37,3 +37,8 @@ Object.defineProperty(window, "localStorage", {
   configurable: true,
   value: new InMemoryStorage()
 });
+
+Object.defineProperties(HTMLDialogElement.prototype, {
+  showModal: { configurable: true, value(this: HTMLDialogElement) { this.setAttribute("open", ""); } },
+  close: { configurable: true, value(this: HTMLDialogElement) { this.removeAttribute("open"); } }
+});

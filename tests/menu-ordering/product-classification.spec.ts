@@ -96,7 +96,11 @@ test("classificazione confermata in bozza, extra comuni e scelte specifiche arri
     expect(quote.lines.find((line) => line.productId === pizza.id)?.unitCents).toBe(1020);
     expect(quote.lines.find((line) => line.productId === pizza.id)?.composition?.choices.map((choice) => choice.name)).toEqual(expect.arrayContaining(["Salsa speciale", ingredient.name]));
     await page.getByRole("button", { name: "Aggiungi Birra classificazione", exact: true }).click();
-    await expect(page.getByRole("dialog", { name: "Birra classificazione", exact: true })).toHaveCount(0);
+    const drink = page.getByRole("dialog", { name: "Birra classificazione", exact: true });
+    await expect(drink).toBeVisible();
+    await expect(drink.getByRole("button", { name: /^Impasto/ })).toHaveCount(0);
+    await drink.getByRole("button", { name: "Aggiungi", exact: true }).click();
+    await expect(drink).toHaveCount(0);
     await expect(page.getByRole("dialog", { name: "Specialità classificata", exact: true })).toHaveCount(0);
   } finally {
     await operator.close();

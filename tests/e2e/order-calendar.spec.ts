@@ -63,6 +63,7 @@ test("la settimana tipo del Profilo governa entrambi i checkout", async ({ brows
 
     await page.goto(`${clientOrigin}/ordina`);
     await page.getByRole("button", { name: "Aggiungi Pizza", exact: true }).click();
+    await page.getByRole("dialog").getByRole("button", { name: "Aggiungi", exact: true }).click();
     await page.getByRole("link", { name: "Vai a consegna e pagamento", exact: true }).click();
     await page.getByLabel("Quando?").selectOption(exclusive!.id);
     await page.getByRole("button", { name: "Verifica disponibilità e totale" }).click();
@@ -75,6 +76,7 @@ test("la settimana tipo del Profilo governa entrambi i checkout", async ({ brows
     await page.getByRole("link", { name: "Ordine di gruppo", exact: true }).click();
     await page.getByRole("button", { name: "Crea gruppo", exact: true }).click();
     await page.getByRole("button", { name: "Aggiungi Pizza", exact: true }).click();
+    await page.getByRole("dialog").getByRole("button", { name: "Aggiungi", exact: true }).click();
     await expect(page.getByLabel("Le mie scelte").getByRole("spinbutton")).toHaveValue("1");
     await page.getByRole("button", { name: "Chiudi raccolta", exact: true }).click();
     await expect(page.getByRole("option", { name: `${exclusiveLabel} · Al completo`, exact: true })).toHaveJSProperty("disabled", true);

@@ -113,7 +113,10 @@ function recoveryApi()
 async function addPizzas(quantity: number)
 {
   const add = await domScreen.findByRole("button", { name: "Aggiungi Margherita" });
-  for (let index = 0; index < quantity; index++) domFireEvent.click(add);
+  for (let index = 0; index < quantity; index++) {
+    domFireEvent.click(add);
+    domFireEvent.click(domScreen.getByRole("button", { name: "Aggiungi" }));
+  }
 }
 
 async function verifyAndSubmit()

@@ -181,10 +181,8 @@ function MenuItem({ store, product, preferences, disabled, onAdd }: {
   return <article className={`${styles.item} ${!product.available ? styles.itemUnavailable : ""}`}>
     <div className={styles.itemBody}>
       <h4 aria-label={product.name}>
-        <button className={styles.itemTrigger} type="button" disabled={disabled || !product.available} onClick={() => {
-          if (needsChoices) setConfiguring(true);
-          else onAdd({ productId: product.id, quantity: 1, optionIds: [], notes: "" });
-        }} aria-label={product.available ? `Aggiungi ${product.name}` : `${product.name} non disponibile`}>{product.name}</button>
+        <button className={styles.itemTrigger} type="button" disabled={disabled || !product.available} onClick={() => setConfiguring(true)}
+          aria-label={product.available ? `Aggiungi ${product.name}` : `${product.name} non disponibile`}>{product.name}</button>
         <strong className={styles.itemPrice}>{!product.pizza && needsChoices && product.groups?.some(group => group.min > 0) ? "Base " : ""}{menuMoney(preview.unitCents)}</strong>
       </h4>
       {product.description && <p>{product.description}</p>}

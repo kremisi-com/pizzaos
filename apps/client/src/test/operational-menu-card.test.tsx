@@ -15,16 +15,28 @@ function setup(overrides: Partial<IndividualProduct> = {}, acceptingOrders = tru
   return onAdd;
 }
 beforeEach(cleanupDom);
-it("adds a simple product once through the card action", () => {
+it("opens a simple product before adding it once with its notes", () => {
   const onAdd = setup();
   domFireEvent.click(domScreen.getByRole("button", { name: "Aggiungi Acqua" }));
+  expect(domScreen.getByRole("dialog", { name: "Acqua" })).toBeTruthy();
+  expect(onAdd).not.toHaveBeenCalled();
+  domFireEvent.change(domScreen.getByLabelText("Note per la cucina"), { target: { value: "Senza ghiaccio" } });
+  domFireEvent.click(domScreen.getByRole("button", { name: "Aggiungi" }));
+  expect(domScreen.queryByRole("dialog")).toBeNull();
   expect(onAdd).toHaveBeenCalledTimes(1);
-  expect(onAdd).toHaveBeenCalledWith({ productId: "acqua", quantity: 1, optionIds: [], notes: "" });
+  expect(onAdd).toHaveBeenCalledWith({ productId: "acqua", quantity: 1, optionIds: [], notes: "Senza ghiaccio" });
 });
 it.each([false, true])("blocks the card for unavailable products or closed ordering (%s)", unavailable => {
   const onAdd = setup({ available: !unavailable }, unavailable);
   const button = domScreen.getByRole("button");
   expect((button as HTMLButtonElement).disabled).toBe(true);
   domFireEvent.click(button);
+  expect(onAdd).not.toHaveBeenCalled();
+});
+it("closes the product sheet without adding a line", () => {
+  const onAdd = setup();
+  domFireEvent.click(domScreen.getByRole("button", { name: "Aggiungi Acqua" }));
+  domFireEvent.click(domScreen.getByRole("button", { name: "Chiudi personalizzazione" }));
+  expect(domScreen.queryByRole("dialog")).toBeNull();
   expect(onAdd).not.toHaveBeenCalled();
 });

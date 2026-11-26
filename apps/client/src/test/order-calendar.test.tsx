@@ -42,6 +42,7 @@ function calendarApi(capacity: number) {
 
 async function addPizza() {
   domFireEvent.click(await domScreen.findByRole("button", { name: "Aggiungi Margherita" }));
+  domFireEvent.click(domScreen.getByRole("button", { name: "Aggiungi" }));
 }
 
 function chooseOption(option: HTMLOptionElement) {

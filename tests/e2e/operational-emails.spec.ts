@@ -16,6 +16,7 @@ test('cliente invia contanti, errore email non blocca accettazione e polling rec
     await navigation.getByRole('button', { name: 'Integrazioni', exact: true }).click();
     await expect(admin.getByRole('heading', { name: 'Email operative', exact: true })).toBeVisible();
     await client.goto(`${localUrl(clientUrl)}/ordina`); await client.getByRole('button', { name: 'Aggiungi Pizza', exact: true }).click();
+    await client.getByRole("dialog").getByRole("button", { name: "Aggiungi", exact: true }).click();
     await client.getByRole("link", { name: "Vai a consegna e pagamento", exact: true }).click();
     await client.getByLabel("Note per l'ordine").fill(marker); await client.getByRole('button', { name: 'Verifica disponibilità e totale', exact: true }).click();
     await client.getByLabel("Telefono per l'ordine").fill('+393331234567'); await client.getByLabel('Come paghi?').selectOption('cash');

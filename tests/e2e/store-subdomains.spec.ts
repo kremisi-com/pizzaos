@@ -44,6 +44,7 @@ test("il superadmin pubblica Roma e il link apre menu e gruppo della stessa sede
   await expect(page.getByRole("heading", { name: "Marinara" })).toHaveCount(0);
   await expect(page.getByRole("combobox", { name: "Scegli la sede" })).toHaveCount(0);
   await page.getByRole("button", { name: "Aggiungi Pizza", exact: true }).click();
+  await page.getByRole("dialog").getByRole("button", { name: "Aggiungi", exact: true }).click();
   await expect(page.getByRole("spinbutton", { name: "Quantità Pizza" })).toHaveValue("1");
 
   await context.addCookies([{ name: "pizzaos-e2e-actor", value: "alice", url: assigned, httpOnly: true, secure: true }]);

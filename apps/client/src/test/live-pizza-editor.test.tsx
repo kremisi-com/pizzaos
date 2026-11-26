@@ -50,6 +50,10 @@ describe("pizza choices after product selection", () => {
     expect(domScreen.queryByRole("radio")).toBeNull();
     expect(domScreen.queryByRole("dialog")).toBeNull();
     domFireEvent.click(domScreen.getByRole("button", { name: "Aggiungi Acqua" }));
+    expect(domScreen.getByRole("dialog", { name: "Acqua" })).toBeTruthy();
+    expect(domScreen.queryByRole("button", { name: /^Impasto/ })).toBeNull();
+    expect(save).not.toHaveBeenCalled();
+    domFireEvent.click(domScreen.getByRole("button", { name: "Aggiungi" }));
     expect(save).toHaveBeenCalledWith({ productId: "acqua", quantity: 1, optionIds: [], notes: "" });
     expect(domScreen.queryByRole("dialog")).toBeNull();
 

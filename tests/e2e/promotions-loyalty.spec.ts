@@ -37,6 +37,7 @@ async function completeOrder(admin: Page, customer: Page, note: string, id: stri
 async function createIndividual(page: Page, note: string, code?: string) {
   await page.goto(`${clientOrigin}/ordina`);
   await page.getByRole("button", { name: "Aggiungi Pizza", exact: true }).click();
+  await page.getByRole("dialog").getByRole("button", { name: "Aggiungi", exact: true }).click();
   await page.getByRole("link", { name: "Vai a consegna e pagamento", exact: true }).click();
   await page.locator("textarea").first().fill(note);
   if (code) {
@@ -152,10 +153,12 @@ test("host gruppo applica benefici al solo wallet personale e annullamento ripri
     await host.getByRole("button", { name: "Crea gruppo", exact: true }).click();
     const link = await host.getByLabel("Link invito").inputValue();
     await host.getByRole("button", { name: "Aggiungi Pizza", exact: true }).click();
+    await host.getByRole("dialog").getByRole("button", { name: "Aggiungi", exact: true }).click();
     await guest.goto(link);
     await guest.getByLabel("Nome", { exact: true }).fill("Invitato fedeltà");
     await guest.getByRole("button", { name: "Entra nel gruppo", exact: true }).click();
     await guest.getByRole("button", { name: "Aggiungi Pizza", exact: true }).click();
+    await guest.getByRole("dialog").getByRole("button", { name: "Aggiungi", exact: true }).click();
     await expect(guest.getByText(/Saldo punti/)).toHaveCount(0);
     await expect(guest.getByLabel("Usa premio fedeltà")).toHaveCount(0);
     await expect(host.getByText("Invitato fedeltà", { exact: true })).toBeVisible();

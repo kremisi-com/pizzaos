@@ -67,6 +67,7 @@ test("il Profilo governa prodotti con scorte zero, le scorte vuote consentono pu
     await expect(client.getByRole("button", { name: "Aggiungi Pizza al pomodoro", exact: true })).toBeEnabled();
     await expect(client.getByText("Scorte esaurite", { exact: false })).toHaveCount(0);
     await client.getByRole("button", { name: "Aggiungi Pizza al pomodoro", exact: true }).click();
+    await client.getByRole("dialog").getByRole("button", { name: "Aggiungi", exact: true }).click();
     await client.getByRole("link", { name: "Vai a consegna e pagamento", exact: true }).click();
     const quoting = client.waitForResponse(response => response.url().endsWith("/v1/pilot/quote") && response.request().method() === "POST");
     await client.getByRole("button", { name: "Verifica disponibilità e totale", exact: true }).click();
