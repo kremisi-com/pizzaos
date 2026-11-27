@@ -127,9 +127,13 @@ describe("contratto della vista carrello individuale", () => {
 
   it("apre direttamente consegna e pagamento con lo stesso draft nella vista checkout", async () => {
     const { api } = fixture();
+    api.session = async () => ({ actor: { id: "alice", name: "Alice", email: "alice@example.test" }, superadmin: false, storeIds: [] });
     seed();
     renderDom(<IndividualOrderingScreen api={api} view="checkout" />);
     await domScreen.findByRole("region", { name: "Consegna e pagamento" });
+    await domScreen.findByLabelText("Come paghi?");
+    expect(domScreen.queryByRole("heading", { name: "I tuoi ordini" })).toBeNull();
+    expect(domScreen.queryByRole("button", { name: "Aggiorna ordini" })).toBeNull();
     expect(domScreen.getByLabelText("Modalità")).toBeTruthy();
     expect(domScreen.queryByRole("button", { name: "Aggiungi Margherita" })).toBeNull();
     expect(domScreen.getByRole("link", { name: /Menu$/ }).getAttribute("href")).toBe("/ordina#il-menu");

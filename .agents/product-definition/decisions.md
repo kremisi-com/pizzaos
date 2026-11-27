@@ -268,6 +268,8 @@ Andrea conferma il 27 novembre 2026 che Panino deve usare struttura, sezioni esp
 
 Andrea richiede di distanziare il pulsante Carrello dall’ultima categoria e di rimuovere dal fondo del menu la sezione «I tuoi ordini» con «Aggiorna ordini». L’accesso allo storico avviene dalla navbar inferiore; restano validi i collegamenti diretti agli ordini. [Flusso proprietario](flows/customer-ordering-and-payment.md#percorso-approvato).
 
+Andrea richiede di rimuovere la stessa sezione «I tuoi ordini», incluso «Aggiorna ordini», anche dal fondo della pagina checkout. La conferma dell'invio mantiene l'accesso allo stato tramite «Segui l'ordine».
+
 ## Salvataggio automatico della configurazione sede
 
 Andrea richiede il 27 novembre 2026 di rimuovere **Salva configurazione** da **Configurazione della sede**, salvando automaticamente ogni modifica come Menu e Magazzino. Il Profilo salva testi e numeri all'uscita dal campo, selezioni e azioni subito; conserva la conferma dell'indirizzo, le validazioni e le protezioni dai conflitti. Aggiorna la precedente esclusione del Profilo dall'autosalvataggio; la creazione sede resta esplicita. [Flusso corrente](flows/store-configuration.md#salvataggi-concorrenti).

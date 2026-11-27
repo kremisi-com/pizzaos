@@ -329,7 +329,7 @@ export function IndividualOrderingScreen({ view = "all", api, promotionsApi, pre
       </section>}</div>}</fieldset>}
       {cartCount > 0 && (view === "all" || view === "menu") && <div className={view === "menu" ? styles.cartEntry : styles.mobileCart}><a href={view === "menu" ? "/ordina/carrello" : "#il-tuo-ordine"}>Carrello · {cartCount} {cartCount === 1 ? "articolo" : "articoli"}</a></div>}
     </>}
-    {session?.actor && view !== "cart" && <section className={styles.history} hidden={view === "menu" && !ordersOpen} id="i-tuoi-ordini"><div className={styles.headingRow}><h2>I tuoi ordini</h2><button type="button" className={styles.secondary} disabled={busy} onClick={() => void reloadOrders().catch(failure => setError(errorText(failure)))}>Aggiorna ordini</button></div>
+    {session?.actor && (view === "all" || view === "menu") && <section className={styles.history} hidden={view === "menu" && !ordersOpen} id="i-tuoi-ordini"><div className={styles.headingRow}><h2>I tuoi ordini</h2><button type="button" className={styles.secondary} disabled={busy} onClick={() => void reloadOrders().catch(failure => setError(errorText(failure)))}>Aggiorna ordini</button></div>
       {orders.length === 0 && <p>Non hai ancora inviato ordini.</p>}
       {orders.map(order => <article id={`ordine-${encodeURIComponent(order.id)}`} key={order.id} className={`${styles.order} ${order.status === "awaiting_customer" ? styles.waiting : ""}`}><div className={styles.headingRow}><div><p className={styles.small}>Ordine {order.id}</p><h3>{statusLabels[order.status]}</h3></div><strong>{money(order.quote.totalCents)}</strong></div>
         <OrderTimeline status={order.status} mode={order.cart.mode} />

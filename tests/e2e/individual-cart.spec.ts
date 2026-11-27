@@ -149,6 +149,10 @@ test("il checkout del carrello invia un ordine contanti tramite IndividualApi", 
   await expect(page).toHaveURL(`${clientOrigin}/ordina/carrello`);
   await page.getByRole("link", { name: /Vai al checkout/ }).click();
   await expect(page).toHaveURL(`${clientOrigin}/ordina/checkout`);
+  const history = page.getByRole("heading", { name: "I tuoi ordini", exact: true });
+  const refreshOrders = page.getByRole("button", { name: "Aggiorna ordini", exact: true });
+  await expect(history).toHaveCount(0);
+  await expect(refreshOrders).toHaveCount(0);
   await page.getByLabel("Modalità", { exact: true }).selectOption("pickup");
   await page.getByLabel(/Telefono per l.ordine/).fill("+39 3331234567");
   await page.getByLabel("Come paghi?").selectOption("cash");
@@ -161,6 +165,12 @@ test("il checkout del carrello invia un ordine contanti tramite IndividualApi", 
   const { order } = await checkout.json() as IndividualCheckoutResult;
   expect(order.method).toBe("cash");
   expect(order.cart.lines).toEqual([expect.objectContaining({ productId: "pizza", quantity: 1 })]);
+  await expect(page.getByRole("heading", { name: "Ordine inviato", exact: true })).toBeVisible();
+  await expect(history).toHaveCount(0);
+  await expect(refreshOrders).toHaveCount(0);
+  await page.getByRole("link", { name: "Segui l'ordine", exact: true }).click();
+  await expect(history).toBeVisible();
+  await expect(refreshOrders).toBeVisible();
   await expect(page.getByRole("heading", { name: "In attesa del ristorante", exact: true })).toBeVisible();
   await page.reload();
   await expect(page.getByRole("heading", { name: "In attesa del ristorante", exact: true })).toBeVisible();

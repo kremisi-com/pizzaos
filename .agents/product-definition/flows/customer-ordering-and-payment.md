@@ -27,6 +27,8 @@ Le azioni iniziali del client sono «Sfoglia il menu» e «Ordine di gruppo». I
 
 Il menu mantiene 24 px tra l’ultima categoria e il pulsante Carrello. Lo storico «I tuoi ordini» e «Aggiorna ordini» non sono visibili in fondo al menu: compaiono aprendo Ordini nella navbar o un collegamento diretto allo storico o al singolo ordine. Tornare a Ordina o al menu nasconde nuovamente lo storico, anche tramite indietro/avanti. La suite browser del carrello verifica visibilità e spaziatura.
 
+Il checkout `/ordina/checkout` non include lo storico «I tuoi ordini» né «Aggiorna ordini», anche per il cliente autenticato e dopo l'invio. La conferma mantiene «Segui l'ordine», che apre l'ordine nello storico di `/ordina`; resta disponibile anche Ordini nella navbar. La suite `tests/e2e/individual-cart.spec.ts` verifica l'assenza della sezione nel checkout e l'accesso allo stato dell'ordine dopo l'invio.
+
 La navigazione inferiore evidenzia **Ordini** su `/ordina#i-tuoi-ordini` e sulle ancore del singolo ordine `/ordina#ordine-…`, anche all'apertura diretta, al reload e usando indietro/avanti. Il ritorno a `/ordina` o al menu ripristina **Ordina**; carrello e checkout mantengono **Carrello**. La POC conserva `/orders`. Verifiche locali: [navigazione](../../../apps/client/src/test/bottom-nav.test.tsx) e [browser](../../../tests/e2e/individual-cart.spec.ts); nessuna nuova evidenza online.
 
 Nel menu operativo, se una sola sezione contiene prodotti visibili, il suo titolo non compare sotto «Il menu». Con più sezioni visibili, il client mostra titoli e navigazione delle categorie. Le descrizioni restano visibili anche per la sezione singola; i nomi salvati nell'admin non cambiano.
