@@ -186,7 +186,7 @@ export function MenuProductForm({ storeId, product, index, ingredients, products
     <label className={styles.check}><input type="checkbox" checked={product.available}
       onChange={event => onChange({ available: event.target.checked })} />Disponibile per l’ordinazione</label>
     {type !== "meal" && <MenuRecipeFields label="Ricetta base" recipe={product.ingredients} ingredients={ingredients} onChange={changeRecipe} singleUnit />}
-    {type === "meal" && <MenuMealFields product={product} products={products} onChange={onChange} />}
+    {type === "meal" && <MenuMealFields product={product} products={products} sections={sections} onChange={onChange} />}
     {type === "sandwich" && <p className={styles.small}>Gli ingredienti inclusi sono rimovibili dal cliente. Gli extra comuni si gestiscono nel Magazzino.</p>}
     {product.allergens.length > 0 && <div className={styles.row}>
       <p className={styles.small}>Allergeni del catalogo precedente · {product.allergens.join(", ")}</p>

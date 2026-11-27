@@ -1,14 +1,15 @@
 import { useState } from "react";
 import { productType } from "@pizzaos/domain";
-import type { IndividualProduct, MealStep } from "@pizzaos/domain";
+import type { IndividualProduct, MealStep, OrderingMenuSection } from "@pizzaos/domain";
 import { Button } from "@pizzaos/ui";
 import { MenuPriceField } from "./catalog-form-fields";
 import styles from "./operational-catalog.module.css";
 
-export function MenuMealFields({ product, products, onChange }: {
-  product: IndividualProduct; products: readonly IndividualProduct[]; onChange: (change: Partial<IndividualProduct>) => void;
+export function MenuMealFields({ product, products, sections, onChange }: {
+  product: IndividualProduct; products: readonly IndividualProduct[]; sections: readonly OrderingMenuSection[]; onChange: (change: Partial<IndividualProduct>) => void;
 }) {
   const [queries, setQueries] = useState<Record<string, string>>({});
+  const [categories, setCategories] = useState<Record<string, string>>({});
   const steps = product.meal?.steps ?? [];
   const allowed = products.filter(item => item.id !== product.id && ["pizza", "sandwich", "product"].includes(productType(item)) && item.pizza?.kind !== "formula");
   function update(next: MealStep[]) { onChange({ meal: { steps: next } }); }
@@ -21,11 +22,18 @@ export function MenuMealFields({ product, products, onChange }: {
   return <section className={styles.stack} aria-label="Fasi del Menu">
     {steps.map((step, index) => {
       const query = (queries[step.id] ?? "").trim().toLocaleLowerCase("it");
-      const visible = allowed.filter(item => item.name.toLocaleLowerCase("it").includes(query));
+      const category = sections.find(section => section.id === categories[step.id]);
+      const visible = allowed.filter(item => (!category || category.productIds.includes(item.id)) && item.name.toLocaleLowerCase("it").includes(query));
       return <details className={`${styles.inner} ${styles.mealStep}`} key={step.id} open>
         <summary>Fase {index + 1}</summary>
         <div className={styles.stack}>
-          <label>Nome fase<input value={step.name} maxLength={200} required onChange={event => changeStep(step.id, { name: event.target.value })} /></label>
+          <div className={styles.formGrid}>
+            <label>Nome fase<input value={step.name} maxLength={200} required onChange={event => changeStep(step.id, { name: event.target.value })} /></label>
+            <label>Categoria<select value={category?.id ?? ""} onChange={event => setCategories(current => ({ ...current, [step.id]: event.target.value }))}>
+              <option value="">Scelta libera</option>
+              {sections.map(section => <option key={section.id} value={section.id}>{section.name}</option>)}
+            </select></label>
+          </div>
           <p className={styles.small}>Il cliente sceglie un prodotto. Le variazioni si aggiungono al prezzo fisso del Menu.</p>
           <label>Cerca prodotti<input type="search" value={queries[step.id] ?? ""} onChange={event => setQueries(current => ({ ...current, [step.id]: event.target.value }))} /></label>
           <div className={styles.mealAlternatives}>
