@@ -178,6 +178,44 @@
   font-weight: 600;
 }
 
+.mealStep > summary {
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.mealStep[open] > summary {
+  margin-bottom: 0.5rem;
+}
+
+.mealAlternatives {
+  max-height: 17.5rem;
+  overflow-y: auto;
+}
+
+.mealAlternative {
+  box-sizing: border-box;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(7rem, 9rem);
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 3.5rem;
+  border-bottom: 1px solid var(--pizzaos-color-border);
+}
+
+.mealAlternative .check {
+  overflow-wrap: anywhere;
+}
+
+.mealAlternative label:not(.check) {
+  gap: 0.1rem;
+  font-size: 0.7rem;
+}
+
+.mealAlternative input:not([type="checkbox"]) {
+  min-height: 2rem;
+  padding: 0.3rem;
+}
+
 .food summary,
 .optionGroup summary,
 .preview summary {
