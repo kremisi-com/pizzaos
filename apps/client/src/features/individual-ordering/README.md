@@ -4,7 +4,7 @@ Il checkout operativo `/ordina/checkout` riprende intestazione, sezioni e azione
 
 `OrderSlotSelect` accetta `detailed` per raggruppare le fasce per giorno e mostrare la previsione di «Appena possibile» nel checkout dedicato; gli altri consumatori conservano la presentazione precedente. I pagamenti già conclusi dalla risposta del servizio, incluso totale zero, non richiedono una riconciliazione aggiuntiva. I pagamenti pendenti si recuperano dal checkout anche a carrello vuoto. [Flusso e casi limite](../../../../../.agents/product-definition/flows/customer-ordering-and-payment.md#presentazione-del-checkout-operativo).
 
-Verifiche dell'allineamento: `src/test/operational-checkout*.test.tsx` e `pnpm exec playwright test --config playwright.checkout-alignment.config.ts` dalla root (porte 3921/3924, build `.next-checkout-alignment-e2e`). Il componente inline `view="all"`, il checkout POC e il gruppo mantengono i propri percorsi.
+Verifiche dell'allineamento: `src/test/operational-checkout*.test.tsx` e `pnpm exec playwright test --config playwright.checkout-alignment.config.ts` dalla root (porte 3921/3924, build `.next-checkout-alignment-e2e`). Il componente inline `view="all"` e il checkout POC mantengono i propri percorsi; il checkout del gruppo riusa la presentazione del checkout operativo conservando la propria logica.
 
 La schermata iniziale propone «Sfoglia il menu» e «Ordine di gruppo»; l'accesso agli ordini resta nella navigazione inferiore, senza il pulsante duplicato «I tuoi ordini» tra le azioni iniziali.
 
@@ -33,3 +33,5 @@ Gli eventi della composizione ricaricano catalogo e ordini senza cancellare le r
 Le sezioni del menu, la personalizzazione e le informazioni alimentari appartengono alla feature [menu](../menu/README.md), condivisa anche con il gruppo e con le aggiunte prima dell'accettazione. Il draft locale e il tentativo originale conservano identificativi e quantità delle scelte. Dopo l'invio, la conferma collega alla timeline dell'ordine alimentata dagli stati del servizio.
 
 L'entry pubblico espone anche `writeIndividualDraft`, `readCheckoutAttempt` e `IndividualAdditions`, utilizzati dalla composizione della pagina Ordini per il riordino e le aggiunte già supportate. Prezzi, scorte, pagamenti e stati restano autorevoli nel servizio.
+
+`CheckoutFrame`, `CheckoutHeader`, `CheckoutChoices`, `CheckoutSummary` e `checkoutPresentationStyles` sono le capacità pubbliche di presentazione riusate dal checkout individuale e dal gruppo. La verifica sposta il focus sul riepilogo; il dock è fornito dall'entry pubblico `cart`. Nessuna logica di quote o checkout individuale è trasferita al gruppo.

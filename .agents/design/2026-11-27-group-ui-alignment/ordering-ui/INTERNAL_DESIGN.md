@@ -1,0 +1,9 @@
+# Implementazione
+
+Estrarre CartProductRow e OrderActionDock nella feature cart, pubblici tramite index.ts. Riga con slot per informazioni e note; preservare LineNote con draft locale e onBlur per gruppo. Il dock misura altezza con ResizeObserver e comunica lo spazio occupato alla schermata, includendo navbar e safe area. Riutilizzare i controlli visivi checkout attraverso export pubblico di componenti/classi della feature individual-ordering, senza deep import tra feature. I proprietari del dato restano distinti.
+
+PersistentGroupScreen mantiene effetti, revisioni e callback economiche; separare il rendering checkout in componente di presentazione interno se utile. La pagina share conserva struttura e testi. Il contesto gruppo è compatto e segue il layout della vista. Il dock carrello invitato prepara il pagamento e focalizza/scorre al pannello Stripe; il creatore mantiene l'anticipo nel corpo e checkout nel dock. Lo snapshot quotato ha priorità sulle stime. Il checkout focalizza riepilogo su quote nuova; il dock usa solo validQuote. Errori, pending, sessionLoading e canConfirm determinano istruzione/azione. Non introdurre storage o contratti server.
+
+Il checkout conserva durante invio e 3DS soltanto gli Elements richiesti dal precedente residuo positivo verificato. A residuo zero non monta Stripe neppure mentre il tentativo è pendente. Una sessione verificata come ospite ha priorità sull'azione di recupero: l'accesso torna al checkout e conserva il tentativo; loading/errore identità restano distinti. Il dock personale mostra l'importo aggiornato del pagamento in attesa di seconda conferma.
+
+Checklist: [x] menu/conteggio; [x] righe/permessi/note; [x] quote bloccate/snapshot; [x] dock per ruolo e residuo zero; [x] radio/fasce; [x] focus/invalidazione; [x] 3DS/recovery/sessione; [x] share invariata; [x] mobile/desktop e regressioni individuali.

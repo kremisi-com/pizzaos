@@ -1,15 +1,16 @@
 "use client";
 
-import { formatOrderWindow, productType, resolveMealComposition, resolveMenuComposition } from "@pizzaos/domain";
+import { productType, resolveMealComposition, resolveMenuComposition } from "@pizzaos/domain";
 import type {
-  FoodPreferencesApi, GroupCheckout, GroupFulfillment, GroupOrderingApi, GroupParticipant, GroupPaymentResult, GroupQuote, GroupSharePayment, GroupSnapshot,
+  FoodPreferencesApi, GroupCheckout as GroupCheckoutInput, GroupFulfillment, GroupOrderingApi, GroupParticipant, GroupPaymentResult, GroupQuote, GroupSharePayment, GroupSnapshot,
   IndividualApi, IndividualCheckoutResult, IndividualLine, IndividualSession, IndividualStore, PromotionsApi
 } from "@pizzaos/domain";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { QRCodeSVG } from "qrcode.react";
-import { DeliveryAddressField, hasDeliveryPoint, IndividualStripeFields, OrderSlotSelect, type ConfirmIndividualPayment } from "../../individual-ordering";
-import { appendMenuLine, MealCompositionDetails, MenuLineDetails, MenuLineEditor, OperationalMenu, useMenuPreferences } from "../../menu";
-import { PromotionSelectionPanel, PromotionSummary } from "../../promotions";
+import { IndividualStripeFields, type ConfirmIndividualPayment } from "../../individual-ordering";
+import { appendMenuLine, MealCompositionDetails, MenuLineDetails, MenuLineEditor, OperationalMenu, useMenuPreferences, OrderingCover, OrderingMenuHeader, MenuCartEntry } from "../../menu";
+import { CartProductRow, cartPresentationStyles, OrderActionDock } from "../../cart";
+import { GroupCheckout } from "./group-checkout";
 import styles from "./persistent-group-screen.module.css";
 
 export type SharedCartView = "share" | "menu" | "cart" | "checkout";
@@ -86,28 +87,26 @@ function ParticipantChoices({ person, store, editable, busy, avoid, onReplace, o
 }) {
   return <section aria-label={person.name} className={styles.choices}>
     {person.lines.length === 0 && <p className={styles.small}>Nessun articolo scelto.</p>}
-    <ul className={styles.lines}>{person.lines.map((line, index) => {
+    <div>{person.lines.map((line, index) => {
       const product = store?.products.find(item => item.id === line.productId);
       const frozen = lockedPayment(person.payment) ? person.quotedLines?.[index] : undefined;
       const title = frozen?.name ?? product?.name ?? line.productId;
-      return <li key={`${line.productId}-${index}`}>
-        <div className={styles.lineTitle}><strong>{line.quantity} × {title}</strong>
-          {editable && <div className={styles.quantity}>
-            <button type="button" aria-label={`Diminuisci quantità ${title} di ${person.name}`} disabled={busy} onClick={() => onReplace(line.quantity === 1 ? person.lines.filter((_, i) => i !== index) : person.lines.map((item, i) => i === index ? { ...item, quantity: item.quantity - 1 } : item))}>−</button>
-            <button type="button" aria-label={`Aumenta quantità ${title} di ${person.name}`} disabled={busy || line.quantity >= 100} onClick={() => onReplace(person.lines.map((item, i) => i === index ? { ...item, quantity: item.quantity + 1 } : item))}>+</button>
-          </div>}
-        </div>
-        {frozen?.composition ? <><MealCompositionDetails composition={frozen.composition} />{frozen.composition.choices.length > 0 && <p className={styles.small}>{frozen.composition.choices.map(choice => `${choice.quantity > 1 ? `${choice.quantity} × ` : ""}${choice.name}`).join(", ")}</p>}</>
+      const price = frozen ? frozen.quantity * frozen.unitCents : lockedPayment(person.payment) ? null : estimate([line], store);
+      return <CartProductRow key={`${line.productId}-${index}`} name={title} title={<>{line.quantity} × {title}</>} quantity={line.quantity} amount={price} disabled={busy} ariaSuffix={` di ${person.name}`}
+        onQuantity={editable ? next => onReplace(next === 0 ? person.lines.filter((_, i) => i !== index) : person.lines.map((item, i) => i === index ? { ...item, quantity: next } : item)) : undefined}
+        onRemove={editable ? () => onReplace(person.lines.filter((_, i) => i !== index)) : undefined} details={<>
+        {lockedPayment(person.payment) ? frozen?.composition && <><MealCompositionDetails composition={frozen.composition} />{frozen.composition.choices.length > 0 && <p className={styles.small}>{frozen.composition.choices.map(choice => `${choice.quantity > 1 ? `${choice.quantity} × ` : ""}${choice.name}`).join(", ")}</p>}</>
           : <MenuLineDetails product={product} line={line} products={store?.products} avoid={avoid} showUnknown={Boolean(store?.menu)} />}
+        {!editable && (frozen?.notes ?? line.notes) && <p className={styles.small}>{frozen?.notes ?? line.notes}</p>}
+        </>}>
         {editable ? <LineNote title={title} personName={person.name} value={line.notes} disabled={busy}
-          onSave={notes => onReplace(person.lines.map((item, i) => i === index ? { ...item, notes } : item))} /> : line.notes && <p>{line.notes}</p>}
+          onSave={notes => onReplace(person.lines.map((item, i) => i === index ? { ...item, notes } : item))} /> : null}
         {editable && <div className={styles.row}>
-          {store && product && <MenuLineEditor store={store} product={product} line={line} disabled={busy} avoid={avoid}
+          {store && product && <MenuLineEditor className={cartPresentationStyles.removeButton} store={store} product={product} line={line} disabled={busy} avoid={avoid}
             onSave={updated => onReplace(person.lines.map((item, i) => i === index ? updated : item))} />}
-          <button type="button" className={styles.textButton} disabled={busy} onClick={() => onReplace(person.lines.filter((_, i) => i !== index))}>Rimuovi articolo di {person.name}</button>
         </div>}
-      </li>;
-    })}</ul>
+      </CartProductRow>;
+    })}</div>
     {editable && <a className={styles.addLink} href={`/ordina?partecipante=${encodeURIComponent(person.id)}#il-menu`}>Aggiungi prodotto</a>}
     {onRemove && <button type="button" className={styles.textButton} disabled={busy} onClick={onRemove}>Rimuovi partecipante {person.name}</button>}
   </section>;
@@ -148,6 +147,7 @@ export function PersistentGroupScreen({ api, individualApi, promotionsApi, prefe
   const fulfillmentRef = useRef(fulfillment);
   const confirmPayment = useRef<ConfirmIndividualPayment | null>(null);
   const shareAttempt = useRef<string | null>(null);
+  const sharePaymentRef = useRef<HTMLDivElement>(null);
   const identityGeneration = useRef(0);
   const identityMounted = useRef(false);
   const loadIdentity = useCallback(async () => {
@@ -240,7 +240,7 @@ export function PersistentGroupScreen({ api, individualApi, promotionsApi, prefe
   async function submit() {
     const current = groupRef.current;
     if (!current || !quote) return;
-    const input: GroupCheckout = { revision: quote.revision, fingerprint: quote.quote.fingerprint, fulfillment: fulfillmentRef.current,
+    const input: GroupCheckoutInput = { revision: quote.revision, fingerprint: quote.quote.fingerprint, fulfillment: fulfillmentRef.current,
       phone, method, idempotencyKey: crypto.randomUUID() };
     setLocalPending(true);
     await acceptResult(await api.checkout(current.id, input));
@@ -300,13 +300,31 @@ export function PersistentGroupScreen({ api, individualApi, promotionsApi, prefe
   const remaining = quote?.remainingCents ?? quote?.quote.totalCents ?? 0;
   const canConfirm = host && session?.actor && validQuote && phone.trim() && (method === "cash" || remaining === 0 || remaining >= 50 && cardReady);
   const amount = ownPayment && ownLocked ? ownPayment.amountCents : estimate(own?.lines ?? [], store);
+  const displayedShareAmount = changedSharePayment?.payment.amountCents ?? amount;
+  const participantAmounts = group?.participants.map(person => person.payment && lockedPayment(person.payment) ? person.payment.amountCents : estimate(person.lines, store)) ?? [];
+  const groupEstimate = participantAmounts.every(value => value !== null) ? participantAmounts.reduce<number>((sum, value) => sum + (value ?? 0), 0) : null;
+  const prepaidCents = group?.participants.reduce((sum, person) => sum + (person.payment?.status === "paid" ? person.payment.amountCents : 0), 0) ?? 0;
+  const ownCount = own?.lines.reduce((sum, line) => sum + line.quantity, 0) ?? 0;
+  const hasLines = Boolean(group?.participants.some(person => person.lines.length));
+  const active = group && !["submitted", "cancelled"].includes(group.status);
   const signIn = `/accesso?ritorno=${encodeURIComponent(view === "checkout" ? "/ordina/checkout" : "/ordina/carrello")}`;
+  const beginSharePayment = () => {
+    setShowSharePayment(true);
+    requestAnimationFrame(() => { sharePaymentRef.current?.scrollIntoView?.({ behavior: "smooth", block: "center" }); sharePaymentRef.current?.focus({ preventScroll: true }); });
+  };
 
-  return <main className={`${styles.page} ${view === "share" ? styles.sharePage : ""}`}>
-    <header className={styles.header}><span className={styles.eyebrow}>PizzaOS · Insieme a tavola</span>
-      <h1>{view === "share" ? "Ordine di gruppo" : view === "menu" ? "Il menu" : view === "checkout" ? "Consegna e pagamento" : "Carrello condiviso"}</h1>
+  return <>
+    {view === "menu" && <OrderingCover profileHref={session?.actor ? "/ordina/profilo" : undefined} />}
+    <main className={view === "share" ? `${styles.page} ${styles.sharePage}` : `${styles.orderingPage} ${view === "menu" ? styles.menuPage : view === "cart" ? styles.cartPage : styles.checkoutPage}`}>
+    {view === "share" && <header className={styles.header}><span className={styles.eyebrow}>PizzaOS · Insieme a tavola</span>
+      <h1>Ordine di gruppo</h1>
       {view === "share" && <p className={styles.lead}>Pensa solo a cosa vuoi mangiare, mentre i tuoi amici scelgono.</p>}
-    </header>
+    </header>}
+    {view === "menu" && <OrderingMenuHeader store={store} signedIn={Boolean(session?.actor)} groupHref={group ? `/ordina/gruppo/${encodeURIComponent(group.id)}` : undefined} signInHref={signIn} />}
+    {view === "cart" && <header className={styles.cartHeader}>
+      <a className={styles.backButton} href="/ordina#il-menu">← Menu</a><h1>Carrello condiviso</h1>
+      <p>Rivedi prodotti, quantità e totale prima del checkout.</p>
+    </header>}
     {error && <div role="alert" className={styles.error}>{error}</div>}
     {sessionError && <div role="alert" className={styles.error}><p>{sessionError}</p><button type="button" disabled={busy || sessionLoading} onClick={() => void run(async () => { await Promise.all([loadIdentity(), refresh()]); })}>Riprova accesso</button></div>}
     {!session && sessionLoading && <p role="status" className={styles.small}>Verifica dell’accesso…</p>}
@@ -337,26 +355,29 @@ export function PersistentGroupScreen({ api, individualApi, promotionsApi, prefe
       </section>}
       {view === "menu" && <>
         {target && target.id !== own?.id && <p>Stai scegliendo per <strong>{target.name}</strong>.</p>}
+        <section id="il-menu" tabIndex={-1}><h2>Il menu</h2>
+        {store && !store.acceptingOrders && <p className={styles.error}>Gli ordini sono temporaneamente sospesi.</p>}
         {store && target && <OperationalMenu key={store.id} store={store} preferences={preferences} disabled={busy || !editable(target)} onAdd={line => void run(() => replace(target.id, appendMenuLine(target.lines, line)))} />}
+        </section>
         {ownLocked && <p className={styles.notice}>Le tue scelte sono bloccate dal pagamento.</p>}
-        <a className={styles.primaryLink} href="/ordina/carrello">Carrello →</a>
+        <MenuCartEntry count={ownCount} />
       </>}
       {view === "cart" && <>
         {own && <section className={styles.personal} aria-label="Le mie scelte"><div className={styles.sectionHeading}><h2>Le mie scelte</h2><button type="button" className={styles.textButton} disabled={busy} onClick={() => { setName(own.name); setEditingName(current => !current); }}>Modifica nome</button></div>
           {editingName && <form className={styles.nameForm} onSubmit={event => { event.preventDefault(); void run(async () => { applyGroup(await api.rename(group.id, { name, revision: groupRef.current?.revision ?? group.revision })); setEditingName(false); }); }}><label>Nome<input maxLength={120} required value={name} onChange={event => setName(event.target.value)} /></label><button type="submit" disabled={busy || !name.trim()}>Salva nome</button></form>}
           <ParticipantChoices person={own} store={store} editable={editable(own)} busy={busy} avoid={preferences.avoid} onReplace={lines => void run(() => replace(own.id, lines))} />
-          {amount !== null && <p className={styles.total}>La tua quota <strong>{money(amount)}</strong></p>}
+          {displayedShareAmount !== null && <p className={styles.total}>La tua quota <strong>{money(displayedShareAmount)}</strong></p>}
           {ownPayment && <p role="status">{paymentLabels[ownPayment.status]}</p>}
-          {changedSharePayment && <div className={styles.notice} role="status"><p>Il prezzo aggiornato della tua quota è <strong>{money(changedSharePayment.payment.amountCents)}</strong>. Conferma questo importo per pagare.</p><IndividualStripeFields onReady={onCardReady} /><button type="button" disabled={busy || !cardReady} onClick={() => void run(confirmChangedShare)}>Conferma pagamento quota · {money(changedSharePayment.payment.amountCents)}</button></div>}
+          {changedSharePayment && <div className={styles.notice} role="status"><p>Il prezzo aggiornato della tua quota è <strong>{money(changedSharePayment.payment.amountCents)}</strong>. Conferma questo importo per pagare.</p><IndividualStripeFields onReady={onCardReady} />{host && <button type="button" disabled={busy || !cardReady} onClick={() => void run(confirmChangedShare)}>Conferma pagamento quota · {money(changedSharePayment.payment.amountCents)}</button>}</div>}
           {ownPayment?.canRefund && <button type="button" className={styles.secondary} disabled={busy} onClick={() => void run(async () => applyGroup(await api.refundShare(group.id, { paymentId: ownPayment.id, idempotencyKey: crypto.randomUUID() })))}>Rimborsa la mia quota</button>}
           {open && own.lines.length > 0 && !ownLocked && <>
             {amount !== null && amount < 50 ? <p className={styles.small}>La quota resta nel residuo dell’organizzatore: il pagamento anticipato con carta richiede almeno 0,50 €.</p>
-              : session?.actor ? <><button type="button" className={styles.secondary} disabled={busy} onClick={() => setShowSharePayment(current => !current)}>Paga la mia quota</button>
-                {showSharePayment && <div className={styles.stripe}><IndividualStripeFields onReady={onCardReady} /><button type="button" disabled={busy || !cardReady} onClick={() => void run(payShare)}>Conferma pagamento quota</button></div>}</>
-                : session ? <a href={signIn}>Accedi per pagare la tua quota</a> : null}
+              : session?.actor ? <>{host && <button type="button" className={styles.secondary} disabled={busy} onClick={beginSharePayment}>Paga la mia quota</button>}
+                {showSharePayment && !changedSharePayment && <div ref={sharePaymentRef} tabIndex={-1} className={styles.stripe}><IndividualStripeFields onReady={onCardReady} />{host && <button type="button" disabled={busy || !cardReady} onClick={() => void run(payShare)}>Conferma pagamento quota</button>}</div>}</>
+                : session && host ? <a href={signIn}>Accedi per pagare la tua quota</a> : null}
           </>}
           {ownPayment && !changedSharePayment && ["requires_action", "processing"].includes(ownPayment.status) && session?.actor && <div className={styles.stripe}>
-            <IndividualStripeFields onReady={onCardReady} /><button type="button" disabled={busy || ownPayment.status === "requires_action" && !cardReady} onClick={() => void run(() => reconcileShare(ownPayment))}>Recupera pagamento quota</button>
+            <IndividualStripeFields onReady={onCardReady} />{host && <button type="button" disabled={busy || ownPayment.status === "requires_action" && !cardReady} onClick={() => void run(() => reconcileShare(ownPayment))}>Recupera pagamento quota</button>}
           </div>}
         </section>}
         <section className={styles.stack} aria-label="Le scelte del gruppo">{group.participants.filter(person => person.id !== own?.id).map(person => <details className={styles.person} key={person.id}>
@@ -364,39 +385,41 @@ export function PersistentGroupScreen({ api, individualApi, promotionsApi, prefe
           <ParticipantChoices person={person} store={store} editable={editable(person)} busy={busy} avoid={preferences.avoid} onReplace={lines => void run(() => replace(person.id, lines))}
             onRemove={host && editable(person) ? () => void run(async () => applyGroup(await api.removeParticipant(group.id, { participantId: person.id, revision: groupRef.current?.revision ?? group.revision }))) : undefined} />
         </details>)}</section>
-        {host && !["submitted", "cancelled"].includes(group.status) && group.participants.some(person => person.lines.length) && <a className={styles.primaryLink} href="/ordina/checkout">Vai al checkout →</a>}
         {!host && <p className={styles.small}>L’organizzatore conferma un solo ordine e copre il residuo.</p>}
+        {active && host && hasLines && <OrderActionDock label="Da pagare" amount={groupEstimate === null ? null : Math.max(0, groupEstimate - prepaidCents)}
+          message="Consegna, disponibilità e totale saranno verificati al checkout."
+          breakdown={<><div><span>Totale stimato</span><strong>{groupEstimate === null ? "—" : money(groupEstimate)}</strong></div><div><span>Quote già pagate:</span><strong>{money(prepaidCents)}</strong></div></>}>
+          <a href="/ordina/checkout">Vai al checkout →</a>
+        </OrderActionDock>}
+        {active && !host && own && ownCount > 0 && <OrderActionDock label="La tua quota" amount={displayedShareAmount}
+          message={changedSharePayment ? <>Il prezzo aggiornato della tua quota è <strong>{money(changedSharePayment.payment.amountCents)}</strong>.</>
+            : ownPayment && ownLocked ? paymentLabels[ownPayment.status]
+              : amount !== null && amount < 50 ? "La quota resta nel residuo dell’organizzatore: il pagamento anticipato con carta richiede almeno 0,50 €."
+                : "L’organizzatore conferma un solo ordine e copre il residuo."}>
+          {changedSharePayment ? <button type="button" disabled={busy || !cardReady} onClick={() => void run(confirmChangedShare)}>Conferma pagamento quota · {money(changedSharePayment.payment.amountCents)}</button>
+            : ownPayment && ["requires_action", "processing"].includes(ownPayment.status) ? session?.actor
+              ? <button type="button" disabled={busy || ownPayment.status === "requires_action" && !cardReady} onClick={() => void run(() => reconcileShare(ownPayment))}>Recupera pagamento quota</button>
+              : session ? <a href={signIn}>Accedi per pagare la tua quota</a> : <button type="button" disabled>Paga la mia quota</button>
+            : ownLocked ? <a href="/ordina#il-menu">Sfoglia il menu →</a>
+              : !session || sessionLoading || sessionError ? <button type="button" disabled>Paga la mia quota</button>
+                : !session.actor ? <a href={signIn}>Accedi per pagare la tua quota</a>
+                  : showSharePayment ? <button type="button" disabled={busy || pending || !cardReady} onClick={() => void run(payShare)}>Conferma pagamento quota</button>
+                  : <button type="button" disabled={busy || pending || !open || amount === null || amount < 50} onClick={beginSharePayment}>Paga la mia quota</button>}
+        </OrderActionDock>}
       </>}
-      {view === "checkout" && host && !["submitted", "cancelled"].includes(group.status) && <>
-        {!session ? null : !session.actor ? <a className={styles.primaryLink} href={signIn}>Accedi per confermare l’ordine</a> : <>
-          {pending && <div className={styles.notice}><p>Un tentativo deve essere verificato prima di cambiare il gruppo.</p><button type="button" disabled={busy} onClick={() => void run(recover)}>Recupera tentativo gruppo</button></div>}
-          {(open || group.status === "closed") && <fieldset disabled={busy || pending}><legend>Consegna e pagamento</legend>
-            <label>Modalità<select aria-label="Modalità" value={fulfillment.mode} onChange={event => changeFulfillment({ ...fulfillment, mode: event.target.value === "delivery" ? "delivery" : "pickup", address: undefined })}><option value="pickup">Ritiro in pizzeria</option><option value="delivery">Consegna a domicilio</option></select></label>
-            {fulfillment.mode === "delivery" && <DeliveryAddressField key={group.id} storeId={group.storeId} address={fulfillment.address} search={individualApi.searchDeliveryAddresses} disabled={busy || pending} onChange={address => changeFulfillment({ ...fulfillment, address })} />}
-            <OrderSlotSelect store={store} value={fulfillment.slotId} onChange={slotId => changeFulfillment({ ...fulfillment, slotId })} />
-            <label>Note per l&apos;ordine<textarea maxLength={1000} value={fulfillment.notes} onChange={event => changeFulfillment({ ...fulfillment, notes: event.target.value })} /></label>
-            {promotionsApi && <PromotionSelectionPanel api={promotionsApi} storeId={group.storeId} selection={fulfillment.benefits} disabled={busy || pending} onChange={benefits => changeFulfillment({ ...fulfillment, benefits })} onTermsChange={invalidateQuote} />}
-            <button type="button" disabled={!group.participants.some(person => person.lines.length) || fulfillment.mode === "delivery" && !hasDeliveryPoint(fulfillment.address)} onClick={() => void run(verify)}>Verifica totale gruppo</button>
-            {validQuote && <section aria-label="Riepilogo da confermare"><h2>Riepilogo da confermare</h2>{quote.quote.lines.map((line, index) => <p key={`${line.productId}-${index}`}>{line.quantity} × {line.name} · {money(line.quantity * line.unitCents)}<br /><span className={styles.small}>{line.notes}</span><MealCompositionDetails composition={line.composition} /></p>)}
-              <PromotionSummary quote={quote.quote} />
-              <p>Consegna: {money(quote.quote.deliveryCents)}</p><p>Totale: <strong>{money(quote.quote.totalCents)}</strong></p>
-              <p>Quote già pagate: <strong>{money(quote.prepaidCents ?? 0)}</strong></p><p className={styles.total}>Da pagare <strong>{money(remaining)}</strong></p>
-              <p>Orario: {formatOrderWindow(quote.quote.slotStartsAt, quote.quote.slotEndsAt, quote.quote.slotTimeZone)}</p>
-            </section>}
-            <label>Telefono per l&apos;ordine<input type="tel" autoComplete="tel" value={phone} onChange={event => setPhone(event.target.value)} /></label>
-            <label>Come paghi?<select aria-label="Come paghi?" value={method} onChange={event => setMethod(event.target.value === "card" ? "card" : "cash")}><option value="cash">Contanti al ritiro o alla consegna</option><option value="card" disabled={Boolean(validQuote && remaining > 0 && remaining < 50)}>Carta</option></select></label>
-            {validQuote && remaining > 0 && remaining < 50 && <p className={styles.small}>Il residuo sotto 0,50 € si salda in contanti.</p>}
-            {method === "card" && validQuote && remaining >= 50 && <div className={styles.stripe}><IndividualStripeFields onReady={onCardReady} /></div>}
-            <button type="button" disabled={!canConfirm} onClick={() => void run(submit)}>Conferma ordine di gruppo</button>
-          </fieldset>}
-        </>}
-      </>}
+      {view === "checkout" && host && !["submitted", "cancelled"].includes(group.status) && <GroupCheckout
+        group={group} store={store} session={session} sessionLoading={sessionLoading} sessionError={sessionError}
+        fulfillment={fulfillment} quote={validQuote ? quote : null} estimate={groupEstimate} prepaidCents={prepaidCents}
+        phone={phone} method={method} busy={busy} pending={pending} error={error} cardReady={cardReady} canConfirm={Boolean(canConfirm)}
+        signIn={signIn} promotionsApi={promotionsApi} individualApi={individualApi}
+        onFulfillment={changeFulfillment} onPhone={setPhone} onMethod={setMethod} onCardReady={onCardReady} onTermsChange={invalidateQuote}
+        onVerify={() => void run(verify)} onSubmit={() => void run(submit)} onRecover={() => void run(recover)} />}
       {view === "checkout" && !host && <p>Solo l’organizzatore può confermare l’ordine e il residuo.</p>}
       {group.status === "submitted" && <section className={styles.notice}><p>{result?.order.payment === "requires_action" ? "Pagamento carta da completare nei tuoi ordini." : "Ordine di gruppo inviato."}</p>{host && <a href="/ordina/ordini">Apri i tuoi ordini</a>}</section>}
       {group.status === "cancelled" && <p role="status">Ordine di gruppo annullato. I rimborsi restano consultabili.</p>}
       {view === "share" && <a className={styles.backLink} href="/ordina#il-menu">Sfoglia il menu →</a>}
     </>}
-  </main>;
+  </main></>;
 }
 
 export { PersistentGroupScreen as SharedCartScreen };

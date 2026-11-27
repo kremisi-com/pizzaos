@@ -38,3 +38,5 @@ Pizza e Panino condividono il configuratore. Panino usa ingredienti rimovibili, 
 Gli abbinamenti disponibili sono mostrati solo nel dettaglio; su Pizza e Panino seguono Extra, prima delle note. Aggiungerli conserva la composizione aperta; quelli con scelte richiedono configurazione nella propria scheda. Copertura browser: `tests/menu-ordering/product-detail-consistency.spec.ts`.
 
 `MealConfigurationDialog` appartiene a customization ed è consumato tramite il suo entry point pubblico. Gli abbinamenti del Menu completo seguono tutte le fasi e precedono le note finali; non eredita quelli dei prodotti scelti. Un abbinamento aggiunge una riga separata senza azzerare le fasi. Test: `meal-editor.test.tsx`, `customization-recovery*.test.tsx`, `tests/menu-ordering/product-detail-consistency.spec.ts` e `product-types.spec.ts`.
+
+L'entry pubblico espone `OrderingCover`, `OrderingMenuHeader` e `MenuCartEntry`: individuale e gruppo condividono copertina, intestazione e accesso al carrello durante lo scorrimento. La composizione passa la destinazione del gruppo e il conteggio dei soli prodotti personali; dati e permessi del gruppo restano nel loro proprietario.

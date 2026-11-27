@@ -3,6 +3,8 @@
 import { productType, resolveMealComposition, resolveMenuComposition } from "@pizzaos/domain";
 import type { IndividualCart, IndividualStore } from "@pizzaos/domain";
 import { MenuLineDetails, MenuLineEditor } from "../../menu";
+import { CartProductRow } from "./cart-product-row";
+import { OrderActionDock } from "./order-action-dock";
 import styles from "./cart-screen.module.css";
 
 import liveStyles from "./operational-cart.module.css";
@@ -42,21 +44,15 @@ export function IndividualCartScreen({ cart, store, avoid, disabled, onChange }:
       <section className={styles.itemsSection} aria-label="Prodotti nel carrello">
         {rows.map(({ line, index, product, amount }) => {
           const name = product?.name ?? line.productId;
-          return <article key={`${line.productId}-${index}`} className={styles.itemCard}>
-            <div className={styles.itemTopRow}><div className={styles.itemInfo}>
-              <h2 className={styles.itemName}>{name}</h2>
+          return <CartProductRow key={`${line.productId}-${index}`} name={name} quantity={line.quantity} amount={amount} disabled={disabled}
+            onQuantity={next => quantity(index, next)} onRemove={() => remove(index)} details={<>
               <MenuLineDetails product={product} line={line} products={store?.products} avoid={avoid} showUnknown={Boolean(store?.menu)} />
               {line.notes && <p className={styles.itemNotes}>{line.notes}</p>}
-            </div><p className={styles.itemPrice}>{amount === null ? "—" : money(amount)}</p></div>
-            <div className={styles.itemActions}><div className={styles.quantityControl}>
-              <button className={styles.quantityButton} type="button" disabled={disabled} aria-label={`Diminuisci quantità ${name}`} onClick={() => quantity(index, line.quantity - 1)}>−</button>
-              <span className={styles.quantityValue} aria-live="polite">{line.quantity}</span>
-              <button className={styles.quantityButton} type="button" disabled={disabled || line.quantity >= 100} aria-label={`Aumenta quantità ${name}`} onClick={() => quantity(index, line.quantity + 1)}>+</button>
-            </div><button className={styles.removeButton} type="button" disabled={disabled} onClick={() => remove(index)}>Rimuovi</button></div>
+            </>}>
             {store && product && (product.options.length > 0 || product.meal || line.optionIds.length > 0 || Boolean(line.selections?.length)) && <MenuLineEditor className={styles.removeButton} store={store} product={product} line={line} avoid={avoid} disabled={disabled}
               onSave={next => onChange({ ...cart, lines: cart.lines.map((item, i) => i === index ? next : item) })} />}
             <label>Note per {name}<input maxLength={500} disabled={disabled} value={line.notes} onChange={event => onChange({ ...cart, lines: cart.lines.map((item, i) => i === index ? { ...item, notes: event.target.value } : item) })} /></label>
-          </article>;
+          </CartProductRow>;
         })}
       </section>
       <section className={styles.summarySection} aria-labelledby="cart-summary-title">
@@ -67,10 +63,9 @@ export function IndividualCartScreen({ cart, store, avoid, disabled, onChange }:
           <button className={styles.clearCartButton} type="button" disabled={disabled} onClick={() => onChange({ ...cart, lines: [], notes: "", benefits: undefined })}>Svuota carrello</button>
         </div>
       </section>
-      <div className={liveStyles.checkoutDock}>
-        <div className={styles.summaryTotalRow}><span className={styles.summaryTotalLabel}>Totale stimato</span><strong className={styles.summaryTotalValue}>{subtotal === null ? "—" : money(subtotal)}</strong></div>
-        <a className={styles.checkoutLink} href="/ordina/checkout" data-testid="cart-checkout-link">Vai al checkout →</a>
-      </div>
+      <OrderActionDock label="Totale stimato" amount={subtotal}>
+        <a href="/ordina/checkout" data-testid="cart-checkout-link">Vai al checkout →</a>
+      </OrderActionDock>
     </>}
   </div>;
 }

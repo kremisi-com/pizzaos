@@ -1,0 +1,12 @@
+.header { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 16px; }
+.header h1 { font-size: clamp(1.8rem, 5vw, 3rem); line-height: 1.08; letter-spacing: -.035em; margin: 0; }
+.header p { margin: 8px 0 0; color: var(--pizzaos-color-foreground-muted); }
+.header a, .heroActions a { color: var(--pizzaos-color-primary); font-weight: 650; }
+.heroActions { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 16px; }
+.heroActions a { display: inline-flex; justify-content: center; align-items: center; min-height: 44px; box-sizing: border-box; padding: 12px 17px; border-radius: 12px; text-align: center; text-decoration: none; }
+.heroActions .menuLink { background: var(--pizzaos-color-primary); color: var(--pizzaos-color-primary-foreground); border: 1px solid transparent; }
+.heroActions .groupLink { border: 1px solid var(--pizzaos-color-border); background: var(--pizzaos-color-surface-muted); }
+.cartEntry { position: sticky; bottom: calc(110px + env(safe-area-inset-bottom)); z-index: 3; display: flex; justify-content: flex-end; pointer-events: none; margin-top: 24px; }
+.cartEntry a { pointer-events: auto; display: inline-flex; align-items: center; min-height: 48px; box-sizing: border-box; padding: 12px 20px; background: var(--pizzaos-color-primary); color: var(--pizzaos-color-primary-foreground); font-weight: 650; border-radius: 24px; text-decoration: none; box-shadow: 0 4px 18px color-mix(in srgb, var(--pizzaos-brand-navy) 20%, transparent); }
+:is(.header, .heroActions, .cartEntry) a:focus-visible { outline: 3px solid var(--pizzaos-color-focus); outline-offset: 3px; }
+@media (max-width: 500px) { .header { flex-direction: column; align-items: flex-start; } .heroActions { flex-direction: column; } }

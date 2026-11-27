@@ -6,3 +6,5 @@ export { DeliveryAddressField, hasDeliveryPoint } from "./components/delivery-ad
 export { readIndividualDraft, acknowledgeIndividualDraft, writeIndividualDraft } from "./draft";
 export { readCheckoutAttempt } from "./checkout-attempt";
 export { IndividualAdditions } from "./components/individual-additions";
+
+export { CheckoutFrame, CheckoutHeader, CheckoutChoices, CheckoutSummary, checkoutPresentationStyles } from "./components/checkout-presentation";

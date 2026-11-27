@@ -12,6 +12,18 @@ Menu e Carrello lavorano sul gruppo attivo. È possibile passare al carrello ind
 
 La pagina contiene **PizzaOS · Insieme a tavola**, **Ordine di gruppo**, **Pensa solo a cosa vuoi mangiare, mentre i tuoi amici scelgono.**, QR già visibile, link e condivisione/copia, persone espandibili con le loro scelte. Non contiene menu o checkout e non usa «Raccolta». Il creatore modifica integralmente i contributi non pagati, anche altrui; un invitato modifica solo il proprio.
 
+## Presentazione di menu, carrello e checkout
+
+Andrea approva l'allineamento al flusso individuale mantenendo le funzioni del gruppo. Menu e personalizzazione usano la stessa presentazione, con contesto del gruppo compatto, collegamento alla condivisione e ritorno all'individuale. Il pulsante Carrello rimane visibile durante lo scorrimento e conta i prodotti personali. Quando il creatore sceglie per un altro partecipante, il destinatario resta evidente.
+
+Il carrello presenta le proprie scelte aperte e le altre persone espandibili. Schede prodotto, prezzi, quantità, rimozione, note ed editor condividono la presentazione individuale; permessi e snapshot pagati seguono le regole del gruppo. Le note in scrittura sopravvivono al polling; il salvataggio usa la revisione corrente.
+
+Il blocco fisso sopra la navbar distingue i ruoli: il creatore vede totale stimato prodotti, anticipi e residuo stimato e accede al checkout, anche quando tutti i prodotti sono già pagati; l'invitato vede la propria quota e l'azione per accesso, anticipo facoltativo, conferma dell'importo o recupero. Il creatore conserva l'anticipo personale nel contenuto. Una quota sotto soglia rimane nel residuo senza addebito.
+
+Il checkout del creatore riprende navigazione Carrello/Menu, sezioni e scelte radio dell'individuale, fasce per giorno e previsione Appena possibile. Dopo verifica il riepilogo riceve focus e distingue totale, anticipi e residuo autorevoli. L'azione fissa guida accesso, verifica, conferma o recupero e spiega telefono mancante, disponibilità e blocchi. Una modifica delle scelte/catalogo invalida il totale; si ripete la verifica. Residuo zero richiede conferma esplicita senza raccogliere carta, anche durante l'invio; residuo positivo sotto minimo carta richiede contanti. Elements necessario al residuo positivo resta montato durante conferma e 3DS. Se la sessione scade con tentativo pendente, l'accesso riporta allo stesso checkout per recuperarlo; loading o guasto identità mantengono il retry senza fingere un ospite. L'invitato non accede alla conferma finale.
+
+La pagina QR conserva testi e titolo approvati, invito e persone espandibili, con presentazione coerente. Test del comportamento: [componenti gruppo](../../../apps/client/src/test/persistent-group.test.tsx), [totale zero](../../../apps/client/src/test/promotions-zero-total.test.tsx), [browser gruppo](../../../tests/e2e/persistent-group.spec.ts). [SDD e verifiche locali dell'allineamento](../../design/2026-11-27-group-ui-alignment/design.md); nessuna nuova evidenza online implicita.
+
 ## Quote, riserve e conclusione
 
 Ogni partecipante autenticato può pagare anticipatamente con carta il proprio contributo completo. Il server verifica importo, composizione e ingredienti e riserva prima del provider; il pagamento confermato blocca prezzo e scelte e mantiene la riserva senza scadenza. I tentativi incompleti hanno soltanto il timeout tecnico del servizio, con riconciliazione prima del rilascio. Nessuno slot prima del checkout finale. Scorte/dosi non tracciate restano tali, senza riserve fittizie.

@@ -1,15 +1,15 @@
 "use client";
 
-import { formatOrderWindow, productType, resolveMealComposition, resolveMenuComposition } from "@pizzaos/domain";
+import { productType, resolveMealComposition, resolveMenuComposition } from "@pizzaos/domain";
 import type { IndividualApi, IndividualCart, IndividualOrder, IndividualQuote, IndividualSession, IndividualStore, PromotionsApi } from "@pizzaos/domain";
 import { useEffect, useId, useRef } from "react";
 import type { IndividualCheckoutAttempt } from "../checkout-attempt";
-import { MealCompositionDetails } from "../../menu";
-import { PromotionSelectionPanel, PromotionSummary } from "../../promotions";
+import { PromotionSelectionPanel } from "../../promotions";
 import { DeliveryAddressField, hasDeliveryPoint } from "./delivery-address-field";
 import { IndividualStripeFields, type ConfirmIndividualPayment } from "./individual-stripe-fields";
 import { OrderSlotSelect } from "./order-slot-select";
-import styles from "./individual-checkout.module.css";
+import { OrderActionDock } from "../../cart";
+import { CheckoutFrame, CheckoutHeader, CheckoutChoices, CheckoutSummary, checkoutPresentationStyles as styles } from "./checkout-presentation";
 
 const money = (cents: number) => new Intl.NumberFormat("it-IT", { style: "currency", currency: "EUR" }).format(cents / 100);
 
@@ -47,14 +47,10 @@ export function IndividualCheckout({ api, cart, store, session, quote, phone, me
   unresolved, attempt, pendingOrder, promotionsApi, refreshVersion, onChange, onPhone, onMethod, onVerify, onSend,
   onRecoverAttempt, onRecoverPayment, onCardReady, onCatalogRefresh, onPromotionTermsChange }: IndividualCheckoutProps) {
   const id = useId();
-  const screenRef = useRef<HTMLElement>(null);
-  const dockRef = useRef<HTMLElement>(null);
-  const summaryRef = useRef<HTMLElement>(null);
   const hadQuote = useRef(false);
   useEffect(() => {
     if (quote) {
       hadQuote.current = true;
-      summaryRef.current?.focus();
     }
   }, [quote]);
 
@@ -69,15 +65,6 @@ export function IndividualCheckout({ api, cart, store, session, quote, phone, me
   const estimate = amounts.every(amount => amount !== null) ? amounts.reduce<number>((sum, amount) => sum + (amount ?? 0), 0) : null;
   const hasLines = cart.lines.length > 0;
   const recovering = Boolean(attempt || pendingOrder);
-  useEffect(() => {
-    const dock = dockRef.current;
-    if (!dock || typeof ResizeObserver === "undefined") return;
-    const measure = () => screenRef.current?.style.setProperty("--checkout-extra-space", `${dock.getBoundingClientRect().height + 32}px`);
-    measure();
-    const observer = new ResizeObserver(measure);
-    observer.observe(dock);
-    return () => observer.disconnect();
-  }, [hasLines, recovering, unresolved]);
   const needsCard = pendingOrder ? pendingOrder.payment === "requires_action" : method === "card" && quote?.totalCents !== 0;
   const amount = pendingOrder?.quote.totalCents ?? (attempt ? null : quote?.totalCents ?? estimate);
   const canRecoverAttempt = Boolean(attempt?.input && attempt.actorId === session?.actor?.id);
@@ -109,27 +96,14 @@ export function IndividualCheckout({ api, cart, store, session, quote, phone, me
   const helpId = `${id}-next-step`;
   const frozen = busy || recovering;
 
-  return <section ref={screenRef} className={styles.screen} aria-labelledby={`${id}-title`}>
-    <header className={styles.hero}>
-      <nav className={styles.topRow} aria-label="Navigazione checkout">
-        <a className={styles.backButton} href="/ordina/carrello">← Carrello</a>
-        <a className={styles.menuLink} href="/ordina#il-menu">Menu</a>
-      </nav>
-      <h1 id={`${id}-title`}>Consegna e pagamento</h1>
-      {store && <p className={styles.muted}>{store.name}</p>}
-    </header>
+  return <CheckoutFrame>
+    <CheckoutHeader storeName={store?.name} />
 
     {hasLines && !recovering && <>
       <section className={styles.section} aria-label="Consegna e ritiro">
-        <fieldset className={styles.choices} aria-label="Modalità" disabled={frozen}>
-          <legend>Modalità</legend>
-          <div className={styles.choiceGrid}>
-            <label className={styles.choice}><input type="radio" name={`${id}-mode`} value="pickup" checked={cart.mode === "pickup"}
-              onChange={() => onChange({ ...cart, mode: "pickup", address: undefined })} /><span>Ritiro in pizzeria</span></label>
-            <label className={styles.choice}><input type="radio" name={`${id}-mode`} value="delivery" checked={cart.mode === "delivery"}
-              onChange={() => onChange({ ...cart, mode: "delivery", address: undefined })} /><span>Consegna a domicilio</span></label>
-          </div>
-        </fieldset>
+        <CheckoutChoices label="Modalità" value={cart.mode} disabled={frozen}
+          options={[{ value: "pickup", label: "Ritiro in pizzeria" }, { value: "delivery", label: "Consegna a domicilio" }]}
+          onChange={mode => onChange({ ...cart, mode, address: undefined })} />
         {cart.mode === "delivery" && <div className={styles.address}>
           <DeliveryAddressField key={cart.storeId} storeId={cart.storeId} address={cart.address} search={api.searchDeliveryAddresses}
             disabled={frozen} onChange={address => onChange({ ...cart, address })} />
@@ -155,35 +129,15 @@ export function IndividualCheckout({ api, cart, store, session, quote, phone, me
     </>}
 
     {session?.actor && (hasLines || pendingOrder || attempt?.input?.method === "card") && <section className={styles.section} aria-label="Pagamento">
-      {!recovering && <fieldset className={styles.choices} aria-label="Come paghi?" disabled={frozen}>
-        <legend>Come paghi?</legend>
-        <div className={styles.choiceGrid}>
-          <label className={styles.choice}><input type="radio" name={`${id}-payment`} value="cash" checked={method === "cash"} onChange={() => onMethod("cash")} /><span>Contanti al ritiro o alla consegna</span></label>
-          <label className={styles.choice}><input type="radio" name={`${id}-payment`} value="card" checked={method === "card"} onChange={() => onMethod("card")} /><span>Carta</span></label>
-        </div>
-      </fieldset>}
+      {!recovering && <CheckoutChoices label="Come paghi?" value={method} disabled={frozen}
+        options={[{ value: "cash", label: "Contanti al ritiro o alla consegna" }, { value: "card", label: "Carta" }]}
+        onChange={onMethod} />}
       {pendingOrder && <h2>Pagamento da completare</h2>}
       {needsCard && <div className={styles.stripe} aria-busy={!cardReady && hasCardKey}><IndividualStripeFields onReady={onCardReady} /></div>}
       <p className={styles.small}>Il ristorante deve accettare l&apos;ordine. Se viene annullato, il rimborso della carta viene avviato automaticamente.</p>
     </section>}
 
-    {quote && <section ref={summaryRef} tabIndex={-1} className={`${styles.section} ${styles.summary}`} aria-labelledby={`${id}-summary`}>
-      <h2 id={`${id}-summary`}>Riepilogo da confermare</h2>
-      <ul className={styles.lines}>{quote.lines.map((line, index) => <li key={`${line.productId}-${index}`}>
-        <div><strong>{line.quantity} × {line.name}</strong>
-          <MealCompositionDetails composition={line.composition} />
-          {Boolean(line.composition?.choices.length) && <small>{line.composition?.choices.map(choice => `${choice.quantity > 1 ? `${choice.quantity} × ` : ""}${choice.name}`).join(", ")}</small>}
-          {Boolean(line.composition?.extraDiscountCents) && <small>Sconto extra {money((line.composition?.extraDiscountCents ?? 0) * line.quantity)}</small>}
-          {line.notes && <small>{line.notes}</small>}
-        </div><strong>{money(line.unitCents * line.quantity)}</strong>
-      </li>)}</ul>
-      <PromotionSummary quote={quote} />
-      {!quote.promotions && <dl className={styles.amounts}>
-        <div><dt>Consegna</dt><dd>{money(quote.deliveryCents)}</dd></div>
-        <div className={styles.total}><dt>Totale</dt><dd>{money(quote.totalCents)}</dd></div>
-      </dl>}
-      <p className={styles.muted}>Orario: {formatOrderWindow(quote.slotStartsAt, quote.slotEndsAt, quote.slotTimeZone)}</p>
-    </section>}
+    {quote && <CheckoutSummary quote={quote} />}
 
     {!session?.actor && hasLines && <section className={styles.section} aria-label="Accesso">
       <h2>Accedi quando sei pronto</h2>
@@ -198,10 +152,9 @@ export function IndividualCheckout({ api, cart, store, session, quote, phone, me
       <a className={styles.secondary} href="/ordina#il-menu">Sfoglia il menu</a>
     </section>}
 
-    {(hasLines || recovering || unresolved) && <aside ref={dockRef} className={styles.dock} aria-label="Riepilogo ordine" data-testid="checkout-dock">
-      <div className={styles.totalRow}><span>{quote || recovering ? "Totale" : "Totale stimato"}</span>
-        <strong>{amount === null ? "—" : money(amount)}</strong></div>
-      <p id={helpId} className={styles.nextStep} role="status">{busy ? verifying ? "Verifica in corso…" : "Verifica dell'ordine in corso…" : error || reason || "Riepilogo verificato. Puoi confermare l'ordine."}</p>
+    {(hasLines || recovering || unresolved) && <OrderActionDock label={quote || recovering ? "Totale" : "Totale stimato"}
+      amount={amount} testId="checkout-dock"
+      message={<span id={helpId}>{busy ? verifying ? "Verifica in corso…" : "Verifica dell'ordine in corso…" : error || reason || "Riepilogo verificato. Puoi confermare l'ordine."}</span>}>
       {pendingOrder ? <button type="button" className={styles.primary} disabled={busy || (pendingOrder.payment === "requires_action" && !cardReady)}
         aria-describedby={helpId} onClick={() => onRecoverPayment(pendingOrder.payment === "requires_action")}>
         {busy ? "Verifica in corso…" : pendingOrder.payment === "requires_action" ? "Riprendi pagamento esistente" : "Verifica pagamento"}
@@ -214,6 +167,6 @@ export function IndividualCheckout({ api, cart, store, session, quote, phone, me
               {verifying ? "Verifica in corso…" : "Verifica disponibilità e totale"}</button>
               : <button type="button" className={styles.primary} disabled={confirmBlocked} aria-describedby={helpId} onClick={onSend}>
                 {busy ? "Verifica in corso…" : method === "card" ? `Conferma e paga ${money(quote.totalCents)}` : "Conferma e invia ordine"}</button>}
-    </aside>}
-  </section>;
+    </OrderActionDock>}
+  </CheckoutFrame>;
 }

@@ -298,3 +298,7 @@ Prima invio rimborsano pagante e pizzeria, non creatore per quote altrui. Rimbor
 
 ## Pagina Ordini cliente del 27 novembre 2026
 Andrea approva una pagina Ordini dedicata, con UI/UX ripresa dal POC e dati reali. Include storico, avanzamento e azioni già supportate dal servizio, con riordino nel carrello operativo. Tracking GPS, feedback e centro notifiche restano fuori da questo incremento. [Flusso corrente](flows/customer-ordering-and-payment.md#pagina-ordini-cliente); [SDD](../design/2026-11-27-customer-orders/design.md). Nessuna pubblicazione online attestata dalla decisione.
+
+## Allineamento UI del carrello condiviso
+
+Andrea approva il 27 novembre 2026 menu, carrello e checkout del gruppo coerenti con il percorso individuale, mantenendo partecipanti, quote, permessi, snapshot pagati e recuperi. Il blocco fisso del creatore mostra il riepilogo del gruppo con accesso al checkout; quello dell'invitato mostra la propria quota con accesso, anticipo facoltativo, conferma o recupero. Il creatore mantiene la possibilità di anticipare la propria quota. La pagina QR conserva funzione dedicata e testi esistenti. [Flusso proprietario](flows/group-ordering.md#presentazione-di-menu-carrello-e-checkout), [SDD](../design/2026-11-27-group-ui-alignment/design.md). Nessuna nuova prova online attestata.

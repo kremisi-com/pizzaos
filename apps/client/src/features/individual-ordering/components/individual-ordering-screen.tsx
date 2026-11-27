@@ -11,9 +11,8 @@ import { IndividualCheckout as OperationalCheckout } from "./individual-checkout
 import { OrderSlotSelect } from "./order-slot-select";
 import { DeliveryAddressField, hasDeliveryPoint } from "./delivery-address-field";
 import { PromotionSelectionPanel, PromotionSummary } from "../../promotions";
-import { appendMenuLine, lineIssue, MealCompositionDetails, MenuLineDetails, MenuLineEditor, OperationalMenu, useMenuPreferences } from "../../menu";
+import { appendMenuLine, lineIssue, MealCompositionDetails, MenuLineDetails, MenuLineEditor, OperationalMenu, useMenuPreferences, OrderingCover, OrderingMenuHeader, MenuCartEntry } from "../../menu";
 import { OrderTimeline } from "../../orders/components/operational-order-timeline";
-import { OrderingCover } from "../../menu/components/ordering-cover";
 import { IndividualCartScreen } from "../../cart";
 import styles from "./individual-ordering.module.css";
 import checkoutStyles from "./individual-checkout.module.css";
@@ -272,14 +271,7 @@ export function IndividualOrderingScreen({ view = "all", api, promotionsApi, pre
   return <>
     {(view === "all" || view === "menu") && <OrderingCover profileHref={session?.actor ? "/ordina/profilo" : undefined} />}
     <div className={view === "cart" ? styles.cartPage : view === "checkout" ? checkoutStyles.page : styles.page}>
-    {(view === "all" || view === "menu") && <><header className={styles.header}>
-      <div><h1>La tua prossima pizza.</h1>{store && <p>{store.name} · {store.acceptingOrders ? "Ordini aperti" : "Ordini sospesi"}</p>}</div>
-      {!session?.actor && <a href="/accesso">Accedi</a>}
-    </header>
-    <nav className={styles.heroActions} aria-label="Inizia a ordinare">
-      {stores.length > 0 && <a className={styles.linkButton} href="#il-menu">Sfoglia il menu</a>}
-      <a className={styles.groupLink} href="/ordina/gruppo">Ordine di gruppo</a>
-    </nav></>}
+    {(view === "all" || view === "menu") && <OrderingMenuHeader store={store} signedIn={Boolean(session?.actor)} hasStores={stores.length > 0} />}
     {connection && <p className={styles.connection} role="status">{connection}</p>}
     {error && <div className={styles.error} role="alert">{error}{(view !== "checkout" || !loaded || stores.length === 0) && <div><button type="button" className={styles.secondary} disabled={busy} onClick={() => void load()}>Riprova caricamento</button></div>}</div>}
     {confirmation && <section ref={confirmationRef} tabIndex={-1} className={styles.confirmation} aria-labelledby="conferma-ordine">
@@ -355,7 +347,8 @@ export function IndividualOrderingScreen({ view = "all", api, promotionsApi, pre
         </> : <div className={styles.login}><h3>Accedi quando sei pronto</h3><p>Il carrello resta su questo dispositivo mentre accedi con Google o con un link via email.</p><a className={styles.linkButton} href="/accesso">Accedi per completare l&apos;ordine</a></div>}
         {unresolved && <p className={styles.notice}>Hai un pagamento da verificare. Recuperalo nei tuoi ordini prima di inviarne un altro.</p>}
       </section>}</div>}</fieldset>}
-      {cartCount > 0 && (view === "all" || view === "menu") && <div className={view === "menu" ? styles.cartEntry : styles.mobileCart}><a href={view === "menu" ? "/ordina/carrello" : "#il-tuo-ordine"}>Carrello · {cartCount} {cartCount === 1 ? "articolo" : "articoli"}</a></div>}
+      {view === "menu" && <MenuCartEntry count={cartCount} />}
+      {cartCount > 0 && view === "all" && <div className={styles.mobileCart}><a href="#il-tuo-ordine">Carrello · {cartCount} {cartCount === 1 ? "articolo" : "articoli"}</a></div>}
     </>}
     {session?.actor && (view === "all" || view === "menu") && <section className={styles.history} hidden={view === "menu" && !ordersOpen} id="i-tuoi-ordini"><div className={styles.headingRow}><h2>I tuoi ordini</h2><button type="button" className={styles.secondary} disabled={busy} onClick={() => void reloadOrders().catch(failure => setError(errorText(failure)))}>Aggiorna ordini</button></div>
       {orders.length === 0 && <p>Non hai ancora inviato ordini.</p>}

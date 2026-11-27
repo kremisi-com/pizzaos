@@ -1,4 +1,1 @@
-.screen { padding-bottom: 220px; }
-.checkoutDock { position: fixed; bottom: calc(100px + env(safe-area-inset-bottom)); left: 50%; transform: translateX(-50%); width: calc(100% - 32px); max-width: 520px; z-index: 4; box-sizing: border-box; padding: 14px 20px; border: 1px solid var(--pizzaos-color-border); border-radius: 20px; background: var(--pizzaos-color-background-accent); box-shadow: 0 -4px 24px color-mix(in srgb, var(--pizzaos-brand-navy) 8%, transparent); }
-.checkoutDock > div { margin-bottom: 10px; }
-.checkoutDock a { box-sizing: border-box; }
+.screen { padding-bottom: 130px; --order-dock-width: 520px; }

@@ -1,0 +1,1 @@
+- [x] **ordering-ui**: Allineare menu, righe carrello e checkout del gruppo al percorso individuale, mantenere ruoli/pagamenti e verificare regressioni e browser.

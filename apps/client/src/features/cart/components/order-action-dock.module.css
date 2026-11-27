@@ -1,0 +1,12 @@
+.dock { position: fixed; bottom: calc(100px + env(safe-area-inset-bottom)); left: 50%; transform: translateX(-50%); z-index: 40; width: calc(100% - 32px); max-width: var(--order-dock-width, 640px); box-sizing: border-box; padding: 14px 18px; border: 1px solid var(--pizzaos-color-border); border-radius: 20px; background: var(--pizzaos-color-background-accent); box-shadow: 0 -4px 24px color-mix(in srgb, var(--pizzaos-brand-navy) 8%, transparent); color: var(--pizzaos-color-foreground); }
+.totalRow { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; font-weight: 700; }
+.totalRow strong { font-size: 1.35rem; font-weight: 900; letter-spacing: -.02em; white-space: nowrap; }
+.nextStep { margin: 8px 0 12px; font-size: .78rem; line-height: 1.45; color: var(--pizzaos-color-foreground-muted); }
+.breakdown { margin-bottom: 10px; font-size: .82rem; color: var(--pizzaos-color-foreground-muted); }
+.breakdown > div { display: flex; justify-content: space-between; gap: 12px; margin: 5px 0; }
+.action { margin-top: 10px; }
+.dock .action > :is(a, button) { display: flex; align-items: center; justify-content: center; width: 100%; min-height: 56px; box-sizing: border-box; padding: 12px 16px; border: 0; border-radius: 16px; font: inherit; font-size: .95rem; font-weight: 800; letter-spacing: -.01em; text-align: center; text-decoration: none; color: var(--pizzaos-color-primary-foreground); background: var(--pizzaos-color-primary); cursor: pointer; }
+.dock .action > button:disabled { opacity: .55; cursor: not-allowed; }
+.dock :is(a, button):focus-visible { outline: 3px solid var(--pizzaos-color-focus); outline-offset: 3px; }
+@media (max-width: 374px) { .dock { padding: 12px 14px; } .dock .action > :is(a, button) { font-size: .86rem; } }
+@media (prefers-reduced-motion: no-preference) { .action > :is(a, button):active { transform: scale(.98); } }

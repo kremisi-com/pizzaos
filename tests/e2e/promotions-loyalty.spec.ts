@@ -173,7 +173,7 @@ test("host gruppo applica benefici al solo wallet personale e annullamento ripri
     const quoted = await (await quoteResponse).json() as { quote: IndividualQuote };
     expect(quoted.quote.promotions).toMatchObject({ coupons: [{ code, discountCents: 100 }], rewardDiscountCents: 100, redeemedPoints: 1 });
     await host.getByLabel("Telefono per l'ordine").fill("+393331234567");
-    await host.getByLabel("Come paghi?").selectOption("cash");
+    await host.getByRole("radio", { name: "Contanti al ritiro o alla consegna", exact: true }).check();
     const checkoutResponse = host.waitForResponse(response => /\/groups\/[^/]+\/checkout$/.test(response.url()) && response.request().method() === "POST");
     await host.getByRole("button", { name: "Conferma ordine di gruppo", exact: true }).click();
     const checkout = await checkoutResponse;
