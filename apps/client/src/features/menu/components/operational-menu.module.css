@@ -150,7 +150,7 @@
 .menu .itemTrigger:focus-visible { outline: none; }
 .itemTrigger:focus-visible::after { outline: 2px solid var(--pizzaos-color-primary); outline-offset: 3px; }
 .itemPrice { color: var(--pizzaos-color-primary); white-space: nowrap; }
-.itemActions, .pairings { position: relative; z-index: 1; }
+.itemActions { position: relative; z-index: 1; }
 
 .itemActions, .foodActions {
   display: flex;
@@ -167,12 +167,12 @@
   background: var(--pizzaos-color-surface-muted);
 }
 
-.foodControls summary, .pairings summary {
+.foodControls summary {
   cursor: pointer;
   font-weight: 650;
 }
 
-.foodControls p, .pairings p {
+.foodControls p {
   font-size: .875rem;
 }
 
@@ -206,11 +206,6 @@
 .unavailable, .warning, .food .warning {
   color: var(--pizzaos-color-critical-foreground);
   font-weight: 650;
-}
-
-.pairings {
-  margin-top: 9px;
-  font-size: .875rem;
 }
 
 .dialog {
@@ -360,6 +355,36 @@
 
 .dialogFoot strong {
   font-size: 1.15rem;
+}
+
+.dialog .mealCustomize, .dialog .mealNext {
+  display: block;
+  width: 100%;
+  min-height: 48px;
+  border: 1px solid var(--pizzaos-color-primary);
+  border-radius: 12px;
+  font: inherit;
+  font-weight: 700;
+  text-align: center;
+  cursor: pointer;
+}
+
+.dialog .mealCustomize {
+  background: var(--pizzaos-color-primary);
+  color: var(--pizzaos-color-primary-foreground);
+}
+
+.mealNavigation { display: grid; gap: 10px; margin-top: 12px; }
+.mealNavigation .textButton { justify-self: start; }
+
+.dialog .mealNext {
+  background: var(--pizzaos-color-background-accent);
+  color: var(--pizzaos-color-primary) !important;
+}
+
+.dialog .mealCustomize:focus-visible, .dialog .mealNext:focus-visible {
+  outline: 2px solid var(--pizzaos-color-primary);
+  outline-offset: 3px;
 }
 
 @media (max-width: 480px) {

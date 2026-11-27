@@ -4,7 +4,7 @@ import { productType, resolveMealComposition, resolveMenuComposition } from "@pi
 import type { IndividualLine, IndividualProduct, IndividualStore, MenuOptionGroup, MenuSelection } from "@pizzaos/domain";
 import Image from "next/image";
 import { useEffect, useId, useRef, useState } from "react";
-import { LivePizzaEditor, pizzaInitialSelections, pizzaPreview, useSelectionRecovery } from "../../customization";
+import { LivePizzaEditor, ProductPairings, pizzaInitialSelections, pizzaPreview, useSelectionRecovery } from "../../customization";
 import { lineChoiceLabels, lineIssue, menuMoney, menuSelections } from "../live-menu-model";
 import { MenuFoodSummary, type MenuPreferences } from "./operational-food";
 import { MealConfigurationDialog } from "./meal-configuration-dialog";
@@ -16,13 +16,23 @@ function optionCount(group: MenuOptionGroup, choices: MenuSelection[]): number {
 }
 
 function ConfigurationDialog(props: Parameters<typeof GenericConfigurationDialog>[0]) {
-  if (productType(props.product) === "meal") return <MealConfigurationDialog {...props} />;
-  return props.product.pizza
-    ? <LivePizzaEditor {...props} onPairing={props.line ? undefined : props.onSave} />
-    : <GenericConfigurationDialog {...props} />;
+  const [pairing, setPairing] = useState<IndividualProduct | null>(null);
+  function choosePairing(product: IndividualProduct) {
+    if (product.groups?.length || product.pizza || productType(product) === "meal") setPairing(product);
+    else props.onSave({ productId: product.id, quantity: 1, optionIds: [], notes: "" });
+  }
+  const onChoosePairing = props.line ? undefined : choosePairing;
+  return <>
+    {productType(props.product) === "meal" ? <MealConfigurationDialog {...props} onChoosePairing={onChoosePairing} />
+      : props.product.pizza || productType(props.product) === "sandwich"
+        ? <LivePizzaEditor {...props} onChoosePairing={onChoosePairing} />
+        : <GenericConfigurationDialog {...props} onChoosePairing={onChoosePairing} />}
+    {pairing && <ConfigurationDialog {...props} product={pairing} line={undefined} quantity={1} edit={false}
+      initialSelections={undefined} onClose={() => setPairing(null)} />}
+  </>;
 }
 
-function GenericConfigurationDialog({ store, product, line, disabled, avoid, onClose, onSave, quantity = 1, edit = false }: {
+function GenericConfigurationDialog({ store, product, line, disabled, avoid, onClose, onSave, quantity = 1, edit = false, onChoosePairing }: {
   store: IndividualStore;
   product: IndividualProduct;
   line?: IndividualLine;
@@ -33,6 +43,7 @@ function GenericConfigurationDialog({ store, product, line, disabled, avoid, onC
   quantity?: number;
   edit?: boolean;
   initialSelections?: MenuSelection[];
+  onChoosePairing?: (product: IndividualProduct) => void;
 }) {
   const dialog = useRef<HTMLDialogElement>(null);
   const title = useId();
@@ -132,6 +143,7 @@ function GenericConfigurationDialog({ store, product, line, disabled, avoid, onC
         {preview.composition.ingredients.length > 0 && <p className={styles.ingredients}>Ingredienti: {preview.composition.ingredients.join(", ")}</p>}
         <MenuFoodSummary food={preview.composition} avoid={avoid} showUnknown={Boolean(store.menu)} announce />
         {store.menu?.kitchenNotice && <p className={styles.ingredients}>{store.menu.kitchenNotice}</p>}
+        <ProductPairings store={store} product={product} disabled={disabled} onChoose={onChoosePairing} />
         <label className={styles.lineNotes}>Note per la cucina<input maxLength={500} value={notes} onChange={event => setNotes(event.target.value)} /></label>
       </div>
       <footer className={styles.dialogFoot}>
@@ -180,7 +192,6 @@ function MenuItem({ store, product, preferences, disabled, onAdd }: {
 }) {
   const [configuring, setConfiguring] = useState(false);
   const needsChoices = Boolean(product.groups?.length) || productType(product) === "meal";
-  const pairing = store.products.filter(item => item.available && product.pairingProductIds?.includes(item.id));
   const initialSelections = pizzaInitialSelections(product, {});
   const preview = resolveMenuComposition(product, initialSelections);
   const image = pizzaPreview(product, initialSelections, store.id);
@@ -198,14 +209,6 @@ function MenuItem({ store, product, preferences, disabled, onAdd }: {
       {product.extraOffer && product.extraOffer.quota > 0 && product.extraOffer.percent > 0 && <p className={styles.offer}>
         −{product.extraOffer.percent}% sui {product.extraOffer.quota} extra più costosi
       </p>}
-      {pairing.length > 0 && <details className={styles.pairings}><summary>Abbinamenti consigliati</summary>
-        {pairing.map(item => <p key={item.id}>{item.groups?.length
-          ? <a href={`#${encodeURIComponent(menuItemId(item.id))}`}>{item.name} · {menuMoney(item.priceCents)}</a>
-          : <button type="button" className={styles.textButton} disabled={disabled} onClick={() =>
-            onAdd({ productId: item.id, quantity: 1, optionIds: [], notes: "" })
-          }>Aggiungi {item.name} · {menuMoney(item.priceCents)}</button>}
-        </p>)}
-      </details>}
       {!needsChoices && product.options.length > 0 && <div className={styles.itemActions}>
         <MenuLineEditor store={store} product={product} disabled={disabled} avoid={preferences.avoid} onSave={onAdd} />
       </div>}

@@ -1,8 +1,9 @@
 "use client";
 
-import { mealRemovableIngredientIds, resolveMealComposition } from "@pizzaos/domain";
+import { mealRemovableIngredientIds, productType, resolveMealComposition } from "@pizzaos/domain";
 import type { IndividualLine, IndividualProduct, IndividualStore, MealSelection } from "@pizzaos/domain";
 import { useEffect, useId, useRef, useState } from "react";
+import { ProductPairings } from "../../customization";
 import { menuMoney } from "../live-menu-model";
 import { MenuFoodSummary } from "./operational-food";
 import styles from "./operational-menu.module.css";
@@ -17,8 +18,9 @@ function firstInvalidPhase(product: IndividualProduct, selections: MealSelection
   return product.meal?.steps.findIndex((step, index) => !validPhase(product, index, selections.find(item => item.stepId === step.id), products)) ?? -1;
 }
 
-export function MealConfigurationDialog({ store, product, line, quantity = 1, disabled, avoid, onClose, onSave, edit }: {
+export function MealConfigurationDialog({ store, product, line, quantity = 1, disabled, avoid, onClose, onSave, edit, onChoosePairing }: {
   store: IndividualStore; product: IndividualProduct; line?: IndividualLine; quantity?: number; disabled: boolean;
+  onChoosePairing?: (product: IndividualProduct) => void;
   avoid: string[]; onClose: () => void; onSave: (line: IndividualLine) => void; edit?: boolean;
 }) {
   const dialog = useRef<HTMLDialogElement>(null);
@@ -94,23 +96,28 @@ export function MealConfigurationDialog({ store, product, line, quantity = 1, di
             })}
           </fieldset>
           {child && selection && <>
-            <button type="button" className={styles.textButton} aria-expanded={customizing} onClick={() => setCustomizing(current => !current)}>Personalizza {child.name}</button>
-            {customizing && <fieldset className={styles.group} disabled={disabled}><legend>Ingredienti inclusi</legend>
+            <button type="button" className={productType(child) === "pizza" ? styles.mealCustomize : styles.textButton}
+              aria-expanded={customizing} onClick={() => setCustomizing(current => !current)}>
+              {productType(child) === "pizza" ? "Personalizza Scelta" : `Personalizza ${child.name}`}
+            </button>
+            {customizing && <fieldset className={styles.group} disabled={disabled}>
+              {["pizza", "sandwich"].includes(productType(child)) && <><legend>Ingredienti inclusi</legend>
               {mealRemovableIngredientIds(child).map(id => <label key={id} className={styles.option}>
                 <input type="checkbox" checked={!selection.removedIngredientIds.includes(id)} onChange={event => update({
                   removedIngredientIds: event.target.checked ? selection.removedIngredientIds.filter(value => value !== id) : [...selection.removedIngredientIds, id]
                 })} />{child.foodIngredients?.find(item => item.id === id)?.name ?? id}
-              </label>)}
+              </label>)}</>}
               <label className={styles.lineNotes}>Note per la cucina<textarea maxLength={1000} value={selection.notes} onChange={event => update({ notes: event.target.value })} /></label>
             </fieldset>}
             {!phaseValid(selection) && <p className={styles.warning}>Questa scelta non è più disponibile. Controlla il prodotto selezionato.</p>}
           </>}
-          <div className={styles.itemActions}>
+          <div className={styles.mealNavigation}>
             {phase > 0 && <button type="button" className={styles.textButton} onClick={() => { setPhase(current => current - 1); setCustomizing(false); }}>Indietro</button>}
-            {phase < steps.length - 1 && <button type="button" className={styles.textButton} disabled={!selection || !phaseValid(selection)} onClick={() => { setPhase(current => current + 1); setCustomizing(false); }}>Avanti</button>}
+            {phase < steps.length - 1 && <button type="button" className={styles.mealNext} disabled={!selection || !phaseValid(selection)} onClick={() => { setPhase(current => current + 1); setCustomizing(false); }}>Scelta Successiva</button>}
           </div>
           <MenuFoodSummary food={preview.composition} avoid={avoid} showUnknown={Boolean(store.menu)} />
         </> : <p>Questo Menu non contiene fasi disponibili.</p>}
+        <ProductPairings store={store} product={product} disabled={disabled} onChoose={onChoosePairing} />
       </div>
       <footer className={styles.dialogFoot}><div aria-live="polite"><strong>{menuMoney(preview.unitCents * count)}</strong>{count > 1 && <small>{count} × {menuMoney(preview.unitCents)}</small>}</div>
         <button type="submit" disabled={disabled || !preview.valid || phase !== steps.length - 1}>{recovered ? "Conferma modifica" : edit ? "Aggiorna scelta" : "Aggiungi"}</button></footer>

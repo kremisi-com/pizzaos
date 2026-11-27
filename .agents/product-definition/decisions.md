@@ -255,3 +255,7 @@ Andrea conferma il 26 novembre 2026 che l'organizzatore può rimuovere articoli 
 ## Conferma delle personalizzazioni obsolete
 
 Andrea approva il recupero delle opzioni rimosse o esaurite con proposta locale, avviso e una sola **Conferma modifica** con prezzo corrente, senza ulteriori finestre o checkbox. Chiudere senza confermare conserva la riga originale; una scelta obbligatoria mancante richiede un'alternativa esplicita. Quote, revisioni gruppo, idempotenza e snapshot ordini restano autorevoli nel servizio. Il cambio di significato di un'opzione mantenendo lo stesso ID è esplicitamente escluso per ora. [Flusso corrente](flows/menu-ordering.md#recupero-delle-personalizzazioni-obsolete), [SDD](../design/2026-11-26-customization-recovery/design.md).
+
+## Coerenza delle schede prodotto e personalizzazione Menu
+
+Andrea conferma il 27 novembre 2026 che Panino deve usare struttura, sezioni espandibili, controlli e riepilogo della creazione Pizza, con sole opzioni pertinenti. Gli abbinamenti consigliati compaiono esclusivamente nelle schede prodotto, sotto Extra per Pizza e Panino, e sono rimossi dalla home e dalla vista menu. Nel Menu il comando pizza diventa **Personalizza Scelta**, a larghezza piena con colori migliorati; **Scelta Successiva** sostituisce Avanti, a larghezza piena con fondo bianco e bordo colorato. L'esclusione degli ingredienti nelle fasi è riservata a Pizza e Panino; i Prodotti ordinari conservano le note. [Flusso proprietario](flows/menu-ordering.md#schede-prodotto-abbinamenti-e-comandi-delle-fasi).

@@ -97,3 +97,5 @@ Pilot extensions are public through this package entry point: `PilotAnalyticsApi
 `PizzaEntry.recommendedDoughId` conserva un consiglio opzionale; la proiezione espone `PizzaProductIdentity.recommendedDoughOptionId` soltanto quando diverso dallo standard, senza cambiare `defaultSelections` o supplementi. Nei menu con `dough-format`, la composizione omette la voce impasto dai nomi degli ingredienti, conservandola in ricetta, allergeni e tracce.
 
 `ResolvedMenuComposition.recipe` conserva dosi `number | null`: null propaga un consumo ignoto mantenendo identità ingrediente e allergeni. La validità della composizione non richiede dosi compilate.
+
+`mealRemovableIngredientIds` espone rimozioni solo per Pizza e Panino nelle fasi di un Menu; `resolveMealComposition` rifiuta rimozioni sui Prodotti ordinari e mantiene le note. La regola è condivisa dal client e dal preventivo server. Copertura: `src/product-types.test.ts`.

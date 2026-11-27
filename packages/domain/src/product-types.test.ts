@@ -252,3 +252,15 @@ describe("resolveMealComposition", () => {
     expect(resolveMealComposition(parent, [selection("portata", "pizza", ["farina"])], [pizza()]).valid).toBe(false);
   });
 });
+
+
+it("non permette rimozioni per i prodotti ordinari nelle fasi del Menu", () => {
+  const configured = meal();
+  const choices = [selection("portata", "panino"), selection("bibita", "acqua", [], "Fredda")];
+  expect(resolveMealComposition(configured, choices, products).valid).toBe(true);
+  choices[1] = selection("bibita", "acqua", ["acqua"], "Fredda");
+  expect(resolveMealComposition(configured, choices, products).valid).toBe(false);
+  choices[1] = selection("bibita", "acqua", [], "Fredda");
+  choices[0] = selection("portata", "panino", ["formaggio"]);
+  expect(resolveMealComposition(configured, choices, products).valid).toBe(true);
+});

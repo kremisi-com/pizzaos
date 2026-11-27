@@ -20,13 +20,15 @@ it("customizes a sandwich with removals and common extras without pizza dimensio
   const onSave = vi.fn();
   renderDom(<MenuLineEditor store={{ ...store, products: [sandwich] }} product={sandwich} avoid={[]} onSave={onSave} />);
   domFireEvent.click(domScreen.getByRole("button", { name: "Personalizza Panino" }));
-  domFireEvent.click(domScreen.getByRole("checkbox", { name: /Senza Pomodoro/ }));
-  domFireEvent.click(domScreen.getByRole("button", { name: "Aggiungi Formaggio" }));
-  domFireEvent.change(domScreen.getByLabelText("Note per la cucina"), { target: { value: "Tostato" } });
+  domFireEvent.click(domScreen.getByRole("button", { name: /^Ingredienti/ }));
+  domFireEvent.click(domScreen.getByRole("button", { name: "Pomodoro incluso" }));
+  domFireEvent.click(domScreen.getByRole("button", { name: /^Extra/ }));
+  domFireEvent.click(domScreen.getByRole("button", { name: "Formaggio escluso" }));
+  domFireEvent.change(domScreen.getByLabelText("Messaggio opzionale"), { target: { value: "Tostato" } });
   expect(domScreen.queryByText("Impasto")).toBeNull();
   expect(domScreen.queryByText("Formato")).toBeNull();
   expect(domScreen.queryByText(/pizza/i)).toBeNull();
-  domFireEvent.click(domScreen.getByRole("button", { name: "Aggiungi" }));
+  domFireEvent.click(domScreen.getByRole("button", { name: /Aggiungi al carrello/ }));
   expect(onSave).toHaveBeenCalledWith(expect.objectContaining({ productId: base.id, notes: "Tostato", selections: [
     { optionId: sandwich.options.find(option => option.removesIngredientIds?.includes("pomodoro"))!.id, quantity: 1 },
     { optionId: sandwich.options.find(option => option.name === "Formaggio")!.id, quantity: 1 }
@@ -44,7 +46,7 @@ it("guides required phases, allows only removals and kitchen notes, and saves th
   expect(domScreen.queryByText("Extra")).toBeNull();
   expect(domScreen.queryByText("Impasto")).toBeNull();
   expect(domScreen.queryByText("Formato")).toBeNull();
-  domFireEvent.click(domScreen.getByRole("button", { name: "Avanti" }));
+  domFireEvent.click(domScreen.getByRole("button", { name: "Scelta Successiva" }));
   domFireEvent.click(domScreen.getByRole("radio", { name: /Acqua/ }));
   domFireEvent.click(domScreen.getByRole("button", { name: "Aggiungi" }));
   expect(onAdd).toHaveBeenCalledWith(expect.objectContaining({ productId: "menu", mealSelections: [
@@ -74,7 +76,7 @@ it("preserves different Menu compositions in cart identity, storage and editing"
   const onSave = vi.fn();
   renderDom(<MenuLineEditor store={store} product={meal} line={first} avoid={[]} onSave={onSave} />);
   domFireEvent.click(domScreen.getByRole("button", { name: "Modifica Menu pranzo" }));
-  domFireEvent.click(domScreen.getByRole("button", { name: "Avanti" }));
+  domFireEvent.click(domScreen.getByRole("button", { name: "Scelta Successiva" }));
   domFireEvent.click(domScreen.getByRole("button", { name: "Aggiorna scelta" }));
   expect(onSave).toHaveBeenCalledWith(expect.objectContaining({ mealSelections: first.mealSelections }));
 });
@@ -90,7 +92,7 @@ it("preserves previous phases and clears only the changed alternative's removals
   domFireEvent.click(domScreen.getByRole("button", { name: "Personalizza Panino" }));
   domFireEvent.click(domScreen.getByRole("checkbox", { name: "Pomodoro" }));
   domFireEvent.change(domScreen.getByLabelText("Note per la cucina"), { target: { value: "Prima nota" } });
-  domFireEvent.click(domScreen.getByRole("button", { name: "Avanti" }));
+  domFireEvent.click(domScreen.getByRole("button", { name: "Scelta Successiva" }));
   domFireEvent.click(domScreen.getByRole("radio", { name: /Acqua/ }));
   domFireEvent.click(domScreen.getByRole("button", { name: "Personalizza Acqua" }));
   domFireEvent.change(domScreen.getByLabelText("Note per la cucina"), { target: { value: "Fredda" } });
@@ -99,7 +101,7 @@ it("preserves previous phases and clears only the changed alternative's removals
   expect((domScreen.getByRole("checkbox", { name: "Pomodoro" }) as HTMLInputElement).checked).toBe(false);
   expect((domScreen.getByLabelText("Note per la cucina") as HTMLTextAreaElement).value).toBe("Prima nota");
   domFireEvent.click(domScreen.getByRole("radio", { name: /Altro panino/ }));
-  domFireEvent.click(domScreen.getByRole("button", { name: "Avanti" }));
+  domFireEvent.click(domScreen.getByRole("button", { name: "Scelta Successiva" }));
   domFireEvent.click(domScreen.getByRole("button", { name: "Aggiungi" }));
   expect(onAdd).toHaveBeenCalledWith(expect.objectContaining({ mealSelections: [
     { stepId: "portata", productId: "altro", removedIngredientIds: [], notes: "" },
@@ -116,11 +118,31 @@ it("lets the customer replace removed phases without resetting the entire Menu",
   domFireEvent.click(domScreen.getByRole("button", { name: "Modifica Menu pranzo" }));
   expect(domScreen.getByRole("status").textContent).toMatch(/scelte del Menu non sono più disponibili/);
   domFireEvent.click(domScreen.getByRole("radio", { name: /Panino/ }));
-  domFireEvent.click(domScreen.getByRole("button", { name: "Avanti" }));
+  domFireEvent.click(domScreen.getByRole("button", { name: "Scelta Successiva" }));
   domFireEvent.click(domScreen.getByRole("radio", { name: /Acqua/ }));
   domFireEvent.click(domScreen.getByRole("button", { name: "Conferma modifica" }));
   expect(onSave).toHaveBeenCalledWith(expect.objectContaining({ mealSelections: [
     { stepId: "portata", productId: base.id, removedIngredientIds: [], notes: "" },
     { stepId: "bibita", productId: water.id, removedIngredientIds: [], notes: "" }
   ] }));
+});
+
+
+it("consente solo note per il prodotto ordinario e conserva le rimozioni di pizza e panino", () => {
+  const onAdd = vi.fn();
+  renderDom(<OperationalMenu store={store} preferences={{ avoid: [], busy: false, message: "", authenticated: false, available: true, retry: vi.fn(), save: vi.fn() }} onAdd={onAdd} />);
+  domFireEvent.click(domScreen.getByRole("button", { name: "Aggiungi Menu pranzo" }));
+  domFireEvent.click(domScreen.getByRole("radio", { name: /Panino/ }));
+  domFireEvent.click(domScreen.getByRole("button", { name: "Personalizza Panino" }));
+  expect(domScreen.getByText("Ingredienti inclusi")).toBeTruthy();
+  domFireEvent.click(domScreen.getByRole("button", { name: "Scelta Successiva" }));
+  domFireEvent.click(domScreen.getByRole("radio", { name: /Acqua/ }));
+  domFireEvent.click(domScreen.getByRole("button", { name: "Personalizza Acqua" }));
+  expect(domScreen.queryByText("Ingredienti inclusi")).toBeNull();
+  expect(domScreen.queryByRole("checkbox")).toBeNull();
+  domFireEvent.change(domScreen.getByLabelText("Note per la cucina"), { target: { value: "Fredda" } });
+  domFireEvent.click(domScreen.getByRole("button", { name: "Aggiungi" }));
+  expect(onAdd).toHaveBeenCalledWith(expect.objectContaining({ mealSelections: expect.arrayContaining([
+    { stepId: "bibita", productId: "acqua", removedIngredientIds: [], notes: "Fredda" }
+  ]) }));
 });

@@ -59,6 +59,7 @@ export function mealDefaultSelections(product: IndividualProduct): MenuSelection
 
 /** Ingredients the customer may remove; dough and format components are not included. */
 export function mealRemovableIngredientIds(product: IndividualProduct): string[] {
+  if (!["pizza", "sandwich"].includes(productType(product))) return [];
   return [...new Set(product.pizzaRecipeSources?.flatMap(source => Object.keys(source.ingredients))
     ?? product.pizza?.includedToppings?.flatMap(source => source.ingredientIds)
     ?? product.baseIngredientIds ?? Object.keys(product.ingredients))];

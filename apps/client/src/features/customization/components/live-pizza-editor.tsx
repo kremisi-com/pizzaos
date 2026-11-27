@@ -9,6 +9,7 @@ import styles from "./product-detail-screen.module.css";
 import live from "./live-pizza-editor.module.css";
 import { PizzaFoodDetails } from "./pizza-food-details";
 import { useSelectionRecovery } from "../use-selection-recovery";
+import { ProductPairings } from "./product-pairings";
 
 const euro = new Intl.NumberFormat("it-IT", { style: "currency", currency: "EUR" });
 const money = (cents: number) => euro.format(cents / 100);
@@ -27,7 +28,9 @@ function selectionCount(group: MenuOptionGroup, choices: readonly MenuSelection[
 
 function samePizzaIngredient(left: IndividualOption, right: IndividualOption): boolean {
   if (left.pizza && right.pizza && left.pizza.sourceId === right.pizza.sourceId) return true;
-  if (!(left.pizza?.kind === "removal" && right.pizza?.kind === "topping"
+  if (!(left.removesIngredientIds?.length && !right.removesIngredientIds?.length
+    || right.removesIngredientIds?.length && !left.removesIngredientIds?.length
+    || left.pizza?.kind === "removal" && right.pizza?.kind === "topping"
     || left.pizza?.kind === "topping" && right.pizza?.kind === "removal")) return false;
   const references = (option: IndividualOption) => option.removesIngredientIds
     ?? option.ingredientIds ?? Object.keys(option.ingredients);
@@ -44,10 +47,11 @@ function newSelections(product: IndividualProduct, initialSelections?: MenuSelec
     ...initialSelections].map(choice => ({ ...choice }));
 }
 
-export function LivePizzaEditor({ store, product, line, quantity = 1, disabled, avoid, onClose, onSave, onPairing, initialSelections }: {
+export function LivePizzaEditor({ store, product, line, quantity = 1, disabled, avoid, onClose, onSave, onPairing, onChoosePairing, initialSelections }: {
   store: IndividualStore; product: IndividualProduct; line?: IndividualLine; quantity?: number;
   disabled: boolean; avoid: string[]; onClose: () => void; onSave: (line: IndividualLine) => void;
   onPairing?: (line: IndividualLine) => void;
+  onChoosePairing?: (product: IndividualProduct) => void;
   initialSelections?: MenuSelection[];
 }) {
   const dialog = useRef<HTMLDialogElement>(null);
@@ -57,14 +61,14 @@ export function LivePizzaEditor({ store, product, line, quantity = 1, disabled, 
     : newSelections(product, initialSelections));
   const [notes, setNotes] = useState(line?.notes ?? "");
   const [openSection, setOpenSection] = useState<string | null>(null);
-  const [pairingMessage, setPairingMessage] = useState("");
+  const sandwich = product.productType === "sandwich";
   const options = new Map(product.options.map(option => [option.id, option]));
   const recommendedDough = options.get(product.pizza?.recommendedDoughOptionId ?? "");
   const doughAdvice = recommendedDough?.pizza?.kind === "dough" && recommendedDough.available !== false
     ? `Consigliato: ${recommendedDough.name}` : "";
   const allGroups = product.groups ?? [];
-  const groups = allGroups.filter(group => group.optionIds.some(id => options.get(id)?.pizza));
-  const specificGroups = allGroups.filter(group => !group.optionIds.some(id => options.get(id)?.pizza));
+  const groups = allGroups.filter(group => sandwich ? ["ingredients", "extras"].includes(group.kind) : group.optionIds.some(id => options.get(id)?.pizza));
+  const specificGroups = allGroups.filter(group => !groups.includes(group));
   const preview = resolveMenuComposition(product, selections);
   const lineQuantity = line?.quantity ?? quantity;
   const canSave = !disabled && product.available && preview.valid;
@@ -79,7 +83,6 @@ export function LivePizzaEditor({ store, product, line, quantity = 1, disabled, 
     if (requiredSection) setOpenSection(requiredSection);
   }
   const selected = (id: string) => selections.find(choice => choice.optionId === id)?.quantity ?? 0;
-  const pairings = onPairing ? store.products.filter(item => item.available && !item.groups?.length && product.pairingProductIds?.includes(item.id)) : [];
   const extraGroups = groups.filter(group => group.kind === "extras");
   const extraIds = new Set(extraGroups.flatMap(group => group.optionIds));
   const extraCount = selections.reduce((count, item) => count + (extraIds.has(item.optionId) ? item.quantity : 0), 0);
@@ -106,10 +109,10 @@ export function LivePizzaEditor({ store, product, line, quantity = 1, disabled, 
         const existing = options.get(choice.optionId);
         return choice.optionId !== option.id
           && !(group?.max === 1 && count > 0 && group.optionIds.includes(choice.optionId))
-          && !(count > 0 && option.pizza && existing?.pizza
+          && !(count > 0 && existing && (sandwich && samePizzaIngredient(option, existing) || option.pizza && existing.pizza
             && ["topping", "removal"].includes(option.pizza.kind)
             && ["topping", "removal"].includes(existing.pizza.kind)
-            && samePizzaIngredient(option, existing));
+            && samePizzaIngredient(option, existing)));
       });
       return count > 0 ? [...next, { optionId: option.id, quantity: count }] : next;
     });
@@ -117,7 +120,7 @@ export function LivePizzaEditor({ store, product, line, quantity = 1, disabled, 
 
   function save() {
     if (!canSave) return;
-    onSave({ productId: product.id, kind: product.pizza?.kind === "taste" ? "pizza_taste" : "pizza_formula",
+    onSave({ productId: product.id, ...(product.pizza ? { kind: product.pizza.kind === "taste" ? "pizza_taste" as const : "pizza_formula" as const } : {}),
       quantity: lineQuantity, optionIds: [], selections, notes: notes.trim() });
     onClose();
   }
@@ -153,7 +156,7 @@ export function LivePizzaEditor({ store, product, line, quantity = 1, disabled, 
     </div>;
   }
 
-  const removals = product.options.filter(option => option.pizza?.kind === "removal");
+  const removals = product.options.filter(option => sandwich ? option.removesIngredientIds?.length : option.pizza?.kind === "removal");
   const extras = product.options.filter(option => extraIds.has(option.id));
 
   if (typeof document === "undefined") return null;
@@ -170,7 +173,8 @@ export function LivePizzaEditor({ store, product, line, quantity = 1, disabled, 
         </div>
         <p className={styles.heroDescription}>{product.description}</p>
         <div className={styles.heroMeta}><span className={styles.heroPrice}>{money(preview.unitCents)}</span></div>
-        <PizzaFoodDetails composition={preview.composition} kitchenNotice={store.menu?.kitchenNotice} />
+        <PizzaFoodDetails composition={preview.composition} kitchenNotice={store.menu?.kitchenNotice}
+          emptyMessage={sandwich ? "Componi il tuo panino" : undefined} />
       </section>
       {recovered && <div className={live.feedback}>
         <p className={live.status} role="status">{recoveryMessage}</p>
@@ -178,6 +182,7 @@ export function LivePizzaEditor({ store, product, line, quantity = 1, disabled, 
       {relevant.length > 0 && <p className={`${live.feedback} ${live.status}`} role="status">Da verificare per le tue preferenze: {relevant.join(", ")}.</p>}
       <div className={styles.customizationArea}>
         {sections.filter(section => {
+          if (sandwich) return groups.some(group => group.kind === section.kind);
           if (section.kind === "base") return groups.some(group => group.kind === "base");
           if (section.kind === "dough" || section.kind === "format") {
             return groups.some(group => group.kind === section.kind
@@ -198,7 +203,7 @@ export function LivePizzaEditor({ store, product, line, quantity = 1, disabled, 
             {section.kind === "ingredients" ? <div className={styles.ingredientList}>
               {!removals.length && <p className={live.feedback}>Nessun ingrediente del gusto predefinito.</p>}
               {removals.map(removal => {
-                const extra = extras.find(option => option.pizza?.sourceId === removal.pizza?.sourceId)
+                const extra = extras.find(option => option.pizza && removal.pizza && option.pizza.sourceId === removal.pizza.sourceId)
                   ?? extras.find(option => samePizzaIngredient(option, removal));
                 const included = selected(removal.id) === 0;
                 const name = extra?.name ?? removal.name.replace(/^Senza /u, "");
@@ -209,7 +214,7 @@ export function LivePizzaEditor({ store, product, line, quantity = 1, disabled, 
                       aria-pressed={selected(extra.id) > 0} disabled={disabled || extra.available === false}
                       onClick={() => choose(extra, selected(extra.id) ? 0 : 1, groups.find(group => group.optionIds.includes(extra.id)))}>Extra</button>}
                     <button type="button" className={`${styles.ingredientToggle} ${included ? styles.ingredientToggleActive : ""}`}
-                      aria-pressed={included} aria-label={`${name} ${included ? "incluso" : "escluso"}`} disabled={disabled}
+                      aria-pressed={included} aria-label={`${name} ${included ? "incluso" : "escluso"}`} disabled={disabled || included && removal.available === false}
                       onClick={() => choose(removal, included ? 1 : 0, groups.find(group => group.optionIds.includes(removal.id)))}>
                       <span className={styles.ingredientToggleIndicator} aria-hidden="true" />
                       <span className={styles.ingredientToggleLabel}>{included ? "Incluso" : "Escluso"}</span>
@@ -288,6 +293,9 @@ export function LivePizzaEditor({ store, product, line, quantity = 1, disabled, 
           })}</div>
         </fieldset>)}
       </div>
+      <ProductPairings store={store} product={product} disabled={disabled}
+        onChoose={onChoosePairing ?? (onPairing ? item => onPairing({ productId: item.id, quantity: 1, optionIds: [], notes: "" }) : undefined)}
+        simpleOnly={!onChoosePairing} />
       <section className={styles.noteSection} aria-labelledby={`${titleId}-notes`}>
         <div className={styles.noteHeader}><span className={styles.noteIcon} aria-hidden="true">📝</span>
           <div className={styles.noteCopy}><h2 id={`${titleId}-notes`} className={styles.noteTitle}>Note per la cucina</h2>
@@ -299,19 +307,8 @@ export function LivePizzaEditor({ store, product, line, quantity = 1, disabled, 
             placeholder="Es. taglia a spicchi piccoli, metti poca mozzarella" onChange={event => setNotes(event.target.value)} />
         </label>
       </section>
-      {pairings.length > 0 && <section className={styles.pairingsSection}>
-        <h2 className={styles.pairingsTitle}>Abbinamenti consigliati</h2>
-        <div className={styles.pairingsList}>{pairings.map(pairing => <div key={pairing.id} className={styles.pairingCard}>
-          <div className={styles.pairingInfo}><p className={styles.pairingName}>{pairing.name}</p><p className={styles.pairingDescription}>{pairing.description}</p></div>
-          <div className={styles.pairingPriceGroup}><span className={styles.pairingPrice}>{money(pairing.priceCents)}</span>
-            <button type="button" className={styles.pairingAddButton} disabled={disabled} aria-label={`Aggiungi ${pairing.name} al carrello`}
-              onClick={() => { onPairing?.({ productId: pairing.id, quantity: 1, optionIds: [], notes: "" }); setPairingMessage(`${pairing.name} aggiunto al carrello`); }}>＋</button>
-          </div>
-        </div>)}</div>
-        {pairingMessage && <p role="status">{pairingMessage}</p>}
-      </section>}
       <div className={styles.stickyCtaWrapper} aria-live="polite">
-        {!preview.valid && <p className={live.status}>Controlla le scelte prima di aggiungere la pizza.</p>}
+        {!preview.valid && <p className={live.status}>{sandwich ? "Controlla le scelte prima di aggiungere il panino." : "Controlla le scelte prima di aggiungere la pizza."}</p>}
         <button type="button" className={styles.stickyCtaButton} disabled={!canSave} onClick={save}
           aria-label={recovered ? "Conferma modifica" : `${money(preview.unitCents * lineQuantity)} – ${line ? "Aggiorna scelta" : "Aggiungi al carrello"}`}>
           <span className={styles.ctaPrice} data-testid="customization-total-value">{money(preview.unitCents * lineQuantity)}</span>

@@ -149,7 +149,7 @@ test("cinque tipi espliciti in bozza e Menu pubblicato con sole rimozioni e note
     for (const name of ["Impasto", "Formato", "Extra", "Abbinamenti"]) {
       await expect(editor.getByRole("heading", { name, exact: true })).toHaveCount(0);
     }
-    await editor.getByRole("button", { name: "Avanti", exact: true }).click();
+    await editor.getByRole("button", { name: "Scelta Successiva", exact: true }).click();
     await expect(editor.getByRole("radio", { name: /Acqua prova/ })).not.toBeChecked();
     await editor.getByRole("radio", { name: /Acqua prova/ }).check();
     await editor.getByRole("button", { name: "Indietro", exact: true }).click();
@@ -157,7 +157,7 @@ test("cinque tipi espliciti in bozza e Menu pubblicato con sole rimozioni e note
     await editor.getByRole("button", { name: "Personalizza Panino prova", exact: true }).click();
     await expect(editor.getByRole("checkbox", { name: "Formaggio prova", exact: true })).not.toBeChecked();
     await expect(editor.getByRole("textbox", { name: "Note per la cucina", exact: true })).toHaveValue("Ben caldo");
-    await editor.getByRole("button", { name: "Avanti", exact: true }).click();
+    await editor.getByRole("button", { name: "Scelta Successiva", exact: true }).click();
     await editor.screenshot({ path: testInfo.outputPath("menu-cliente-mobile.png") });
     await editor.getByRole("button", { name: "Aggiungi", exact: true }).click();
     const quoting = page.waitForResponse(response => response.url().endsWith("/v1/pilot/quote") && response.request().method() === "POST");

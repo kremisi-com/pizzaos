@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { emptyPizzaCatalog, materializePizzaMenu, resolveMenuComposition, type IndividualProduct, type IndividualStore, type MenuSelection, type PizzaComponent, type PizzaEntry } from "@pizzaos/domain";
+import { emptyPizzaCatalog, materializePizzaMenu, materializeSandwich, resolveMenuComposition, type IndividualProduct, type IndividualStore, type MenuSelection, type PizzaComponent, type PizzaEntry } from "@pizzaos/domain";
 import { cleanupDom, domFireEvent, domScreen, renderDom } from "@pizzaos/testing";
 import { LivePizzaEditor } from "../features/customization";
 import { OperationalMenu } from "../features/menu";
@@ -348,4 +348,69 @@ describe("persistent pizza editor using the PoC presentation", () => {
     domFireEvent.click(domScreen.getByRole("button", { name: "Conferma modifica" }));
     expect(save).toHaveBeenCalledWith(expect.objectContaining({ quantity: 3, notes: "Tagliata" }));
   });
+});
+
+
+describe("schede prodotto e abbinamenti", () => {
+  it.each(["pizza", "sandwich", "product"])("mostra gli abbinamenti solo dentro la scheda %s e conserva la composizione", type => {
+    const { store, taste } = fixture();
+    const drink: IndividualProduct = { id: "acqua", name: "Acqua", description: "Naturale", allergens: [], ingredients: {}, priceCents: 150, available: true, options: [] };
+    const product = type === "pizza" ? taste : type === "sandwich" ? materializeSandwich({ ...drink,
+      id: "panino", name: "Panino", productType: "sandwich", priceCents: 900, ingredients: { pomodoro: 1 },
+      foodIngredients: [{ id: "pomodoro", name: "Pomodoro" }], baseIngredientIds: ["pomodoro"]
+    }, [{ id: "pomodoro", name: "Pomodoro", stock: null }, { id: "formaggio", name: "Formaggio", stock: 10,
+      extra: { enabled: true, priceCents: 200, dose: 1 } }]) : { ...drink, id: "bibita", name: "Bibita" };
+    product.pairingProductIds = [drink.id];
+    store.products = [product, drink];
+    store.menu!.sections = [{ id: "prodotti", name: "Prodotti", productIds: store.products.map(item => item.id) }];
+    const save = vi.fn();
+    renderDom(<OperationalMenu store={store} preferences={{ avoid: [], save: vi.fn(), busy: false, message: "", authenticated: false, retry: vi.fn(), available: true }} onAdd={save} />);
+    expect(domScreen.queryByText("Abbinamenti consigliati")).toBeNull();
+    domFireEvent.click(domScreen.getByRole("button", { name: `Aggiungi ${product.name}` }));
+    const heading = domScreen.getByRole("heading", { name: "Abbinamenti consigliati" });
+    const notes = domScreen.getByLabelText(type === "product" ? "Note per la cucina" : "Messaggio opzionale");
+    expect(heading.compareDocumentPosition(notes) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    if (type !== "product") {
+      const extras = domScreen.getByRole("button", { name: /^Extra/ });
+      expect(extras.compareDocumentPosition(heading) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+      domFireEvent.click(extras);
+      domFireEvent.click(domScreen.getByRole("button", { name: type === "sandwich" ? "Formaggio escluso" : "Basilico escluso" }));
+    }
+    domFireEvent.change(notes, { target: { value: "Da dividere" } });
+    domFireEvent.click(domScreen.getByRole("button", { name: "Aggiungi Acqua al carrello" }));
+    expect(save).toHaveBeenCalledWith({ productId: drink.id, quantity: 1, optionIds: [], notes: "" });
+    expect(domScreen.getByRole("dialog", { name: product.name })).toBeTruthy();
+    expect((notes as HTMLInputElement).value).toBe("Da dividere");
+    domFireEvent.click(domScreen.getByRole("button", { name: "Chiudi personalizzazione" }));
+    expect(domScreen.queryByText("Abbinamenti consigliati")).toBeNull();
+    expect(save).toHaveBeenCalledTimes(1);
+  });
+});
+
+
+it("configura un abbinamento senza perdere note e selezioni della pizza aperta", () => {
+  const { store, taste } = fixture();
+  const sandwich = materializeSandwich({ id: "panino", name: "Panino", description: "", productType: "sandwich",
+    allergens: [], ingredients: { pomodoro: 1 }, priceCents: 900, available: true, options: []
+  }, [{ id: "pomodoro", name: "Pomodoro", stock: null }]);
+  taste.pairingProductIds = [sandwich.id];
+  store.products = [taste, sandwich];
+  store.menu!.sections = [{ id: "prodotti", name: "Prodotti", productIds: store.products.map(item => item.id) }];
+  const save = vi.fn();
+  renderDom(<OperationalMenu store={store} preferences={{ avoid: [], save: vi.fn(), busy: false, message: "", authenticated: false, retry: vi.fn(), available: true }} onAdd={save} />);
+  domFireEvent.click(domScreen.getByRole("button", { name: "Aggiungi Margherita" }));
+  domFireEvent.change(domScreen.getByLabelText("Messaggio opzionale"), { target: { value: "Ben cotta" } });
+  domFireEvent.click(domScreen.getByRole("button", { name: "Aggiungi Panino al carrello" }));
+  expect(domScreen.getByRole("dialog", { name: "Panino" })).toBeTruthy();
+  const closeButtons = domScreen.getAllByRole("button", { name: "Chiudi personalizzazione" });
+  domFireEvent.click(closeButtons[closeButtons.length - 1]);
+  expect(save).not.toHaveBeenCalled();
+  expect((domScreen.getByLabelText("Messaggio opzionale") as HTMLTextAreaElement).value).toBe("Ben cotta");
+  domFireEvent.click(domScreen.getByRole("button", { name: "Aggiungi Panino al carrello" }));
+  const addButtons = domScreen.getAllByRole("button", { name: /[0-9].*Aggiungi al carrello/ });
+  domFireEvent.click(addButtons[addButtons.length - 1]);
+  expect(save).toHaveBeenCalledTimes(1);
+  expect(save).toHaveBeenCalledWith(expect.objectContaining({ productId: "panino" }));
+  expect(domScreen.queryByRole("dialog", { name: "Panino" })).toBeNull();
+  expect((domScreen.getByLabelText("Messaggio opzionale") as HTMLTextAreaElement).value).toBe("Ben cotta");
 });

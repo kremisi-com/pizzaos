@@ -181,7 +181,7 @@ describe("recupero esplicito delle personalizzazioni obsolete", () => {
     expect(choice.checked).toBe(false);
     expect(save).not.toHaveBeenCalled();
     domFireEvent.click(choice);
-    domFireEvent.click(domScreen.getByRole("button", { name: "Avanti" }));
+    domFireEvent.click(domScreen.getByRole("button", { name: "Scelta Successiva" }));
     expect((domScreen.getByRole("radio", { name: /Acqua/ }) as HTMLInputElement).checked).toBe(true);
     domFireEvent.click(confirm());
     expect(save).toHaveBeenCalledWith(expect.objectContaining({ quantity: 2, notes: "Ben cotta", mealSelections: [

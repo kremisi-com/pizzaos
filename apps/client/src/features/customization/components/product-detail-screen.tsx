@@ -323,30 +323,6 @@ export function ProductDetailScreen(props: ProductDetailScreenProps): ReactEleme
         </CollapsibleSection>
       </div>
 
-      <section className={styles.noteSection} aria-labelledby="product-note-title">
-        <div className={styles.noteHeader}>
-          <span className={styles.noteIcon} aria-hidden="true">📝</span>
-          <div className={styles.noteCopy}>
-            <h2 id="product-note-title" className={styles.noteTitle}>Note per la cucina</h2>
-            <p className={styles.noteDescription}>
-              Aggiungi richieste semplici come taglio, cottura o confezione separata.
-            </p>
-          </div>
-        </div>
-        <label className={styles.noteField}>
-          <span className={styles.noteLabel}>Messaggio opzionale</span>
-          <textarea
-            className={styles.noteTextarea}
-            name="customer-note"
-            placeholder="Es. taglia a spicchi piccoli, metti poca mozzarella"
-            value={customerNote}
-            onChange={(event) => setCustomerNote(event.target.value)}
-            maxLength={180}
-            rows={4}
-          />
-        </label>
-      </section>
-
       {/* ── Pairings ── */}
       {pairings.length > 0 ? (
         <section className={styles.pairingsSection}>
@@ -388,6 +364,30 @@ export function ProductDetailScreen(props: ProductDetailScreenProps): ReactEleme
           </div>
         </section>
       ) : null}
+
+      <section className={styles.noteSection} aria-labelledby="product-note-title">
+        <div className={styles.noteHeader}>
+          <span className={styles.noteIcon} aria-hidden="true">📝</span>
+          <div className={styles.noteCopy}>
+            <h2 id="product-note-title" className={styles.noteTitle}>Note per la cucina</h2>
+            <p className={styles.noteDescription}>
+              Aggiungi richieste semplici come taglio, cottura o confezione separata.
+            </p>
+          </div>
+        </div>
+        <label className={styles.noteField}>
+          <span className={styles.noteLabel}>Messaggio opzionale</span>
+          <textarea
+            className={styles.noteTextarea}
+            name="customer-note"
+            placeholder="Es. taglia a spicchi piccoli, metti poca mozzarella"
+            value={customerNote}
+            onChange={(event) => setCustomerNote(event.target.value)}
+            maxLength={180}
+            rows={4}
+          />
+        </label>
+      </section>
 
       {/* ── Sticky CTA ── */}
       <div className={styles.stickyCtaWrapper} aria-live="polite">

@@ -42,7 +42,7 @@ describe("recupero personalizzazioni nei flussi persistenti", () => {
     const catalog = { ...store, products: [main, drink, meal] };
     const view = renderDom(<MenuLineEditor store={catalog} product={meal} line={line} avoid={[]} onSave={save} />);
     domFireEvent.click(domScreen.getByRole("button", { name: "Modifica Menu pranzo" }));
-    domFireEvent.click(domScreen.getByRole("button", { name: "Avanti" }));
+    domFireEvent.click(domScreen.getByRole("button", { name: "Scelta Successiva" }));
     expect(domScreen.getByRole("group", { name: "Seconda fase" })).toBeTruthy();
     const current: IndividualProduct = { ...meal, meal: { steps: [meal.meal!.steps[0]] } };
     view.rerender(<MenuLineEditor store={{ ...catalog, products: [main, drink, current] }} product={current} line={line} avoid={[]} onSave={save} />);

@@ -11,9 +11,10 @@ const icons: Record<typeof MENU_ALLERGENS[number], string> = {
 };
 const iconByKey = new Map(Object.entries(icons).map(([label, icon]) => [menuAllergenKey(label), icon]));
 
-export function PizzaFoodDetails({ composition, kitchenNotice }: {
+export function PizzaFoodDetails({ composition, kitchenNotice, emptyMessage = "Componi la tua pizza" }: {
   composition: Pick<MenuComposition, "ingredients" | "contains" | "mayContain">;
   kitchenNotice?: string;
+  emptyMessage?: string;
 }) {
   const [toast, setToast] = useState<{ message: string } | null>(null);
   useEffect(() => {
@@ -32,7 +33,7 @@ export function PizzaFoodDetails({ composition, kitchenNotice }: {
   }
 
   return <div className={styles.details}>
-    <p>{composition.ingredients.join(", ") || "Componi la tua pizza"}</p>
+    <p>{composition.ingredients.join(", ") || emptyMessage}</p>
     {composition.contains.length > 0 && <div className={styles.icons} role="group" aria-label="Allergeni attivi">
       {composition.contains.map(label => allergenIcon(label, false))}
     </div>}
