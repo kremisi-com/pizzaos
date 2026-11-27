@@ -1,0 +1,29 @@
+/* The POC owns the shared header and compact history; operational additions live here. */
+.screen { width: 100%; padding-bottom: 28px; }
+.content { padding-bottom: 24px; }
+.message, .error { margin: 20px; padding: 16px; border-radius: 16px; background: var(--pizzaos-color-surface-muted); line-height: 1.5; }
+.error { background: var(--pizzaos-color-error-soft); color: var(--pizzaos-color-error-foreground); }
+.error p { margin-top: 0; }
+.message a, .actions a { color: var(--pizzaos-color-primary); font-weight: 700; text-underline-offset: 4px; }
+.active { margin: 20px; padding: 20px; border: 1px solid var(--pizzaos-color-border); border-radius: 20px; background: var(--pizzaos-color-surface); }
+.cardHeading { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; min-width: 0; }
+.reference { font-weight: 800; font-size: .8rem; overflow-wrap: anywhere; }
+.status { margin: 12px 0 6px; font-size: 1.3rem; line-height: 1.3; }
+.total { display: flex; gap: 16px; justify-content: space-between; align-items: baseline; margin: 16px 0; }
+.total span { min-width: 0; line-height: 1.5; overflow-wrap: anywhere; }
+.total strong { white-space: nowrap; font-size: 1.15rem; }
+.screen summary { padding: 12px 0; cursor: pointer; font-weight: 700; color: var(--pizzaos-color-primary); }
+.screen summary:focus-visible, .screen a:focus-visible { outline: 2px solid var(--pizzaos-color-primary); outline-offset: 4px; border-radius: 4px; }
+.details { padding-bottom: 12px; font-size: .9rem; line-height: 1.55; overflow-wrap: anywhere; }
+.details p { margin: 8px 0; }
+.lines { list-style: none; padding: 0; margin: 16px 0; }
+.lines > li { border-bottom: 1px solid var(--pizzaos-color-border); padding: 12px 0; }
+.lineHeading { display: flex; justify-content: space-between; gap: 12px; }
+.lineHeading span { white-space: nowrap; }
+.notes, .notes label { display: grid; gap: 10px; }
+.notes { margin: 16px 0; justify-items: start; }
+.notes label { width: 100%; font-weight: 600; }
+.notes textarea { box-sizing: border-box; width: 100%; min-height: 84px; padding: 12px; font: inherit; color: var(--pizzaos-color-foreground); background: var(--pizzaos-color-surface); border: 1px solid var(--pizzaos-color-border); border-radius: 12px; resize: vertical; }
+.actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin: 16px 0 0; }
+.archived { padding-bottom: 8px; }
+@media (max-width: 390px) { .active { margin: 16px 12px; padding: 16px; } }

@@ -40,7 +40,8 @@ un checkout che trova uno slot o un prodotto non più disponibile riceve un conf
 - `app/product/[id]/page.tsx`: product detail route with guided customization flow
 - `app/cart/page.tsx`: cart review route with quantity updates and checkout entry
 - `app/checkout/page.tsx`: contatti per ordine, consegna/ritiro, slot, tip, mock payment, and confirmation route
-- `app/orders/page.tsx`: order timeline, notifications, tracking, history, quick reorder, and post-delivery feedback route
+- `app/ordina/ordini/page.tsx`: persistent customer order history, active timeline, order actions and reorder
+- `app/orders/page.tsx`: separate demo orders, simulated tracking, notifications and feedback
 - `app/rewards/page.tsx`: loyalty, reward, coupon, and subscription overview route
 - `src/composition/client-shell.tsx`: mobile-first home shell, reorder prompt, and reset UI
 - [`src/features/menu`](src/features/menu/README.md): menu browsing
@@ -147,3 +148,8 @@ Eseguire `pnpm exec playwright test --config playwright.session-demo.config.ts` 
 L'ordinazione reale e la demo condividono la palette e gli asset ufficiali esposti da `@pizzaos/brand`. La copertina del menu conserva la fotografia decorativa e presenta il logo PizzaOS su supporto blu; nome della pizzeria, stato e contenuti del menu continuano a provenire dal servizio. Anche accesso ordinario e demo usano il logo ufficiale tramite `BrandLogo` di `@pizzaos/ui`.
 
 Il tema client usa Poppins, superfici calde, testo blu, accenti sabbia/arancio e un arancio scuro accessibile per le azioni con testo bianco. Colori di successo, avviso ed errore sono semantici e distinti dal brand. I moduli del client consumano i token condivisi anche nei flussi gruppo, personalizzazione, carrello, checkout e post-ordine. Contratti e verifiche dell'allineamento: [SDD del brand](../../.agents/design/2026-11-24-brand-alignment/design.md).
+
+## Pagina Ordini operativa
+La navbar **Ordini** apre `/ordina/ordini`, con UI/UX del POC alimentata dai dati persistenti dell'account. La [feature](src/features/orders/README.md) presenta ordini in corso, storico e dettagli acquistati; la [composizione](src/composition/README.md) collega aggiornamenti, riordino nel draft e aggiunte esistenti. Tracking GPS, feedback e centro notifiche sono esclusi. L'ospite può accedere e tornare alla pagina; conferme individuali/gruppo, vecchie ancore e `/orders` operativo raggiungono la stessa destinazione.
+
+Verifica browser isolata: `pnpm exec playwright test --config playwright.customer-orders.config.ts`, porte 3761/3764, `.next-customer-orders-e2e`, risultati in `test-results/customer-orders`. La suite usa soltanto identità e provider del fixture, senza certificare il deploy online.

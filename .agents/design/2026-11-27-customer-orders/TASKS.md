@@ -1,0 +1,1 @@
+- [x] **customer-orders**: pagina dedicata, integrazione operativa, navigazione, documentazione e verifica end-to-end.

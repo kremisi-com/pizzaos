@@ -79,8 +79,10 @@ test("client: guest and forged browser state cannot open any protected POC route
   await expect(page.getByRole("complementary", { name: "Modalità demo" })).toHaveCount(0);
   for (const path of ["/menu", "/products", "/product/product-margherita", "/cart", "/checkout", "/orders", "/group-order", "/rewards", "/profile"]) {
     await page.goto(`${clientOrigin}${path}`);
-    await expect(page).toHaveURL(`${clientOrigin}/ordina`);
-    await expect(page.getByRole("heading", { name: "La tua prossima pizza." })).toBeVisible();
+    const destination = path === "/orders" ? "/ordina/ordini" : path === "/cart" ? "/ordina/carrello" : path === "/checkout" ? "/ordina/checkout" : "/ordina";
+    await expect(page).toHaveURL(`${clientOrigin}${destination}`);
+    if (path === "/orders") await expect(page.getByRole("heading", { name: "Ordini passati", exact: true })).toBeVisible();
+    else if (destination === "/ordina") await expect(page.getByRole("heading", { name: "La tua prossima pizza." })).toBeVisible();
   }
 });
 

@@ -10,7 +10,8 @@ export async function middleware(request: NextRequest) {
   const isLiveRoute = request.nextUrl.pathname === "/ordina" || request.nextUrl.pathname.startsWith("/ordina/");
   if ((mode === "demo" && isLiveRoute) || (mode === "live" && !isLiveRoute)) {
     if (!host && process.env.PIZZAOS_ORDERING_DOMAIN) return NextResponse.next();
-    const liveTarget = request.nextUrl.pathname === "/cart" ? "/ordina/carrello"
+    const liveTarget = request.nextUrl.pathname === "/orders" ? "/ordina/ordini"
+      : request.nextUrl.pathname === "/cart" ? "/ordina/carrello"
       : request.nextUrl.pathname === "/checkout" ? "/ordina/checkout" : "/ordina";
     const target = new URL(mode === "demo" ? "/" : liveTarget, host?.origin ?? request.nextUrl.origin);
     return NextResponse.redirect(target);

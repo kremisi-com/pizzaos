@@ -8,9 +8,7 @@ Verifiche dell'allineamento: `src/test/operational-checkout*.test.tsx` e `pnpm e
 
 La schermata iniziale propone «Sfoglia il menu» e «Ordine di gruppo»; l'accesso agli ordini resta nella navigazione inferiore, senza il pulsante duplicato «I tuoi ordini» tra le azioni iniziali.
 
-Il fondo del menu mantiene 24 px di spazio prima del pulsante Carrello. La sezione «I tuoi ordini», incluso «Aggiorna ordini», è visibile solo aprendo Ordini dalla navbar o un collegamento diretto allo storico o al singolo ordine; tornare al menu la nasconde. Verifica browser: `tests/e2e/individual-cart.spec.ts`.
-
-Il checkout dedicato non mostra la sezione «I tuoi ordini» né «Aggiorna ordini», anche dopo l'invio. La conferma conserva «Segui l'ordine», che apre lo storico in `/ordina`.
+Il fondo del menu mantiene 24 px di spazio prima del pulsante Carrello. **Ordini** apre la [pagina dedicata](../orders/README.md) `/ordina/ordini`; il menu e il checkout non mostrano lo storico. **Segui l'ordine** raggiunge direttamente il relativo ordine. Le precedenti ancore del menu vengono normalizzate dalla composizione. Il checkout riceve il riferimento `#ordine-ID` per riprendere un pagamento carta già esistente, senza nuovo invio.
 
 Il menu operativo apre il carrello dedicato `/ordina/carrello`; «Vai al checkout» porta a `/ordina/checkout`, con «Consegna e pagamento» subito aperta e focalizzata. Entrambi i percorsi ricaricano lo stesso draft operativo. La vista `all`, usata dalle prove preesistenti del componente, conserva l'apertura esplicita del checkout inline. «Completa pagamento esistente» dal menu raggiunge il checkout, dove si può riprendere il pagamento con Elements anche a carrello vuoto.
 
@@ -31,3 +29,5 @@ Il draft conserva solo la composizione e scade dopo sette giorni. Un checkout da
 Gli eventi della composizione ricaricano catalogo e ordini senza cancellare le righe. Il catalogo ricevuto viene applicato solo alla selezione corrente; modifiche ai prodotti, alle disponibilità, alle fasce o alle condizioni di consegna invalidano il preventivo e richiedono una nuova verifica. Un evento ordine con catalogo identico conserva il riepilogo.
 
 Le sezioni del menu, la personalizzazione e le informazioni alimentari appartengono alla feature [menu](../menu/README.md), condivisa anche con il gruppo e con le aggiunte prima dell'accettazione. Il draft locale e il tentativo originale conservano identificativi e quantità delle scelte. Dopo l'invio, la conferma collega alla timeline dell'ordine alimentata dagli stati del servizio.
+
+L'entry pubblico espone anche `writeIndividualDraft`, `readCheckoutAttempt` e `IndividualAdditions`, utilizzati dalla composizione della pagina Ordini per il riordino e le aggiunte già supportate. Prezzi, scorte, pagamenti e stati restano autorevoli nel servizio.

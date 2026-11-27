@@ -146,6 +146,15 @@ export function IndividualOrderingScreen({ view = "all", api, promotionsApi, pre
     return () => { active = false; };
   }, [api, refreshVersion, session?.actor]);
 
+  useEffect(() => {
+    if (view !== "checkout") return;
+    const target = window.location.hash;
+    const order = orders.find(item => `#ordine-${encodeURIComponent(item.id)}` === target);
+    if (order?.status === "pending_payment" && order.payment === "requires_action") {
+      setResumeOrderId(order.id); setMethod("card"); setCheckoutOpen(true);
+    }
+  }, [view, orders]);
+
   function changeCart(next: IndividualCart) {
     cartRef.current = next; quoteRequest.current++; setCart(next); setQuote(null); setNotice("");
     try { writeIndividualDraft(localStorage, next); } catch { setNotice("Il browser non consente il salvataggio locale: mantieni aperta questa pagina fino all'invio."); }
@@ -275,7 +284,7 @@ export function IndividualOrderingScreen({ view = "all", api, promotionsApi, pre
     {error && <div className={styles.error} role="alert">{error}{(view !== "checkout" || !loaded || stores.length === 0) && <div><button type="button" className={styles.secondary} disabled={busy} onClick={() => void load()}>Riprova caricamento</button></div>}</div>}
     {confirmation && <section ref={confirmationRef} tabIndex={-1} className={styles.confirmation} aria-labelledby="conferma-ordine">
       <div><h2 id="conferma-ordine">Ordine inviato</h2><p>Segui lo stato aggiornato nei tuoi ordini.</p></div>
-      <a className={styles.linkButton} href={`${view === "checkout" ? "/ordina" : ""}#ordine-${encodeURIComponent(confirmation)}`}>Segui l&apos;ordine</a>
+      <a className={styles.linkButton} href={`/ordina/ordini#ordine-${encodeURIComponent(confirmation)}`}>Segui l&apos;ordine</a>
       <button type="button" className={styles.secondary} onClick={() => setConfirmation(null)}>Chiudi riepilogo</button>
     </section>}
     {notice && <div className={styles.notice} role="status">{notice}</div>}

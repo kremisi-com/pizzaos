@@ -236,7 +236,7 @@ export function PersistentGroupScreen({ api, individualApi, promotionsApi, prefe
       {host && group.status === "open" && <button type="button" disabled={busy || pending || dirty} onClick={() => void run(async () => applyGroup(await api.close(group.id, { revision: group.revision })))}>Chiudi raccolta</button>}
       {group.role === "visitor" && group.status === "open" && inviteToken && <form onSubmit={event => { event.preventDefault(); void run(join); }}><label>Nome<input required maxLength={120} value={name} disabled={busy} onChange={event => setName(event.target.value)} /></label><button type="submit" disabled={busy || !name.trim()}>Entra nel gruppo</button></form>}
       {group.role !== "host" && group.status !== "open" && <p>Le scelte sono chiuse. L&apos;organizzatore verifica il totale e gestisce l&apos;ordine.</p>}
-      {host && group.status === "submitted" && <p><a href="/ordina#i-tuoi-ordini">Gestisci l&apos;ordine e segui il ristorante</a></p>}
+      {host && group.status === "submitted" && <p><a href="/ordina/ordini">Gestisci l&apos;ordine e segui il ristorante</a></p>}
     </section>
     <div className={styles.layout}><section className={styles.stack}>
       {canEdit && <><h2>Il menu</h2>{store && <OperationalMenu key={store.id} store={store} preferences={preferences} disabled={busy} onAdd={add} />}
@@ -290,7 +290,7 @@ export function PersistentGroupScreen({ api, individualApi, promotionsApi, prefe
       </fieldset>}
       {host && group.status === "submitted" && <><p>{result?.order.payment === "requires_action" ? "Pagamento carta da completare nei tuoi ordini." : "L'ordine è disponibile nei tuoi ordini."}</p>
         <p className={styles.small}>Nei tuoi ordini puoi riprendere il pagamento esistente e verificarne l&apos;esito. Se il pagamento è fallito puoi ricreare l&apos;ordine scegliendo anche i contanti. Recupera sempre un esito incerto prima di inviare di nuovo.</p>
-        <a href="/ordina#i-tuoi-ordini">Apri i tuoi ordini</a></>}
+        <a href="/ordina/ordini">Apri i tuoi ordini</a></>}
       {!host && <p>Solo l&apos;organizzatore può confermare e pagare.</p>}
       {host && group.status === "open" && <p>Chiudi la raccolta quando tutti hanno scelto per verificare disponibilità e totale.</p>}
     </aside></div></>}

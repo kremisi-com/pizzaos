@@ -51,48 +51,37 @@ describe("bottom nav", () =>
     expect(domScreen.getByRole("button", { name: "Ordini" }).style.color).toBe("var(--pizzaos-color-foreground-muted)");
   });
 
-  it.each(["#i-tuoi-ordini", "#ordine-123"])("marks orders active when opening /ordina%s directly", hash => {
-    window.history.replaceState(null, "", `/ordina${hash}`);
-    usePathnameMock.mockReturnValue("/ordina");
-    renderDom(<BottomNav live />);
-    expect(domScreen.getByRole("button", { name: "Ordini" }).style.color).toBe("var(--pizzaos-color-primary)");
-    expect(domScreen.getByRole("button", { name: "Ordina" }).style.transform).toBe("scale(1)");
-  });
-
-  it("updates selection when navigating between orders and menu on the same pathname", () => {
-    window.history.replaceState(null, "", "/ordina");
+  it("opens the dedicated operational orders page", () => {
     usePathnameMock.mockReturnValue("/ordina");
     renderDom(<BottomNav live />);
     domFireEvent.click(domScreen.getByRole("button", { name: "Ordini" }));
-    expect(window.location.hash).toBe("#i-tuoi-ordini");
-    expect(domScreen.getByRole("button", { name: "Ordini" }).style.color).toBe("var(--pizzaos-color-primary)");
-    domFireEvent.click(domScreen.getByRole("button", { name: "Ordina" }));
-    expect(window.location.hash).toBe("");
-    expect(window.location.pathname).toBe("/ordina");
-    expect(pushMock).not.toHaveBeenCalled();
-    expect(domScreen.getByRole("button", { name: "Ordini" }).style.color).toBe("var(--pizzaos-color-foreground-muted)");
-    expect(domScreen.getByRole("button", { name: "Ordina" }).style.transform).toBe("scale(1.1)");
+    expect(pushMock).toHaveBeenCalledWith("/ordina/ordini");
   });
 
-  it.each(["hashchange", "popstate"])("follows native anchor and history navigation through %s", event => {
-    usePathnameMock.mockReturnValue("/ordina");
+  it.each(["/ordina/ordini", "/ordina/ordini/ordine-123"])("keeps orders selected at %s", path => {
+    usePathnameMock.mockReturnValue(path);
+    window.history.replaceState(null, "", path);
     renderDom(<BottomNav live />);
-    window.history.replaceState(null, "", "/ordina#i-tuoi-ordini");
-    domFireEvent(window, new Event(event));
     expect(domScreen.getByRole("button", { name: "Ordini" }).style.color).toBe("var(--pizzaos-color-primary)");
-    window.history.replaceState(null, "", "/ordina#il-menu");
-    domFireEvent(window, new Event(event));
-    expect(domScreen.getByRole("button", { name: "Ordini" }).style.color).toBe("var(--pizzaos-color-foreground-muted)");
+    expect(domScreen.getByRole("button", { name: "Carrello" }).style.color).toBe("var(--pizzaos-color-foreground-muted)");
   });
 
-  it("resynchronizes the hash after a pathname transition and keeps cart selected on checkout", () => {
+  it("keeps the demo orders destination separate", () => {
+    usePathnameMock.mockReturnValue("/");
+    renderDom(<BottomNav />);
+    domFireEvent.click(domScreen.getByRole("button", { name: "Ordini" }));
+    expect(pushMock).toHaveBeenCalledWith("/orders");
+  });
+
+  it("follows pathname changes between checkout, orders and menu", () => {
     usePathnameMock.mockReturnValue("/ordina/checkout");
-    window.history.replaceState(null, "", "/ordina/checkout#i-tuoi-ordini");
     const view = renderDom(<BottomNav live />);
     expect(domScreen.getByRole("button", { name: "Carrello" }).style.color).toBe("var(--pizzaos-color-primary)");
-    usePathnameMock.mockReturnValue("/ordina");
-    window.history.replaceState(null, "", "/ordina#i-tuoi-ordini");
+    usePathnameMock.mockReturnValue("/ordina/ordini");
     view.rerender(<BottomNav live />);
     expect(domScreen.getByRole("button", { name: "Ordini" }).style.color).toBe("var(--pizzaos-color-primary)");
+    usePathnameMock.mockReturnValue("/ordina");
+    view.rerender(<BottomNav live />);
+    expect(domScreen.getByRole("button", { name: "Ordini" }).style.color).toBe("var(--pizzaos-color-foreground-muted)");
   });
 });

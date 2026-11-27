@@ -112,11 +112,11 @@ test("i percorsi legacy aprono carrello e checkout operativi", async ({ page }) 
   await expect(page.getByRole("region", { name: "Consegna e pagamento", exact: true })).toBeVisible();
 });
 
-test("Ordini resta evidenziato tra ancore, reload e cronologia del browser", async ({ page, context }) => {
+test("Ordini resta evidenziato nella pagina dedicata, al reload e nella cronologia", async ({ page, context }) => {
   await context.addCookies([{ name: "pizzaos-e2e-actor", value: "alice", url: clientOrigin, httpOnly: true, sameSite: "Lax" }]);
   const orders = page.getByRole("button", { name: "Ordini", exact: true });
   const order = page.getByRole("button", { name: "Ordina", exact: true });
-  await page.goto(`${clientOrigin}/ordina#i-tuoi-ordini`);
+  await page.goto(`${clientOrigin}/ordina/ordini`);
   const activeColor = await order.evaluate(button => getComputedStyle(button).backgroundColor);
   await expect(orders).toHaveCSS("color", activeColor);
   await page.reload();
@@ -125,7 +125,7 @@ test("Ordini resta evidenziato tra ancore, reload e cronologia del browser", asy
   await expect(page).toHaveURL(`${clientOrigin}/ordina`);
   await expect(orders).not.toHaveCSS("color", activeColor);
   await orders.click();
-  await expect(page).toHaveURL(`${clientOrigin}/ordina#i-tuoi-ordini`);
+  await expect(page).toHaveURL(`${clientOrigin}/ordina/ordini`);
   await expect(orders).toHaveCSS("color", activeColor);
   await page.goBack();
   await expect(page).toHaveURL(`${clientOrigin}/ordina`);
@@ -135,7 +135,7 @@ test("Ordini resta evidenziato tra ancore, reload e cronologia del browser", asy
   await page.getByRole("button", { name: "Carrello", exact: true }).click();
   await expect(page).toHaveURL(`${clientOrigin}/ordina/carrello`);
   await orders.click();
-  await expect(page).toHaveURL(`${clientOrigin}/ordina#i-tuoi-ordini`);
+  await expect(page).toHaveURL(`${clientOrigin}/ordina/ordini`);
   await expect(orders).toHaveCSS("color", activeColor);
 });
 
@@ -149,7 +149,7 @@ test("il checkout del carrello invia un ordine contanti tramite IndividualApi", 
   await expect(page).toHaveURL(`${clientOrigin}/ordina/carrello`);
   await page.getByRole("link", { name: /Vai al checkout/ }).click();
   await expect(page).toHaveURL(`${clientOrigin}/ordina/checkout`);
-  const history = page.getByRole("heading", { name: "I tuoi ordini", exact: true });
+  const history = page.getByRole("heading", { name: "Ordini passati", exact: true });
   const refreshOrders = page.getByRole("button", { name: "Aggiorna ordini", exact: true });
   await expect(history).toHaveCount(0);
   await expect(refreshOrders).toHaveCount(0);
@@ -216,13 +216,13 @@ test("recupera un extra rimosso dal carrello soltanto dopo conferma e conserva i
   await expect(page.getByText(/18,00\s*€/).first()).toBeVisible();
 });
 
-test("il fondo del menu distanzia il carrello e mostra lo storico solo dalla navbar", async ({ page, context }) => {
+test("il fondo del menu distanzia il carrello e la navbar apre lo storico dedicato", async ({ page, context }) => {
   await context.addCookies([{ name: "pizzaos-e2e-actor", value: "alice", url: clientOrigin, httpOnly: true, sameSite: "Lax" }]);
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto(`${clientOrigin}/ordina`);
   await page.getByRole("button", { name: "Aggiungi Pizza", exact: true }).click();
   await page.getByRole("dialog").getByRole("button", { name: "Aggiungi", exact: true }).click();
-  const history = page.getByRole("heading", { name: "I tuoi ordini", exact: true });
+  const history = page.getByRole("heading", { name: "Ordini passati", exact: true });
   await expect(history).toBeHidden();
   await expect(page.getByRole("button", { name: "Aggiorna ordini", exact: true })).toBeHidden();
   await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));

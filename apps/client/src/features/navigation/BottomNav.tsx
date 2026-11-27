@@ -49,7 +49,7 @@ export function BottomNav({ live = false }: { live?: boolean }): ReactElement {
       id: "orders",
       label: "Ordini",
       icon: <ReceiptIcon />,
-      href: durable ? "/ordina#i-tuoi-ordini" : "/orders"
+      href: durable ? "/ordina/ordini" : "/orders"
     },
     {
       id: "order",
@@ -66,9 +66,10 @@ export function BottomNav({ live = false }: { live?: boolean }): ReactElement {
     }
   ];
 
-  // Operational order history and order details share the menu pathname.
+  // Each operational destination keeps its own pathname.
   let activeItemId = "order"; // Default to central
-  if (pathname === "/orders" || pathname.startsWith("/orders/")
+  if (pathname === "/ordina/ordini" || pathname.startsWith("/ordina/ordini/")
+    || pathname === "/orders" || pathname.startsWith("/orders/")
     || pathname === "/ordina" && (hash === "#i-tuoi-ordini" || hash.startsWith("#ordine-"))) {
     activeItemId = "orders";
   } else if (
