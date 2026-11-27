@@ -210,9 +210,6 @@ export function LivePizzaEditor({ store, product, line, quantity = 1, disabled, 
                 return <div className={`${styles.ingredientRow} ${live.ingredientRow}`} key={removal.id}>
                   <div className={styles.ingredientInfo}><h3 className={styles.ingredientName}>{name}</h3></div>
                   <div className={live.ingredientActions}>
-                    {extra && <button type="button" className={live.ingredientExtra} aria-label={`${name} extra`}
-                      aria-pressed={selected(extra.id) > 0} disabled={disabled || extra.available === false}
-                      onClick={() => choose(extra, selected(extra.id) ? 0 : 1, groups.find(group => group.optionIds.includes(extra.id)))}>Extra</button>}
                     <button type="button" className={`${styles.ingredientToggle} ${included ? styles.ingredientToggleActive : ""}`}
                       aria-pressed={included} aria-label={`${name} ${included ? "incluso" : "escluso"}`} disabled={disabled || included && removal.available === false}
                       onClick={() => choose(removal, included ? 1 : 0, groups.find(group => group.optionIds.includes(removal.id)))}>

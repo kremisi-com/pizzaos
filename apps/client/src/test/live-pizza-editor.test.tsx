@@ -225,14 +225,17 @@ describe("persistent pizza editor using the PoC presentation", () => {
       selections: expect.arrayContaining([{ optionId: "dough:integrale", quantity: 1 }]) }));
   });
 
-  it("removes included toppings without changing price, and extra restores that topping", () => {
+  it("removes included toppings without changing price, and restores them only from the Extra section", () => {
     const { store, taste } = fixture();
     const save = vi.fn();
     renderDom(<LivePizzaEditor store={store} product={taste} disabled={false} avoid={[]} onClose={vi.fn()} onSave={save} />);
     domFireEvent.click(domScreen.getByRole("heading", { name: "Ingredienti" }).closest("button") as HTMLButtonElement);
+    expect(domScreen.queryByRole("button", { name: "Mozzarella extra" })).toBeNull();
     domFireEvent.click(domScreen.getByRole("button", { name: "Mozzarella incluso" }));
     expect(domScreen.getByTestId("customization-total-value").textContent).toContain("6,00");
-    domFireEvent.click(domScreen.getByRole("button", { name: "Mozzarella extra" }));
+    domFireEvent.click(domScreen.getByRole("button", { name: /^Extra/ }));
+    const extra = domScreen.getAllByRole("button", { name: "Mozzarella escluso" }).find(button => !button.closest("[inert]"))!;
+    domFireEvent.click(extra);
     expect(domScreen.getAllByRole("button", { name: "Mozzarella incluso" }).every(button => button.getAttribute("aria-pressed") === "true")).toBe(true);
     expect(domScreen.getByTestId("customization-total-value").textContent).toContain("8,00");
     domFireEvent.click(domScreen.getByRole("button", { name: /Aggiungi al carrello/ }));
@@ -253,7 +256,8 @@ describe("persistent pizza editor using the PoC presentation", () => {
     renderDom(<LivePizzaEditor store={store} product={taste} disabled={false} avoid={[]} onClose={vi.fn()} onSave={save} />);
     domFireEvent.click(domScreen.getByRole("heading", { name: "Ingredienti" }).closest("button") as HTMLButtonElement);
     domFireEvent.click(domScreen.getByRole("button", { name: "Mozzarella incluso" }));
-    domFireEvent.click(domScreen.getByRole("button", { name: "Mozzarella extra" }));
+    domFireEvent.click(domScreen.getByRole("button", { name: /^Extra/ }));
+    domFireEvent.click(domScreen.getAllByRole("button", { name: "Mozzarella escluso" }).find(button => !button.closest("[inert]"))!);
     expect(domScreen.getByTestId("customization-total-value").textContent).toContain("8,00");
     domFireEvent.click(domScreen.getByRole("button", { name: /Aggiungi al carrello/ }));
     expect(save).toHaveBeenCalledWith(expect.objectContaining({ selections: expect.arrayContaining([
@@ -262,6 +266,7 @@ describe("persistent pizza editor using the PoC presentation", () => {
     expect(save.mock.calls[0][0].selections).not.toContainEqual({ optionId: "remove:ingredient:latte", quantity: 1 });
     const extra = save.mock.calls[0][0].selections as MenuSelection[];
     expect(resolveMenuComposition(taste, extra)).toMatchObject({ valid: true, unitCents: 800, recipe: { latte: 2 } });
+    domFireEvent.click(domScreen.getByRole("button", { name: /^Ingredienti/ }));
     domFireEvent.click(domScreen.getAllByRole("button", { name: "Mozzarella incluso" })[0]);
     expect(domScreen.getByTestId("customization-total-value").textContent).toContain("6,00");
     domFireEvent.click(domScreen.getByRole("button", { name: /Aggiungi al carrello/ }));
@@ -378,7 +383,7 @@ describe("schede prodotto e abbinamenti", () => {
     const product = type === "pizza" ? taste : type === "sandwich" ? materializeSandwich({ ...drink,
       id: "panino", name: "Panino", productType: "sandwich", priceCents: 900, ingredients: { pomodoro: 1 },
       foodIngredients: [{ id: "pomodoro", name: "Pomodoro" }], baseIngredientIds: ["pomodoro"]
-    }, [{ id: "pomodoro", name: "Pomodoro", stock: null }, { id: "formaggio", name: "Formaggio", stock: 10,
+    }, [{ id: "pomodoro", name: "Pomodoro", stock: null, extra: { enabled: true, priceCents: 100, dose: 1 } }, { id: "formaggio", name: "Formaggio", stock: 10,
       extra: { enabled: true, priceCents: 200, dose: 1 } }]) : { ...drink, id: "bibita", name: "Bibita" };
     product.pairingProductIds = [drink.id];
     store.products = [product, drink];
@@ -391,6 +396,8 @@ describe("schede prodotto e abbinamenti", () => {
     const notes = domScreen.getByLabelText(type === "product" ? "Note per la cucina" : "Messaggio opzionale");
     expect(heading.compareDocumentPosition(notes) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     if (type !== "product") {
+      domFireEvent.click(domScreen.getByRole("button", { name: /^Ingredienti/ }));
+      expect(domScreen.queryByRole("button", { name: type === "sandwich" ? "Pomodoro extra" : "Mozzarella extra" })).toBeNull();
       const extras = domScreen.getByRole("button", { name: /^Extra/ });
       expect(extras.compareDocumentPosition(heading) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
       domFireEvent.click(extras);

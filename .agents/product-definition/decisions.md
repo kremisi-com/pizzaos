@@ -280,6 +280,8 @@ Andrea richiede il 27 novembre 2026 di rimuovere **Salva configurazione** da **C
 
 Andrea richiede che ogni extra sia selezionabile al massimo una volta per prodotto, rimuovendo il contatore dal dettaglio Pizza e Panino e mantenendo Incluso/Escluso. La scelta aggiorna la precedente possibilità di ripetere gli extra; quantità delle righe e gruppi Box restano quelle previste. [Flusso corrente](flows/menu-ordering.md#gusti-e-formule-di-composizione).
 
+Andrea richiede di rimuovere il pulsante extra accanto agli ingredienti escludibili delle schede Pizza e Panino: gli extra si aggiungono soltanto dalla sezione **Extra** già esistente. [Flusso corrente](flows/menu-ordering.md#gusti-e-formule-di-composizione).
+
 ## Creazione Menu nella scheda condivisa
 
 Andrea approva il 27 novembre 2026 la creazione Menu nella stessa scheda a pagina intera di Pizza e Panino: sezioni espandibili per tutte le fasi, riepilogo della scelta nelle sezioni chiuse, avanzamento automatico dopo la selezione e riapertura senza perdita di dati. La personalizzazione è interna alla scelta, con rimozioni solo per Pizza/Panino e note per gli altri prodotti. Il riepilogo fisso abilita Aggiungi al carrello quando tutte le fasi sono complete. Gli abbinamenti sono quelli del Menu completo, dopo le fasi e prima delle note finali; quelli dei singoli prodotti non sono ereditati. Aggiungerli crea articoli separati conservando il Menu aperto. Questa approvazione supera i pulsanti Personalizza Scelta e Scelta Successiva del percorso precedente. [Flusso corrente](flows/menu-ordering.md#schede-prodotto-abbinamenti-e-comandi-delle-fasi).

@@ -32,6 +32,10 @@ La sezione Impasto può mostrare il consiglio pubblicato dalla pizza, solo se di
 
 Ogni extra di Pizza e Panino offre soltanto **Incluso/Escluso**, senza contatori, e vale al massimo una unità per prodotto. Le quantità ripetute precedentemente salvate restano da correggere esplicitamente escludendo e reinserendo l'extra; chiudere senza salvare conserva la riga originale. Il contratto condiviso invalida ripetizioni e duplicati anche nei gruppi precedenti.
 
+Gli extra si aggiungono soltanto dalla sezione **Extra**. Le righe degli ingredienti escludibili di Pizza e Panino mostrano solo **Incluso/Escluso**, senza il pulsante extra accanto all'ingrediente.
+
+Verifica locale della rimozione: 275 test client, lint, typecheck, build isolata e `tests/menu-ordering/product-detail-consistency.spec.ts` superati. La prova browser copre le schede Pizza e Panino e l'aggiunta dalla sezione Extra. Nessuna nuova evidenza online.
+
 Nel dettaglio operativo un clic su **Extra** mostra direttamente le opzioni di tutte le categorie, senza intestazioni di categoria o conteggi delle opzioni. Senza selezioni, il riepilogo mostra «Per ancora più gusto!». Chiudere e riaprire la sezione conserva le selezioni; gli extra indisponibili mantengono i controlli disabilitati. Copertura: `src/test/live-pizza-editor.test.tsx` e `tests/menu-ordering/pizza-composition.spec.ts`.
 
 Verifica locale della modifica Extra: lint, typecheck, build isolata e 159 test client superati; percorso browser `pizza-composition.spec.ts --grep "gusti e formule"` superato con controllo del singolo clic, del nuovo testo e dell'assenza dei conteggi. Il percorso "Magazzino e formula" va in timeout prima del client nell'editor admin, che usa ora il salvataggio automatico; la sua preparazione con salvataggio manuale resta da riallineare.

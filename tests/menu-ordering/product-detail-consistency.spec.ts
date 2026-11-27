@@ -47,6 +47,8 @@ test("schede coerenti, abbinamenti interni e personalizzazione delle fasi second
       await page.getByRole("button", { name: `Aggiungi ${name}`, exact: true }).click();
       const dialog = page.getByRole("dialog", { name, exact: true });
       const extras = dialog.getByRole("button", { name: /^Extra/ });
+      await dialog.getByRole("button", { name: /^Ingredienti/ }).click();
+      await expect(dialog.getByRole("button", { name: / extra$/ })).toHaveCount(0);
       await expect(extras).toHaveAttribute("aria-expanded", "false");
       await extras.click();
       const extraPanel = dialog.locator(`[id="${await extras.getAttribute("aria-controls")}"]`);
