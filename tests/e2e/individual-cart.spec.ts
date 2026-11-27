@@ -18,10 +18,49 @@ async function expectMobileCheckoutAboveNavigation(page: Page) {
   expect(checkoutBox.y + checkoutBox.height).toBeLessThanOrEqual(navigationBox.y);
   expect(checkoutBox.x).toBeGreaterThanOrEqual(0);
   expect(checkoutBox.x + checkoutBox.width).toBeLessThanOrEqual(390);
+  // A filtered ancestor must not anchor the fixed dock to the summary section.
+  expect(navigationBox.y - (checkoutBox.y + checkoutBox.height)).toBeLessThan(60);
   expect(await page.evaluate(() => window.scrollY)).toBe(0);
   await checkout.click({ trial: true });
   expect(await page.evaluate(() => window.scrollY)).toBe(0);
 }
+
+test("il checkout resta ancorato sopra la navigazione e il riepilogo è leggibile a fondo pagina", async ({ page }) => {
+  await page.goto(`${clientOrigin}/ordina`);
+  const cart: IndividualCart = { storeId: "roma", mode: "pickup", slotId: null, notes: "", lines:
+    Array.from({ length: 8 }, () => ({ productId: "pizza", quantity: 1, optionIds: [], notes: "Ben cotta" }))
+  };
+  await page.evaluate(draft => {
+    localStorage.setItem("pizzaos.individual-cart.v1", JSON.stringify({ version: 1, updatedAt: new Date().toISOString(), cart: draft }));
+  }, cart);
+  await page.goto(`${clientOrigin}/ordina/carrello`);
+  for (const viewport of [{ width: 375, height: 667 }, { width: 390, height: 844 }, { width: 1280, height: 800 }]) {
+    await page.setViewportSize(viewport);
+    await page.evaluate(() => window.scrollTo(0, 0));
+    const checkout = page.getByRole("link", { name: /Vai al checkout/ });
+    await expect(checkout).toBeVisible();
+    const dock = checkout.locator("..");
+    const navigation = page.getByRole("navigation").filter({ has: page.getByRole("button", { name: "Carrello", exact: true }) });
+    await expect.poll(async () => {
+      const dockBox = await dock.boundingBox();
+      const navBox = await navigation.boundingBox();
+      return dockBox && navBox ? navBox.y - dockBox.y - dockBox.height : -1;
+    }).toBeGreaterThanOrEqual(0);
+    const before = await dock.boundingBox();
+    expect(before).not.toBeNull();
+    if (!before) throw new Error("Checkout privo di dimensioni");
+    expect(before.y).toBeGreaterThan(0);
+    expect(before.x).toBeGreaterThanOrEqual(0);
+    expect(before.x + before.width).toBeLessThanOrEqual(viewport.width);
+    await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
+    await expect.poll(async () => (await dock.boundingBox())?.y).toBeCloseTo(before.y, 0);
+    const clearBox = await page.getByRole("button", { name: "Svuota carrello", exact: true }).boundingBox();
+    expect(clearBox).not.toBeNull();
+    if (!clearBox) throw new Error("Svuota carrello privo di dimensioni");
+    expect(clearBox.y + clearBox.height).toBeLessThanOrEqual(before.y);
+    await page.screenshot({ path: `.codex/evidence/client-cart-${viewport.width}x${viewport.height}.png` });
+  }
+});
 
 test("menu, carrello e checkout condividono il draft attraverso navigazione e reload", async ({ page }) => {
   await page.goto(`${clientOrigin}/ordina`);
