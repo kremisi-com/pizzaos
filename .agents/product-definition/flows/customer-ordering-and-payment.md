@@ -25,6 +25,8 @@ Consentire al cliente di comporre un ordine come ospite, autenticarsi al termine
 
 Le azioni iniziali del client sono «Sfoglia il menu» e «Ordine di gruppo». Il pulsante «I tuoi ordini» non compare in questo blocco; gli ordini restano accessibili dalla navigazione inferiore e lo storico mantiene le azioni di recupero e gestione.
 
+Il menu mantiene 24 px tra l’ultima categoria e il pulsante Carrello. Lo storico «I tuoi ordini» e «Aggiorna ordini» non sono visibili in fondo al menu: compaiono aprendo Ordini nella navbar o un collegamento diretto allo storico o al singolo ordine. Tornare a Ordina o al menu nasconde nuovamente lo storico, anche tramite indietro/avanti. La suite browser del carrello verifica visibilità e spaziatura.
+
 La navigazione inferiore evidenzia **Ordini** su `/ordina#i-tuoi-ordini` e sulle ancore del singolo ordine `/ordina#ordine-…`, anche all'apertura diretta, al reload e usando indietro/avanti. Il ritorno a `/ordina` o al menu ripristina **Ordina**; carrello e checkout mantengono **Carrello**. La POC conserva `/orders`. Verifiche locali: [navigazione](../../../apps/client/src/test/bottom-nav.test.tsx) e [browser](../../../tests/e2e/individual-cart.spec.ts); nessuna nuova evidenza online.
 
 Nel menu operativo, se una sola sezione contiene prodotti visibili, il suo titolo non compare sotto «Il menu». Con più sezioni visibili, il client mostra titoli e navigazione delle categorie. Le descrizioni restano visibili anche per la sezione singola; i nomi salvati nell'admin non cambiano.

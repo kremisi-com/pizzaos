@@ -2,6 +2,8 @@
 
 La schermata iniziale propone «Sfoglia il menu» e «Ordine di gruppo»; l'accesso agli ordini resta nella navigazione inferiore, senza il pulsante duplicato «I tuoi ordini» tra le azioni iniziali.
 
+Il fondo del menu mantiene 24 px di spazio prima del pulsante Carrello. La sezione «I tuoi ordini», incluso «Aggiorna ordini», è visibile solo aprendo Ordini dalla navbar o un collegamento diretto allo storico o al singolo ordine; tornare al menu la nasconde. Verifica browser: `tests/e2e/individual-cart.spec.ts`.
+
 Il menu operativo apre il carrello dedicato `/ordina/carrello`; «Vai al checkout» porta a `/ordina/checkout`, con «Consegna e pagamento» subito aperta e focalizzata. Entrambi i percorsi ricaricano lo stesso draft operativo. La vista `all`, usata dalle prove preesistenti del componente, conserva l'apertura esplicita del checkout inline. «Completa pagamento esistente» dal menu raggiunge il checkout, dove si può riprendere il pagamento con Elements anche a carrello vuoto.
 
 Questa feature possiede presentazione e interazioni del primo flusso individuale cliente. Riceve il port pubblico `IndividualApi` dalla composizione dell'app; non dipende da repository locali, codice di altre app o implementazione del servizio. Gli ordini, i totali, le riserve e i pagamenti sono autorevoli nel servizio checkout.

@@ -63,7 +63,7 @@
 .cartPage button:disabled { opacity: .48; cursor: not-allowed; }
 .page.dedicated { max-width: 620px; margin-top: 0; padding-top: 24px; }
 .page .singleColumn { grid-template-columns: minmax(0, 1fr); }
-.cartEntry { position: sticky; bottom: calc(110px + env(safe-area-inset-bottom)); z-index: 3; display: flex; justify-content: flex-end; pointer-events: none; }
+.cartEntry { position: sticky; bottom: calc(110px + env(safe-area-inset-bottom)); z-index: 3; display: flex; justify-content: flex-end; pointer-events: none; margin-top: 24px; }
 .cartEntry a { pointer-events: auto; display: inline-flex; align-items: center; min-height: 48px; padding: 12px 20px; background: var(--pizzaos-color-primary); color: var(--pizzaos-color-primary-foreground); border-radius: 24px; text-decoration: none; box-shadow: 0 4px 18px color-mix(in srgb, var(--pizzaos-brand-navy) 20%, transparent); }
 @media (max-width: 850px) {
   .mobileCart { display: flex; position: sticky; bottom: calc(10px + env(safe-area-inset-bottom)); justify-content: flex-end; z-index: 3; pointer-events: none; }

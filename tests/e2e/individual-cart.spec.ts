@@ -205,3 +205,34 @@ test("recupera un extra rimosso dal carrello soltanto dopo conferma e conserva i
   await expect(page.getByLabel("Note per Pizza", { exact: true })).toHaveValue("Ben cotta");
   await expect(page.getByText(/18,00\s*€/).first()).toBeVisible();
 });
+
+test("il fondo del menu distanzia il carrello e mostra lo storico solo dalla navbar", async ({ page, context }) => {
+  await context.addCookies([{ name: "pizzaos-e2e-actor", value: "alice", url: clientOrigin, httpOnly: true, sameSite: "Lax" }]);
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto(`${clientOrigin}/ordina`);
+  await page.getByRole("button", { name: "Aggiungi Pizza", exact: true }).click();
+  await page.getByRole("dialog").getByRole("button", { name: "Aggiungi", exact: true }).click();
+  const history = page.getByRole("heading", { name: "I tuoi ordini", exact: true });
+  await expect(history).toBeHidden();
+  await expect(page.getByRole("button", { name: "Aggiorna ordini", exact: true })).toBeHidden();
+  await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
+  const menuBox = await page.locator("#il-menu").boundingBox();
+  const cartBox = await page.getByRole("link", { name: /^Carrello/ }).boundingBox();
+  if (!menuBox || !cartBox) throw new Error("Menu o pulsante Carrello privo di dimensioni");
+  expect(cartBox.y - menuBox.y - menuBox.height).toBeGreaterThanOrEqual(24);
+  await mkdir(".codex/evidence", { recursive: true });
+  await page.screenshot({ path: ".codex/evidence/menu-cart-spacing.png" });
+  await page.getByRole("button", { name: "Ordini", exact: true }).click();
+  await expect(history).toBeVisible();
+  await page.reload();
+  await expect(history).toBeVisible();
+  await page.getByRole("button", { name: "Ordina", exact: true }).click();
+  await expect(history).toBeHidden();
+  await page.goBack();
+  await expect(history).toBeVisible();
+  await page.goForward();
+  await expect(history).toBeHidden();
+  await page.getByRole("button", { name: "Carrello", exact: true }).click();
+  await page.getByRole("button", { name: "Ordini", exact: true }).click();
+  await expect(history).toBeVisible();
+});

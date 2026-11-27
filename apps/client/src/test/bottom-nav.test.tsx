@@ -60,13 +60,16 @@ describe("bottom nav", () =>
   });
 
   it("updates selection when navigating between orders and menu on the same pathname", () => {
+    window.history.replaceState(null, "", "/ordina");
     usePathnameMock.mockReturnValue("/ordina");
     renderDom(<BottomNav live />);
     domFireEvent.click(domScreen.getByRole("button", { name: "Ordini" }));
-    expect(pushMock).toHaveBeenLastCalledWith("/ordina#i-tuoi-ordini");
+    expect(window.location.hash).toBe("#i-tuoi-ordini");
     expect(domScreen.getByRole("button", { name: "Ordini" }).style.color).toBe("var(--pizzaos-color-primary)");
     domFireEvent.click(domScreen.getByRole("button", { name: "Ordina" }));
-    expect(pushMock).toHaveBeenLastCalledWith("/ordina");
+    expect(window.location.hash).toBe("");
+    expect(window.location.pathname).toBe("/ordina");
+    expect(pushMock).not.toHaveBeenCalled();
     expect(domScreen.getByRole("button", { name: "Ordini" }).style.color).toBe("var(--pizzaos-color-foreground-muted)");
     expect(domScreen.getByRole("button", { name: "Ordina" }).style.transform).toBe("scale(1.1)");
   });

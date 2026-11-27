@@ -259,3 +259,8 @@ Andrea approva il recupero delle opzioni rimosse o esaurite con proposta locale,
 ## Coerenza delle schede prodotto e personalizzazione Menu
 
 Andrea conferma il 27 novembre 2026 che Panino deve usare struttura, sezioni espandibili, controlli e riepilogo della creazione Pizza, con sole opzioni pertinenti. Gli abbinamenti consigliati compaiono esclusivamente nelle schede prodotto, sotto Extra per Pizza e Panino, e sono rimossi dalla home e dalla vista menu. Nel Menu il comando pizza diventa **Personalizza Scelta**, a larghezza piena con colori migliorati; **Scelta Successiva** sostituisce Avanti, a larghezza piena con fondo bianco e bordo colorato. L'esclusione degli ingredienti nelle fasi è riservata a Pizza e Panino; i Prodotti ordinari conservano le note. [Flusso proprietario](flows/menu-ordering.md#schede-prodotto-abbinamenti-e-comandi-delle-fasi).
+
+## Accesso allo storico dalla navbar
+
+Andrea richiede di distanziare il pulsante Carrello dall’ultima categoria e di rimuovere dal fondo del menu la sezione «I tuoi ordini» con «Aggiorna ordini». L’accesso allo storico avviene dalla navbar inferiore; restano validi i collegamenti diretti agli ordini. [Flusso proprietario](flows/customer-ordering-and-payment.md#percorso-approvato).
+

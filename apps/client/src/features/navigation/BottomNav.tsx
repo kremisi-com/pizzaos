@@ -85,8 +85,14 @@ export function BottomNav({ live = false }: { live?: boolean }): ReactElement {
   }
 
   const handleNavigate = (href: string) => {
-    // Next can update same-page anchors through pushState, without hashchange.
-    setHash(new URL(href, window.location.href).hash);
+    const destination = new URL(href, window.location.href);
+    setHash(destination.hash);
+    // Native fragment navigation notifies the menu and preserves browser history.
+    if (destination.pathname === window.location.pathname) {
+      window.location.hash = destination.hash;
+      if (!destination.hash) window.history.replaceState(null, "", href);
+      return;
+    }
     router.push(href);
   };
 
