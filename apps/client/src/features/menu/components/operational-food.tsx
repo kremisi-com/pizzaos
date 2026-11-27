@@ -92,12 +92,11 @@ export function FoodPreferenceEditor({ preferences }: { preferences: MenuPrefere
   </div>;
 }
 
-export function MenuFoodControls({ preferences, filtering, onFilter, kitchenNotice }: {
-  preferences: MenuPreferences; filtering: boolean; onFilter: (value: boolean) => void; kitchenNotice?: string;
+export function MenuFoodControls({ preferences, filtering, onFilter }: {
+  preferences: MenuPreferences; filtering: boolean; onFilter: (value: boolean) => void;
 }) {
   return <details className={styles.foodControls}>
     <summary>Allergeni e preferenze alimentari{preferences.avoid.length ? ` (${preferences.avoid.length})` : ""}</summary>
-    {kitchenNotice && <p>{kitchenNotice}</p>}
     <FoodPreferenceEditor preferences={preferences} />
     {preferences.avoid.length > 0 && <label className={styles.filterToggle}>
       <input type="checkbox" checked={filtering} onChange={event => onFilter(event.target.checked)} />Filtra il menu in base alle preferenze

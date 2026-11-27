@@ -38,6 +38,16 @@ beforeEach(() => { cleanupDom(); window.localStorage.clear(); });
 afterEach(cleanupDom);
 
 describe("contratto della vista carrello individuale", () => {
+  it("nasconde al checkout le avvertenze del menu già salvate", async () => {
+    const { api, store } = fixture();
+    const kitchenNotice = "Avvertenza cucina salvata nel menu";
+    store.menu = { id: "menu", name: "Menu", kitchenNotice, sections: [] };
+    seed();
+    renderDom(<IndividualOrderingScreen api={api} view="checkout" />);
+    await domWaitFor(() => expect(domScreen.getByLabelText("Quando?").querySelector('option[value="sera"]')).not.toBeNull());
+    expect(domScreen.queryByText(kitchenNotice)).toBeNull();
+  });
+
   it("mostra il draft e il subtotale stimato senza catalogo né preventivo implicito", async () => {
     const { api } = fixture();
     seed();

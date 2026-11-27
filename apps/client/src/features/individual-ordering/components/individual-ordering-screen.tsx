@@ -298,7 +298,6 @@ export function IndividualOrderingScreen({ view = "all", api, promotionsApi, pre
         {cartCount > 0 && <a className={styles.checkoutJump} href="#checkout-ordine" aria-expanded={checkoutOpen} aria-controls="checkout-ordine" onClick={event => { event.preventDefault(); setCheckoutOpen(true); checkoutRef.current?.focus(); }}>Vai a consegna e pagamento</a>}
       </section>}{checkoutOpen && <section ref={checkoutRef} tabIndex={-1} className={styles.card} id="checkout-ordine" aria-labelledby="checkout-title">
         <h2 id="checkout-title">Consegna e pagamento</h2>
-        {cart.lines.length > 0 && store?.menu?.kitchenNotice && <p className={styles.small}>{store.menu.kitchenNotice}</p>}
         <label>Modalità<select aria-label="Modalità" value={cart.mode} onChange={event => changeCart({ ...cart, mode: event.target.value === "delivery" ? "delivery" : "pickup", address: undefined })}><option value="pickup">Ritiro in pizzeria</option><option value="delivery">Consegna a domicilio</option></select></label>
         {cart.mode === "delivery" && <fieldset><legend>Dove consegniamo?</legend>
           <DeliveryAddressField key={cart.storeId} storeId={cart.storeId} address={cart.address} search={api.searchDeliveryAddresses}

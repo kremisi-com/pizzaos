@@ -173,7 +173,7 @@ export function LivePizzaEditor({ store, product, line, quantity = 1, disabled, 
         </div>
         <p className={styles.heroDescription}>{product.description}</p>
         <div className={styles.heroMeta}><span className={styles.heroPrice}>{money(preview.unitCents)}</span></div>
-        <PizzaFoodDetails composition={preview.composition} kitchenNotice={store.menu?.kitchenNotice}
+        <PizzaFoodDetails composition={preview.composition}
           emptyMessage={sandwich ? "Componi il tuo panino" : undefined} />
       </section>
       {recovered && <div className={live.feedback}>

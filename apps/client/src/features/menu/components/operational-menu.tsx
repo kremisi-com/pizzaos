@@ -142,7 +142,6 @@ function GenericConfigurationDialog({ store, product, line, disabled, avoid, onC
         </fieldset>}
         {preview.composition.ingredients.length > 0 && <p className={styles.ingredients}>Ingredienti: {preview.composition.ingredients.join(", ")}</p>}
         <MenuFoodSummary food={preview.composition} avoid={avoid} showUnknown={Boolean(store.menu)} announce />
-        {store.menu?.kitchenNotice && <p className={styles.ingredients}>{store.menu.kitchenNotice}</p>}
         <ProductPairings store={store} product={product} disabled={disabled} onChoose={onChoosePairing} />
         <label className={styles.lineNotes}>Note per la cucina<input maxLength={500} value={notes} onChange={event => setNotes(event.target.value)} /></label>
       </div>

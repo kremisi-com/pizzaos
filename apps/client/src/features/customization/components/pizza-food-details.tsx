@@ -11,9 +11,8 @@ const icons: Record<typeof MENU_ALLERGENS[number], string> = {
 };
 const iconByKey = new Map(Object.entries(icons).map(([label, icon]) => [menuAllergenKey(label), icon]));
 
-export function PizzaFoodDetails({ composition, kitchenNotice, emptyMessage = "Componi la tua pizza" }: {
+export function PizzaFoodDetails({ composition, emptyMessage = "Componi la tua pizza" }: {
   composition: Pick<MenuComposition, "ingredients" | "contains" | "mayContain">;
-  kitchenNotice?: string;
   emptyMessage?: string;
 }) {
   const [toast, setToast] = useState<{ message: string } | null>(null);
@@ -40,7 +39,6 @@ export function PizzaFoodDetails({ composition, kitchenNotice, emptyMessage = "C
     {composition.mayContain.length > 0 && <div className={styles.icons} role="group" aria-label="Può contenere">
       <span>Può contenere:</span>{composition.mayContain.map(label => allergenIcon(label, true))}
     </div>}
-    {kitchenNotice && <p>{kitchenNotice}</p>}
     <div role="status" aria-live="polite" aria-atomic="true">
       {toast && <div className={styles.toast}>{toast.message}</div>}
     </div>

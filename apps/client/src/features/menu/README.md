@@ -11,6 +11,10 @@ Run `pnpm --filter @pizzaos/client test` for menu screen and view-model coverage
 
 ## Menu operativo
 
+Verifica locale della rimozione: lint, typecheck e 207 test client superati. Build e percorso browser completo restano bloccati dalle modifiche concorrenti al flusso gruppo (contratto `GroupCreate` e sintassi del servizio); menu, dettaglio e carrello sono stati verificati nel browser con contesto individuale fissato nel test. Il checkout è coperto dal test di componente. Nessuna nuova evidenza online.
+
+Le avvertenze generali del menu (`kitchenNotice`) non sono visualizzate nel client, anche se presenti nel catalogo pubblicato: menu, dettagli e configuratori, carrello e checkout le omettono. I dati salvati restano conservati dal servizio; ingredienti, allergeni, tracce e avvisi legati alle preferenze continuano a seguire la composizione. Copertura: `src/test/menu-kitchen-notice.test.tsx`, `src/test/individual-cart.test.tsx` e `tests/menu-ordering/menu-kitchen-notice.spec.ts`.
+
 Quando è visibile una sola sezione, il suo titolo è nascosto per evitare un'intestazione ridondante sotto «Il menu». Con più sezioni visibili restano i titoli delle categorie e la relativa navigazione; le descrizioni delle sezioni restano visibili anche con una sola sezione.
 
 L'ordine individuale e di gruppo ricevono lo stesso catalogo pubblico della sede. Il menu mostra sezioni, disponibilità e foto statiche, apre il dettaglio dei prodotti semplici e il configuratore per le scelte richieste. Il configuratore e il carrello presentano importo e informazioni alimentari della composizione. Il preventivo del servizio rimane autorevole.
