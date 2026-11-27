@@ -1,5 +1,11 @@
 # Ordine individuale persistente
 
+Il checkout operativo `/ordina/checkout` riprende intestazione, sezioni e azione fissa del carrello. Il blocco mostra stima prodotti oppure totale verificato e il passo corrente (accesso, verifica, conferma o recupero), con spiegazione dei dati mancanti e delle invalidazioni. Le scelte modalità/pagamento sono radio visibili. Dopo la verifica il focus passa al riepilogo; contatti e pagamento restano separati. Nessun prezzo, beneficio o costo consegna è reso autorevole dal client.
+
+`OrderSlotSelect` accetta `detailed` per raggruppare le fasce per giorno e mostrare la previsione di «Appena possibile» nel checkout dedicato; gli altri consumatori conservano la presentazione precedente. I pagamenti già conclusi dalla risposta del servizio, incluso totale zero, non richiedono una riconciliazione aggiuntiva. I pagamenti pendenti si recuperano dal checkout anche a carrello vuoto. [Flusso e casi limite](../../../../../.agents/product-definition/flows/customer-ordering-and-payment.md#presentazione-del-checkout-operativo).
+
+Verifiche dell'allineamento: `src/test/operational-checkout*.test.tsx` e `pnpm exec playwright test --config playwright.checkout-alignment.config.ts` dalla root (porte 3921/3924, build `.next-checkout-alignment-e2e`). Il componente inline `view="all"`, il checkout POC e il gruppo mantengono i propri percorsi.
+
 La schermata iniziale propone «Sfoglia il menu» e «Ordine di gruppo»; l'accesso agli ordini resta nella navigazione inferiore, senza il pulsante duplicato «I tuoi ordini» tra le azioni iniziali.
 
 Il fondo del menu mantiene 24 px di spazio prima del pulsante Carrello. La sezione «I tuoi ordini», incluso «Aggiorna ordini», è visibile solo aprendo Ordini dalla navbar o un collegamento diretto allo storico o al singolo ordine; tornare al menu la nasconde. Verifica browser: `tests/e2e/individual-cart.spec.ts`.

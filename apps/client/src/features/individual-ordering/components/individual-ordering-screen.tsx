@@ -7,6 +7,7 @@ import { copyIndividualCart, readIndividualDraft, writeIndividualDraft } from ".
 import { createCheckoutAttempt, readCheckoutAttempt, removeCheckoutAttempt, writeCheckoutAttempt, type IndividualCheckoutAttempt } from "../checkout-attempt";
 import { IndividualStripeFields, type ConfirmIndividualPayment } from "./individual-stripe-fields";
 import { IndividualAdditions } from "./individual-additions";
+import { IndividualCheckout as OperationalCheckout } from "./individual-checkout";
 import { OrderSlotSelect } from "./order-slot-select";
 import { DeliveryAddressField, hasDeliveryPoint } from "./delivery-address-field";
 import { PromotionSelectionPanel, PromotionSummary } from "../../promotions";
@@ -15,6 +16,7 @@ import { OrderTimeline } from "../../orders/components/operational-order-timelin
 import { OrderingCover } from "../../menu/components/ordering-cover";
 import { IndividualCartScreen } from "../../cart";
 import styles from "./individual-ordering.module.css";
+import checkoutStyles from "./individual-checkout.module.css";
 
 const EMPTY_CART: IndividualCart = { storeId: "", lines: [], mode: "pickup", slotId: null, notes: "" };
 const catalogTerms = (store: IndividualStore) => JSON.stringify({ id: store.id, acceptingOrders: store.acceptingOrders,
@@ -69,6 +71,8 @@ export function IndividualOrderingScreen({ view = "all", api, promotionsApi, pre
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
   const [busy, setBusy] = useState(false);
+  const [verifying, setVerifying] = useState(false);
+  const [cardReady, setCardReady] = useState(false);
   const [loaded, setLoaded] = useState(false);
   const [checkoutOpen, setCheckoutOpen] = useState(view === "checkout");
   const [ordersOpen, setOrdersOpen] = useState(false);
@@ -95,7 +99,7 @@ export function IndividualOrderingScreen({ view = "all", api, promotionsApi, pre
   const storeRef = useRef<IndividualStore | null>(null);
   const quoteRequest = useRef(0);
   const confirmPayment = useRef<ConfirmIndividualPayment | null>(null);
-  const onCardReady = useCallback((confirm: ConfirmIndividualPayment | null) => { confirmPayment.current = confirm; }, []);
+  const onCardReady = useCallback((confirm: ConfirmIndividualPayment | null) => { confirmPayment.current = confirm; setCardReady(Boolean(confirm)); }, []);
   const invalidatePromotionQuote = useCallback(() => { quoteRequest.current++; setQuote(null); }, []);
 
   const reloadOrders = useCallback(async () => { setOrders(await api.orders()); setBenefitsRefresh(value => value + 1); }, [api]);
@@ -157,11 +161,16 @@ export function IndividualOrderingScreen({ view = "all", api, promotionsApi, pre
   }
 
   async function verifyQuote() {
-    setBusy(true); setError(""); setQuote(null);
+    setBusy(true); setVerifying(true); setError(""); setQuote(null);
     const request = ++quoteRequest.current;
     try { const next = await api.quote(cart); if (request === quoteRequest.current) setQuote(next); }
-    catch (failure) { setError(errorText(failure)); setCatalogReload(current => current + 1); }
-    finally { setBusy(false); }
+    catch (failure) {
+      const code = failure && typeof failure === "object" && "code" in failure ? String(failure.code) : "";
+      setError(view === "checkout" && ["service_unavailable", "internal_error", ""].includes(code)
+        ? "Non è stato possibile verificare il totale. Riprova tra poco." : errorText(failure));
+      setCatalogReload(current => current + 1);
+    }
+    finally { setBusy(false); setVerifying(false); }
   }
   function rememberAttempt(next: IndividualCheckoutAttempt) {
     attemptRef.current = next; setAttempt(next);
@@ -203,7 +212,7 @@ export function IndividualOrderingScreen({ view = "all", api, promotionsApi, pre
         try { await confirmPayment.current?.(result.clientSecret); }
         catch (failure) { setError(errorText(failure)); }
       }
-      const settled = result.order.method === "card" ? await api.reconcile(result.order.id) : result;
+      const settled = result.order.method === "card" && result.order.status === "pending_payment" ? await api.reconcile(result.order.id) : result;
       clearSubmittedCart(settled.order, known);
       await reloadOrders();
       setCatalogReload(current => current + 1);
@@ -224,7 +233,10 @@ export function IndividualOrderingScreen({ view = "all", api, promotionsApi, pre
         await confirmPayment.current(result.clientSecret);
         result = await api.reconcile(order.id);
       }
-      clearSubmittedCart(result.order, attemptRef.current?.orderId === result.order.id ? attemptRef.current : null); await reloadOrders();
+      const submitted = attemptRef.current?.orderId === result.order.id ? attemptRef.current : null;
+      clearSubmittedCart(result.order, submitted);
+      if (!submitted && result.order.submittedAt && !["pending_payment", "cancelled"].includes(result.order.status)) setConfirmation(result.order.id);
+      await reloadOrders();
     } catch (failure) { setError(errorText(failure)); await reloadOrders().catch(() => undefined); }
     finally { setBusy(false); }
   }
@@ -245,10 +257,12 @@ export function IndividualOrderingScreen({ view = "all", api, promotionsApi, pre
   }
   const cartCount = cart.lines.reduce((count, line) => count + line.quantity, 0);
   const unresolved = orders.some(order => (order.status === "pending_payment" && (order.payment === "requires_action" || order.payment === "processing")) || order.additions?.some(item => !item.applied && ["requires_action", "processing"].includes(item.payment)));
+  const pendingOrder = orders.find(order => order.status === "pending_payment" && ["requires_action", "processing"].includes(order.payment)
+    && (!attempt || attempt.orderId === order.id));
 
   return <>
     {(view === "all" || view === "menu") && <OrderingCover profileHref={session?.actor ? "/ordina/profilo" : undefined} />}
-    <div className={view === "cart" ? styles.cartPage : `${styles.page} ${view === "checkout" ? styles.dedicated : ""}`}>
+    <div className={view === "cart" ? styles.cartPage : view === "checkout" ? checkoutStyles.page : styles.page}>
     {(view === "all" || view === "menu") && <><header className={styles.header}>
       <div><h1>La tua prossima pizza.</h1>{store && <p>{store.name} · {store.acceptingOrders ? "Ordini aperti" : "Ordini sospesi"}</p>}</div>
       {!session?.actor && <a href="/accesso">Accedi</a>}
@@ -257,9 +271,8 @@ export function IndividualOrderingScreen({ view = "all", api, promotionsApi, pre
       {stores.length > 0 && <a className={styles.linkButton} href="#il-menu">Sfoglia il menu</a>}
       <a className={styles.groupLink} href="/ordina/gruppo">Ordine di gruppo</a>
     </nav></>}
-    {view === "checkout" && <nav className={styles.heroActions} aria-label="Navigazione checkout"><a href="/ordina/carrello">← Carrello</a><a href="/ordina#il-menu">Menu</a></nav>}
     {connection && <p className={styles.connection} role="status">{connection}</p>}
-    {error && <div className={styles.error} role="alert">{error}<div><button type="button" className={styles.secondary} disabled={busy} onClick={() => void load()}>Riprova caricamento</button></div></div>}
+    {error && <div className={styles.error} role="alert">{error}{(view !== "checkout" || !loaded || stores.length === 0) && <div><button type="button" className={styles.secondary} disabled={busy} onClick={() => void load()}>Riprova caricamento</button></div>}</div>}
     {confirmation && <section ref={confirmationRef} tabIndex={-1} className={styles.confirmation} aria-labelledby="conferma-ordine">
       <div><h2 id="conferma-ordine">Ordine inviato</h2><p>Segui lo stato aggiornato nei tuoi ordini.</p></div>
       <a className={styles.linkButton} href={`${view === "checkout" ? "/ordina" : ""}#ordine-${encodeURIComponent(confirmation)}`}>Segui l&apos;ordine</a>
@@ -267,7 +280,7 @@ export function IndividualOrderingScreen({ view = "all", api, promotionsApi, pre
     </section>}
     {notice && <div className={styles.notice} role="status">{notice}</div>}
     {attempt && <aside className={styles.notice} aria-label="Tentativo ordine da recuperare"><p>L&apos;esito del tentativo precedente deve essere verificato prima di inviare un altro ordine. Il carrello attuale resta salvato.</p>
-      {attempt.input && attempt.actorId === session?.actor?.id ? <button type="button" disabled={busy} onClick={() => void submitAttempt(attempt, false)}>Recupera tentativo ordine</button>
+      {attempt.input && attempt.actorId === session?.actor?.id ? view !== "checkout" && <button type="button" disabled={busy} onClick={() => void submitAttempt(attempt, false)}>Recupera tentativo ordine</button>
         : <p>{attempt.input ? "Accedi con lo stesso account usato per il tentativo per recuperarlo." : "Questo tentativo precedente non contiene il riepilogo originale. Contatta il ristorante e verifica i tuoi ordini prima di continuare."}</p>}
     </aside>}
     {!loaded && <p role="status">Caricamento del menu…</p>}
@@ -275,7 +288,14 @@ export function IndividualOrderingScreen({ view = "all", api, promotionsApi, pre
     {stores.length > 0 && <>
       {(view === "all" || view === "menu") && !storefront && <div className={styles.storeSelector}><label>Scegli la sede<select aria-label="Scegli la sede" value={cart.storeId} disabled={busy || unresolved} onChange={event => changeCart({ ...EMPTY_CART, storeId: event.target.value })}>{stores.map(item => <option key={item.id} value={item.id}>{item.name}</option>)}</select></label></div>}
       {view === "cart" && loaded && <IndividualCartScreen cart={cart} store={store} avoid={preferences.avoid} disabled={busy} onChange={changeCart} />}
-      {view !== "cart" && <fieldset className={`${styles.layout} ${view !== "all" ? styles.singleColumn : ""}`} disabled={busy} aria-label="Composizione dell'ordine">{(view === "all" || view === "menu") && <section id="il-menu" tabIndex={-1}><h2>Il menu</h2>{!store && <p>Caricamento della sede…</p>}{store && !store.acceptingOrders && <p className={styles.error}>Gli ordini sono temporaneamente sospesi.</p>}
+      {view === "checkout" && loaded && <OperationalCheckout api={api} cart={cart} store={store} session={session} quote={quote}
+        phone={phone} method={method} busy={busy} verifying={verifying} cardReady={cardReady} error={error} unresolved={unresolved}
+        attempt={attempt} pendingOrder={pendingOrder} promotionsApi={promotionsApi} refreshVersion={refreshVersion + benefitsRefresh}
+        onChange={changeCart} onPhone={setPhone} onMethod={setMethod} onVerify={() => void verifyQuote()} onSend={() => void sendOrder()}
+        onRecoverAttempt={() => { if (attempt) void submitAttempt(attempt, false); }}
+        onRecoverPayment={complete => { if (pendingOrder) void recover(pendingOrder, complete); }}
+        onCardReady={onCardReady} onCatalogRefresh={() => setCatalogReload(current => current + 1)} onPromotionTermsChange={invalidatePromotionQuote} />}
+      {view !== "cart" && view !== "checkout" && <fieldset className={`${styles.layout} ${view !== "all" ? styles.singleColumn : ""}`} disabled={busy} aria-label="Composizione dell'ordine">{(view === "all" || view === "menu") && <section id="il-menu" tabIndex={-1}><h2>Il menu</h2>{!store && <p>Caricamento della sede…</p>}{store && !store.acceptingOrders && <p className={styles.error}>Gli ordini sono temporaneamente sospesi.</p>}
         {store && <OperationalMenu key={store.id} store={store} preferences={preferences} onAdd={add} />}
       </section>}{view !== "menu" && <div className={styles.orderPanel}>
       {view === "all" && <section className={styles.card} id="il-tuo-ordine" aria-labelledby="cart-title" tabIndex={-1}>

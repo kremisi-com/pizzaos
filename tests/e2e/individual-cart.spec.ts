@@ -153,9 +153,9 @@ test("il checkout del carrello invia un ordine contanti tramite IndividualApi", 
   const refreshOrders = page.getByRole("button", { name: "Aggiorna ordini", exact: true });
   await expect(history).toHaveCount(0);
   await expect(refreshOrders).toHaveCount(0);
-  await page.getByLabel("Modalità", { exact: true }).selectOption("pickup");
+  await page.getByRole("radio", { name: "Ritiro in pizzeria", exact: true }).check();
   await page.getByLabel(/Telefono per l.ordine/).fill("+39 3331234567");
-  await page.getByLabel("Come paghi?").selectOption("cash");
+  await page.getByRole("radio", { name: "Contanti al ritiro o alla consegna", exact: true }).check();
   await page.getByRole("button", { name: "Verifica disponibilità e totale" }).click();
   await expect(page.getByRole("heading", { name: "Riepilogo da confermare" })).toBeVisible();
   const response = page.waitForResponse(result => result.url().endsWith("/v1/pilot/checkouts") && result.request().method() === "POST");

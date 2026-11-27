@@ -20,6 +20,10 @@ Stati ammessi: `DECISO`, `APERTO`, `DA VALIDARE`, `RINVIATO`, `NON APPLICABILE`.
 
 Andrea richiede un fondo del carrello a tutta larghezza, la rimozione del rettangolo decorativo vuoto in fondo alla pagina e delle sfumature superflue. La pulizia visiva conserva il checkout fisso e lo spazio necessario a leggere i contenuti senza sovrapposizioni. [Flusso corrente](flows/customer-ordering-and-payment.md#persistenza-e-autorità-dei-dati).
 
+## Riallineamento del checkout operativo
+
+Andrea approva il 27 novembre 2026 il riallineamento di `/ordina/checkout` al carrello: intestazione e sezioni coerenti, totale e prossimo passo persistenti, alternative ritiro/consegna e carta/contanti visibili, feedback di verifica, invalidazione e dati mancanti. Preventivi, fasce, benefici, Stripe e recupero dei tentativi conservano i contratti operativi esistenti. L'approvazione riguarda il checkout individuale operativo, con verifica locale distinta dalla pubblicazione. [Flusso corrente](flows/customer-ordering-and-payment.md#presentazione-del-checkout-operativo), [SDD](../design/2026-11-27-checkout-alignment/design.md).
+
 ## Decisioni confermate
 
 | ID | Decisione | Stato | Fonte |

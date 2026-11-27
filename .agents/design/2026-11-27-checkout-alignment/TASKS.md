@@ -1,0 +1,1 @@
+- [x] **checkout**: Riallineare presentazione, riepilogo persistente e progressione del checkout operativo, preservando validazione, benefici e recupero pagamento.

@@ -62,6 +62,16 @@ La home mostra il checkout «Consegna e pagamento» solo dopo il clic su «Vai a
 
 ## Persistenza e autorità dei dati
 
+### Presentazione del checkout operativo
+
+Il checkout individuale `/ordina/checkout` riprende l'intestazione, le superfici e la gerarchia del carrello. Modalità, contatti, pagamento e riepilogo sono distinguibili. Ritiro/consegna e contanti/carta sono alternative visibili e utilizzabili da tastiera. L'indirizzo compare per la consegna; il telefono resta necessario per confermare. I contenuti commerciali continuano a provenire dal catalogo pubblicato.
+
+Il blocco fisso mostra la stima dei prodotti prima della verifica e il totale autorevole dopo la risposta del servizio. La stima include le composizioni e non inventa consegna o benefici. Il prossimo passo è accesso, verifica o conferma; il motivo di un blocco è leggibile vicino all'azione. L'ospite può verificare il totale prima di accedere. Lo spazio finale permette di leggere e raggiungere l'intero form sopra blocco e navbar, anche su mobile.
+
+La verifica non invia un ordine: annuncia l'attesa e sul successo porta il focus al riepilogo. La fascia prevista per «Appena possibile» è distinta dall'orario confermato dal servizio. Modificare modalità, indirizzo, fascia, note o benefici invalida il preventivo: il checkout spiega la necessità di verificare nuovamente. Lo stesso avviene se il catalogo cambia nelle condizioni rilevanti. I campi già compilati restano disponibili.
+
+Un tentativo irrisolto o un pagamento carta precedente hanno precedenza sul nuovo invio. Il checkout permette di recuperare l'ordine originale anche a carrello vuoto, conservando identità del tentativo e autorità del servizio. Il totale zero verificato non raccoglie dati carta. Dopo successo resta «Segui l'ordine», senza aggiungere lo storico alla pagina. Requisiti e verifiche dell'incremento: [SDD checkout](../../design/2026-11-27-checkout-alignment/design.md); prove locali e online restano distinte.
+
 Il cliente apre **Carrello** dalla navigazione o dal menu: `/ordina/carrello` mostra prodotti, personalizzazioni, note, quantità a passi, rimozione e svuotamento con la presentazione del POC. Diminuire da uno elimina la riga. Il carrello vuoto propone il menu senza accesso al checkout. I prodotti rimossi dal catalogo o esauriti restano visibili e rimovibili. La stima include le personalizzazioni correnti di Pizza e Menu; non aggiunge un costo di consegna fittizio. **Vai al checkout** apre `/ordina/checkout` con consegna e pagamento già aperti. Menu, carrello e checkout rileggono lo stesso draft locale; il preventivo server conferma disponibilità, benefici e importo da pagare.
 
 Nel carrello operativo il fondo è uniforme a tutta larghezza, senza sfumature o rettangoli decorativi vuoti in fondo alla pagina; su desktop il contenuto conserva una larghezza di lettura limitata. Il totale stimato e il collegamento al checkout restano fissi sopra la navigazione inferiore durante lo scorrimento. Anche con molte righe, a fondo pagina il riepilogo e «Svuota carrello» sono leggibili e raggiungibili senza sovrapposizioni con il blocco checkout. Regressione locale: [suite browser del carrello](../../../tests/e2e/individual-cart.spec.ts), con viewport mobile e desktop; nessuna nuova evidenza online.
