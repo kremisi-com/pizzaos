@@ -4,7 +4,7 @@ import type { FastifyInstance, FastifyRequest } from "fastify";
 import type { OrderingRepository, OrderingServiceOptions, OrderingState } from "../ordering-contract";
 import { OrderingError } from "../ordering-service";
 import { createPromotionsOrderingServices } from "../promotions";
-import { emailText, type RefundSnapshot } from "./snapshot";
+import { emailText, groupPaymentEmailText, type RefundSnapshot } from "./snapshot";
 import { validFrom, validRecipient } from "./validation";
 import type { OperationalEmailOptions, OperationalEmailService } from "./contract";
 export type { OperationalEmailMessage, OperationalEmailSender, OperationalEmailOptions, OperationalEmailService } from "./contract";
@@ -18,7 +18,7 @@ interface State extends OrderingState {
 }
 const titles: Record<OperationalEmailEvent, string> = {
   received: "Ordine ricevuto", accepted: "Ordine accettato", ready: "Ordine pronto", out_for_delivery: "Ordine in consegna",
-  cancelled: "Ordine annullato", refund_succeeded: "Rimborso completato", refund_failed: "Rimborso da verificare"
+  cancelled: "Ordine annullato", refund_succeeded: "Rimborso completato", refund_failed: "Rimborso da verificare", share_paid: "Quota pagata"
 };
 const errorMessages: Record<OperationalEmailErrorCode, string> = {
   smtp_unavailable: "Invio email temporaneamente non disponibile. Verrà riprovato automaticamente.",
@@ -38,6 +38,18 @@ function enqueue(state: State, order: IndividualOrder, event: OperationalEmailEv
   outbox.messages.push(record); changed(state, record, date);
 }
 function journal(state: State, previous: Map<string, IndividualOrder>, date: string) {
+  for (const notification of state.groupPaymentNotifications ?? []) {
+    const event = notification.status === "paid" ? "share_paid" : notification.status === "refunded" ? "refund_succeeded" : "refund_failed";
+    const outbox = data(state);
+    const key = JSON.stringify(["group", notification.id, event, notification.attempt]);
+    if (outbox.messages.some(record => record.key === key)) continue;
+    const hash = createHash("sha256").update(key).digest("hex");
+    const record: RecordEntry = { id: `email-${hash}`, key, storeId: notification.storeId, orderId: notification.groupId, event,
+      recipient: notification.payer.email.trim().toLowerCase(), subject: `${titles[event]} · ${notification.groupId}`,
+      text: groupPaymentEmailText(notification, titles[event], state.stores[notification.storeId].timeZone ?? "Europe/Rome"), messageId: `<${hash}@pizzaos.invalid>`,
+      sequence: ++outbox.sequence, status: "pending", attempts: 0, createdAt: date, updatedAt: date, sentAt: null, nextAttemptAt: null, lastError: null, claim: null, leaseUntil: null };
+    outbox.messages.push(record); changed(state, record, date);
+  }
   for (const order of Object.values(state.orders)) {
     const old = previous.get(order.id);
     if (order.submittedAt && !old?.submittedAt) enqueue(state, order, "received", "", date);
@@ -52,7 +64,7 @@ function journal(state: State, previous: Map<string, IndividualOrder>, date: str
         || (before.payment === current.payment && before.refundAttempt === current.refundAttempt)) return;
       if (current.payment === "refunded" || current.payment === "refund_failed") enqueue(state, order, current.payment === "refunded" ? "refund_succeeded" : "refund_failed", `${scope}:${current.refundAttempt}`, date, { amountCents: amount, scope: scope === "base" ? "Pagamento iniziale" : "Aggiunta" });
     };
-    charge(order, old, order.quote.totalCents - (order.additions ?? []).reduce((total, addition) => total + (addition.applied ? addition.deltaCents : 0), 0), "base");
+    if (!order.settlement) charge(order, old, order.quote.totalCents - (order.additions ?? []).reduce((total, addition) => total + (addition.applied ? addition.deltaCents : 0), 0), "base");
     for (const addition of order.additions ?? []) charge(addition, old?.additions?.find(item => item.id === addition.id), addition.deltaCents, `addition:${addition.id}`);
   }
 }
@@ -95,8 +107,9 @@ export function createOperationalEmailServices(options: OrderingServiceOptions &
           const instant = now(); const date = instant.toISOString(); const blockedOrders = new Set<string>();
           for (const candidate of data(state).messages) {
             if (candidate.status === "sent") continue;
-            if (blockedOrders.has(candidate.orderId)) continue;
-            blockedOrders.add(candidate.orderId);
+            const recipientOrder = JSON.stringify([candidate.orderId, candidate.recipient]);
+            if (blockedOrders.has(recipientOrder)) continue;
+            blockedOrders.add(recipientOrder);
             if (attempted.has(candidate.id) || (candidate.nextAttemptAt && Date.parse(candidate.nextAttemptAt) > instant.getTime()) || (candidate.leaseUntil && Date.parse(candidate.leaseUntil) > instant.getTime())) continue;
             candidate.claim = randomUUID(); candidate.leaseUntil = new Date(instant.getTime() + lease).toISOString(); candidate.status = "sending"; candidate.attempts++; changed(state, candidate, date);
             return structuredClone(candidate);

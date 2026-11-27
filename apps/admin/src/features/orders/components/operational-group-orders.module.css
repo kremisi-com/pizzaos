@@ -1,0 +1,14 @@
+.groups { display: grid; gap: 18px; margin-bottom: 22px; }
+.group { padding: 20px; border: 1px solid var(--pizzaos-color-border); border-radius: 12px; background: var(--pizzaos-color-background-accent); color: var(--pizzaos-color-foreground); }
+.heading { display: flex; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+.heading h2 { font-size: 1.1rem; margin: 0 0 8px; }
+.small { color: var(--pizzaos-color-foreground-muted); font-size: .85rem; line-height: 1.6; }
+.badge { display: inline-block; padding: 6px 10px; border-radius: 8px; background: var(--pizzaos-color-warning-soft); color: var(--pizzaos-color-warning-foreground); font-size: .8rem; font-weight: 700; }
+.participants, .payments { padding: 0; list-style: none; }
+.participants > li, .payments > li { padding: 12px 0; border-top: 1px solid var(--pizzaos-color-border); }
+.participants summary { cursor: pointer; min-height: 32px; }
+.paymentRow { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; }
+.group button, .paymentRow button, .refundAll { min-height: 44px; padding: 10px 15px; border: 1px solid var(--pizzaos-color-border); border-radius: 8px; color: var(--pizzaos-color-critical-foreground); background: var(--pizzaos-color-critical-soft); font: inherit; font-weight: 650; cursor: pointer; }
+.group button:disabled, .paymentRow button:disabled, .refundAll:disabled { opacity: .5; cursor: not-allowed; }
+.group button:focus-visible, .paymentRow button:focus-visible, .refundAll:focus-visible, .participants summary:focus-visible { outline: 3px solid var(--pizzaos-color-focus); outline-offset: 3px; }
+.failed { color: var(--pizzaos-color-critical-foreground); }

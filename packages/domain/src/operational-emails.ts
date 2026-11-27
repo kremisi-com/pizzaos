@@ -1,4 +1,4 @@
-export type OperationalEmailEvent = "received" | "accepted" | "ready" | "out_for_delivery" | "cancelled" | "refund_succeeded" | "refund_failed";
+export type OperationalEmailEvent = "received" | "accepted" | "ready" | "out_for_delivery" | "cancelled" | "refund_succeeded" | "refund_failed" | "share_paid";
 export type OperationalEmailStatus = "pending" | "sending" | "retrying" | "blocked" | "sent";
 export type OperationalEmailErrorCode = "smtp_unavailable" | "not_configured" | "recipient_not_allowed";
 export interface OperationalEmailDelivery {

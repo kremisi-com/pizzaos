@@ -187,7 +187,7 @@ describe("sottodomini di ordinazione per sede", () => {
     expect((await save({ ...roma, orderingSubdomain: "lapizzaspeciale" })).statusCode).toBe(200);
     const own = headers(siteOrigin, operator);
     const pilot = headers(pilotOrigin, operator);
-    const groupInput = { storeId: napoli.id, name: "Cena a Napoli", deadline: new Date(Date.now() + 60 * 60 * 1000).toISOString() };
+    const groupInput = { storeId: napoli.id, lines: [], idempotencyKey: "subdomain-group" };
     const offsiteCreation = await app.inject({ method: "POST", url: `${base}/groups`, headers: own, payload: groupInput });
     expect(offsiteCreation.statusCode).toBe(404);
     const group = await app.inject({ method: "POST", url: `${base}/groups`, headers: pilot, payload: groupInput });

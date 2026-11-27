@@ -36,9 +36,9 @@ describe("conferma esplicita carta a totale zero senza Stripe", () => {
 
   it("host gruppo conferma una sola volta carta senza chiave né Elements", async () => {
     const individual = api();
-    const group: GroupSnapshot = { id: "group", storeId: "store", deadline: "2030-01-01T12:00:00.000Z", status: "closed", revision: 3, participants: [{ id: "host", name: "Alice", host: true, lines: cart.lines }], role: "host", participantId: "host" };
-    const service: GroupOrderingApi = { create: vi.fn().mockResolvedValue(group), read: vi.fn().mockResolvedValue(group), join: vi.fn(), replaceLines: vi.fn().mockResolvedValue(group), removeParticipant: vi.fn().mockResolvedValue(group), close: vi.fn().mockResolvedValue(group), quote: vi.fn().mockResolvedValue({ revision: 3, quote }), checkout: vi.fn().mockResolvedValue({ order }), recover: vi.fn().mockResolvedValue({ order }) };
-    renderDom(<PersistentGroupScreen api={service} individualApi={individual} groupId="group" pollMs={60000} />);
+    const group: GroupSnapshot = { id: "group", storeId: "store", status: "closed", revision: 3, participants: [{ id: "host", name: "Alice", host: true, lines: cart.lines }], role: "host", participantId: "host" };
+    const service: GroupOrderingApi = { context: vi.fn(), activate: vi.fn(), rename: vi.fn(), payShare: vi.fn(), reconcileShare: vi.fn(), refundShare: vi.fn(), create: vi.fn().mockResolvedValue(group), read: vi.fn().mockResolvedValue(group), join: vi.fn(), replaceLines: vi.fn().mockResolvedValue(group), removeParticipant: vi.fn().mockResolvedValue(group), close: vi.fn().mockResolvedValue(group), quote: vi.fn().mockResolvedValue({ revision: 3, quote }), checkout: vi.fn().mockResolvedValue({ order }), recover: vi.fn().mockResolvedValue({ order }) };
+    renderDom(<PersistentGroupScreen api={service} individualApi={individual} groupId="group" view="checkout" pollMs={60000} />);
     await screen.findByLabelText("Come paghi?");
     fireEvent.change(screen.getByLabelText("Come paghi?"), { target: { value: "card" } });
     fireEvent.change(screen.getByLabelText("Telefono per l'ordine"), { target: { value: "+393331234567" } });

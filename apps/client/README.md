@@ -36,7 +36,7 @@ un checkout che trova uno slot o un prodotto non più disponibile riceve un conf
 - `app/page.tsx`: client route entry
 - `app/menu/page.tsx`: menu browsing route with section preselection support
 - `app/group-order/page.tsx`: group order locale con contributi personali, riepilogo partecipanti e checkout unico dell'host
-- `app/ordina/gruppo`: raccolta di gruppo persistente con inviti reali e checkout unico dell'organizzatore; separata dal POC locale
+- `app/ordina/gruppo`: carrello condiviso persistente con inviti reali, anticipi per quota e checkout finale del creatore; separato dal POC locale
 - `app/product/[id]/page.tsx`: product detail route with guided customization flow
 - `app/cart/page.tsx`: cart review route with quantity updates and checkout entry
 - `app/checkout/page.tsx`: contatti per ordine, consegna/ritiro, slot, tip, mock payment, and confirmation route
@@ -115,11 +115,11 @@ La composizione riceve eventi SSE con cursore e usa polling di recupero; i messa
 
 ## Ordine di gruppo persistente
 
-Da `/ordina` si accede a `/ordina/gruppo`. L'organizzatore autenticato sceglie sede, nome e scadenza raccolta e condivide il link con frammento invito; ogni invitato entra con nome senza account, con una capability personale HttpOnly. Il roster risiede nel servizio PostgreSQL e si aggiorna tramite polling revisionato. La scadenza chiude solo le scelte: nessuna prenotazione o pagamento automatico.
+Da `/ordina` si accede a `/ordina/gruppo`: il carrello corrente diventa automaticamente un **Carrello condiviso**, senza form di creazione o scadenza. Il nome proviene dall’account oppure dal generatore per ospiti, ed è modificabile nella partecipazione. La pagina presenta il QR già visibile, il link con condivisione e le persone espandibili; menu, carrello e checkout usano percorsi distinti ma lo stesso gruppo attivo. Entrando da invito si trasferiscono una sola volta le scelte individuali della stessa sede. Il servizio conserva roster, contesto attivo e permessi; le capability restano in cookie HttpOnly. Si può tornare al carrello individuale e recuperare il gruppo senza annullarlo.
 
-Dopo chiusura l'organizzatore risolve eventuali conflitti, verifica totale corrente e conferma carta o contanti, con un indirizzo e slot unici. Il ristorante riceve l'ordine canonico con partecipante nelle note di ogni riga; l'organizzatore lo gestisce in `/ordina`. Il recupero del tentativo usa la richiesta originale persistita dal servizio. `GroupOrderingApi` è fornito da `src/composition/api/group-ordering-api.ts`; nessun fallback locale in questo flusso.
+Ogni partecipante autenticato può pagare anticipatamente la propria quota con carta; prezzo e scelte pagate restano bloccati, con ingredienti riservati dal servizio. Al primo incasso la pizzeria vede **Ordine di gruppo ancora in corso**, senza poter avviare la preparazione. Il creatore modifica le scelte non pagate, accede alla conferma finale e copre il residuo con carta o contanti, con un indirizzo e slot unici. I rimborsi sono richiesti dal pagante o dalla pizzeria: prima dell’invio eliminano quelle scelte e richiedono all’invitato un nuovo ingresso dal link; dopo l’invio sono monetari e conservano la comanda. `GroupOrderingApi` è fornito da `src/composition/api/group-ordering-api.ts`; nessun fallback locale o saldo fidato nel browser. Le richieste di trasferimento originali sono conservate come composizione browser finché il servizio le conferma, senza cancellare successive modifiche locali.
 
-Verifica browser: `pnpm exec playwright test --config playwright.group-ordering.config.ts` (porte 3501/3502/3504, build directory `.next-group-e2e`, output `test-results/group-ordering`). Google/Stripe esterni richiedono le configurazioni descritte sopra; il fixture test non è importato dal runtime produzione.
+Verifica browser: `pnpm exec playwright test --config playwright.group-ordering.config.ts tests/e2e/persistent-group.spec.ts` (porte 3501/3502/3504, build directory `.next-group-e2e`, output `test-results/group-ordering`). Google/Stripe esterni richiedono le configurazioni descritte sopra; il fixture test non è importato dal runtime produzione. La regressione del checkout individuale corrente usa `playwright.checkout-alignment.config.ts` e `tests/e2e/operational-checkout.spec.ts`; le vecchie asserzioni della suite individuale combinata richiedono l’allineamento al checkout e allo storico dedicati.
 
 `PIZZAOS_BUILD_DIRECTORY` consente una directory Next isolata per verifiche locali; in assenza usa `.next`. Usare directory diverse tra dev server e build contemporanei. Le directory `.next-*` e i risultati dei test sono artefatti locali ignorati da Git.
 

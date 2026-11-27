@@ -1,0 +1,8 @@
+# Carrello condiviso e quote
+Approvato da Andrea nella chat del 27 novembre 2026. Piano completo: conversione del carrello senza form/scadenza; creatore ospite con nome alimentare generato modificabile o nome account; navigazione condivisa; inviti con trasferimento automatico stessa sede; pagamenti carta anticipati per persona; prezzi e scorte bloccati; gruppo visibile alla pizzeria al primo incasso come «Ordine di gruppo ancora in corso», senza preparazione prima dell'invio finale autenticato. Il creatore copre residuo carta/contanti e consegna; coupon/premi solo sui prodotti non pagati, punti al creatore. Nessuna scadenza dopo incasso. Solo pagante e operatori autorizzati rimborsano; rimborso pre-invio elimina scelte e partecipazione invitato, che rientra dall'invito; creatore mantiene ruolo. Dopo invio rimborso monetario senza alterare comanda. Registro durevole per quote e finanziatori; rimborsi ritentabili e idempotenti, inclusi rimborsi parziali del saldo host. Stock/slot e checkout restano canonici. POC separato.
+
+## Ownership e sequenza
+domain possiede i DTO, servizio checkout tutto il denaro/stock/identità, client interazioni, admin visibilità e comandi operatore. Nessun import tra app. Implementare quattro sottotask in TASKS. Test indipendenti ricevono soltanto REQUIREMENTS e CONTRACT_DESIGN, mai INTERNAL_DESIGN o implementazione.
+
+## Verifica e pubblicazione
+Test/lint/typecheck/build client, admin, servizio; architettura; E2E multi-identità e regressioni; PostgreSQL dedicato quando disponibile. Commit/push solo cambi task, preservando lavori già presenti; nessun deploy richiesto.

@@ -119,6 +119,7 @@ export interface IndividualAddition {
   reservationExpiresAt: string | null; reservationReleased: boolean; createdAt: string;
 }
 export interface IndividualOrder {
+  settlement?: import("./order-settlement").OrderSettlementSummary;
   id: string; storeId: string; customerId: string; cart: IndividualCart; quote: IndividualQuote;
   contact: { name: string; email: string; phone: string }; status: IndividualOrderStatus;
   payment: IndividualPaymentStatus; method: "card" | "cash"; notes: string;

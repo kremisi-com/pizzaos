@@ -1,4 +1,6 @@
 import type { NextRequest } from "next/server";
+import { createHmac } from "node:crypto";
+import { isIP } from "node:net";
 import { resolveClientHost } from "@/composition/ordering-host";
 
 export const runtime = "nodejs";
@@ -21,6 +23,9 @@ async function proxy(request: NextRequest, context: Context): Promise<Response> 
   const target = new URL(targetPath, endpoint);
   target.search = new URL(request.url).search;
   const headers = new Headers({ "x-pizzaos-proxy-secret": secret, "x-pizzaos-origin": publicOrigin });
+  // Vercel overwrites this platform header. Never trust browser-supplied forwarding/network headers.
+  const platformIp = process.env.VERCEL === "1" ? request.headers.get("x-vercel-forwarded-for") : null;
+  if (platformIp && isIP(platformIp)) headers.set("x-pizzaos-client-network", createHmac("sha256", secret).update(`group-network:${platformIp}`).digest("hex"));
   for (const name of ["content-type", "cookie", "last-event-id", "accept"]) { const value = request.headers.get(name); if (value) headers.set(name, value); }
   if (suppliedOrigin) headers.set("origin", suppliedOrigin);
   try {

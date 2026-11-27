@@ -1,0 +1,3 @@
+.switcher { display: flex; gap: 12px; flex-wrap: wrap; max-width: 880px; margin: 18px auto 0; padding: 0 20px; }
+.switcher button { border: 1px solid var(--pizzaos-color-border); border-radius: 12px; min-height: 44px; padding: 10px 16px; background: var(--pizzaos-color-surface-muted); color: var(--pizzaos-color-foreground); font: inherit; cursor: pointer; }
+.switcher button:focus-visible { outline: 3px solid var(--pizzaos-color-focus); outline-offset: 3px; }

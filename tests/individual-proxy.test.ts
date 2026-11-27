@@ -1,6 +1,7 @@
 // @vitest-environment node
 // Independent acceptance tests from the documented same-origin proxy contract.
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { createHmac } from "node:crypto";
 import { NextRequest } from "../apps/client/node_modules/next/server";
 import * as clientProxy from "../apps/client/app/api/pilot/[...path]/route";
 import * as adminProxy from "../apps/admin/app/api/pilot/[...path]/route";
@@ -129,5 +130,32 @@ describe.each(contexts)("$name same-origin ordering proxy", ({ handlers }) => {
     const body: unknown = await response.json();
     expect(body).toMatchObject({ code: "service_unavailable", message: expect.any(String) });
     expect(JSON.stringify(body)).not.toContain("private backend address");
+  });
+
+  it("sets an opaque network key only from trusted Vercel platform IP, replacing spoofed browser values", async () => {
+    vi.stubEnv("VERCEL", "1");
+    let sent: Headers | undefined;
+    vi.stubGlobal("fetch", vi.fn(async (_input: RequestInfo | URL, init?: RequestInit) => {
+      sent = new Headers(init?.headers); return Response.json({ groups: [], activeId: null });
+    }));
+    const request = new Request(`${appOrigin}/api/pilot/v1/pilot/groups/context?storeId=store`, { headers: {
+      "x-vercel-forwarded-for": "203.0.113.42", "x-forwarded-for": "198.51.100.77", "x-pizzaos-client-network": "forged"
+    } });
+    await call("GET", ["v1", "pilot", "groups", "context"], request);
+    expect(sent?.get("x-pizzaos-client-network")).toBe(createHmac("sha256", serverSecret).update("group-network:203.0.113.42").digest("hex"));
+    expect(sent?.has("x-forwarded-for")).toBe(false);
+    expect(sent?.has("x-vercel-forwarded-for")).toBe(false);
+  });
+
+  it.each(["", "0"])("ignores all claimed client network headers outside Vercel (%s)", async vercel => {
+    vi.stubEnv("VERCEL", vercel);
+    let sent: Headers | undefined;
+    vi.stubGlobal("fetch", vi.fn(async (_input: RequestInfo | URL, init?: RequestInit) => {
+      sent = new Headers(init?.headers); return Response.json({});
+    }));
+    await call("GET", ["v1", "pilot", "session"], new Request(`${appOrigin}/api/pilot/v1/pilot/session`, {
+      headers: { "x-vercel-forwarded-for": "203.0.113.42", "x-pizzaos-client-network": "forged" }
+    }));
+    expect(sent?.has("x-pizzaos-client-network")).toBe(false);
   });
 });

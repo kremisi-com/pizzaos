@@ -131,8 +131,14 @@ function journal(state: State, previous: Map<string, IndividualOrder["status"]>,
       if (!movement) { movement = { ...terms, id: `reward:${order.id}`, orderId: order.id, kind: "reward", points, status: "reserved", createdAt: now.toISOString() }; ledger.movements.push(movement); }
       movement.status = order.status === "cancelled" ? "released" : order.status === "pending_payment" ? "reserved" : "spent";
     }
-    if (order.status === "completed" && previous.get(order.id) !== "completed" && terms.enabled && !ledger.movements.some(item => item.orderId === order.id && item.kind === "earn")) {
-      ledger.movements.push({ ...terms, id: `earn:${order.id}`, orderId: order.id, kind: "earn", points: multiplyFloor(order.quote.subtotalCents, terms.rate, 100), status: "posted", createdAt: now.toISOString() });
+    const earned = ledger.movements.find(item => item.orderId === order.id && item.kind === "earn");
+    if (order.status === "completed" && terms.enabled) {
+      const netProducts = Math.max(0, order.quote.subtotalCents - (order.settlement?.refundedProductCents ?? 0));
+      const earnedPoints = multiplyFloor(netProducts, terms.rate, 100);
+      if (earned && order.settlement) earned.points = earnedPoints;
+      else if (!earned && previous.get(order.id) !== "completed") {
+        ledger.movements.push({ ...terms, id: `earn:${order.id}`, orderId: order.id, kind: "earn", points: earnedPoints, status: "posted", createdAt: now.toISOString() });
+      }
     }
   }
 }

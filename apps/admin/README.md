@@ -68,6 +68,8 @@ Verifica browser: `pnpm exec playwright test --config playwright.promotions-loya
 
 ## Email operative
 
+La coda Ordini e la Dashboard mostrano i gruppi dal primo incasso come «Ordine di gruppo ancora in corso». Gli operatori consultano persone/scelte e rimborsano quote o intero gruppo; preparazione e accettazione iniziano soltanto dopo la conferma finale. Il dettaglio dell'ordine definitivo mantiene il registro pagamenti/rimborsi e i contanti realmente dovuti. [Flusso carrello condiviso](../../.agents/product-definition/flows/group-ordering.md).
+
 In Integrazioni, «Email operative» mostra invii in attesa, in corso, riusciti, bloccati o in retry, con destinatario, tentativi, date ed errori sanitizzati. Il pannello si aggiorna automaticamente e offre «Aggiorna invii» per riprendere una lettura. La configurazione SMTP resta server-only e i retry sono gestiti dal servizio; il guasto email non blocca la gestione dell'ordine. [Feature e port](src/features/operational-emails/README.md).
 
 I messaggi riguardano ricevuta dopo invio, accettazione, pronto al ritiro/in consegna, annullamento ed esiti reali del rimborso. Nel gruppo riceve soltanto l'host pagante. Lo stato aggiornato resta sempre nell'app; WhatsApp rimane manuale. Le suite locali usano provider iniettati e sink SMTP con destinatari `.test`; le tre consegne email riuscite nel pilota online test sono registrate separatamente nel [verbale online](../../services/checkout-api/online-client-verification.md).

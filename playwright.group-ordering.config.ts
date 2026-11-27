@@ -8,7 +8,7 @@ export default defineConfig({
   outputDir: "test-results/group-ordering", timeout: 90_000, expect: { timeout: 20_000 },
   use: { trace: "retain-on-failure" },
   webServer: [
-    { command: "pnpm --filter @pizzaos/checkout-api exec tsx ../../tests/fixtures/individual-service.ts", url: "http://127.0.0.1:3504/health", env: { PIZZAOS_E2E_SERVICE_PORT: "3504" }, timeout: 60_000, reuseExistingServer: false },
+    { command: "pnpm --filter @pizzaos/checkout-api exec tsx ../../tests/fixtures/individual-service.ts", url: "http://127.0.0.1:3504/health", env: { PIZZAOS_E2E_SERVICE_PORT: "3504", PIZZAOS_E2E_GROUP_PAYMENTS: "1" }, timeout: 60_000, reuseExistingServer: false },
     { command: "pnpm --filter @pizzaos/client exec next dev --hostname 127.0.0.1 --port 3501", url: "http://127.0.0.1:3501/ordina", env: { ...common, PIZZAOS_APP_ORIGIN: "http://127.0.0.1:3501", PIZZAOS_BUILD_DIRECTORY: ".next-group-e2e" }, timeout: 120_000, reuseExistingServer: false },
     { command: "pnpm --filter @pizzaos/admin exec next dev --hostname 127.0.0.1 --port 3502", url: "http://127.0.0.1:3502/operazioni", env: { ...common, PIZZAOS_APP_ORIGIN: "http://127.0.0.1:3502", PIZZAOS_BUILD_DIRECTORY: ".next-group-e2e" }, timeout: 120_000, reuseExistingServer: false }
   ]

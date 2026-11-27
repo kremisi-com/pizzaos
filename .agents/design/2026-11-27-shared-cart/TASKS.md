@@ -1,0 +1,4 @@
+- [x] **identity-cart**: identità ospite, carrello attivo e trasferimenti idempotenti.
+- [x] **payments-reservations**: anticipi, riserve, saldo e rimborsi durevoli.
+- [x] **surfaces**: pagina condivisione, menu/carrello condivisi e coda pizzeria.
+- [x] **operations-integration**: checkout canonico, rider, promozioni, analytics, email e verifiche.

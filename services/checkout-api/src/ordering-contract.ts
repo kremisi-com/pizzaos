@@ -4,6 +4,7 @@ import type { StoreAddressGeocoder } from "./store-address";
 import type { Diagnostics } from "./diagnostics";
 
 export interface OrderingState {
+  groupPaymentNotifications?: GroupPaymentNotification[];
   stores: Record<string, IndividualStore>;
   memberships: { storeId: string; email: string }[];
   orders: Record<string, IndividualOrder>;
@@ -12,7 +13,14 @@ export interface OrderingState {
   cursor: number;
   menuDrafts?: Record<string, { revision: number; drafts: MenuDraft[] }>;
   foodPreferences?: Record<string, FoodPreferences>;
+  groupReservations?: Record<string, { storeId: string; recipe: Record<string, number> }>;
   protectedOrderCalendars?: Record<string, Record<string, IndividualSlot[]>>;
+}
+/** Private transactional outbox source. Contains only the financed quota, never another participant's data. */
+export interface GroupPaymentNotification {
+  id: string; groupId: string; storeId: string; payer: { name: string; email: string };
+  participantName: string; amountCents: number; status: "paid" | "refunded" | "refund_failed";
+  occurredAt: string; lines: IndividualQuote["lines"]; attempt: number;
 }
 /** Transactions serialize all reads/writes; a thrown callback rolls back changes. */
 export interface OrderingRepository {
@@ -28,7 +36,7 @@ export interface OrderingPayments {
   create(input: { orderId: string; totalCents: number; key: string }): Promise<ProviderPayment>;
   read(intentId: string): Promise<ProviderPayment>;
   cancel(intentId: string): Promise<ProviderPayment>;
-  refund(input: { intentId: string; key: string }): Promise<ProviderRefund>;
+  refund(input: { intentId: string; key: string; amountCents?: number }): Promise<ProviderRefund>;
   readRefund(refundId: string): Promise<ProviderRefund>;
 }
 export interface MenuOperations {
@@ -40,7 +48,20 @@ export interface MenuOperations {
   preferences(actor: IndividualActor | null): Promise<FoodPreferences>;
   savePreferences(actor: IndividualActor | null, value: FoodPreferences): Promise<FoodPreferences>;
 }
+/** Server-only trusted snapshots; never accepted from browser input. */
+export interface GroupLockedLine { index: number; line: IndividualQuote["lines"][number]; recipe: Record<string, number>; }
+export interface GroupCanonicalContext { groupId: string; reservationIds: string[]; lockedLines: GroupLockedLine[]; prepaidCents: number; }
+export interface GroupLinePrice { lines: IndividualQuote["lines"]; subtotalCents: number; recipe: Record<string, number>; }
+export interface GroupOrderingCapability {
+  price(state: OrderingState, storeId: string, lines: IndividualLine[], reservationIds?: string[]): GroupLinePrice;
+  quote(state: OrderingState, cart: IndividualCart, context: GroupCanonicalContext, actor: IndividualActor): { quote: IndividualQuote; recipe: Record<string, number> };
+  checkout(actor: IndividualActor, input: IndividualCheckout, context: GroupCanonicalContext): Promise<IndividualCheckoutResult>;
+  authorizeOperator(state: OrderingState, actor: IndividualActor | null, storeId: string): void;
+  refundAdditions(actor: IndividualActor, orderId: string, cashReturned: boolean, idempotencyKey: string): Promise<void>;
+  attach(callbacks: { refundOrder: (orderId: string) => Promise<void> }): void;
+}
 export interface OrderingService {
+  group?: GroupOrderingCapability;
   menu?: MenuOperations;
   session(actor: IndividualActor | null): Promise<IndividualSession>;
   stores(actor?: IndividualActor | null): Promise<IndividualStore[]>;

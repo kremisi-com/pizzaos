@@ -60,23 +60,28 @@ describe("recupero personalizzazioni nei flussi persistenti", () => {
     expect(line).toEqual(original);
   });
 
-  it.each(["host", "participant"] as const)("corregge solo il proprio contributo %s e invia la revisione corrente", async role => {
-    const group: GroupSnapshot = { id: "gruppo", storeId: store.id, status: "open", deadline: "2030-11-05T18:00:00Z", revision: 2,
+  it.each(["host", "participant"] as const)("corregge il proprio contributo %s e invia la revisione corrente", async role => {
+    const group: GroupSnapshot = { id: "gruppo", storeId: store.id, status: "open", revision: 2,
       role, participantId: "alice", participants: [
         { id: "alice", name: "Alice", host: true, lines: [structuredClone(obsolete)] },
         { id: "marco", name: "Marco", host: false, lines: [{ ...structuredClone(obsolete), notes: "Senza sale" }] }
       ] };
     let current = group;
-    const api: GroupOrderingApi = { create: unexpected, join: unexpected, read: vi.fn(async () => structuredClone(current)),
+    const api: GroupOrderingApi = { context: unexpected, activate: unexpected, rename: unexpected, payShare: unexpected, reconcileShare: unexpected, refundShare: unexpected, create: unexpected, join: unexpected, read: vi.fn(async () => structuredClone(current)),
       replaceLines: vi.fn(async (_id, input) => ({ ...current, revision: current.revision + 1,
         participants: current.participants.map(person => person.id === input.participantId ? { ...person, lines: input.lines } : person) })),
       removeParticipant: unexpected, close: unexpected, quote: vi.fn(unexpected), checkout: vi.fn(unexpected), recover: unexpected };
     const individualApi = individualPorts();
-    renderDom(<PersistentGroupScreen api={api} individualApi={individualApi} groupId={group.id} pollMs={20} />);
+    renderDom(<PersistentGroupScreen api={api} individualApi={individualApi} groupId={group.id} view="cart" pollMs={20} />);
     const own = await domScreen.findByLabelText("Le mie scelte");
-    const other = domWithin(await domScreen.findByRole("article", { name: "Marco" }));
-    expect(other.queryByRole("button", { name: "Modifica Pizza" })).toBeNull();
-    expect(other.queryByRole("textbox")).toBeNull();
+    const other = domWithin(await domScreen.findByLabelText("Marco"));
+    if (role === "host") {
+      expect(other.queryByRole("button", { name: "Modifica Pizza" })).toBeTruthy();
+      expect(other.queryByRole("textbox")).toBeTruthy();
+    } else {
+      expect(other.queryByRole("button", { name: "Modifica Pizza" })).toBeNull();
+      expect(other.queryByRole("textbox")).toBeNull();
+    }
     domFireEvent.click(await domWithin(own).findByRole("button", { name: "Modifica Pizza" }));
     expect(api.replaceLines).not.toHaveBeenCalled();
     current = { ...group, revision: 7 };

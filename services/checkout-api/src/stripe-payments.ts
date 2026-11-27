@@ -34,10 +34,17 @@ export function createStripeOrderingPayments(stripe: Stripe, diagnostics?: Diagn
     async refund(input) {
       // Recover an acknowledged operation even after the provider's idempotency
       // cache expires. A failed lookup remains uncertain and never starts a refund.
-      const previous = await stripe.refunds.list({ payment_intent: input.intentId, limit: 100 });
-      const existing = previous.data.find(value => value.metadata?.pizzaosOperationKey === input.key);
-      if (existing) return refund(existing);
-      try { return refund(await stripe.refunds.create({ payment_intent: input.intentId, metadata: { pizzaosOperationKey: input.key } }, { idempotencyKey: input.key })); }
+      let startingAfter: string | undefined;
+      for (;;) {
+        const previous = await stripe.refunds.list({ payment_intent: input.intentId, limit: 100, ...(startingAfter ? { starting_after: startingAfter } : {}) });
+        const existing = previous.data.find(value => value.metadata?.pizzaosOperationKey === input.key);
+        if (existing) return refund(existing);
+        if (!previous.has_more) break;
+        const last = previous.data.at(-1)?.id;
+        if (!last || last === startingAfter) throw new Error("Elenco rimborsi incompleto.");
+        startingAfter = last;
+      }
+      try { return refund(await stripe.refunds.create({ payment_intent: input.intentId, ...(input.amountCents === undefined ? {} : { amount: input.amountCents }), metadata: { pizzaosOperationKey: input.key } }, { idempotencyKey: input.key })); }
       catch (error) {
         if (error instanceof Stripe.errors.StripeInvalidRequestError || error instanceof Stripe.errors.StripeCardError) {
           throw Object.assign(new Error("Rimborso rifiutato dal provider.", { cause: error }), { definitive: true });

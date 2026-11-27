@@ -200,7 +200,7 @@ describe("Tipi prodotto e Menu autorevole HTTP", () => {
   });
   it("mantiene le fasi nel gruppo e usa lo stesso preventivo canonico", async () => {
     const f = fixture(); await f.deploy();
-    let response = await f.request("POST", `${base}/groups`, { storeId: "roma", name: "Cliente", deadline: "2030-01-01T12:30:00Z" });
+    let response = await f.request("POST", `${base}/groups`, { storeId: "roma", lines: [], idempotencyKey: "product-types-group" });
     expect(response.statusCode, response.body).toBe(200); let group = response.json<GroupSnapshot>();
     response = await f.request("PUT", `${base}/groups/${group.id}/lines`, { participantId: group.participantId, revision: group.revision, lines: cart("birra", ["formaggio"]).lines });
     expect(response.statusCode, response.body).toBe(200); group = response.json<GroupSnapshot>();

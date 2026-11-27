@@ -140,7 +140,7 @@ function toRiderDelivery(state: DeliveryOrderingState, order: IndividualOrder & 
     contact: { name: order.contact.name, phone: order.contact.phone },
     notes: order.notes,
     items: order.quote.lines.map(line => ({ name: line.name, quantity: line.quantity })),
-    cashDueCents: order.method === "cash" && order.payment === "cash_due" ? order.quote.totalCents : 0,
+    cashDueCents: order.settlement?.cashDueCents ?? (order.method === "cash" && order.payment === "cash_due" ? order.quote.totalCents : 0),
     issue: structuredClone(lookup(state.delivery?.issues, order.id) ?? null)
   };
 }

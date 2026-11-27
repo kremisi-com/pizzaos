@@ -2,6 +2,10 @@
 
 Fonte D11/D64-D67, dopo il gruppo verificato. Il ristoratore configura programma e coupon nell'admin reale. Default modificabili: 1 punto/euro netto prodotti, premio 100 punti=5 euro prodotti, nessuna scadenza. Il cliente usa codici coupon e al massimo un premio nel checkout individuale o come host del gruppo; gli invitati non ricevono saldo o benefici propri sull'ordine comune.
 
+L'approvazione del 27 novembre per il [carrello condiviso](group-ordering.md) mantiene punti e benefici al creatore, ma limita coupon/premio ai prodotti non ancora pagati: anticipi e prezzi già confermati non vengono scontati retroattivamente. Rimborsi e relativi importi sono riconciliati dal registro server senza doppio accredito o restituzione di benefici.
+
+Un rimborso monetario riuscito riduce i punti maturati dal creatore sul valore netto prodotti effettivo, escludendo la parte consegna. Conserva il movimento originale e non genera accrediti duplicati: 17 euro prodotti completati -> 17 punti; quota prodotti rimborsata da 8 euro -> 9 punti, invariati durante pending/fallimento e ai retry successivi. Gli altri paganti non ricevono punti sull'ordine comune. [Test indipendente](../../../services/checkout-api/src/group/shared-cart-notifications.contract.test.ts).
+
 Percentuali in sequenza, poi fissi e premio; prodotti ammessi e minimo prima degli sconti, delivery esclusa, netto mai negativo. I server calcolano e verificano prezzi, saldo e limiti al pagamento. Quote senza riserve; pending carta impegna benefici atomicamente con scorte/slot, invio consuma coupon, esito incerto mantiene impegni. Annullamento/fallimento definitivo restituisce punti e utilizzi una sola volta.
 
 I punti maturano soltanto a completamento: floor della spesa netta prodotti finale moltiplicata per il rapporto configurato, senza consegna/mance o spesa coperta dal premio. L'host pagante riceve i punti del gruppo. Retry e riavvio non duplicano movimenti. Gli aumenti canonici conservano benefici originali e usano delta pieno, senza applicare nuovamente coupon/premio.

@@ -8,7 +8,7 @@ import type {
   IndividualActor, IndividualCart, IndividualCheckoutResult, IndividualErrorCode,
   IndividualOrder, IndividualProduct, IndividualQuote, IndividualSlot, IndividualStore, MenuDraft, MenuWorkspace, IndividualAction, IndividualAddition, IndividualAdditionQuote, IndividualLine
 } from "@pizzaos/domain";
-import type { RiderOrderingService, OrderingServiceOptions, OrderingState, ProviderPayment, ProviderRefund } from "./ordering-contract";
+import type { RiderOrderingService, OrderingServiceOptions, OrderingState, ProviderPayment, ProviderRefund, GroupCanonicalContext, GroupOrderingCapability } from "./ordering-contract";
 import { normalizePromotionSelection } from "./promotions/selection";
 import { addressConfirmation, readAddressConfirmation, storeAddressLimit, storeLocationKey } from "./store-address";
 import {
@@ -20,6 +20,8 @@ import { storeConfigurationVersion } from "./store-configuration-version";
 interface Reservation { ingredients: Record<string, number>; slotId: string; }
 interface State extends OrderingState {
   reservations?: Record<string, Reservation>;
+  groupAdditionRefundRequests?: Record<string, { fingerprint: string; additionIds: string[] }>;
+  groupCheckouts?: Record<string, GroupCanonicalContext>;
   additionIdempotency?: Record<string, { hash: string; orderId: string; additionId: string }>;
 }
 
@@ -223,7 +225,7 @@ function distanceKm(a: { latitude: number; longitude: number }, b: { latitude: n
 function reservations(state: State): Record<string, Reservation> { return state.reservations ??= {}; }
 function activeReservation(order: IndividualOrder): boolean { return !order.reservationReleased && order.status !== "completed" && order.status !== "cancelled"; }
 function slotOccupied(order: IndividualOrder): boolean { return order.status !== "cancelled" && order.payment !== "failed"; }
-function ingredientsReserved(state: State, storeId: string): Record<string, number> {
+function ingredientsReserved(state: State, storeId: string, excluded: string[] = []): Record<string, number> {
   const result: Record<string, number> = {};
   const include = (recipe: Record<string, number>) => {
     for (const [id, quantity] of Object.entries(recipe)) result[id] = (result[id] ?? 0) + quantity;
@@ -234,6 +236,9 @@ function ingredientsReserved(state: State, storeId: string): Record<string, numb
     for (const addition of order.additions ?? []) {
       if (!addition.applied && !addition.reservationReleased) include(reservations(state)[addition.id]?.ingredients ?? {});
     }
+  }
+  for (const [key, reservation] of Object.entries(state.groupReservations ?? {})) {
+    if (reservation.storeId === storeId && !excluded.includes(key)) include(reservation.recipe);
   }
   return result;
 }
@@ -285,14 +290,19 @@ export function createOrderingService(options: OrderingServiceOptions): RiderOrd
       ...slot, capacity: Math.max(0, slot.capacity - (occupied.get(slot.id) ?? 0))
     }));
   }
-  function quoteIn(state: State, cart: IndividualCart, reservedSlot?: Omit<IndividualSlot, "capacity">): { quote: IndividualQuote; recipe: Record<string, number> } {
-    validCart(cart);
-    const store = getStore(state, cart.storeId);
+  function priceLinesIn(state: State, storeId: string, cartLines: IndividualLine[], context?: GroupCanonicalContext) {
+    const store = getStore(state, storeId);
     if (!store.acceptingOrders) fail("slot_unavailable", "La sede non accetta ordini in questo momento.");
     const recipe: Record<string, number> = {};
     let subtotalCents = 0;
     const products = inventoryExtraProducts(store);
-    const lines = cart.lines.map(line => {
+    const lines = cartLines.map((line, index) => {
+      const locked = context?.lockedLines.find(item => item.index === index);
+      if (locked) {
+        for (const [key, quantity] of Object.entries(locked.recipe)) recipe[key] = (recipe[key] ?? 0) + quantity;
+        subtotalCents += locked.line.unitCents * locked.line.quantity;
+        return { ...copy(locked.line), notes: line.notes };
+      }
       const product = products.find(item => item.id === line.productId);
       if (!product?.available) fail("product_unavailable", "Un prodotto non è disponibile: correggi il carrello.");
       if (store.outOfStockBehavior !== "allow" && hasZeroStock(product.ingredients, store)) {
@@ -349,7 +359,7 @@ export function createOrderingService(options: OrderingServiceOptions): RiderOrd
       if (!Number.isSafeInteger(subtotalCents) || !Number.isSafeInteger(result.unitCents)) invalid("Totale non valido.");
       return result;
     });
-    const reserved = ingredientsReserved(state, store.id);
+    const reserved = ingredientsReserved(state, store.id, context?.reservationIds);
     for (const [ingredientId, quantity] of Object.entries(recipe)) {
       const ingredient = store.ingredients.find(item => item.id === ingredientId);
       if (!ingredient) fail("inventory_changed", "Ingrediente non più disponibile.");
@@ -357,6 +367,12 @@ export function createOrderingService(options: OrderingServiceOptions): RiderOrd
       const available = ingredient?.stock ?? 0;
       if (quantity > available - (reserved[ingredientId] ?? 0)) fail("inventory_changed", "Ingredienti non sufficienti: correggi il carrello.");
     }
+    return { lines, subtotalCents, recipe: trackedRecipe(recipe, store) };
+  }
+  function quoteIn(state: State, cart: IndividualCart, reservedSlot?: Omit<IndividualSlot, "capacity">, context?: GroupCanonicalContext): { quote: IndividualQuote; recipe: Record<string, number> } {
+    validCart(cart);
+    const store = getStore(state, cart.storeId);
+    const { lines, subtotalCents, recipe } = priceLinesIn(state, cart.storeId, cart.lines, context);
     const instant = now().getTime();
     ensureCalendar(state, store, instant);
     const slot = reservedSlot ?? remainingSlots(state, store, instant).find(item => item.capacity > 0 && (cart.slotId === null || item.id === cart.slotId));
@@ -384,6 +400,7 @@ export function createOrderingService(options: OrderingServiceOptions): RiderOrd
   function cancelOrder(state: State, order: IndividualOrder) {
     if (order.status === "cancelled") return;
     order.status = "cancelled"; release(order);
+    if (order.settlement) { order.settlement.cashDueCents = 0; if (order.settlement.paidCents > 0) { order.payment = "refund_pending"; order.refundAttempt = Math.max(1, order.refundAttempt); } }
     if (order.method === "card" && order.payment === "paid" && order.providerIntentId) { order.payment = "refund_pending"; order.refundAttempt = Math.max(1, order.refundAttempt); }
     for (const addition of order.additions ?? []) {
       if (addition.method === "card" && addition.payment === "paid") { addition.payment = "refund_pending"; addition.refundAttempt = Math.max(1, addition.refundAttempt); }
@@ -432,6 +449,7 @@ export function createOrderingService(options: OrderingServiceOptions): RiderOrd
       base.ingredients[ingredientId] = (base.ingredients[ingredientId] ?? 0) + quantity;
     }
     reservations(state)[order.id] = base;
+    if (order.settlement) { if (addition.method === "cash") order.settlement.cashDueCents += addition.deltaCents; else order.settlement.paidCents += addition.deltaCents; }
     addition.applied = true; addition.reservationReleased = true; addition.reservationExpiresAt = null;
   }
   async function refundAddition(orderId: string, additionId: string): Promise<void> {
@@ -527,6 +545,8 @@ export function createOrderingService(options: OrderingServiceOptions): RiderOrd
         const result = await additionPayment(orderId, addition.id); clientSecret ??= result.clientSecret;
       }
     }
+    const settled = await transact(state => copy(getOrder(state, orderId)));
+    if (settled.settlement && settled.status === "cancelled") await groupCallbacks.refundOrder?.(orderId);
     return { order: await transact(state => copy(getOrder(state, orderId))), ...(clientSecret ? { clientSecret } : {}) };
   }
   async function applyPayment(orderId: string, payment: ProviderPayment): Promise<IndividualCheckoutResult> {
@@ -539,10 +559,10 @@ export function createOrderingService(options: OrderingServiceOptions): RiderOrd
           if (!["refund_pending", "refunded", "refund_failed"].includes(order.payment)) {
             order.payment = "refund_pending"; order.refundAttempt = Math.max(1, order.refundAttempt);
           }
-        } else if (order.status === "pending_payment") { order.payment = "paid"; submitted(order); }
+        } else if (order.status === "pending_payment") { order.payment = "paid"; if (order.settlement) order.settlement.paidCents = order.quote.totalCents; submitted(order); }
       } else if (order.status === "pending_payment") {
         if (payment.status === "failed" || payment.status === "cancelled") {
-          order.payment = "failed"; order.status = "cancelled"; release(order);
+          order.payment = "failed"; order.status = "cancelled"; if (order.settlement) restorePrepaid(state, order); release(order);
         } else { order.payment = payment.status; }
       }
       if (JSON.stringify(order) !== before) changed(state, order);
@@ -553,6 +573,7 @@ export function createOrderingService(options: OrderingServiceOptions): RiderOrd
     const existing = refundInFlight.get(orderId); if (existing) return existing;
     const task = (async () => {
       const original = await transact(state => copy(getOrder(state, orderId)));
+      if (original.settlement) { await groupCallbacks.refundOrder?.(orderId); return; }
       if (original.payment !== "refund_pending" || !original.providerIntentId) return;
       let result: ProviderRefund;
       try {
@@ -585,21 +606,21 @@ export function createOrderingService(options: OrderingServiceOptions): RiderOrd
     const existing = inFlight.get(orderId); if (existing) return existing;
     const task = (async () => {
       const original = await transact(state => copy(getOrder(state, orderId)));
-      if (original.method === "cash" || (original.payment === "paid" && !original.providerIntentId) || (original.quote.totalCents === 0 && !original.providerIntentId) || ["refunded", "refund_failed"].includes(original.payment)) return { order: original };
+      if (original.method === "cash" || (original.payment === "paid" && !original.providerIntentId) || ((original.settlement?.remainingCents ?? original.quote.totalCents) === 0 && !original.providerIntentId) || ["refunded", "refund_failed"].includes(original.payment)) return { order: original };
       if (original.payment === "refund_pending") {
         await refundOrder(orderId); return { order: await transact(state => copy(getOrder(state, orderId))) };
       }
       let remote: ProviderPayment;
       try {
         remote = original.providerIntentId ? await options.payments.read(original.providerIntentId)
-          : await options.payments.create({ orderId: original.id, totalCents: original.quote.totalCents, key: `payment:${original.id}` });
+          : await options.payments.create({ orderId: original.id, totalCents: original.settlement?.remainingCents ?? original.quote.totalCents, key: `payment:${original.id}` });
       } catch (error) {
         options.diagnostics?.report(error, { operation: "payment", orderId, storeId: original.storeId, provider: "stripe", code: record(error) && error.definitive === true ? "payment_declined" : "payment_uncertain", category: record(error) && error.definitive === true ? "expected" : "dependency" });
         if (!original.providerIntentId && record(error) && error.definitive === true) {
           return transact(state => {
             const order = getOrder(state, orderId);
             if (order.status === "pending_payment" && order.providerIntentId === null) {
-              order.status = "cancelled"; order.payment = "failed"; release(order); changed(state, order);
+              order.status = "cancelled"; order.payment = "failed"; if (order.settlement) restorePrepaid(state, order); release(order); changed(state, order);
             }
             return { order: copy(order) };
           });
@@ -751,7 +772,7 @@ export function createOrderingService(options: OrderingServiceOptions): RiderOrd
               ingredient.stock -= quantity;
             }
             release(order);
-            if (order.method === "cash") { order.payment = "cash_paid"; for (const addition of order.additions ?? []) if (addition.applied) addition.payment = "cash_paid"; }
+            if (order.method === "cash") { if (order.settlement) { order.settlement.paidCents += order.settlement.cashDueCents; order.settlement.cashDueCents = 0; } order.payment = "cash_paid"; for (const addition of order.additions ?? []) if (addition.applied) addition.payment = "cash_paid"; }
           }
           changed(state, order);
         }
@@ -762,6 +783,96 @@ export function createOrderingService(options: OrderingServiceOptions): RiderOrd
       if (result.expired && input.action !== "cancel") fail("invalid_transition", "L'ordine è scaduto ed è stato annullato.");
       return transact(state => copy(getOrder(state, orderId)));
   }
+  const groupCallbacks: { refundOrder?: (orderId: string) => Promise<void> } = {};
+  function groupQuoteIn(state: State, cart: IndividualCart, context: GroupCanonicalContext, actor: IndividualActor) {
+    const result = quoteIn(state, cart, undefined, context);
+    if (!options.priceQuote || cart.benefits === undefined) return result;
+    const unpaidIndexes = result.quote.lines.flatMap((_, index) => context.lockedLines.some(item => item.index === index) ? [] : [index]);
+    const unpaidLines = unpaidIndexes.map(index => result.quote.lines[index]);
+    const subtotalCents = unpaidLines.reduce((sum, line) => sum + line.unitCents * line.quantity, 0);
+    const priced = options.priceQuote(state, { ...cart, lines: unpaidIndexes.map(index => cart.lines[index]) }, { ...result.quote, lines: unpaidLines, subtotalCents, totalCents: subtotalCents + result.quote.deliveryCents }, actor);
+    const prepaidSubtotal = result.quote.subtotalCents - subtotalCents;
+    const promotions = priced.promotions ? { ...priced.promotions, originalSubtotalCents: priced.promotions.originalSubtotalCents + prepaidSubtotal, netSubtotalCents: priced.promotions.netSubtotalCents + prepaidSubtotal,
+      lines: result.quote.lines.map((line, index) => { const unpaid = unpaidIndexes.indexOf(index); return unpaid >= 0 ? priced.promotions!.lines[unpaid] : { productId: line.productId, grossCents: line.unitCents * line.quantity, discountCents: 0, netCents: line.unitCents * line.quantity }; }) } : undefined;
+    return { ...result, quote: { ...result.quote, subtotalCents: priced.subtotalCents + prepaidSubtotal, totalCents: priced.totalCents + prepaidSubtotal, ...(promotions ? { promotions } : {}), fingerprint: hash({ base: result.quote.fingerprint, priced: priced.fingerprint }) } };
+  }
+  function restorePrepaid(state: State, order: IndividualOrder) {
+    const context = state.groupCheckouts?.[order.id];
+    if (!context) return;
+    // Restore only prepaid ingredients atomically before the failed final reservation is released.
+    state.groupReservations ??= {};
+    const recipe: Record<string, number> = {};
+    for (const locked of context.lockedLines) for (const [key, quantity] of Object.entries(locked.recipe)) recipe[key] = (recipe[key] ?? 0) + quantity;
+    if (context.reservationIds.length) state.groupReservations[context.reservationIds[0]] = { storeId: order.storeId, recipe };
+  }
+  async function checkoutCanonical(actor: IndividualActor | null, input: import("@pizzaos/domain").IndividualCheckout, context?: GroupCanonicalContext): Promise<IndividualCheckoutResult> {
+      const user = authenticated(actor);
+      if (!record(input)) fail("invalid_input", "Checkout non valido.");
+      validCart(input.cart); text(input.phone, 100); text(input.fingerprint, 200); text(input.idempotencyKey, 200);
+      if (input.method !== "card" && input.method !== "cash") fail("invalid_input", "Metodo pagamento non valido.");
+      if (Object.keys(input).some(key => options.priceQuote ? !["cart", "phone", "fingerprint", "method", "idempotencyKey"].includes(key) : /coupon|reward|subscription|group/i.test(key))) fail("invalid_input", "Campi checkout non validi.");
+      const request = { cart: cleanCart(input.cart), phone: input.phone.trim(), fingerprint: input.fingerprint, method: input.method };
+      const requestHash = hash(request); const key = JSON.stringify([user.id, input.idempotencyKey]);
+      const order = await transact(state => {
+        const previous = state.idempotency[key];
+        if (previous) {
+          if (previous.hash !== requestHash) fail("idempotency_conflict", "Questa chiave è già stata usata per un ordine diverso.");
+          return copy(getOrder(state, previous.orderId));
+        }
+        const pending = Object.values(state.orders).find(item => item.customerId === user.id && item.storeId === input.cart.storeId && item.status === "pending_payment");
+        const selectedBenefits = input.cart.benefits && (input.cart.benefits.couponCodes.length > 0 || input.cart.benefits.redeemReward);
+        if (pending && !(options.priceQuote && selectedBenefits)) fail("payment_unresolved", "Un pagamento è ancora in verifica. Recupera il tentativo esistente.");
+        const canonical = context ? groupQuoteIn(state, input.cart, context, user) : quoteIn(state, input.cart);
+        const recipe = canonical.recipe;
+        const quote = !context && options.priceQuote ? options.priceQuote(state, input.cart, canonical.quote, user) : canonical.quote;
+        const remainingCents = quote.totalCents - (context?.prepaidCents ?? 0);
+        if (remainingCents < 0 || (input.method === "card" && remainingCents > 0 && remainingCents < 50)) invalid("Il residuo inferiore a 0,50 euro può essere saldato in contanti.");
+        if (pending) fail("payment_unresolved", "Un pagamento è ancora in verifica. Recupera il tentativo esistente.");
+        if (quote.fingerprint !== input.fingerprint) fail("price_changed", "Il riepilogo è cambiato: controlla e conferma nuovamente.");
+        const createdAt = now().toISOString();
+        const created: IndividualOrder = {
+          id: id(), storeId: input.cart.storeId, customerId: user.id, cart: request.cart, quote,
+          contact: { name: user.name, email: user.email, phone: request.phone },
+          status: "pending_payment", payment: input.method === "cash" && remainingCents > 0 ? "cash_due" : "processing", method: input.method,
+          ...(context ? { settlement: { groupId: context.groupId, prepaidCents: context.prepaidCents, remainingCents, paidCents: context.prepaidCents, cashDueCents: input.method === "cash" ? remainingCents : 0, refundedCents: 0, refundPendingCents: 0, refundFailedCents: 0 } } : {}),
+          notes: input.cart.notes, createdAt, submittedAt: null, acceptanceDeadline: null,
+          reservationExpiresAt: new Date(now().getTime() + reservationMs).toISOString(), reservationReleased: false,
+          unavailableProductIds: [], providerIntentId: null, refundId: null, refundAttempt: 0, revision: 0
+        };
+        identifier(created.id);
+        if (Object.hasOwn(state.orders, created.id)) fail("service_unavailable", "Identificatore ordine già esistente.");
+        state.orders[created.id] = created; reservations(state)[created.id] = { ingredients: recipe, slotId: quote.slotId };
+        state.idempotency[key] = { hash: requestHash, orderId: created.id };
+        if (context) { state.groupCheckouts ??= {}; state.groupCheckouts[created.id] = copy(context); for (const reservationId of context.reservationIds) delete state.groupReservations?.[reservationId]; }
+        if (input.method === "cash" || remainingCents === 0) { if (remainingCents === 0 || input.method === "card") created.payment = "paid"; if (created.settlement && input.method === "card") created.settlement.paidCents += remainingCents; submitted(created); }
+        changed(state, created);
+        return copy(created);
+      });
+      return order.method === "card" && order.status === "pending_payment" ? paymentOrder(order.id) : { order };
+  }
+  const groupCapability: GroupOrderingCapability = {
+    price: (state, storeId, lines, reservationIds) => priceLinesIn(state, storeId, lines, { groupId: "", lockedLines: [], prepaidCents: 0, reservationIds: reservationIds ?? [] }),
+    quote: (state, cart, context, actor) => groupQuoteIn(state, cart, context, actor),
+    checkout: (actor, input, context) => checkoutCanonical(actor, input, context),
+    authorizeOperator: (state, actor, storeId) => operator(state, actor, storeId),
+    async refundAdditions(actor, orderId, cashReturned, idempotencyKey) {
+      const ids = await transact(state => {
+        const order = getOrder(state, orderId); operator(state, actor, order.storeId);
+        const requests = state.groupAdditionRefundRequests ??= {}; const key = hash([actor.id, idempotencyKey]); const fingerprint = hash([orderId, cashReturned]); const previous = requests[key];
+        if (previous) { if (previous.fingerprint !== fingerprint) fail("idempotency_conflict", "Questa richiesta riguarda già un altro rimborso."); return previous.additionIds; }
+        const additions = (order.additions ?? []).filter(addition => addition.applied && ["paid", "cash_paid", "refund_failed", "refund_pending"].includes(addition.payment));
+        if (!cashReturned && additions.some(addition => addition.method === "cash" && addition.payment === "cash_paid")) invalid("Conferma la restituzione dei contanti incassati.");
+        for (const addition of additions) {
+          if (addition.payment === "refund_pending") continue;
+          addition.refundAttempt = Math.max(1, addition.refundAttempt + 1); addition.refundId = null;
+          addition.payment = addition.method === "cash" ? "refunded" : "refund_pending";
+        }
+        if (additions.length) changed(state, order); const additionIds = additions.map(addition => addition.id); requests[key] = { fingerprint, additionIds }; return additionIds;
+      });
+      for (const additionId of ids) await refundAddition(orderId, additionId);
+    },
+    attach: callbacks => { groupCallbacks.refundOrder = callbacks.refundOrder; }
+  };
   function workspace(state: State, store: IndividualStore): MenuWorkspace {
     const saved = state.menuDrafts?.[store.id];
     const initial = initialMenuWorkspace(store);
@@ -777,6 +888,7 @@ export function createOrderingService(options: OrderingServiceOptions): RiderOrd
   }
 
   const service: RiderOrderingService = {
+    group: groupCapability,
     menu: {
       workspace(actor, storeId) {
         return transact(state => { operator(state, actor, storeId); return copy(workspace(state, getStore(state, storeId))); });
@@ -877,47 +989,7 @@ export function createOrderingService(options: OrderingServiceOptions): RiderOrd
     async stores(actor) { return transact(state => Object.values(state.stores).map(store => visibleStore(state, store, actor))); },
     async catalog(storeId, actor) { return transact(state => visibleStore(state, getStore(state, storeId), actor)); },
     async quote(cart, actor) { return transact(state => { const quote = quoteIn(state, cart).quote; return copy(options.priceQuote ? options.priceQuote(state, cart, quote, actor) : quote); }); },
-    async checkout(actor, input) {
-      const user = authenticated(actor);
-      if (!record(input)) fail("invalid_input", "Checkout non valido.");
-      validCart(input.cart); text(input.phone, 100); text(input.fingerprint, 200); text(input.idempotencyKey, 200);
-      if (input.method !== "card" && input.method !== "cash") fail("invalid_input", "Metodo pagamento non valido.");
-      if (Object.keys(input).some(key => options.priceQuote ? !["cart", "phone", "fingerprint", "method", "idempotencyKey"].includes(key) : /coupon|reward|subscription|group/i.test(key))) fail("invalid_input", "Campi checkout non validi.");
-      const request = { cart: cleanCart(input.cart), phone: input.phone.trim(), fingerprint: input.fingerprint, method: input.method };
-      const requestHash = hash(request); const key = JSON.stringify([user.id, input.idempotencyKey]);
-      const order = await transact(state => {
-        const previous = state.idempotency[key];
-        if (previous) {
-          if (previous.hash !== requestHash) fail("idempotency_conflict", "Questa chiave è già stata usata per un ordine diverso.");
-          return copy(getOrder(state, previous.orderId));
-        }
-        const pending = Object.values(state.orders).find(item => item.customerId === user.id && item.storeId === input.cart.storeId && item.status === "pending_payment");
-        const selectedBenefits = input.cart.benefits && (input.cart.benefits.couponCodes.length > 0 || input.cart.benefits.redeemReward);
-        if (pending && !(options.priceQuote && selectedBenefits)) fail("payment_unresolved", "Un pagamento è ancora in verifica. Recupera il tentativo esistente.");
-        const canonical = quoteIn(state, input.cart);
-        const recipe = canonical.recipe;
-        const quote = options.priceQuote ? options.priceQuote(state, input.cart, canonical.quote, user) : canonical.quote;
-        if (pending) fail("payment_unresolved", "Un pagamento è ancora in verifica. Recupera il tentativo esistente.");
-        if (quote.fingerprint !== input.fingerprint) fail("price_changed", "Il riepilogo è cambiato: controlla e conferma nuovamente.");
-        const createdAt = now().toISOString();
-        const created: IndividualOrder = {
-          id: id(), storeId: input.cart.storeId, customerId: user.id, cart: request.cart, quote,
-          contact: { name: user.name, email: user.email, phone: request.phone },
-          status: "pending_payment", payment: input.method === "cash" ? "cash_due" : "processing", method: input.method,
-          notes: input.cart.notes, createdAt, submittedAt: null, acceptanceDeadline: null,
-          reservationExpiresAt: new Date(now().getTime() + reservationMs).toISOString(), reservationReleased: false,
-          unavailableProductIds: [], providerIntentId: null, refundId: null, refundAttempt: 0, revision: 0
-        };
-        identifier(created.id);
-        if (Object.hasOwn(state.orders, created.id)) fail("service_unavailable", "Identificatore ordine già esistente.");
-        state.orders[created.id] = created; reservations(state)[created.id] = { ingredients: recipe, slotId: quote.slotId };
-        state.idempotency[key] = { hash: requestHash, orderId: created.id };
-        if (input.method === "cash" || quote.totalCents === 0) { if (input.method === "card") created.payment = "paid"; submitted(created); }
-        changed(state, created);
-        return copy(created);
-      });
-      return order.method === "card" && order.status === "pending_payment" ? paymentOrder(order.id) : { order };
-    },
+    checkout: (actor, input) => checkoutCanonical(actor, input),
     async orders(actor, storeId, customerStoreId) {
       const user = authenticated(actor);
       return transact(state => {

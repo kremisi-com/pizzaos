@@ -1,9 +1,10 @@
 "use client";
 
 import { formatOrderWindow } from "@pizzaos/domain";
-import type { IndividualAction, IndividualOrder, IndividualOrderAction } from "@pizzaos/domain";
+import type { GroupOperationalOrder, IndividualAction, IndividualOrder, IndividualOrderAction } from "@pizzaos/domain";
 import { useEffect, useState } from "react";
 import styles from "./operational-order-details.module.css";
+import { OperationalGroupPayments, type RefundGroup } from "./operational-group-orders";
 
 const currency = new Intl.NumberFormat("it-IT", { style: "currency", currency: "EUR" });
 export const money = (cents: number) => currency.format(cents / 100);
@@ -25,11 +26,13 @@ function availableActions(order: IndividualOrder): IndividualOrderAction[] {
   return actions;
 }
 
-export function OperationalOrderDetails({ order, timeZone, busy, action }: {
+export function OperationalOrderDetails({ order, group, timeZone, busy, action, onRefund }: {
   order: IndividualOrder;
+  group?: GroupOperationalOrder;
   timeZone?: string;
   busy: boolean;
   action: (orderId: string, input: IndividualAction) => Promise<void>;
+  onRefund?: RefundGroup;
 }) {
   const [missing, setMissing] = useState<string[]>([]);
   const [clock, setClock] = useState(Date.now);
@@ -52,6 +55,13 @@ export function OperationalOrderDetails({ order, timeZone, busy, action }: {
     </div>
     <p><strong>{order.contact.name}</strong> · {order.cart.mode === "delivery" ? "Consegna" : "Ritiro"} · {formatOrderWindow(order.quote.slotStartsAt, order.quote.slotEndsAt, order.quote.slotTimeZone ?? timeZone)}</p>
     {order.cart.address && <p>{order.cart.address.text}</p>}<p className={order.payment === "refund_failed" ? styles.refundError : styles.small}>{paymentLabels[order.payment]}</p>
+    {order.settlement && <div className={styles.notice} aria-label="Riepilogo pagamenti del gruppo">
+      <p>Già pagato: {money(order.settlement.paidCents)} · Contanti da incassare: {money(order.settlement.cashDueCents)}</p>
+      {order.settlement.refundedCents > 0 && <p>Rimborsato: {money(order.settlement.refundedCents)}</p>}
+      {order.settlement.refundPendingCents > 0 && <p>Rimborso in attesa: {money(order.settlement.refundPendingCents)}</p>}
+      {order.settlement.refundFailedCents > 0 && <p className={styles.refundError}>Rimborso fallito: {money(order.settlement.refundFailedCents)}</p>}
+    </div>}
+    {group && onRefund && <OperationalGroupPayments group={group} busy={busy} onRefund={onRefund} />}
     {order.additions?.map(addition => <p key={addition.id} className={addition.payment === "refund_failed" ? styles.refundError : styles.small}>Aggiunta {money(addition.deltaCents)} · {addition.applied ? "Applicata" : "Non applicata"} · {paymentLabels[addition.payment]}</p>)}
     {isNew && seconds !== null && <p className={styles.countdown} role="timer">{seconds > 0 ? `Accetta entro ${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, "0")}` : "Tempo scaduto: annullamento in verifica"}</p>}
     {isWaiting && <p className={styles.notice}>Attesa senza scadenza. Scorte e fascia restano riservate fino alla risoluzione manuale.</p>}

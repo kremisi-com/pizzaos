@@ -1,3 +1,4 @@
+// @vitest-environment node
 import { randomUUID } from "node:crypto";
 import { Pool } from "pg";
 import { afterEach, describe, expect, it } from "vitest";
@@ -29,24 +30,24 @@ async function fixture() {
     const pool = new Pool({ connectionString: databaseUrl, max: 1 }); pools.push(pool);
     const repository = createPostgresOrderingRepository(pool);
     const ordering = createOrderingService({ repository, payments, superadminEmails: [], now: () => now });
-    const groups = createGroupOrderingService({ repository, ordering, now: () => now });
+    const groups = createGroupOrderingService({ repository, ordering, payments, now: () => now });
     return { groups, ordering, repository };
   }
   const a = connect(); const b = connect();
   await a.repository.transact((state) => { state.stores[store.id] = store; });
-  return { a, b, connect, actor, store, intents, advance(ms: number) { now = new Date(now.getTime() + ms); }, deadline(ms = 3600000) { return new Date(now.getTime() + ms).toISOString(); } };
+  return { a, b, connect, actor, store, intents, advance(ms: number) { now = new Date(now.getTime() + ms); } };
 }
 
 describe.skipIf(!databaseUrl)("group durability on real PostgreSQL connections", () => {
   it("persists capabilities and participant lines across independent pools and serializes concurrent revisions", async () => {
     const f = await fixture(); const host = { actor: f.actor };
-    let group = await f.a.groups.create(f.actor, { storeId: f.store.id, name: "Alice", deadline: f.deadline() });
-    const joined = await f.b.groups.join({ actor: null }, group.id, { inviteToken: group.inviteToken!, name: "Marco" });
-    const guest = { actor: null, capability: joined.capability };
+    let group = await f.a.groups.create(host, { storeId: f.store.id, lines: [], idempotencyKey: "create" });
+    const guest = { actor: null, capability: `guest-${group.id}` };
+    const joined = await f.b.groups.join(guest, group.id, { inviteToken: group.inviteToken! });
     const line: IndividualLine = { productId: "pizza", quantity: 2, optionIds: [], notes: "Ben cotta" };
-    group = await f.a.groups.replaceLines(guest, group.id, { participantId: joined.group.participantId!, revision: joined.group.revision, lines: [line] });
+    group = await f.a.groups.replaceLines(guest, group.id, { participantId: joined.participantId!, revision: joined.revision, lines: [line] });
     const restored = await f.b.groups.read(guest, group.id);
-    expect(restored.participantId).toBe(joined.group.participantId);
+    expect(restored.participantId).toBe(joined.participantId);
     expect(restored.participants.find((p) => p.id === restored.participantId)?.lines).toEqual([line]);
     const outcomes = await Promise.allSettled([f.a, f.b].map((instance, index) => instance.groups.replaceLines(host, group.id, { participantId: group.participantId!, revision: group.revision, lines: [{ ...line, quantity: index + 1 }] })));
     expect(outcomes.filter((result) => result.status === "fulfilled")).toHaveLength(1);
@@ -59,7 +60,7 @@ describe.skipIf(!databaseUrl)("group durability on real PostgreSQL connections",
 
   it("commits one canonical checkout across two service instances and recovers it after a new connection", async () => {
     const f = await fixture(); const host = { actor: f.actor };
-    let group = await f.a.groups.create(f.actor, { storeId: f.store.id, name: "Alice", deadline: f.deadline() });
+    let group = await f.a.groups.create(host, { storeId: f.store.id, lines: [], idempotencyKey: "create" });
     const line: IndividualLine = { productId: "pizza", quantity: 1, optionIds: [], notes: "Ben cotta" };
     group = await f.b.groups.replaceLines(host, group.id, { participantId: group.participantId!, revision: group.revision, lines: [line] });
     group = await f.a.groups.close(host, group.id, { revision: group.revision });
@@ -77,11 +78,11 @@ describe.skipIf(!databaseUrl)("group durability on real PostgreSQL connections",
     await expect(restarted.ordering.quote({ storeId: f.store.id, ...fulfillment, lines: [{ ...line, quantity: 100 }] })).rejects.toMatchObject({ code: "inventory_changed" });
   }, 20000);
 
-  it("persists worker closure at the exact deadline across pools without automatic order creation", async () => {
+  it("retains an open group across pools and worker ticks after long inactivity", async () => {
     const f = await fixture(); const host = { actor: f.actor };
-    const group = await f.a.groups.create(f.actor, { storeId: f.store.id, name: "Alice", deadline: f.deadline(1000) });
-    f.advance(1000); await f.b.groups.tick();
-    const closed = await f.a.groups.read(host, group.id); expect(closed).toMatchObject({ status: "closed", revision: group.revision + 1 });
+    const group = await f.a.groups.create(host, { storeId: f.store.id, lines: [], idempotencyKey: "create" });
+    f.advance(365 * 24 * 60 * 60 * 1000); await f.b.groups.tick();
+    const closed = await f.a.groups.read(host, group.id); expect(closed).toMatchObject({ status: "open", revision: group.revision });
     await f.a.groups.tick(); expect((await f.connect().groups.read(host, group.id)).revision).toBe(closed.revision);
     expect(await f.a.ordering.orders(f.actor)).toHaveLength(0); expect(f.intents.size).toBe(0);
   }, 20000);

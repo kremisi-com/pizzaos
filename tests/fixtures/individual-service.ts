@@ -7,7 +7,7 @@ import { registerPromotionRoutes } from "../../services/checkout-api/src/promoti
 import { createOperationalEmailServices, registerOperationalEmailRoutes } from "../../services/checkout-api/src/operational-emails";
 import { createOperationalWorkers } from "../../services/checkout-api/src/reconciliation-worker";
 import { createDemoAccess } from "../../services/checkout-api/src/demo-access";
-import type { OrderingRepository, OrderingState, ProviderPayment } from "../../services/checkout-api/src/ordering-contract";
+import type { OrderingPayments, OrderingRepository, OrderingState, ProviderPayment } from "../../services/checkout-api/src/ordering-contract";
 import { createGroupOrderingService } from "../../services/checkout-api/src/group/group-service";
 import { registerGroupOrderingRoutes } from "../../services/checkout-api/src/group/group-http";
 
@@ -32,6 +32,23 @@ const repository: OrderingRepository = {
 };
 const intents = new Map<string, ProviderPayment>();
 const emailFailures = new Set<string>();
+function paymentIntent(input: Parameters<OrderingPayments["create"]>[0], paid = false): ProviderPayment {
+  const id = `pi_${input.key}`;
+  const existing = intents.get(id);
+  if (existing) return existing;
+  const value: ProviderPayment = paid ? { id, status: "paid" } : { id, status: "requires_action", clientSecret: "browser_test_secret" };
+  intents.set(id, value); return value;
+}
+const payments: OrderingPayments = {
+  async create(input) { return paymentIntent(input); },
+  async read(id) { const value = intents.get(id); if (!value) throw new Error("Not found"); return value; },
+  async cancel(id) { const value: ProviderPayment = { id, status: "cancelled" }; intents.set(id, value); return value; },
+  async refund() { return { id: randomUUID(), status: "succeeded" }; },
+  async readRefund(id) { return { id, status: "succeeded" }; }
+};
+const groupPayments: OrderingPayments = { ...payments,
+  async create(input) { return paymentIntent(input, process.env.PIZZAOS_E2E_GROUP_PAYMENTS === "1"); }
+};
 const operational = createOperationalEmailServices({
   repository, superadminEmails: ["superadmin@example.test"], activateOrderCalendar: process.env.PIZZAOS_E2E_ORDER_CALENDAR === "1", storeGeocoding: {
   signingSecret: "browser-test-only-store-address-signing-secret",
@@ -47,17 +64,12 @@ const operational = createOperationalEmailServices({
   sender: { async send(message) {
     if (message.text.includes("email-e2e-failure") && !emailFailures.has(message.messageId)) { emailFailures.add(message.messageId); throw new Error("Errore email del test"); }
   } }
-}, payments: {
-  async create(input) { const value: ProviderPayment = { id: `pi_${input.key}`, status: "requires_action", clientSecret: "browser_test_secret" }; intents.set(value.id, value); return value; },
-  async read(id) { const value = intents.get(id); if (!value) throw new Error("Not found"); return value; },
-  async cancel(id) { const value: ProviderPayment = { id, status: "cancelled" }; intents.set(id, value); return value; },
-  async refund() { return { id: randomUUID(), status: "succeeded" }; },
-  async readRefund(id) { return { id, status: "succeeded" }; }
-} });
+}, payments });
 const { service } = operational;
-const groups = createGroupOrderingService({ repository: operational.repository, ordering: service });
+const groups = createGroupOrderingService({ repository: operational.repository, ordering: service, payments: groupPayments });
 const actors: Record<string, IndividualActor> = {
   alice: { id: "alice", name: "Alice", email: "alice@example.test" },
+  bob: { id: "bob", name: "Bob", email: "bob@example.test" },
   operator: { id: "operator", name: "Operatore", email: "operator@example.test" },
   rider: { id: "rider", name: "Rider", email: "rider@example.test" },
   superadmin: { id: "superadmin", name: "Superadmin", email: "superadmin@example.test" }

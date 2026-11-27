@@ -47,6 +47,8 @@ Firma webhook Stripe non valida dà 400; guasto successivo dà 500/503. I retry 
 
 ## Order and payment behavior
 
+Il [carrello condiviso](src/group/README.md) aggiunge anticipi personali carta prima dell'invio, con prezzi e ingredienti riservati senza scadenza. Il gruppo è visibile agli operatori dal primo incasso e non entra in preparazione fino alla conferma finale autenticata del creatore. L'ordine canonico conserva il riepilogo di copertura e il registro di quote/finanziatori: il creatore paga solo il residuo, anche in contanti. Rimborsi parziali e totali tornano al finanziatore effettivo, con recupero persistente; i contanti del rider escludono sempre gli anticipi. Le regole individuali sotto restano quelle del checkout ordinario. [Specifica corrente](../../.agents/product-definition/flows/group-ordering.md).
+
 Card is collected only by Stripe Elements. The service creates a PaymentIntent for server-calculated cents, browser confirms via Stripe.js including 3DS, and service/provider reconciliation establishes payment outcome. No raw card fields or client secret enter persistence/logs/domain entities; clientSecret is transient checkout output only.
 
 Orders wait for acceptance after cash submission or successful card payment. Deadline from submission: requested time within 30 minutes or ASAP = 5 minutes; within 90 minutes = 10; later = 15. Expiry cancels and requests card refund. Waiting for customer on unavailable items suspends deadline and keeps resources reserved indefinitely; operator must resolve it. Only customer changes notes; before acceptance customer can add products with explicit delta confirmation/payment, never reduce prices. Every paid delta has its own durable refund ledger.

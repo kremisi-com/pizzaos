@@ -27,4 +27,6 @@ Ogni avanzamento aggiorna la fonte proprietaria, il criterio residuo e l'evidenz
 
 ## Incremento cinque tipi di prodotto
 
+L'incremento [carrello condiviso e pagamenti per quota](../design/2026-11-27-shared-cart/design.md) sostituisce il gruppo con deadline e unico pagante. Rimangono distinti implementazione/verifiche locali e collaudo online, soprattutto riconciliazione a browser chiusi, riserve indefinite, più paganti e rimborsi. Il worker operativo del rilascio resta un criterio da verificare online, non certificato dai test locali.
+
 Pizza, Panino, Prodotto, Box e Menu sequenziale sono approvati nella [specifica proprietaria](flows/menu-ordering.md#tipi-di-prodotto-panino-box-e-menu). Implementazione e verifiche locali nel [riesame SDD](../design/2026-11-26-product-types/REVIEW.md). Resta separato il rilascio coordinato API/admin/client e il collaudo online; nessun deploy incluso nell'incremento.

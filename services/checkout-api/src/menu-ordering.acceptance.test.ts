@@ -569,7 +569,7 @@ describe("food classifications and personal preferences", () => {
     await f.deploy(draft("gruppo", pizza));
     json<FoodPreferences>(await f.request("PUT", preferences, "alice", { avoid: ["Molluschi"] }));
     const created = json<GroupSnapshot>(await f.request("POST", `${base}/groups`, "alice", {
-      storeId: "roma", name: "Alice", deadline: "2030-01-01T12:30:00.000Z",
+      storeId: "roma", lines: [], idempotencyKey: "menu-ordering-group",
     }));
     const groupPath = `${base}/groups/${created.id}`;
     const chosen = line(pizza.id, ["dough", 1], ["recipe", 1]);

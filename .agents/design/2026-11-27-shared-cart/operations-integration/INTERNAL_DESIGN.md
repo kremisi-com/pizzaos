@@ -1,0 +1,12 @@
+# Disegno interno
+- Estendere snapshot JSON del repository: gruppi, membri con actorId opzionale/capability hash, contesto per sessione/sede, quote e registro rimborsi; niente segreti provider persistiti.
+- Cookie globale opaco di accesso ai gruppi, creazione context prima di mutate; capability confrontate con hash e timing safe; binding account atomico e recupero membership per actor.
+- Estrarre dal calcolo canonico una capability server-only di pricing/recipe delle righe senza slot, utilizzata dai gruppi. Integrare riserve quote nel medesimo conteggio stock delle riserve ordine; non duplicare il pricing.
+- API canonica server-only per quote/checkout di gruppo riceve solo provenienza server dei paid snapshot. Quote aggrega righe paid congelate e unpaid correnti, beneficia solo unpaid; la promozione finale sposta riserve paid al medesimo ordine in transazione.
+- Ledger quote con intento durevole e chiave privata, snapshot prezzi/composizione/recipe, finanziatore; provider fuori lock. Retry e tick recuperano. Saldo host allocato per quota con importi post-benefici e delivery host per rimborsi.
+- Non sottoporre paid stock senza deadline al timeout pending ordine. Solo un checkout finale riuscito attiva submission, timeout accettazione, email e slot.
+- Projection admin per gruppi pre-invio, poi ordine canonico; group ID stabile collega i due. Settlement summary nei DTO ordine espone contanti reali senza dati paganti condivisi.
+- Trasferimenti UI via composizione e draft helper pubblico. Nessuno storage di roster/capability/secret. Conservare idempotencyKey non segreta fino a ACK. Provider può salvare puntatore gruppo non autorevole per transizione, context server decide.
+- Il polling non sovrascrive editor dirty, scarta revisioni vecchie; mutation lock e quote invalidation.
+- Rate limits persistenti su creazione/ingresso, confini origin/store e demo già previsti.
+- Checklist: tutti i 15 requisiti REQUIREMENTS coperti da test e review; callback errore non nasconde pagamenti incerti; nessun deep import intermodulo; nessun any/soppressione.

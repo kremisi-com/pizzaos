@@ -4,6 +4,8 @@ Owner: `services/checkout-api` per Auth.js, sessioni e appartenenze; client/admi
 
 ## Percorso operativo
 
+Il [carrello condiviso](group-ordering.md) consente creazione e partecipazione ospite con identità privata HttpOnly e nome generato modificabile. Account richiesto al pagamento e al creatore alla conferma finale; l'accesso collega la partecipazione esistente. Dopo perdita dei cookie si recuperano soltanto partecipazioni già collegate all'account. Nome e link invito non autorizzano il recupero dei permessi.
+
 1. Il cliente compone il carrello senza account e accede con Google o magic link prima del checkout. Il draft del dispositivo viene riletto e rivalidato, senza sincronizzazione automatica su un altro dispositivo.
 2. Il superadmin è configurato sul servizio; crea sedi e autorizza le email degli operatori da admin. L'invito è un permesso, senza invio automatico di un messaggio di invito. L'operatore usa il normale login con quell'email.
 3. Gli operatori hanno permessi equivalenti sulle sole sedi assegnate. Il superadmin può operare su tutte. Il rider è abilitato separatamente per sede e non acquisisce permessi operatore.

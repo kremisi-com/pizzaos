@@ -31,7 +31,7 @@ export async function createOrderingRuntime(env: Record<string, string | undefin
       superadminEmails: config.superadminEmails, reservationMs: config.reservationMs, email, diagnostics: reporting, activateOrderCalendar: true,
       storeGeocoding: config.geoapifyApiKey ? createGeoapifyStoreGeocoder(config.geoapifyApiKey, config.authSecret) : undefined });
     const { service } = operational;
-    const groups = createGroupOrderingService({ repository: operational.repository, ordering: service });
+    const groups = createGroupOrderingService({ repository: operational.repository, ordering: service, payments: createStripeOrderingPayments(stripe, reporting) });
     const auth = createOrderingAuth({ pool, secret: config.authSecret, proxySecret: config.proxySecret, origins: config.origins,
       orderingDomain: config.orderingDomain, orderingAuthOrigin: config.orderingAuthOrigin,
       googleClientId: config.googleClientId, googleClientSecret: config.googleClientSecret,

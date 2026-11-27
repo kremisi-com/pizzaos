@@ -1,11 +1,12 @@
 "use client";
 
 import { formatOrderWindow } from "@pizzaos/domain";
-import type { IndividualAction, IndividualOrder } from "@pizzaos/domain";
+import type { GroupOperationalOrder, IndividualAction, IndividualOrder } from "@pizzaos/domain";
 import Image from "next/image";
 import { useState } from "react";
 import { money, OperationalOrderDetails, paymentLabels, statusLabels } from "./operational-order-details";
 import styles from "./orders-dashboard.module.css";
+import { OperationalGroupOrders, type RefundGroup } from "./operational-group-orders";
 
 const PAGE_SIZE = 10;
 const tones: Record<IndividualOrder["status"], string> = {
@@ -14,19 +15,24 @@ const tones: Record<IndividualOrder["status"], string> = {
   completed: "green", cancelled: "gray"
 };
 
-export function OperationalOrders({ orders, timeZone, busy, onRefresh, onAction }: {
+export function OperationalOrders({ orders, groups = [], products = [], timeZone, busy, onRefresh, onAction, onRefund }: {
   orders: IndividualOrder[];
+  groups?: GroupOperationalOrder[];
+  products?: import("@pizzaos/domain").IndividualProduct[];
   timeZone?: string;
   busy: boolean;
   onRefresh: () => void;
   onAction: (orderId: string, input: IndividualAction) => Promise<void>;
+  onRefund?: RefundGroup;
 }) {
   const [selectedId, setSelectedId] = useState("");
   const [query, setQuery] = useState("");
   const [status, setStatus] = useState("");
   const [page, setPage] = useState(1);
+  // A group awaiting its final card confirmation is already represented by the in-progress group.
+  const operationalOrders = orders.filter(order => !order.settlement || Boolean(order.submittedAt));
   const normalizedQuery = query.trim().toLowerCase();
-  const matches = orders.filter(order =>
+  const matches = operationalOrders.filter(order =>
     (!status || order.status === status) &&
     [order.id, order.contact.name, order.contact.phone].some(value => value.toLowerCase().includes(normalizedQuery))
   );
@@ -36,12 +42,13 @@ export function OperationalOrders({ orders, timeZone, busy, onRefresh, onAction 
   const visible = matches.slice(offset, offset + PAGE_SIZE);
   const selected = visible.find(order => order.id === selectedId) ?? visible[0];
   const metrics = [
-    { label: "Da accettare", count: orders.filter(order => order.status === "awaiting_acceptance").length, tone: "red", icon: "/images/live-orders/writing.png" },
-    { label: "Ordini in corso", count: orders.filter(order => !["completed", "cancelled", "pending_payment"].includes(order.status)).length, tone: "orange", icon: "/images/live-orders/chef.png" },
-    { label: "Rimborsi da gestire", count: orders.filter(order => order.payment === "refund_failed" || order.additions?.some(item => item.payment === "refund_failed")).length, tone: "purple", icon: "/images/live-orders/check.png" }
+    { label: "Da accettare", count: operationalOrders.filter(order => order.status === "awaiting_acceptance").length, tone: "red", icon: "/images/live-orders/writing.png" },
+    { label: "Ordini in corso", count: operationalOrders.filter(order => !["completed", "cancelled", "pending_payment"].includes(order.status)).length, tone: "orange", icon: "/images/live-orders/chef.png" },
+    { label: "Rimborsi da gestire", count: operationalOrders.filter(order => order.payment === "refund_failed" || order.settlement?.refundFailedCents || order.additions?.some(item => item.payment === "refund_failed")).length, tone: "purple", icon: "/images/live-orders/check.png" }
   ];
 
   return <section className={styles.dashboard} aria-label="Dashboard ordini">
+    {onRefund && <OperationalGroupOrders groups={groups} products={products} busy={busy} onRefund={onRefund} />}
     <div className={styles.operationalKpis}>
       {metrics.map(metric => <article key={metric.label} className={styles.kpiCard} data-tone={metric.tone}>
         <span className={styles.kpiIcon} aria-hidden="true"><Image src={metric.icon} alt="" width={24} height={24} /></span>
@@ -76,7 +83,7 @@ export function OperationalOrders({ orders, timeZone, busy, onRefresh, onAction 
               <td><span className={styles.payment}>{paymentLabels[order.payment]}</span></td>
             </tr>)}</tbody>
           </table>
-          {visible.length === 0 && <div className={styles.emptyState}><strong>{orders.length ? "Nessun ordine trovato." : "Non ci sono ordini per questa sede."}</strong></div>}
+          {visible.length === 0 && <div className={styles.emptyState}><strong>{operationalOrders.length ? "Nessun ordine trovato." : "Non ci sono ordini per questa sede."}</strong></div>}
         </div>
         {matches.length > 0 && <footer className={styles.tableFooter}>
           <span>Mostra {offset + 1}–{offset + visible.length} di {matches.length} ordini</span>
@@ -87,7 +94,8 @@ export function OperationalOrders({ orders, timeZone, busy, onRefresh, onAction 
         </footer>}
       </section>
       {selected && <aside className={styles.detailColumn}>
-        <OperationalOrderDetails key={selected.id} order={selected} timeZone={timeZone} busy={busy} action={onAction} />
+        <OperationalOrderDetails key={selected.id} order={selected} timeZone={timeZone} busy={busy} action={onAction}
+          group={groups.find(group => group.orderId === selected.id)} onRefund={onRefund} />
       </aside>}
     </div>
   </section>;

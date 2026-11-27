@@ -1,254 +1,442 @@
-import { validateMenuSelections } from "../menu-catalog";
-import { validateMealSelections } from "../product-types";
 import { createHash, randomBytes, randomUUID, timingSafeEqual } from "node:crypto";
-import type { GroupCheckout, GroupFulfillment, GroupOrderingApi, GroupParticipant, GroupQuote, GroupSnapshot, IndividualActor, IndividualCart, IndividualCheckout, IndividualCheckoutResult, IndividualLine } from "@pizzaos/domain";
-import { normalizePromotionSelection } from "../promotions/selection";
-import type { OrderingRepository, OrderingService, OrderingState } from "../ordering-contract";
+import type { GroupCheckout, GroupContext, GroupCreate, GroupFulfillment, GroupOperationalOrder, GroupOrderingApi, GroupParticipant, GroupPaymentResult, GroupQuote, GroupSharePayment, GroupSnapshot, IndividualActor, IndividualCart, IndividualCheckoutResult } from "@pizzaos/domain";
+import type { GroupCanonicalContext, OrderingPayments, OrderingRepository, OrderingService, OrderingState, ProviderPayment } from "../ordering-contract";
+import { fail, fulfillment, identifier, invalid, lines, revision, shape, text } from "./group-validation";
+export { GroupOrderingError } from "./group-validation";
 
-export interface GroupAccess { actor: IndividualActor | null; capability?: string; }
+export interface GroupAccess { actor: IndividualActor | null; capability?: string; networkKey?: string; }
+type Input<K extends keyof GroupOrderingApi> = Parameters<GroupOrderingApi[K]>;
 export interface GroupOrderingService {
-  create(actor: IndividualActor | null, input: Parameters<GroupOrderingApi["create"]>[0]): Promise<GroupSnapshot>;
+  context(access: GroupAccess, storeId: string): Promise<GroupContext>;
+  activate(access: GroupAccess, storeId: string, groupId: string | null): Promise<GroupContext>;
+  create(access: GroupAccess, input: GroupCreate): Promise<GroupSnapshot>;
   read(access: GroupAccess, id: string, inviteToken?: string): Promise<GroupSnapshot>;
-  join(access: GroupAccess, id: string, input: Parameters<GroupOrderingApi["join"]>[1]): Promise<{ group: GroupSnapshot; capability: string }>;
-  replaceLines(access: GroupAccess, id: string, input: Parameters<GroupOrderingApi["replaceLines"]>[1]): Promise<GroupSnapshot>;
-  removeParticipant(access: GroupAccess, id: string, input: Parameters<GroupOrderingApi["removeParticipant"]>[1]): Promise<GroupSnapshot>;
-  close(access: GroupAccess, id: string, input: { revision: number }): Promise<GroupSnapshot>;
-  quote(access: GroupAccess, id: string, input: { revision: number; fulfillment: GroupFulfillment }): Promise<GroupQuote>;
+  join(access: GroupAccess, id: string, input: Input<"join">[1]): Promise<GroupSnapshot>;
+  rename(access: GroupAccess, id: string, input: Input<"rename">[1]): Promise<GroupSnapshot>;
+  replaceLines(access: GroupAccess, id: string, input: Input<"replaceLines">[1]): Promise<GroupSnapshot>;
+  removeParticipant(access: GroupAccess, id: string, input: Input<"removeParticipant">[1]): Promise<GroupSnapshot>;
+  close(access: GroupAccess, id: string, input: Input<"close">[1]): Promise<GroupSnapshot>;
+  quote(access: GroupAccess, id: string, input: Input<"quote">[1]): Promise<GroupQuote>;
   checkout(access: GroupAccess, id: string, input: GroupCheckout): Promise<IndividualCheckoutResult>;
   recover(access: GroupAccess, id: string): Promise<IndividualCheckoutResult>;
+  payShare(access: GroupAccess, id: string, input: Input<"payShare">[1]): Promise<GroupPaymentResult>;
+  reconcileShare(access: GroupAccess, id: string, paymentId: string): Promise<GroupPaymentResult>;
+  refundShare(access: GroupAccess, id: string, input: Input<"refundShare">[1]): Promise<GroupSnapshot>;
+  operations(actor: IndividualActor | null, storeId: string): Promise<GroupOperationalOrder[]>;
+  refund(actor: IndividualActor | null, id: string, input: { paymentId?: string; idempotencyKey: string; cashReturned?: boolean }): Promise<GroupOperationalOrder>;
   tick(): Promise<void>;
 }
-interface Member extends GroupParticipant { capabilityHash?: string; }
-interface Frozen { input: GroupCheckout; cart: IndividualCart; actor: IndividualActor; }
+interface Member extends GroupParticipant { actorId?: string; capabilityHash?: string; }
+interface Charge extends GroupSharePayment {
+  actor: IndividualActor; compositionHash?: string; key: string; clientKey: string; kind: "share" | "balance";
+  recipe: Record<string, number>; quotedLines: NonNullable<GroupParticipant["quotedLines"]>;
+  orderId?: string; productCents?: number; providerId?: string; expiresAt?: string; refundId?: string; refundKey?: string; refundAttempt?: number;
+}
+interface Frozen { input: GroupCheckout; cart: IndividualCart; actor: IndividualActor; pricing: GroupCanonicalContext; }
 interface RecordGroup {
-  id: string; storeId: string; hostId: string; deadline: string; revision: number;
-  status: GroupSnapshot["status"]; inviteToken: string; inviteHash: string; participants: Member[];
-  /** Private persisted key: public group IDs and browser keys cannot occupy it. */
-  canonicalKey: string;
+  id: string; storeId: string; hostId?: string; revision: number; status: GroupSnapshot["status"];
+  inviteToken: string; inviteHash: string; participants: Member[]; payments?: Charge[];
+  canonicalKey: string; creationKey?: string; creationHash?: string; fulfillment?: GroupFulfillment;
+  orderRefundAttempts?: Record<string, number>;
   confirmed?: { revision: number; fingerprint: string; fulfillmentHash: string };
-  frozen?: Frozen; orderId?: string; checkoutCompleted?: boolean;
+  frozen?: Frozen; orderId?: string; previousOrderIds?: string[]; checkoutCompleted?: boolean;
 }
-interface GroupState extends OrderingState { groups?: Record<string, RecordGroup>; }
-
-export function groupStoreId(state: OrderingState, groupId: string): string | undefined {
-  const groups = (state as GroupState).groups;
-  return groups && Object.hasOwn(groups, groupId) ? groups[groupId].storeId : undefined;
-}
-export class GroupOrderingError extends Error {
-  constructor(public code: string, public statusCode: number, message: string) { super(message); }
-}
-function fail(code: string, statusCode: number, message: string): never { throw new GroupOrderingError(code, statusCode, message); }
-function invalid(): never { return fail("invalid_input", 400, "Controlla i dati inseriti."); }
-function shape(value: unknown, required: string[], optional: string[] = []): asserts value is Record<string, unknown> {
-  if (!value || typeof value !== "object" || Array.isArray(value) || Object.keys(value).some(key => ![...required, ...optional].includes(key)) || required.some(key => !Object.hasOwn(value, key))) invalid();
-}
-function text(value: unknown, max = 200, empty = false, multiline = false): asserts value is string {
-  if (typeof value !== "string" || value.length > max || (!empty && !value.trim())) invalid();
-  if (Array.from(value).some(char => { const point = char.charCodeAt(0); return point === 127 || (point < 32 && !(multiline && [9, 10, 13].includes(point))); })) invalid();
-}
-function identifier(value: unknown): asserts value is string {
-  text(value); if (["__proto__", "constructor", "prototype"].includes(value)) invalid();
-}
-function revision(value: unknown): asserts value is number { if (typeof value !== "number" || !Number.isSafeInteger(value) || value < 1) invalid(); }
-function lines(value: unknown): asserts value is IndividualLine[] {
-  if (!Array.isArray(value) || value.length > 100) invalid();
-  for (const line of value) {
-    shape(line, ["productId", "quantity", "optionIds", "notes"], ["selections", "kind", "mealSelections"]);
-    if (line.kind !== undefined && (typeof line.kind !== "string" || !["product", "pizza_taste", "pizza_formula"].includes(line.kind))) invalid();
-    identifier(line.productId); text(line.notes, 800, true, true);
-    if (typeof line.quantity !== "number" || !Number.isSafeInteger(line.quantity) || line.quantity < 1 || line.quantity > 100 || !Array.isArray(line.optionIds) || line.optionIds.length > 50 || new Set(line.optionIds).size !== line.optionIds.length) invalid();
-    for (const option of line.optionIds) identifier(option);
-    if (line.selections !== undefined) {
-      if (line.optionIds.length) invalid();
-      validateMenuSelections(line.selections, invalid);
-    }
-    if (line.mealSelections !== undefined) {
-      if (line.optionIds.length || Array.isArray(line.selections) && line.selections.length) invalid();
-      validateMealSelections(line.mealSelections, invalid);
-    }
-  }
-}
-function fulfillment(value: unknown): asserts value is GroupFulfillment {
-  shape(value, ["mode", "slotId", "notes"], ["address", "benefits"]);
-  if (value.benefits !== undefined) { try { normalizePromotionSelection(value.benefits); } catch { invalid(); } } text(value.notes, 2000, true, true);
-  if (value.mode !== "pickup" && value.mode !== "delivery") invalid();
-  if (value.slotId !== null) identifier(value.slotId);
-  if (value.address !== undefined) {
-    shape(value.address, ["text", "latitude", "longitude"]); text(value.address.text, 500);
-    if (typeof value.address.latitude !== "number" || !Number.isFinite(value.address.latitude) || Math.abs(value.address.latitude) > 90 || typeof value.address.longitude !== "number" || !Number.isFinite(value.address.longitude) || Math.abs(value.address.longitude) > 180) invalid();
-  } else if (value.mode === "delivery") invalid();
-}
+interface GroupState extends OrderingState { groupRefundRequests?: Record<string, { fingerprint: string; paymentIds: string[] }>; groups?: Record<string, RecordGroup>; groupContexts?: Record<string, string | null>; groupLimits?: Record<string, number[]>; }
 function stable(value: unknown): string {
   if (Array.isArray(value)) return `[${value.map(stable).join(",")}]`;
   if (value !== null && typeof value === "object") return `{${Object.entries(value).filter(([, item]) => item !== undefined).sort(([a], [b]) => a.localeCompare(b)).map(([key, item]) => `${JSON.stringify(key)}:${stable(item)}`).join(",")}}`;
   return JSON.stringify(value) ?? "null";
 }
-/** Strict validation is also used before invoking an injected service at the HTTP boundary. */
-export function validateGroupInput(operation: keyof GroupOrderingApi, value: unknown): void {
-  if (operation === "create") { shape(value, ["storeId", "name", "deadline"]); identifier(value.storeId); text(value.name, 120); text(value.deadline, 100); if (!Number.isFinite(Date.parse(value.deadline))) invalid(); }
-  else if (operation === "join") { shape(value, ["inviteToken", "name"]); text(value.inviteToken, 500); text(value.name, 120); }
+function hash(value: unknown): string { return createHash("sha256").update(stable(value)).digest("hex"); }
+function matches(secret: string | undefined, digest: string): boolean { return typeof secret === "string" && secret.length <= 500 && digest.length === 64 && timingSafeEqual(Buffer.from(hash(secret), "hex"), Buffer.from(digest, "hex")); }
+function scope(access: GroupAccess): string { if (access.actor) return `actor:${access.actor.id}`; if (access.capability) return `guest:${hash(access.capability)}`; return fail("unauthorized", 401, "Riapri il carrello per continuare."); }
+function member(group: RecordGroup, access: GroupAccess): Member | undefined {
+  const actorMember = access.actor && group.participants.find(person => person.actorId === access.actor!.id || (person.host && group.hostId === access.actor!.id));
+  if (actorMember) return actorMember;
+  const own = group.participants.find(person => person.capabilityHash && matches(access.capability, person.capabilityHash));
+  if (own?.actorId && own.actorId !== access.actor?.id) return undefined;
+  if (own && access.actor) { own.actorId = access.actor.id; if (own.host) group.hostId = access.actor.id; }
+  return own;
+}
+function requireHost(group: RecordGroup, access: GroupAccess): Member { const own = member(group, access); if (!own?.host) fail("forbidden", 403, "Solo il creatore può gestire il gruppo."); return own; }
+function editable(group: RecordGroup) { if (group.frozen || group.status === "submitted" || group.status === "cancelled") fail("checkout_pending", 409, "Il carrello è in conferma o è già stato concluso."); }
+function expected(group: RecordGroup, value: number) { if (group.revision !== value) fail("revision_conflict", 409, "Il gruppo è cambiato: aggiorna il riepilogo."); }
+function busyCharge(group: RecordGroup, participantId: string) { return group.payments?.find(payment => payment.participantId === participantId && ["processing", "requires_action", "paid"].includes(payment.status)); }
+function publicPayment(payment: Charge, canRefund: boolean, own = false): GroupSharePayment { return { id: payment.id, participantId: payment.participantId, participantName: payment.participantName, amountCents: payment.amountCents, status: payment.status, method: payment.method ?? "card", canRefund, own }; }
+function snapshot(group: RecordGroup, access: GroupAccess, invitation?: string): GroupSnapshot {
+  const own = member(group, access);
+  const historical = Boolean(access.actor && group.payments?.some(payment => payment.actor.id === access.actor!.id));
+  if (!own && !historical && !matches(invitation, group.inviteHash)) fail("forbidden", 403, "Invito o accesso personale non valido.");
+  const payments = (group.payments ?? []).map(payment => publicPayment(payment, group.status !== "submitted" && !group.frozen && payment.actor.id === access.actor?.id && ["paid", "refund_failed"].includes(payment.status), payment.actor.id === access.actor?.id));
+  return { id: group.id, storeId: group.storeId, status: group.status, revision: group.revision,
+    participants: group.participants.map(person => { const current = [...payments].reverse().find(payment => payment.participantId === person.id && !["refunded", "failed"].includes(payment.status)); const quoted = group.payments?.find(payment => payment.id === current?.id)?.quotedLines; return { id: person.id, name: person.name, host: person.host, lines: structuredClone(person.lines), ...(current ? { payment: current } : {}), ...(quoted?.length ? { quotedLines: structuredClone(quoted) } : {}) }; }),
+    role: own?.host ? "host" : own ? "participant" : "visitor", participantId: own?.id ?? null,
+    ...(own ? { inviteToken: group.inviteToken } : {}), ...(group.orderId ? { orderId: group.orderId } : {}), checkoutPending: Boolean(group.frozen && !group.checkoutCompleted),
+    ...(own?.host && group.fulfillment ? { fulfillment: structuredClone(group.fulfillment) } : {}), payments };
+}
+function projection(group: RecordGroup): GroupOperationalOrder {
+  const all = (group.payments ?? []).map(payment => publicPayment(payment, ["paid", "refund_failed"].includes(payment.status)));
+  return { id: group.id, storeId: group.storeId, status: group.status, revision: group.revision, participants: group.participants.map(person => { const paid = group.payments?.find(payment => payment.participantId === person.id && payment.status === "paid"); return { id: person.id, name: person.name, host: person.host, lines: structuredClone(person.lines), ...(paid ? { payment: all.find(payment => payment.id === paid.id), quotedLines: structuredClone(paid.quotedLines) } : {}) }; }), payments: all, ...(group.orderId ? { orderId: group.orderId } : {}) };
+}
+export function groupStoreId(state: OrderingState, groupId: string): string | undefined { const records = (state as GroupState).groups; return records && Object.hasOwn(records, groupId) ? records[groupId].storeId : undefined; }
+export function validateGroupInput(operation: keyof GroupOrderingApi | "refund", value: unknown): void {
+  if (operation === "create") { shape(value, ["storeId", "lines", "idempotencyKey"], ["fulfillment"]); identifier(value.storeId); lines(value.lines); text(value.idempotencyKey); if (value.fulfillment !== undefined) fulfillment(value.fulfillment); }
+  else if (operation === "join") { shape(value, ["inviteToken"], ["lines", "idempotencyKey"]); text(value.inviteToken, 500); if (value.lines !== undefined) lines(value.lines); if (value.idempotencyKey !== undefined) text(value.idempotencyKey); }
+  else if (operation === "rename") { shape(value, ["name", "revision"]); text(value.name, 120); revision(value.revision); }
   else if (operation === "replaceLines") { shape(value, ["participantId", "revision", "lines"]); identifier(value.participantId); revision(value.revision); lines(value.lines); }
   else if (operation === "removeParticipant") { shape(value, ["participantId", "revision"]); identifier(value.participantId); revision(value.revision); }
   else if (operation === "close") { shape(value, ["revision"]); revision(value.revision); }
   else if (operation === "quote") { shape(value, ["revision", "fulfillment"]); revision(value.revision); fulfillment(value.fulfillment); }
-  else if (operation === "checkout") {
-    shape(value, ["revision", "fingerprint", "fulfillment", "phone", "method", "idempotencyKey"]); revision(value.revision); text(value.fingerprint); text(value.phone, 100); text(value.idempotencyKey); fulfillment(value.fulfillment);
-    if (value.method !== "card" && value.method !== "cash") invalid();
-  } else if (operation === "recover") shape(value, []);
-}
-function hash(value: unknown): string { return createHash("sha256").update(stable(value)).digest("hex"); }
-function matches(secret: string | undefined, digest: string, scope?: string): boolean {
-  return typeof secret === "string" && secret.length <= 500 && timingSafeEqual(Buffer.from(hash(scope ? { scope, secret } : secret), "hex"), Buffer.from(digest, "hex"));
-}
-function host(group: RecordGroup, access: GroupAccess): IndividualActor {
-  if (!access.actor) fail("unauthorized", 401, "Accedi come organizzatore per gestire il gruppo.");
-  if (access.actor.id !== group.hostId) fail("forbidden", 403, "Accesso non consentito.");
-  return access.actor;
-}
-function member(group: RecordGroup, access: GroupAccess): Member | undefined {
-  if (access.actor?.id === group.hostId) return group.participants.find(person => person.host);
-  return group.participants.find(person => person.capabilityHash && matches(access.capability, person.capabilityHash, group.id));
-}
-function snapshot(group: RecordGroup, access: GroupAccess, invitation?: string): GroupSnapshot {
-  const person = member(group, access); const isHost = access.actor?.id === group.hostId;
-  if (!isHost && !person && !matches(invitation, group.inviteHash)) fail("forbidden", 403, "Invito o accesso personale non valido.");
-  return {
-    id: group.id, storeId: group.storeId, deadline: group.deadline, status: group.status, revision: group.revision,
-    participants: group.participants.map(person => ({ id: person.id, name: person.name, host: person.host, lines: structuredClone(person.lines) })),
-    role: isHost ? "host" : person ? "participant" : "visitor", participantId: person?.id ?? null,
-    ...(isHost ? { inviteToken: group.inviteToken, ...(group.orderId ? { orderId: group.orderId } : {}), checkoutPending: !!group.frozen && !group.checkoutCompleted } : {})
-  };
-}
-function editable(group: RecordGroup) {
-  if (group.frozen || group.status === "submitted") fail("checkout_pending", 409, "Il checkout è già in corso o inviato.");
-}
-function expected(group: RecordGroup, value: number) { if (group.revision !== value) fail("revision_conflict", 409, "Il gruppo è cambiato: aggiorna il riepilogo."); }
-function closed(group: RecordGroup) { if (group.status !== "closed") fail("group_closed", 409, "Chiudi la raccolta prima del checkout."); }
-function cart(group: RecordGroup, details: GroupFulfillment): IndividualCart {
-  const flattened = group.participants.flatMap(person => person.lines.map(line => ({ ...structuredClone(line), notes: `Per ${person.name}${line.notes ? ` · ${line.notes}` : ""}` })));
-  if (!flattened.length) invalid();
-  return { storeId: group.storeId, lines: flattened, ...structuredClone(details) };
+  else if (operation === "checkout") { shape(value, ["revision", "fingerprint", "fulfillment", "phone", "method", "idempotencyKey"]); revision(value.revision); text(value.fingerprint); text(value.phone, 100); text(value.idempotencyKey); fulfillment(value.fulfillment); if (value.method !== "cash" && value.method !== "card") invalid(); }
+  else if (operation === "payShare") { shape(value, ["revision", "idempotencyKey"]); revision(value.revision); text(value.idempotencyKey); }
+  else if (operation === "refundShare" || operation === "refund") { shape(value, operation === "refundShare" ? ["paymentId", "idempotencyKey"] : ["idempotencyKey"], operation === "refund" ? ["paymentId", "cashReturned"] : []); if (value.paymentId !== undefined) identifier(value.paymentId); text(value.idempotencyKey); if (value.cashReturned !== undefined && typeof value.cashReturned !== "boolean") invalid(); }
+  else if (operation === "activate") { shape(value, ["storeId", "groupId"]); identifier(value.storeId); if (value.groupId !== null) identifier(value.groupId); }
+  else if (operation === "recover" || operation === "reconcileShare") shape(value, []);
 }
 
-/** Durable collection; every economic decision is delegated to canonical ordering. */
-export function createGroupOrderingService(options: { repository: OrderingRepository; ordering: OrderingService; now?: () => Date; id?: () => string; token?: () => string }): GroupOrderingService {
+export function createGroupOrderingService(options: { repository: OrderingRepository; ordering: OrderingService; payments?: OrderingPayments; now?: () => Date; id?: () => string; token?: () => string }): GroupOrderingService {
   const now = options.now ?? (() => new Date()); const id = options.id ?? randomUUID; const token = options.token ?? (() => randomBytes(32).toString("base64url"));
-  function expire(group: RecordGroup, state: OrderingState) {
-    const entry = state.idempotency[JSON.stringify([group.hostId, group.canonicalKey])];
-    if (entry && !group.orderId) { group.orderId = entry.orderId; group.status = "submitted"; group.revision++; }
-    if (group.status === "open" && Date.parse(group.deadline) <= now().getTime()) { group.status = "closed"; group.revision++; }
+  const capability = () => { if (!options.ordering.group) fail("service_unavailable", 503, "Servizio gruppi non disponibile."); return options.ordering.group; };
+  const provider = () => { if (!options.payments) fail("service_unavailable", 503, "Pagamento non disponibile."); return options.payments; };
+  const inFlight = new Map<string, Promise<ProviderPayment | undefined>>();
+  function touch(group: RecordGroup) { group.revision++; delete group.confirmed; }
+  function limit(state: GroupState, key: string, maximum: number) {
+    const limits = state.groupLimits ??= {};
+    for (const [oldKey, instants] of Object.entries(limits)) if (!instants.some(value => value > now().getTime() - 600000)) delete limits[oldKey];
+    const instants = (limits[key] ?? []).filter(value => value > now().getTime() - 600000);
+    if (instants.length >= maximum) fail("rate_limited", 429, "Troppe richieste. Attendi qualche minuto e riprova.");
+    limits[key] = [...instants, now().getTime()];
   }
-  async function work<T>(groupId: string, action: (group: RecordGroup, state: GroupState) => T): Promise<T> {
-    identifier(groupId);
-    // Return an error envelope so deadline closure commits even when access/write fails.
-    const result = await options.repository.transact(state => {
-      const extended: GroupState = state; const group = extended.groups && Object.hasOwn(extended.groups, groupId) ? extended.groups[groupId] : undefined;
-      if (!group) return { error: { code: "not_found", statusCode: 404, message: "Gruppo non disponibile." } };
-      expire(group, state);
-      try { return { value: action(group, extended) }; }
-      catch (error) { if (error instanceof GroupOrderingError) return { error: { code: error.code, statusCode: error.statusCode, message: error.message } }; throw error; }
-    });
-    if (result.error) fail(result.error.code, result.error.statusCode, result.error.message);
-    return result.value as T;
+  function nickname(group?: RecordGroup): string {
+    const foods = ["Basilico", "Pomodoro", "Carciofo", "Peperone", "Rosmarino", "Oliva", "Rucola", "Mozzarella"];
+    const moods = ["Allegro", "Felice", "Gentile", "Vivace", "Gioioso", "Solare", "Sorridente", "Curioso"];
+    const used = new Set(group?.participants.map(person => person.name)); const offset = randomBytes(2).readUInt16BE();
+    for (let i = 0; i < 64; i++) { const n = (offset + i) % 64; const name = `${foods[n % 8]} ${moods[Math.floor(n / 8)]}`; if (!used.has(name)) return name; }
+    return `${foods[offset % 8]} ${moods[Math.floor(offset / 8) % 8]}`;
   }
-  async function submit(groupId: string, { frozen, canonicalKey }: { frozen: Frozen; canonicalKey: string }): Promise<IndividualCheckoutResult> {
-    const input: IndividualCheckout = { cart: frozen.cart, fingerprint: frozen.input.fingerprint, phone: frozen.input.phone, method: frozen.input.method, idempotencyKey: canonicalKey };
-    try {
-      const result = await options.ordering.checkout(frozen.actor, input);
-      await work(groupId, group => { if (!group.orderId) { group.orderId = result.order.id; group.status = "submitted"; group.revision++; } group.checkoutCompleted = !(result.order.method === "card" && result.order.status === "pending_payment" && !result.order.providerIntentId); });
+  function records(state: GroupState) {
+    const groups = state.groups ??= {};
+    for (const group of Object.values(groups)) {
+      Reflect.deleteProperty(group, "deadline"); group.payments ??= [];
+      for (const person of group.participants) if (person.host && group.hostId && !person.actorId) person.actorId = group.hostId;
+    }
+    return groups;
+  }
+  function get(state: GroupState, groupId: string) {
+    identifier(groupId); const groups = records(state); if (!Object.hasOwn(groups, groupId)) fail("not_found", 404, "Gruppo non disponibile.");
+    const group = groups[groupId]; group.payments ??= [];
+    for (const person of group.participants) if (person.host && group.hostId && !person.actorId) person.actorId = group.hostId;
+    return group;
+  }
+  function pointer(access: GroupAccess, storeId: string) { return hash([scope(access), storeId]); }
+  function contextIn(state: GroupState, access: GroupAccess, storeId: string): GroupContext {
+    identifier(storeId); if (!Object.hasOwn(state.stores, storeId)) fail("not_found", 404, "Sede non disponibile.");
+    const groups = Object.values(records(state)).filter(group => group.storeId === storeId && member(group, access));
+    const contexts = state.groupContexts ??= {}; const key = pointer(access, storeId);
+    const guestKey = access.capability ? hash([`guest:${hash(access.capability)}`, storeId]) : undefined;
+    if (!Object.hasOwn(contexts, key) && guestKey && Object.hasOwn(contexts, guestKey)) contexts[key] = contexts[guestKey];
+    const active = groups.find(group => group.id === contexts[key] && !["submitted", "cancelled"].includes(group.status));
+    return { activeId: active?.id ?? null, groups: groups.map(group => snapshot(group, access)) };
+  }
+  async function work<T>(groupId: string, action: (group: RecordGroup, state: GroupState) => T | Promise<T>) {
+    return options.repository.transact(async (state: GroupState) => {
+      const group = get(state, groupId); const previousRevision = group.revision;
+      const result = await action(group, state);
+      if (group.revision !== previousRevision) { state.cursor++; state.events.push({ cursor: state.cursor, orderId: group.orderId ?? group.id, storeId: group.storeId, revision: group.revision }); }
       return result;
-    } catch (error) {
-      const failure = error as { statusCode?: number };
-      await work(groupId, (group, state) => {
-        const canonical = state.idempotency[JSON.stringify([group.hostId, group.canonicalKey])];
-        if (!canonical && failure.statusCode && failure.statusCode >= 400 && failure.statusCode < 500) delete group.frozen;
-      });
-      throw error;
+    });
+  }
+  function cart(group: RecordGroup, details: GroupFulfillment): IndividualCart {
+    return { storeId: group.storeId, ...structuredClone(details), lines: group.participants.flatMap(person => person.lines.map(line => ({ ...structuredClone(line), notes: `Per ${person.name}${line.notes ? ` · ${line.notes}` : ""}` }))) };
+  }
+  function pricing(group: RecordGroup): GroupCanonicalContext {
+    let index = 0; const context: GroupCanonicalContext = { groupId: group.id, reservationIds: [], lockedLines: [], prepaidCents: 0 };
+    for (const person of group.participants) {
+      const paid = group.payments?.find(payment => payment.participantId === person.id && payment.kind === "share" && payment.status === "paid");
+      if (paid) { context.prepaidCents += paid.amountCents; context.reservationIds.push(paid.id); for (let n = 0; n < person.lines.length; n++) context.lockedLines.push({ index: index + n, line: paid.quotedLines[n], recipe: n === 0 ? paid.recipe : {} }); }
+      index += person.lines.length;
+    }
+    return context;
+  }
+  function updateSettlement(group: RecordGroup, state: GroupState) {
+    const orderIds = new Set([group.orderId, ...(group.payments ?? []).map(payment => payment.orderId)].filter((value): value is string => Boolean(value)));
+    for (const orderId of orderIds) {
+      const order = state.orders[orderId]; if (!order?.settlement) continue;
+      const before = stable([order.settlement, order.payment]);
+    const charges = (group.payments ?? []).filter(payment => payment.orderId === order.id); const additions = (order.additions ?? []).filter(addition => addition.applied); const sum = (statuses: string[]) => charges.filter(payment => statuses.includes(payment.status)).reduce((value, payment) => value + payment.amountCents, 0);
+    order.settlement.refundedCents = sum(["refunded"]) + additions.filter(addition => addition.payment === "refunded").reduce((total, addition) => total + addition.deltaCents, 0); order.settlement.refundedProductCents = charges.filter(payment => payment.status === "refunded").reduce((total, payment) => total + (payment.productCents ?? payment.amountCents), 0) + additions.filter(addition => addition.payment === "refunded").reduce((total, addition) => total + addition.deltaCents, 0); order.settlement.refundPendingCents = sum(["refund_pending"]) + additions.filter(addition => addition.payment === "refund_pending").reduce((total, addition) => total + addition.deltaCents, 0); order.settlement.refundFailedCents = sum(["refund_failed"]) + additions.filter(addition => addition.payment === "refund_failed").reduce((total, addition) => total + addition.deltaCents, 0); order.settlement.paidCents = sum(["paid", "refund_pending", "refund_failed", "refunded"]) + additions.filter(addition => ["paid", "cash_paid", "refunded", "refund_pending", "refund_failed"].includes(addition.payment)).reduce((total, addition) => total + addition.deltaCents, 0);
+    if (order.status === "cancelled") order.payment = order.settlement.refundFailedCents ? "refund_failed" : order.settlement.refundPendingCents ? "refund_pending" : order.settlement.refundedCents ? "refunded" : order.payment;
+      if (before !== stable([order.settlement, order.payment])) { order.revision++; state.cursor++; state.events.push({ cursor: state.cursor, orderId: order.id, storeId: order.storeId, revision: order.revision }); }
     }
   }
-  return {
-    async create(actor, input) {
-      if (!actor) fail("unauthorized", 401, "Accedi per creare un gruppo.");
-      validateGroupInput("create", input);
-      if (!Number.isFinite(Date.parse(input.deadline)) || Date.parse(input.deadline) <= now().getTime()) invalid();
-      return options.repository.transact(state => {
-        if (!Object.hasOwn(state.stores, input.storeId)) fail("not_found", 404, "Sede non disponibile.");
-        const extended: GroupState = state; extended.groups ??= {};
-        const groupId = id(); identifier(groupId); if (Object.hasOwn(extended.groups, groupId)) fail("revision_conflict", 409, "Riprova la creazione del gruppo.");
-        const inviteToken = token(); text(inviteToken, 500);
-        const group: RecordGroup = { id: groupId, storeId: input.storeId, hostId: actor.id, deadline: new Date(input.deadline).toISOString(), revision: 1, status: "open", inviteToken, inviteHash: hash(inviteToken), canonicalKey: `group:${randomBytes(32).toString("base64url")}`, participants: [{ id: id(), name: input.name.trim(), host: true, lines: [] }] };
-        extended.groups[groupId] = group; return snapshot(group, { actor });
+  function notify(group: RecordGroup, state: GroupState, payment: Charge) {
+    if (!["paid", "refunded", "refund_failed"].includes(payment.status)) return;
+    const status = payment.status as "paid" | "refunded" | "refund_failed";
+    const notifications = state.groupPaymentNotifications ??= [];
+    const notificationId = `${payment.id}:${status}:${payment.refundAttempt ?? 0}`;
+    if (notifications.some(event => event.id === notificationId)) return;
+    notifications.push({ id: notificationId, groupId: group.id, storeId: group.storeId, payer: { name: payment.actor.name, email: payment.actor.email }, participantName: payment.participantName ?? "", amountCents: payment.amountCents, status, occurredAt: now().toISOString(), lines: structuredClone(payment.quotedLines), attempt: payment.refundAttempt ?? 0 });
+  }
+  async function settleCharge(groupId: string, paymentId: string): Promise<ProviderPayment | undefined> {
+    const existing = inFlight.get(paymentId); if (existing) return existing;
+    const task = (async () => {
+      const charge = await work(groupId, group => structuredClone(group.payments!.find(payment => payment.id === paymentId)));
+      if (!charge || !["processing", "requires_action"].includes(charge.status) || charge.method === "cash") return;
+      let remote: ProviderPayment;
+      try {
+        remote = charge.providerId ? await provider().read(charge.providerId) : await provider().create({ orderId: groupId, totalCents: charge.amountCents, key: charge.key });
+        if (charge.expiresAt && Date.parse(charge.expiresAt) <= now().getTime() && ["processing", "requires_action"].includes(remote.status)) remote = await provider().cancel(remote.id);
+      } catch (failure) {
+        if (failure && typeof failure === "object" && "definitive" in failure && failure.definitive === true) await work(groupId, (group, state) => { const current = group.payments!.find(payment => payment.id === paymentId)!; current.status = "failed"; delete state.groupReservations?.[current.id]; touch(group); });
+        return;
+      }
+      await work(groupId, (group, state) => {
+        const current = group.payments!.find(payment => payment.id === paymentId)!; if (!["processing", "requires_action"].includes(current.status)) return;
+        const status = remote.status === "cancelled" ? "failed" : remote.status; const changed = current.status !== status || current.providerId !== remote.id;
+        current.providerId = remote.id; current.status = status; if (status === "paid") delete current.expiresAt; if (status === "failed") delete state.groupReservations?.[current.id]; if (changed) { touch(group); if (status === "paid") notify(group, state, current); }
       });
-    },
-    read: (access, groupId, invitation) => work(groupId, group => snapshot(group, access, invitation)),
-    async join(access, groupId, input) {
-      validateGroupInput("join", input);
-      return work(groupId, group => {
-        if (!matches(input.inviteToken, group.inviteHash)) fail("forbidden", 403, "Invito non valido.");
-        const previous = member(group, access);
-        if (previous && !previous.host && access.capability) return { group: snapshot(group, access), capability: access.capability };
-        editable(group); if (group.status !== "open") fail("group_closed", 409, "La raccolta è chiusa.");
-        if (previous?.host) fail("forbidden", 403, "L'organizzatore è già nel gruppo.");
-        if (group.participants.length >= 100) invalid();
-        const capability = token(); text(capability, 500); const participantId = id(); identifier(participantId);
-        group.participants.push({ id: participantId, name: input.name.trim(), host: false, lines: [], capabilityHash: hash({ scope: group.id, secret: capability }) }); group.revision++;
-        return { group: snapshot(group, { ...access, capability }), capability };
+      return remote;
+    })();
+    inFlight.set(paymentId, task); try { return await task; } finally { inFlight.delete(paymentId); }
+  }
+  async function settleRefund(groupId: string, paymentId: string) {
+    const original = await work(groupId, group => structuredClone(group.payments!.find(payment => payment.id === paymentId)));
+    if (!original || original.status !== "refund_pending" || !original.providerId || original.method === "cash") return;
+    try {
+      const result = original.refundId ? await provider().readRefund(original.refundId) : await provider().refund({ intentId: original.providerId, amountCents: original.amountCents, key: original.refundKey! });
+      await work(groupId, (group, state) => {
+        const current = group.payments!.find(payment => payment.id === paymentId)!; if (current.refundKey !== original.refundKey || current.status !== "refund_pending") return;
+        current.refundId = result.id; current.status = result.status === "succeeded" ? "refunded" : result.status === "failed" ? "refund_failed" : "refund_pending"; touch(group); notify(group, state, current); updateSettlement(group, state);
       });
-    },
-    async replaceLines(access, groupId, input) {
-      shape(input, ["participantId", "revision", "lines"]); identifier(input.participantId); revision(input.revision); lines(input.lines);
-      return work(groupId, group => {
-        const own = member(group, access); const isHost = access.actor?.id === group.hostId;
-        if (!own || (!isHost && own.id !== input.participantId)) fail("forbidden", 403, "Puoi modificare solo il tuo contributo.");
-        editable(group); if (!isHost && group.status !== "open") fail("group_closed", 409, "La raccolta è chiusa."); expected(group, input.revision);
-        const target = group.participants.find(person => person.id === input.participantId); if (!target) fail("not_found", 404, "Partecipante non disponibile.");
-        if (isHost && target.id !== own.id) {
-          let cursor = 0;
-          for (const line of input.lines) {
-            while (cursor < target.lines.length && !(stable({ ...target.lines[cursor], quantity: line.quantity }) === stable(line) && line.quantity <= target.lines[cursor].quantity)) cursor++;
-            if (cursor === target.lines.length) fail("forbidden", 403, "Puoi soltanto rimuovere prodotti dal contributo altrui.");
-            cursor++;
-          }
+    } catch (failure) {
+      if (failure && typeof failure === "object" && "definitive" in failure && failure.definitive === true) await work(groupId, (group, state) => { const current = group.payments!.find(payment => payment.id === paymentId)!; if (current.refundKey === original.refundKey) { current.status = "refund_failed"; touch(group); notify(group, state, current); updateSettlement(group, state); } });
+    }
+  }
+  function refundRequest(state: GroupState, principal: string, groupId: string, input: { paymentId?: string; idempotencyKey: string; cashReturned?: boolean }) {
+    const requests = state.groupRefundRequests ??= {}; const key = hash([principal, input.idempotencyKey]); const fingerprint = hash([groupId, input.paymentId ?? null, Boolean(input.cashReturned)]);
+    const previous = requests[key]; if (previous && previous.fingerprint !== fingerprint) fail("idempotency_conflict", 409, "Questa richiesta riguarda già un altro rimborso.");
+    return { previous, save(paymentIds: string[]) { requests[key] = { fingerprint, paymentIds }; } };
+  }
+  function requestRefund(group: RecordGroup, state: GroupState, payment: Charge, cashReturned: boolean) {
+    if (["refunded", "refund_pending"].includes(payment.status)) return;
+    if (!["paid", "refund_failed"].includes(payment.status)) fail("checkout_pending", 409, "Attendi la conferma del pagamento.");
+    if (payment.method === "cash" && !cashReturned) invalid();
+    const previousFailed = payment.status === "refund_failed";
+    payment.status = payment.method === "cash" ? "refunded" : "refund_pending"; payment.refundAttempt = (payment.refundAttempt ?? 0) + 1;
+    if (!payment.refundKey || previousFailed) payment.refundKey = `group-refund:${randomBytes(32).toString("base64url")}`;
+    if (previousFailed) delete payment.refundId;
+    delete state.groupReservations?.[payment.id];
+    if (group.status !== "submitted" && payment.kind === "share") { const person = group.participants.find(person => person.id === payment.participantId); if (person?.host) person.lines = []; else group.participants = group.participants.filter(person => person.id !== payment.participantId); }
+    if (group.status === "closed") group.status = "open";
+    touch(group); if (payment.method === "cash") notify(group, state, payment); updateSettlement(group, state);
+  }
+  async function synchronize(groupId: string, result: IndividualCheckoutResult) {
+    await work(groupId, (group, state) => {
+      if (!group.frozen) return;
+      if (result.order.status === "cancelled" && result.order.payment === "failed") {
+        group.status = "open"; (group.previousOrderIds ??= []).push(result.order.id); delete group.frozen; delete group.orderId; group.canonicalKey = `group:${randomBytes(32).toString("base64url")}`;
+        for (const payment of group.payments!.filter(payment => payment.kind === "share" && payment.status === "paid")) { state.groupReservations ??= {}; state.groupReservations[payment.id] = { storeId: group.storeId, recipe: structuredClone(payment.recipe) }; }
+        touch(group); return;
+      }
+      group.orderId = result.order.id; if (!result.order.submittedAt) return;
+      if (group.status !== "submitted") { group.status = "submitted"; touch(group); }
+      group.checkoutCompleted = true;
+      for (const payment of group.payments!.filter(payment => payment.kind === "share" && payment.status === "paid" && group.participants.some(person => person.id === payment.participantId))) payment.orderId = result.order.id;
+      if (!group.payments!.some(payment => payment.kind === "balance" && payment.orderId === result.order.id)) {
+        let offset = 0;
+        for (const person of group.participants) {
+          const paid = group.payments!.some(payment => payment.kind === "share" && payment.participantId === person.id && payment.status === "paid");
+          const rows = result.order.quote.lines.slice(offset, offset + person.lines.length);
+          let amountCents = paid ? 0 : rows.reduce((total, row, index) => total + (result.order.quote.promotions?.lines[offset + index]?.netCents ?? row.unitCents * row.quantity), 0);
+          const productCents = amountCents;
+          if (person.host) amountCents += result.order.quote.deliveryCents;
+          if (amountCents > 0) group.payments!.push({ id: id(), participantId: person.id, participantName: person.name, amountCents, status: result.order.method === "cash" && result.order.payment !== "cash_paid" ? "processing" : "paid", method: result.order.method, actor: structuredClone(group.frozen.actor), key: "", clientKey: "", kind: "balance", orderId: result.order.id, productCents, recipe: {}, quotedLines: structuredClone(rows), ...(result.order.providerIntentId ? { providerId: result.order.providerIntentId } : {}) });
+          offset += person.lines.length;
         }
-        if (group.participants.reduce((total, person) => total + (person === target ? input.lines.length : person.lines.length), 0) > 100) invalid();
-        target.lines = structuredClone(input.lines); group.revision++; delete group.confirmed; return snapshot(group, access);
+      }
+      updateSettlement(group, state);
+    });
+  }
+  async function submit(groupId: string) {
+    const frozen = await work(groupId, group => structuredClone(group.frozen)); if (!frozen) fail("not_found", 404, "Nessun checkout da recuperare.");
+    const canonicalKey = await work(groupId, group => group.canonicalKey);
+    try {
+      const result = await capability().checkout(frozen.actor, { cart: frozen.cart, fingerprint: frozen.input.fingerprint, phone: frozen.input.phone, method: frozen.input.method, idempotencyKey: canonicalKey }, frozen.pricing);
+      await synchronize(groupId, result); return result;
+    } catch (failure) {
+      const status = failure && typeof failure === "object" && "statusCode" in failure ? failure.statusCode : undefined;
+      if (typeof status === "number" && status >= 400 && status < 500) await work(groupId, (group, state) => {
+        if (group.canonicalKey !== canonicalKey || state.idempotency[JSON.stringify([frozen.actor.id, canonicalKey])]) return;
+        delete group.frozen; group.status = "open"; touch(group);
+      });
+      throw failure;
+    }
+  }
+  async function refundCancelled(orderId: string) {
+    const groupId = await options.repository.transact((state: GroupState) => Object.values(records(state)).find(group => group.orderId === orderId || group.previousOrderIds?.includes(orderId))?.id); if (!groupId) return;
+    const paymentIds = await work(groupId, (group, state) => { const order = state.orders[orderId]; if (order?.status !== "cancelled") return [];
+      if (!order.submittedAt && order.providerIntentId && (order.settlement?.remainingCents ?? 0) > 0 && !group.payments!.some(payment => payment.orderId === orderId)) {
+        const own = group.participants.find(person => person.host)!;
+        group.payments!.push({ id: id(), participantId: own.id, participantName: own.name, amountCents: order.settlement!.remainingCents, status: "paid", method: "card", actor: { id: order.customerId, name: order.contact.name, email: order.contact.email }, key: "", clientKey: "", kind: "balance", orderId, recipe: {}, quotedLines: structuredClone(order.quote.lines), providerId: order.providerIntentId });
+      }
+      const attempts = group.orderRefundAttempts ??= {}; const retryFailed = order.refundAttempt > (attempts[orderId] ?? 0); attempts[orderId] = order.refundAttempt;
+      for (const payment of group.payments!.filter(payment => payment.orderId === orderId && (payment.status === "paid" || (retryFailed && payment.status === "refund_failed")) && payment.method !== "cash")) requestRefund(group, state, payment, false); return group.payments!.filter(payment => payment.status === "refund_pending").map(payment => payment.id); });
+    for (const paymentId of paymentIds) await settleRefund(groupId, paymentId);
+    await work(groupId, (group, state) => updateSettlement(group, state));
+  }
+  options.ordering.group?.attach({ refundOrder: refundCancelled });
+  const service: GroupOrderingService = {
+    context: async (access, storeId) => options.repository.transact((state: GroupState) => contextIn(state, access, storeId)),
+    activate: async (access, storeId, groupId) => options.repository.transact((state: GroupState) => {
+      const context = contextIn(state, access, storeId);
+      if (groupId !== null && !context.groups.some(group => group.id === groupId && !["cancelled", "submitted"].includes(group.status))) fail("forbidden", 403, "Carrello non disponibile.");
+      state.groupContexts![pointer(access, storeId)] = groupId; return contextIn(state, access, storeId);
+    }),
+    create: async (access, input) => {
+      validateGroupInput("create", input);
+      return options.repository.transact((state: GroupState) => {
+        scope(access); if (!Object.hasOwn(state.stores, input.storeId)) fail("not_found", 404, "Sede non disponibile.");
+        const previous = Object.values(records(state)).find(group => group.storeId === input.storeId && group.creationKey === input.idempotencyKey && member(group, access)?.host);
+        if (previous) { if (previous.creationHash !== hash(input)) fail("idempotency_conflict", 409, "Questa richiesta crea già un altro carrello."); return snapshot(previous, access); }
+        limit(state, `create:${scope(access)}`, 5);
+        if (access.networkKey) limit(state, `create-network:${access.networkKey}`, 100);
+        const groupId = id(); const inviteToken = token();
+        const group: RecordGroup = { id: groupId, storeId: input.storeId, hostId: access.actor?.id, revision: 1, status: "open", inviteToken, inviteHash: hash(inviteToken), canonicalKey: `group:${randomBytes(32).toString("base64url")}`, creationKey: input.idempotencyKey, creationHash: hash(input), ...(input.fulfillment ? { fulfillment: structuredClone(input.fulfillment) } : {}), participants: [{ id: id(), name: access.actor?.name ?? nickname(), host: true, lines: structuredClone(input.lines), ...(access.actor ? { actorId: access.actor.id } : {}), ...(access.capability ? { capabilityHash: hash(access.capability) } : {}) }], payments: [] };
+        identifier(group.id); if (Object.hasOwn(records(state), group.id)) fail("revision_conflict", 409, "Riprova la creazione.");
+        records(state)[group.id] = group; state.groupContexts ??= {}; state.groupContexts[pointer(access, input.storeId)] = group.id; return snapshot(group, access);
       });
     },
-    async removeParticipant(access, groupId, input) {
-      shape(input, ["participantId", "revision"]); identifier(input.participantId); revision(input.revision);
-      return work(groupId, group => {
-        host(group, access); editable(group); expected(group, input.revision);
-        const person = group.participants.find(person => person.id === input.participantId); if (!person) fail("not_found", 404, "Partecipante non disponibile.");
-        if (person.host) fail("invalid_transition", 409, "L'organizzatore deve restare nel gruppo.");
-        group.participants = group.participants.filter(person => person.id !== input.participantId); group.revision++; delete group.confirmed; return snapshot(group, access);
+    read: async (access, groupId, inviteToken) => {
+      const order = await work(groupId, (group, state) => { snapshot(group, access, inviteToken); const orderId = group.orderId ?? (group.frozen && state.idempotency[JSON.stringify([group.frozen.actor.id, group.canonicalKey])]?.orderId); return orderId ? state.orders[orderId] : undefined; });
+      if (order) await synchronize(groupId, { order });
+      return work(groupId, group => snapshot(group, access, inviteToken));
+    },
+    join: async (access, groupId, input) => {
+      validateGroupInput("join", input);
+      return work(groupId, (group, state) => {
+        scope(access); if (!matches(input.inviteToken, group.inviteHash)) fail("forbidden", 403, "Invito non valido.");
+        const previous = member(group, access); if (previous) return snapshot(group, access);
+        editable(group); if (group.status !== "open") fail("group_closed", 409, "Il carrello è chiuso alle nuove scelte.");
+        limit(state, `join:${scope(access)}`, 100);
+        if (access.networkKey) limit(state, `join-network:${access.networkKey}`, 500);
+        if (group.participants.length >= 100 || group.participants.reduce((sum, person) => sum + person.lines.length, input.lines?.length ?? 0) > 100) invalid();
+        group.participants.push({ id: id(), name: access.actor?.name ?? nickname(group), host: false, lines: structuredClone(input.lines ?? []), ...(access.actor ? { actorId: access.actor.id } : {}), ...(access.capability ? { capabilityHash: hash(access.capability) } : {}) });
+        touch(group); state.groupContexts ??= {}; state.groupContexts[pointer(access, group.storeId)] = group.id; return snapshot(group, access);
       });
     },
-    async close(access, groupId, input) {
-      shape(input, ["revision"]); revision(input.revision);
-      return work(groupId, group => { host(group, access); editable(group); expected(group, input.revision); if (group.status === "open") { group.status = "closed"; group.revision++; } return snapshot(group, access); });
-    },
-    async quote(access, groupId, input) {
-      shape(input, ["revision", "fulfillment"]); revision(input.revision); fulfillment(input.fulfillment);
-      const payload = await work(groupId, group => { host(group, access); editable(group); closed(group); expected(group, input.revision); return cart(group, input.fulfillment); });
-      const quote = await options.ordering.quote(payload, access.actor);
-      return work(groupId, group => { host(group, access); editable(group); closed(group); expected(group, input.revision); group.confirmed = { revision: group.revision, fingerprint: quote.fingerprint, fulfillmentHash: hash(input.fulfillment) }; return { revision: group.revision, quote }; });
-    },
-    async checkout(access, groupId, input) {
-      shape(input, ["revision", "fingerprint", "fulfillment", "phone", "method", "idempotencyKey"]); revision(input.revision); text(input.fingerprint); text(input.phone, 100); text(input.idempotencyKey); fulfillment(input.fulfillment);
-      if (input.method !== "card" && input.method !== "cash") invalid();
-      const claim = await work(groupId, group => {
-        const actor = host(group, access);
-        if (group.frozen) { if (hash(group.frozen.input) !== hash(input)) fail("idempotency_conflict", 409, "Il checkout originale è già in corso."); return { frozen: structuredClone(group.frozen), canonicalKey: group.canonicalKey }; }
-        editable(group); closed(group); expected(group, input.revision);
-        if (!group.confirmed || group.confirmed.revision !== group.revision || group.confirmed.fingerprint !== input.fingerprint || group.confirmed.fulfillmentHash !== hash(input.fulfillment)) fail("price_changed", 409, "Richiedi e conferma nuovamente il preventivo.");
-        group.frozen = { input: structuredClone(input), cart: cart(group, input.fulfillment), actor: structuredClone(actor) }; return { frozen: structuredClone(group.frozen), canonicalKey: group.canonicalKey };
+    rename: async (access, groupId, input) => {
+      validateGroupInput("rename", input); return work(groupId, group => {
+        const own = member(group, access); if (!own) fail("forbidden", 403, "Entra nel carrello per cambiare nome.");
+        editable(group); expected(group, input.revision); own.name = input.name.trim(); touch(group); return snapshot(group, access);
       });
-      return submit(groupId, claim);
     },
-    async recover(access, groupId) {
-      const claim = await work(groupId, group => { host(group, access); if (!group.frozen) fail("not_found", 404, "Nessun checkout da recuperare."); return { frozen: structuredClone(group.frozen), canonicalKey: group.canonicalKey }; });
-      return submit(groupId, claim);
+    replaceLines: async (access, groupId, input) => {
+      validateGroupInput("replaceLines", input); return work(groupId, group => {
+        const own = member(group, access); if (!own || (!own.host && own.id !== input.participantId)) fail("forbidden", 403, "Puoi modificare solo le tue scelte.");
+        editable(group); expected(group, input.revision); if (!own.host && group.status !== "open") fail("group_closed", 409, "Il carrello è chiuso alle nuove scelte.");
+        const target = group.participants.find(person => person.id === input.participantId); if (!target) fail("not_found", 404, "Partecipante non disponibile.");
+        if (busyCharge(group, target.id)) fail("checkout_pending", 409, "Le scelte pagate o con pagamento in corso non si modificano.");
+        if (group.participants.reduce((sum, person) => sum + (person === target ? input.lines.length : person.lines.length), 0) > 100) invalid();
+        target.lines = structuredClone(input.lines); touch(group); return snapshot(group, access);
+      });
     },
-    async tick() { await options.repository.transact(state => { for (const group of Object.values((state as GroupState).groups ?? {})) expire(group, state); }); }
+    removeParticipant: async (access, groupId, input) => {
+      validateGroupInput("removeParticipant", input); return work(groupId, group => {
+        requireHost(group, access); editable(group); expected(group, input.revision);
+        const target = group.participants.find(person => person.id === input.participantId); if (!target) fail("not_found", 404, "Partecipante non disponibile.");
+        if (target.host) invalid(); if (busyCharge(group, target.id)) fail("checkout_pending", 409, "Non puoi rimuovere una quota pagata o in verifica.");
+        group.participants = group.participants.filter(person => person.id !== target.id); touch(group); return snapshot(group, access);
+      });
+    },
+    close: async (access, groupId, input) => { validateGroupInput("close", input); return work(groupId, group => { requireHost(group, access); editable(group); expected(group, input.revision); if (group.status === "open") { group.status = "closed"; touch(group); } return snapshot(group, access); }); },
+    quote: async (access, groupId, input) => {
+      validateGroupInput("quote", input); return work(groupId, (group, state) => {
+        requireHost(group, access); if (!access.actor) fail("unauthorized", 401, "Accedi per confermare l'ordine."); editable(group); expected(group, input.revision);
+        if (group.payments!.some(payment => ["processing", "requires_action"].includes(payment.status))) fail("checkout_pending", 409, "Attendi o recupera i pagamenti in verifica.");
+        const context = pricing(group); const result = capability().quote(state, cart(group, input.fulfillment), context, access.actor);
+        group.fulfillment = structuredClone(input.fulfillment); group.confirmed = { revision: group.revision, fingerprint: result.quote.fingerprint, fulfillmentHash: hash(input.fulfillment) };
+        return { revision: group.revision, quote: result.quote, prepaidCents: context.prepaidCents, remainingCents: result.quote.totalCents - context.prepaidCents };
+      });
+    },
+    checkout: async (access, groupId, input) => {
+      validateGroupInput("checkout", input); await work(groupId, group => {
+        requireHost(group, access); if (!access.actor) fail("unauthorized", 401, "Accedi per confermare l'ordine.");
+        if (group.frozen) { if (hash(group.frozen.input) !== hash(input)) fail("idempotency_conflict", 409, "Recupera il tentativo già in corso."); return; }
+        editable(group); expected(group, input.revision);
+        if (group.payments!.some(payment => ["processing", "requires_action"].includes(payment.status))) fail("checkout_pending", 409, "Attendi la conferma delle quote.");
+        if (!group.confirmed || group.confirmed.revision !== group.revision || group.confirmed.fingerprint !== input.fingerprint || group.confirmed.fulfillmentHash !== hash(input.fulfillment)) fail("price_changed", 409, "Verifica nuovamente il totale.");
+        group.frozen = { input: structuredClone(input), cart: cart(group, input.fulfillment), actor: structuredClone(access.actor), pricing: pricing(group) };
+      }); return submit(groupId);
+    },
+    recover: async (access, groupId) => { await work(groupId, group => { requireHost(group, access); if (!access.actor) fail("unauthorized", 401, "Accedi per recuperare l'ordine."); }); return submit(groupId); },
+    payShare: async (access, groupId, input) => {
+      validateGroupInput("payShare", input); if (!access.actor) fail("unauthorized", 401, "Accedi per pagare la tua quota.");
+      const paymentId = await work(groupId, (group, state) => {
+        const own = member(group, access); if (!own) fail("forbidden", 403, "Entra nel carrello per pagare.");
+        const previous = group.payments!.find(payment => payment.actor.id === access.actor!.id && payment.clientKey === input.idempotencyKey && payment.kind === "share"); if (previous) { if (previous.participantId !== own.id || (previous.compositionHash && previous.compositionHash !== hash(own.lines))) fail("idempotency_conflict", 409, "Questa richiesta riguarda già un altro pagamento."); return previous.id; }
+        editable(group); if (group.status !== "open") fail("group_closed", 409, "Il creatore sta confermando il carrello."); expected(group, input.revision);
+        if (busyCharge(group, own.id)) fail("checkout_pending", 409, "Recupera il pagamento già in corso."); if (!own.lines.length) invalid();
+        const priced = capability().price(state, group.storeId, own.lines); if (priced.subtotalCents < 50) fail("invalid_input", 400, "La quota inferiore a 0,50 euro resta nel saldo del creatore.");
+        const charge: Charge = { id: id(), participantId: own.id, participantName: own.name, amountCents: priced.subtotalCents, status: "processing", method: "card", actor: structuredClone(access.actor!), key: `group-share:${randomBytes(32).toString("base64url")}`, clientKey: input.idempotencyKey, kind: "share", compositionHash: hash(own.lines), recipe: priced.recipe, quotedLines: priced.lines, expiresAt: new Date(now().getTime() + 600000).toISOString() };
+        group.payments!.push(charge); state.groupReservations ??= {}; state.groupReservations[charge.id] = { storeId: group.storeId, recipe: structuredClone(priced.recipe) }; touch(group); return charge.id;
+      });
+      const remote = await settleCharge(groupId, paymentId);
+      return work(groupId, group => { const payment = group.payments!.find(payment => payment.id === paymentId)!; return { group: snapshot(group, access), payment: publicPayment(payment, payment.status === "paid", true), ...(remote?.clientSecret && payment.status === "requires_action" ? { clientSecret: remote.clientSecret } : {}) }; });
+    },
+    reconcileShare: async (access, groupId, paymentId) => {
+      await work(groupId, group => { const payment = group.payments!.find(payment => payment.id === paymentId); if (!payment || payment.actor.id !== access.actor?.id) fail("forbidden", 403, "Non puoi leggere il pagamento altrui."); });
+      const remote = await settleCharge(groupId, paymentId); await settleRefund(groupId, paymentId);
+      return work(groupId, group => { const payment = group.payments!.find(payment => payment.id === paymentId)!; return { group: snapshot(group, access), payment: publicPayment(payment, payment.status === "paid", true), ...(remote?.clientSecret && payment.status === "requires_action" ? { clientSecret: remote.clientSecret } : {}) }; });
+    },
+    refundShare: async (access, groupId, input) => {
+      validateGroupInput("refundShare", input);
+      const ids = await work(groupId, (group, state) => {
+        const payment = group.payments!.find(payment => payment.id === input.paymentId); if (!payment || payment.actor.id !== access.actor?.id) fail("forbidden", 403, "Puoi rimborsare solo la quota che hai pagato.");
+        const request = refundRequest(state, access.actor!.id, group.id, input); if (request.previous) return request.previous.paymentIds;
+        if (group.status === "submitted") fail("forbidden", 403, "Per un rimborso dopo l'invio contatta la pizzeria.");
+        if (group.frozen) fail("checkout_pending", 409, "Attendi la conferma del saldo in corso.");
+        requestRefund(group, state, payment, false); request.save([payment.id]); return [payment.id];
+      });
+      for (const paymentId of ids) await settleRefund(groupId, paymentId);
+      return work(groupId, group => snapshot(group, access));
+    },
+    operations: async (actor, storeId) => {
+      await options.repository.transact((state: GroupState) => capability().authorizeOperator(state, actor, storeId));
+      await service.tick();
+      return options.repository.transact((state: GroupState) => Object.values(records(state)).filter(group => group.storeId === storeId && (group.payments?.some(payment => payment.status === "paid" || payment.refundKey) || group.orderId)).map(group => projection(group)));
+    },
+    refund: async (actor, groupId, input) => {
+      validateGroupInput("refund", input);
+      const ids = await work(groupId, (group, state) => {
+        capability().authorizeOperator(state, actor, group.storeId);
+        const request = refundRequest(state, actor!.id, group.id, input); if (request.previous) return request.previous.paymentIds;
+        if (group.frozen && !group.checkoutCompleted) fail("checkout_pending", 409, "Recupera il saldo in corso prima del rimborso.");
+        if (!input.paymentId && group.payments!.some(payment => payment.kind === "share" && ["processing", "requires_action"].includes(payment.status))) fail("checkout_pending", 409, "Recupera i pagamenti in verifica prima di annullare il gruppo.");
+        if (!input.paymentId && group.orderId && !input.cashReturned && state.orders[group.orderId]?.additions?.some(addition => addition.applied && addition.method === "cash" && addition.payment === "cash_paid")) invalid();
+        const payments = input.paymentId ? group.payments!.filter(payment => payment.id === input.paymentId) : group.payments!.filter(payment => ["paid", "refund_failed", "refund_pending", "refunded"].includes(payment.status));
+        if (input.paymentId && !payments.length) fail("not_found", 404, "Quota non disponibile.");
+        for (const payment of payments) requestRefund(group, state, payment, Boolean(input.cashReturned));
+        if (!input.paymentId && group.status !== "submitted") { group.status = "cancelled"; group.participants = group.participants.filter(person => person.host).map(person => ({ ...person, lines: [] })); touch(group); }
+        const paymentIds = payments.map(payment => payment.id); request.save(paymentIds); return paymentIds;
+      });
+      for (const paymentId of ids) await settleRefund(groupId, paymentId);
+      const orderId = await work(groupId, group => group.orderId);
+      if (!input.paymentId && orderId && actor) await capability().refundAdditions(actor, orderId, Boolean(input.cashReturned), input.idempotencyKey);
+      return work(groupId, (group, state) => { updateSettlement(group, state); return projection(group); });
+    },
+    tick: async () => {
+      const entries = await options.repository.transact((state: GroupState) => Object.values(records(state)).map(group => ({ id: group.id, pending: (group.payments ?? []).filter(payment => ["processing", "requires_action", "refund_pending"].includes(payment.status)).map(payment => ({ id: payment.id, refund: payment.status === "refund_pending", cash: payment.method === "cash" })), orderId: group.orderId })));
+      for (const entry of entries) {
+        for (const payment of entry.pending) if (!payment.cash) { if (payment.refund) await settleRefund(entry.id, payment.id); else await settleCharge(entry.id, payment.id); }
+        if (entry.orderId) {
+          const order = await options.repository.transact((state: GroupState) => state.orders[entry.orderId!]);
+          if (order && !order.submittedAt && order.status === "cancelled") { await synchronize(entry.id, { order }); continue; }
+          if (order?.status === "cancelled") await refundCancelled(entry.orderId);
+          else if (order?.submittedAt) await synchronize(entry.id, { order });
+          if (order?.payment === "cash_paid") await work(entry.id, (group, state) => { for (const payment of group.payments!.filter(payment => payment.method === "cash" && payment.status === "processing")) payment.status = "paid"; updateSettlement(group, state); });
+        }
+      }
+    }
   };
+  return service;
 }

@@ -10,7 +10,7 @@ const statusLabels: Record<OperationalEmailDelivery["status"], string> = {
 };
 const eventLabels: Record<OperationalEmailDelivery["event"], string> = {
   received: "Ordine ricevuto", accepted: "Ordine accettato", ready: "Pronto al ritiro", out_for_delivery: "In consegna",
-  cancelled: "Ordine annullato", refund_succeeded: "Rimborso completato", refund_failed: "Rimborso non riuscito"
+  cancelled: "Ordine annullato", refund_succeeded: "Rimborso completato", refund_failed: "Rimborso non riuscito", share_paid: "Quota pagata"
 };
 const errorLabels = {
   smtp_unavailable: "Servizio email temporaneamente non disponibile.",

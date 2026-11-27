@@ -4,7 +4,7 @@ import {
   domWaitFor as waitFor, renderDom as render
 } from "@pizzaos/testing";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { act } from "@testing-library/react";
+import { act } from "react";
 import { OperationalOrdersScreen } from "../features/orders";
 
 const authenticated: IndividualSession = {

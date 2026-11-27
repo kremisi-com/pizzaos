@@ -6,6 +6,8 @@ export interface AnalyticsEntry {
   status: "completed" | "cancelled";
   occurredAt: string;
   totalCents: number;
+  /** Actual group refunds; original value, products and terminal timestamp remain immutable. */
+  refundedCents?: number;
   lines: { productId: string; name: string; quantity: number }[];
 }
 

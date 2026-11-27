@@ -4,6 +4,8 @@ Owner: checkout-api per ordine, riserve e avanzamento; modulo consegne per asseg
 
 ## Percorso principale
 
+Nel [carrello condiviso](group-ordering.md), il primo pagamento rende visibile «Ordine di gruppo ancora in corso»: la pizzeria consulta scelte/riserve e rimborsa quote o intero gruppo, senza accettare o preparare. Solo la conferma finale autenticata del creatore avvia il percorso sotto. Dopo invio il rimborso per quota conserva la comanda e restituisce il denaro al finanziatore effettivo; l'annullamento completo restituisce tutti i pagamenti. I contanti dovuti escludono sempre gli anticipi carta. I gruppi aperti non scadono: la pizzeria può annullarli e liberare le riserve tramite rimborso.
+
 1. L'ordine in contanti inviato o con carta confermata entra nella coda della sede in attesa di accettazione. La coda mostra scadenza, importi, contatti, articoli, note e stato pagamento/rimborso. SSE e polling recuperano le variazioni, senza avanzamenti simulati nel browser.
 2. L'operatore accetta, avvia la preparazione e dichiara l'ordine pronto. Per il ritiro completa e registra i contanti dovuti. Per la consegna assegna manualmente un rider attivo della stessa sede.
 3. Il rider vede solo le consegne proprie pronte/in corso. Avvia e completa la consegna; la transizione canonica aggiorna scorte, incasso contanti, punti, analytics ed email una sola volta.

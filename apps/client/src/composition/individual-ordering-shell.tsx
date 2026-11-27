@@ -5,13 +5,39 @@ import { IndividualOrderingScreen, type IndividualOrderingView } from "../featur
 import { createIndividualApi } from "./api/individual-api";
 import { createFoodPreferencesApi } from "./api/food-preferences-api";
 import { createPromotionsApi } from "./api/promotions-api";
+import type { GroupContext } from "@pizzaos/domain";
+import { createGroupOrderingApi } from "./api/group-ordering-api";
+import { PersistentGroupScreen } from "../features/group-order/components/persistent-group-screen";
+import { readSharedCartDraft, readSharedCartStoreId, rememberSharedCartStore, suspendSharedCart } from "./shared-cart-bootstrap";
+import contextStyles from "./shared-cart-context.module.css";
 
 export function IndividualOrderingShell({ storefront, view = "menu" }: { storefront?: boolean; view?: IndividualOrderingView }) {
   const api = useMemo(() => createIndividualApi(), []);
   const preferencesApi = useMemo(() => createFoodPreferencesApi(), []);
   const promotionsApi = useMemo(() => createPromotionsApi(), []);
+  const groupsApi = useMemo(() => createGroupOrderingApi(), []);
+  const [sharedContext, setSharedContext] = useState<GroupContext | null>(null);
+  const [contextError, setContextError] = useState("");
+  const [contextVersion, setContextVersion] = useState(0);
+  const [hash, setHash] = useState("");
   const [refreshVersion, setRefreshVersion] = useState(0);
   const [connection, setConnection] = useState("Connessione in corso");
+  useEffect(() => {
+    let alive = true;
+    const sync = () => setHash(window.location.hash);
+    sync();
+    window.addEventListener("hashchange", sync);
+    window.addEventListener("popstate", sync);
+    setContextError("");
+    void api.stores().then(async stores => {
+      const draft = readSharedCartDraft();
+      const hint = readSharedCartStoreId();
+      const selected = draft && stores.some(store => store.id === draft.storeId) ? draft.storeId : stores.find(store => store.id === hint)?.id ?? stores[0]?.id;
+      const context = selected ? await groupsApi.context(selected) : { activeId: null, groups: [] };
+      if (alive) setSharedContext(context);
+    }).catch(failure => { if (alive) setContextError(failure instanceof Error ? failure.message : "Non è stato possibile recuperare il carrello."); });
+    return () => { alive = false; window.removeEventListener("hashchange", sync); window.removeEventListener("popstate", sync); };
+  }, [api, groupsApi, contextVersion]);
   useEffect(() => {
     let alive = true;
     let cursor = 0;
@@ -48,5 +74,19 @@ export function IndividualOrderingShell({ storefront, view = "menu" }: { storefr
     }).catch(() => { if (alive) setConnection("Servizio non raggiungibile"); });
     return () => { alive = false; stream?.close(); if (polling) clearInterval(polling); };
   }, [api]);
-  return <IndividualOrderingScreen key={view} view={view} api={api} promotionsApi={promotionsApi} preferencesApi={preferencesApi} refreshVersion={refreshVersion} connection={connection} storefront={storefront} />;
+  const activeGroup = sharedContext?.groups.find(group => group.id === sharedContext.activeId && !["submitted", "cancelled"].includes(group.status));
+  const history = view === "menu" && (hash === "#i-tuoi-ordini" || hash.startsWith("#ordine-"));
+  if (contextError) return <div role="alert"><p>{contextError}</p><button type="button" onClick={() => setContextVersion(value => value + 1)}>Riprova</button></div>;
+  if (!sharedContext) return <p role="status">Caricamento del carrello…</p>;
+  if (activeGroup && !history && view !== "all") return <PersistentGroupScreen key={`${activeGroup.id}-${view}`} view={view} api={groupsApi} individualApi={api}
+    promotionsApi={promotionsApi} preferencesApi={preferencesApi} groupId={activeGroup.id} initialGroup={activeGroup} storefront={storefront} onUseIndividual={group => suspendSharedCart(groupsApi, group)} />;
+  const savedGroups = sharedContext.groups.filter(group => !["submitted", "cancelled"].includes(group.status));
+  return <>
+    {savedGroups.length > 0 && !history && <aside className={contextStyles.switcher} aria-label="Carrelli condivisi">
+      {savedGroups.map(group => <button type="button" key={group.id} onClick={() => {
+        void groupsApi.activate(group.storeId, group.id).then(context => { rememberSharedCartStore(group.storeId); setSharedContext(context); }).catch(failure => setContextError(failure instanceof Error ? failure.message : "Non è stato possibile aprire il carrello condiviso."));
+      }}>Carrello condiviso · {group.participants.find(person => person.host)?.name}</button>)}
+    </aside>}
+    <IndividualOrderingScreen key={view} view={view} api={api} promotionsApi={promotionsApi} preferencesApi={preferencesApi} refreshVersion={refreshVersion} connection={connection} storefront={storefront} />
+  </>;
 }

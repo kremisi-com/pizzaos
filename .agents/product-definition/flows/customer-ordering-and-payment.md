@@ -8,7 +8,7 @@ Specifica del flusso individuale persistente, basata sul primo incremento D49-D5
 
 Il servizio `services/checkout-api` possiede prezzi, riserve, ordini, pagamenti e transizioni; client e admin possiedono presentazione e interazioni tramite contratti pubblici. Il percorso di base sotto resta valido e si combina con:
 
-- [Ordine di gruppo](group-ordering.md): raccolta persistente e un solo checkout dell'organizzatore, D61-D63.
+- [Ordine di gruppo](group-ordering.md): carrello condiviso senza scadenza, anticipi per partecipante e saldo finale del creatore, secondo l'approvazione del 27 novembre che aggiorna D61-D63.
 - [Coupon e fedeltà](promotions-and-loyalty.md): benefici applicabili sia all'individuale sia al gruppo, D64-D67; sostituiscono l'esclusione iniziale del primo incremento a prezzi ordinari, senza modificarne il contesto storico.
 - [Email operative](operational-emails.md): notifiche automatiche del lifecycle, D68-D69. Il contatto per concordare alternative via email/WhatsApp resta manuale.
 - [Operazioni e consegne rider](operations-and-delivery.md): assegnazione, avanzamento e problemi di consegna D57-D58 sullo stesso ordine canonico.

@@ -9,6 +9,12 @@ export function withPilotAnalytics(repository: OrderingRepository, now: () => Da
       return repository.transact(async (state: AnalyticsState) => {
         const previous = new Map(Object.values(state.orders).map((order) => [order.id, order.status]));
         const value = await work(state);
+        for (const order of Object.values(state.orders)) {
+          const recorded = state.analytics?.entries[order.id];
+          if (recorded && order.settlement && recorded.status === "completed") {
+            recorded.refundedCents = Math.min(recorded.totalCents, Math.max(recorded.refundedCents ?? 0, order.settlement.refundedCents));
+          }
+        }
         const changed = Object.values(state.orders).filter((order) =>
           (order.status === "completed" || order.status === "cancelled") && previous.get(order.id) !== order.status
         );
@@ -25,6 +31,7 @@ export function withPilotAnalytics(repository: OrderingRepository, now: () => Da
             status: order.status,
             occurredAt,
             totalCents: order.quote.totalCents,
+            ...(order.settlement ? { refundedCents: order.settlement.refundedCents } : {}),
             lines: order.quote.lines.map(({ productId, name, quantity }) => ({ productId, name, quantity }))
           };
         }

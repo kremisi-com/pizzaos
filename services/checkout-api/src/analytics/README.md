@@ -4,6 +4,8 @@ Owns the server-side terminal-order journal and the five approved analytics (D59
 
 The journal records a completion/cancellation timestamp and immutable order-value/product snapshots inside the ordering transaction. Existing terminal orders without a journal timestamp are excluded; creation time is never used as a substitute. Refund retries do not move the cancellation date. The repository's rollback and cross-process serialization guarantees remain authoritative.
 
+I rimborsi monetari del gruppo aggiornano soltanto l'importo effettivamente restituito associato all'entry completata. Vendite e scontrino medio sottraggono questi rimborsi, senza riscrivere data, comanda o quantità prodotti. Quote rimborsate prima dell'invio sono già escluse dall'ordine finale e non si sottraggono di nuovo. Stati pending/failed non contano come denaro restituito.
+
 `createPilotAnalyticsService` authorizes the authenticated actor against the store's operator memberships or configured superadmin emails. A rider-only identity has no operator membership and cannot read the report. The HTTP composition exposes `GET /v1/pilot/stores/:id/analytics?period=...&fromDate=...&throughDate=...`. `PilotAnalyticsError` supplies its stable code and HTTP status (401/403/404/400) for the public error envelope.
 
 Calendar filters use the configured store `timeZone` (IANA), including DST. Legacy pilot stores without that field use `Europe/Rome` for compatibility. Reports contain no customer contact details or payment-provider identifiers.

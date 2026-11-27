@@ -1,18 +1,19 @@
 "use client";
 
-import type { IndividualAction, IndividualOrder, IndividualSession, IndividualStore } from "@pizzaos/domain";
+import type { GroupOperationalOrder, IndividualAction, IndividualOrder, IndividualSession, IndividualStore } from "@pizzaos/domain";
 import { Button } from "@pizzaos/ui";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useAdminNavigation } from "./use-admin-navigation";
 import { rememberActiveStore, resolveActiveStore } from "./active-store";
 import { useAdminToast } from "./admin-toast";
 import { OperationalCatalog } from "../features/catalog";
 import { SignOutButton } from "../features/identity/components/sign-in-screen";
 import { StoreConfiguration, type StoreConfigurationSection } from "../features/individual-ordering";
-import { OperationalOrders } from "../features/orders";
+import { OperationalGroupOrders, OperationalOrders } from "../features/orders";
 import { StoreSwitcher } from "../features/store-switch/components/store-switcher";
 import { AdminFrame, type AdminTab } from "./admin-frame";
 import { createIndividualApi } from "./api/individual-api";
+import { createGroupOperationsApi } from "./api/group-operations-api";
 import { OperationalDashboard } from "./operational-dashboard";
 import { PilotOperationalPanels } from "./pilot-operational-panels";
 import styles from "./admin-shell.module.css";
@@ -52,12 +53,17 @@ function mergeStoreChanges(current: IndividualStore, original: IndividualStore, 
 export function IndividualOperationsShell({ riderHref, orderingDomain }: { riderHref?: string; orderingDomain?: string }) {
   const showToast = useAdminToast();
   const api = useMemo(() => createIndividualApi(), []);
+  const groupsApi = useMemo(() => createGroupOperationsApi(), []);
+  const refundBusy = useRef(false);
+  const refundKeys = useRef(new Map<string, string>());
   const [tab, setTab] = useAdminNavigation();
   const [session, setSession] = useState<IndividualSession | null>(null);
   const [stores, setStores] = useState<IndividualStore[]>([]);
   const [storeId, setStoreId] = useState("");
   const [catalog, setCatalog] = useState<IndividualStore | null>(null);
   const [queue, setQueue] = useState<{ storeId: string; orders: IndividualOrder[] } | null>(null);
+  const [groupQueue, setGroupQueue] = useState<{ storeId: string; groups: GroupOperationalOrder[] } | null>(null);
+  const [groupError, setGroupError] = useState("");
   const [creating, setCreating] = useState(false);
   const [busy, setBusy] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -116,6 +122,33 @@ export function IndividualOperationsShell({ riderHref, orderingDomain }: { rider
   }, [api, storeId, refreshVersion]);
 
   useEffect(() => {
+    if (!storeId || !["orders", "dashboard"].includes(tab)) return;
+    let alive = true;
+    let inFlight = false;
+    const poll = async () => {
+      if (!alive || inFlight || refundBusy.current) return;
+      inFlight = true;
+      try {
+        const groups = await groupsApi.list(storeId);
+        if (alive) {
+          setGroupQueue(previous => {
+            const prior = new Map(previous?.storeId === storeId ? previous.groups.map(group => [group.id, group]) : []);
+            return { storeId, groups: groups.map(group => {
+              const old = prior.get(group.id);
+              return old && old.revision > group.revision ? old : group;
+            }) };
+          });
+          setGroupError("");
+        }
+      } catch (failure) { if (alive) setGroupError(errorText(failure)); }
+      finally { inFlight = false; }
+    };
+    void poll();
+    const timer = setInterval(() => void poll(), 3000);
+    return () => { alive = false; clearInterval(timer); };
+  }, [groupsApi, storeId, refreshVersion, tab]);
+
+  useEffect(() => {
     if (!storeId) return;
     let active = true;
     void api.catalog(storeId).then(store => {
@@ -170,6 +203,8 @@ export function IndividualOperationsShell({ riderHref, orderingDomain }: { rider
     setStoreId(id);
     setCatalog(null);
     setQueue(null);
+    setGroupQueue(null);
+    setGroupError("");
     setCreating(false);
     setInviteEmail("");
     setError("");
@@ -194,6 +229,22 @@ export function IndividualOperationsShell({ riderHref, orderingDomain }: { rider
     } finally {
       setBusy(false);
     }
+  }
+
+  async function refundGroup(groupId: string, paymentId?: string, cashReturned?: boolean) {
+    if (refundBusy.current) return;
+    refundBusy.current = true; setBusy(true); setError("");
+    const operation = `${groupId}:${paymentId ?? "all"}`;
+    const idempotencyKey = refundKeys.current.get(operation) ?? crypto.randomUUID();
+    refundKeys.current.set(operation, idempotencyKey);
+    try {
+      const updated = await groupsApi.refund(groupId, { paymentId, idempotencyKey, ...(cashReturned ? { cashReturned } : {}) });
+      refundKeys.current.delete(operation);
+      setGroupQueue(previous => previous?.storeId !== updated.storeId ? previous : {
+        storeId: updated.storeId, groups: previous.groups.map(group => group.id === updated.id && group.revision <= updated.revision ? updated : group)
+      });
+    } catch (failure) { setError(errorText(failure)); }
+    finally { refundBusy.current = false; setBusy(false); refresh(); }
   }
 
   async function save(draft: IndividualStore, original: IndividualStore, addressConfirmation?: string) {
@@ -238,9 +289,10 @@ export function IndividualOperationsShell({ riderHref, orderingDomain }: { rider
 
   const store = catalog?.id === storeId ? catalog : null;
   const orders = useMemo(() => queue?.storeId === storeId
-    ? [...queue.orders].sort((a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt))
+    ? queue.orders.filter(order => !order.settlement || Boolean(order.submittedAt)).sort((a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt))
     : null, [queue, storeId]);
   const timeZone = store?.timeZone ?? stores.find(item => item.id === storeId)?.timeZone ?? "Europe/Rome";
+  const groups = groupQueue?.storeId === storeId ? groupQueue.groups : [];
   const failure = error || loadError || ((tab === "orders" || tab === "dashboard" || tab === "delivery") ? orderError : "") ||
     (isSettings(tab) || tab === "marketing" ? catalogError : "");
   useEffect(() => { if (failure) showToast(failure, "error"); }, [failure, showToast]);
@@ -263,11 +315,14 @@ export function IndividualOperationsShell({ riderHref, orderingDomain }: { rider
     {!loading && !session?.actor && !loadError && <p><a href="/accesso">Accedi all’area ristorante</a></p>}
     {!loading && session?.actor && !storeId && !creating && <p>Nessuna sede assegnata.</p>}
     {storeId && tab === "dashboard" && (orders
-      ? <OperationalDashboard key={storeId} storeId={storeId} orders={orders} connection={connection}
-          refreshVersion={refreshVersion} timeZone={timeZone} onNavigate={navigate} />
+      ? <><OperationalGroupOrders groups={groups} products={store?.products ?? []} busy={busy} onRefund={refundGroup} />
+          {groupError && <p role="alert">{groupError}</p>}
+          <OperationalDashboard key={storeId} storeId={storeId} orders={orders} connection={connection}
+          refreshVersion={refreshVersion} timeZone={timeZone} onNavigate={navigate} /></>
       : <p role="status">Caricamento degli ordini…</p>)}
     {storeId && tab === "orders" && (orders
-      ? <OperationalOrders key={storeId} orders={orders} timeZone={timeZone} busy={busy} onRefresh={refresh} onAction={action} />
+      ? <><p role={groupError ? "alert" : undefined}>{groupError}</p><OperationalOrders key={storeId} orders={orders} groups={groups} products={store?.products ?? []}
+          timeZone={timeZone} busy={busy} onRefresh={refresh} onAction={action} onRefund={refundGroup} /></>
       : <Button type="button" variant="secondary" onClick={refresh}>Aggiorna ordini</Button>)}
     {isSettings(tab) && session?.actor && <div className={styles.operationalSettings}>
       {tab === "profile" && session.superadmin && !creating &&

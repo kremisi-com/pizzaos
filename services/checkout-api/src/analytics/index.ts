@@ -40,7 +40,7 @@ export function createPilotAnalyticsService(options: PilotAnalyticsOptions): Pil
         const completed = entries.filter((entry) => entry.status === "completed").sort((left, right) =>
           right.occurredAt.localeCompare(left.occurredAt) || left.orderId.localeCompare(right.orderId)
         );
-        const salesCents = completed.reduce((total, entry) => total + entry.totalCents, 0);
+        const salesCents = completed.reduce((total, entry) => total + entry.totalCents - (entry.refundedCents ?? 0), 0);
         const products = new Map<string, PilotAnalyticsProduct>();
         for (const entry of completed) {
           for (const line of entry.lines) {

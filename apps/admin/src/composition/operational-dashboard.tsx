@@ -35,7 +35,7 @@ export function OperationalDashboard({ storeId, orders, connection, refreshVersi
 
   const awaiting = orders.filter(order => order.status === "awaiting_acceptance").length;
   const waiting = orders.filter(order => order.status === "awaiting_customer").length;
-  const refundFailures = orders.filter(order => order.payment === "refund_failed" || order.additions?.some(item => item.payment === "refund_failed")).length;
+  const refundFailures = orders.filter(order => order.payment === "refund_failed" || order.settlement?.refundFailedCents || order.additions?.some(item => item.payment === "refund_failed")).length;
   const onTheRoad = orders.filter(order => order.status === "out_for_delivery").length;
   const time = new Intl.DateTimeFormat("it-IT", { hour: "2-digit", minute: "2-digit", timeZone });
 

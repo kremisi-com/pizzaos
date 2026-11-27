@@ -8,6 +8,8 @@ Il rapporto mostra ordini completati, vendite in centesimi EUR, media ordine arr
 
 La data è quella della transizione terminale, non di creazione. Retry, letture e aggiornamenti del rimborso non duplicano conteggi. Il journal è salvato nella stessa transazione dell'ordine e sopravvive al riavvio. Gli ordini storici terminali senza journal non vengono retrodatati usando createdAt.
 
+Per il [carrello condiviso](group-ordering.md), i rimborsi monetari riusciti dopo l'invio riducono vendite e media ordine, conservando conteggio, data di completamento e prodotti della comanda. Esempio: ordine completato da 1.700 centesimi, quota rimborsata da 800 -> 900 centesimi di vendite; rimborso pending/fallito resta a 1.700 fino a esito positivo. Quote annullate prima dell'invio sono già escluse dal totale finale, senza seconda sottrazione. Verifica indipendente: [notifiche, analytics e fedeltà](../../../services/checkout-api/src/group/shared-cart-notifications.contract.test.ts).
+
 I prodotti usano ID, quantità e nome degli snapshot acquistati, indipendentemente dal catalogo corrente. Ordinamento per quantità decrescente, poi ID crescente; nome dallo snapshot più recente nel periodo, a parità istante orderId crescente. Un periodo vuoto produce zeri ed elenco vuoto. Date inesistenti, mancanti/invertite o fuso invalido sono rifiutati.
 
 Sessione assente: 401; cliente/rider senza ruolo operatore: 403. Rapporti non espongono contatti cliente o dati provider. I filtri restano selezionati durante gli aggiornamenti operativi.

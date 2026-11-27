@@ -20,14 +20,20 @@ export function createGroupOrderingApi(): GroupOrderingApi {
   }
   const id = encodeURIComponent;
   return {
+    context: storeId => request(`/context?storeId=${id(storeId)}`),
+    activate: (storeId, groupId) => request("/context", "POST", { storeId, groupId }),
     create: input => request("", "POST", input),
     read: (groupId, inviteToken) => request(`/${id(groupId)}${inviteToken ? `?inviteToken=${id(inviteToken)}` : ""}`),
     join: (groupId, input) => request(`/${id(groupId)}/join`, "POST", input),
+    rename: (groupId, input) => request(`/${id(groupId)}/name`, "POST", input),
     replaceLines: (groupId, input) => request(`/${id(groupId)}/lines`, "PUT", input),
     removeParticipant: (groupId, input) => request(`/${id(groupId)}/remove-participant`, "POST", input),
     close: (groupId, input) => request(`/${id(groupId)}/close`, "POST", input),
     quote: (groupId, input) => request(`/${id(groupId)}/quote`, "POST", input),
     checkout: (groupId, input) => request(`/${id(groupId)}/checkout`, "POST", input),
-    recover: groupId => request(`/${id(groupId)}/recover`, "POST", {})
+    recover: groupId => request(`/${id(groupId)}/recover`, "POST", {}),
+    payShare: (groupId, input) => request(`/${id(groupId)}/pay-share`, "POST", input),
+    reconcileShare: (groupId, paymentId) => request(`/${id(groupId)}/payments/${id(paymentId)}/reconcile`, "POST", {}),
+    refundShare: (groupId, input) => request(`/${id(groupId)}/refund-share`, "POST", input)
   };
 }

@@ -1,3 +1,4 @@
+// @vitest-environment node
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type { FastifyInstance, FastifyRequest } from "fastify";
 import type { GroupSnapshot, IndividualActor } from "@pizzaos/domain";
@@ -7,7 +8,7 @@ import { registerGroupOrderingRoutes } from "./group-http";
 import type { GroupOrderingService } from "./group-service";
 
 const actor: IndividualActor = { id: "alice", name: "Alice", email: "alice@example.test" };
-const snapshot: GroupSnapshot = { id: "group-one", storeId: "store", deadline: "2026-11-05T19:00:00Z", status: "open", revision: 1, participants: [{ id: "person", name: "Marco", host: false, lines: [] }], role: "participant", participantId: "person" };
+const snapshot: GroupSnapshot = { id: "group-one", storeId: "store", status: "open", revision: 1, participants: [{ id: "person", name: "Marco", host: false, lines: [] }], role: "participant", participantId: "person" };
 const headers = { "x-trusted-proxy": "yes", origin: "https://client.example.test", "x-pizzaos-origin": "https://client.example.test" };
 const apps: FastifyInstance[] = [];
 afterEach(async () => { await Promise.all(apps.splice(0).map((app) => app.close())); });
@@ -18,9 +19,14 @@ function setup() {
   const groups: GroupOrderingService = {
     create: vi.fn(async () => ({ ...snapshot, role: "host" as const, inviteToken: "invitation-secret" })),
     read: vi.fn(async () => snapshot),
-    join: vi.fn(async () => ({ group: snapshot, capability: "personal-capability-secret" })),
+    join: vi.fn(async () => snapshot),
+    context: vi.fn(async () => ({ activeId: snapshot.id, groups: [snapshot] })),
+    activate: vi.fn(async () => ({ activeId: snapshot.id, groups: [snapshot] })),
+    rename: vi.fn(async () => snapshot),
     replaceLines: vi.fn(async () => snapshot), removeParticipant: vi.fn(async () => snapshot), close: vi.fn(async () => ({ ...snapshot, status: "closed" as const })),
-    quote: vi.fn(unexpected), checkout: vi.fn(unexpected), recover: vi.fn(unexpected), tick: vi.fn(async () => undefined)
+    quote: vi.fn(unexpected), checkout: vi.fn(unexpected), recover: vi.fn(unexpected),
+    payShare: vi.fn(unexpected), reconcileShare: vi.fn(unexpected), refundShare: vi.fn(async () => snapshot),
+    operations: vi.fn(async () => []), refund: vi.fn(unexpected), tick: vi.fn(async () => undefined)
   };
   const authenticate = vi.fn(async (request: FastifyRequest) => request.headers["x-test-account"] === "alice" ? actor : null);
   const app = buildOrderingApp({ service, authenticate, authorizeProxy: (request) => request.headers["x-trusted-proxy"] === "yes", isDemoRequest: (request) => request.headers["x-demo"] === "yes" });
@@ -29,35 +35,42 @@ function setup() {
 }
 
 describe("group HTTP strict boundary", () => {
-  it("keeps personal capability exclusively in a secure HttpOnly per-group cookie and returns only snapshot", async () => {
+  it("keeps server-issued personal capability exclusively in a secure HttpOnly cookie and returns only snapshot", async () => {
     const { app, groups } = setup();
-    const response = await app.inject({ method: "POST", url: "/v1/pilot/groups/group-one/join", headers, payload: { inviteToken: "invitation-secret", name: "Marco" } });
+    const context = await app.inject({ method: "GET", url: "/v1/pilot/groups/context?storeId=store", headers });
+    expect(context.statusCode).toBe(200);
+    const cookie = String(context.headers["set-cookie"]);
+    const response = await app.inject({ method: "POST", url: "/v1/pilot/groups/group-one/join", headers: { ...headers, cookie: cookie.split(";")[0] }, payload: { inviteToken: "invitation-secret", idempotencyKey: "join" } });
     expect(response.statusCode).toBe(200); expect(response.json()).toEqual(snapshot);
-    expect(response.body).not.toContain("personal-capability-secret");
-    const cookie = String(response.headers["set-cookie"]);
-    expect(cookie).toContain("pizzaos-group-group-one=personal-capability-secret");
-    for (const flag of ["HttpOnly", "Secure", "Path=/", "SameSite=Lax", "Max-Age=604800"]) expect(cookie).toContain(flag);
+    const capability = cookie.split(";")[0].split("=").slice(1).join("=");
+    expect(capability.length).toBeGreaterThan(0);
+    expect(response.body).not.toContain(capability);
+    for (const flag of ["HttpOnly", "Secure", "Path=/", "SameSite=Lax"]) expect(cookie).toContain(flag);
     expect(cookie).not.toMatch(/Domain=/i); expect(response.headers["cache-control"]).toContain("no-store");
-    expect(groups.join).toHaveBeenCalledWith({ actor: null }, "group-one", { inviteToken: "invitation-secret", name: "Marco" });
+    expect(groups.join).toHaveBeenCalledWith(expect.objectContaining({ actor: null, capability }), "group-one", { inviteToken: "invitation-secret", idempotencyKey: "join" });
   });
 
-  it("reads personal identity from only this group's cookie and never from a body identity", async () => {
+  it("reads browser identity from its private server cookie and never from unrelated cookies", async () => {
     const { app, groups } = setup();
-    const response = await app.inject({ method: "GET", url: "/v1/pilot/groups/group-one", headers: { ...headers, cookie: "pizzaos-group-other=wrong; pizzaos-group-group-one=personal-capability-secret" } });
+    const context = await app.inject({ method: "GET", url: "/v1/pilot/groups/context?storeId=store", headers });
+    expect(context.statusCode).toBe(200);
+    const identityCookie = String(context.headers["set-cookie"]).split(";")[0];
+    const capability = identityCookie.split("=").slice(1).join("=");
+    const response = await app.inject({ method: "GET", url: "/v1/pilot/groups/group-one", headers: { ...headers, cookie: `unrelated=wrong; ${identityCookie}` } });
     expect(response.statusCode).toBe(200);
-    expect(groups.read).toHaveBeenCalledWith({ actor: null, capability: "personal-capability-secret" }, "group-one", undefined);
+    expect(groups.read).toHaveBeenCalledWith(expect.objectContaining({ actor: null, capability }), "group-one", undefined);
     expect(response.headers["cache-control"]).toContain("no-store");
-    await app.inject({ method: "GET", url: "/v1/pilot/groups/group-two", headers: { ...headers, cookie: "pizzaos-group-group-one=personal-capability-secret" } });
-    expect(groups.read).toHaveBeenLastCalledWith({ actor: null }, "group-two", undefined);
+    await app.inject({ method: "GET", url: "/v1/pilot/groups/group-two", headers: { ...headers, cookie: identityCookie } });
+    expect(groups.read).toHaveBeenLastCalledWith(expect.objectContaining({ actor: null, capability }), "group-two", undefined);
   });
 
   it.each([
-    { name: "Marco", inviteToken: "invite", actor: { id: "alice" } },
-    { name: "Marco", inviteToken: "invite", capability: "chosen" },
-    { name: "Marco", inviteToken: "invite", participantId: "other-person" },
-    { name: 123, inviteToken: "invite" }, { name: ["Marco"], inviteToken: "invite" },
-    { name: "Marco", inviteToken: 123 }, { name: "", inviteToken: "invite" },
-    { name: "Marco", inviteToken: "invite", __proto__: null, customerId: "alice" }
+    { inviteToken: "invite", actor: { id: "alice" } },
+    { inviteToken: "invite", capability: "chosen" },
+    { inviteToken: "invite", participantId: "other-person" },
+    { name: "Marco", inviteToken: "invite" }, { inviteToken: "invite", lines: "pizza" },
+    { inviteToken: 123 }, { inviteToken: "invite", idempotencyKey: 123 },
+    { inviteToken: "invite", __proto__: null, customerId: "alice" }
   ])("rejects hostile join payload without invoking domain: %j", async (payload) => {
     const { app, groups } = setup();
     const response = await app.inject({ method: "POST", url: "/v1/pilot/groups/group-one/join", headers, payload });
@@ -79,7 +92,7 @@ describe("group HTTP strict boundary", () => {
   });
 
   it.each([
-    ["POST", "/v1/pilot/groups", { storeId: "store", name: "Alice", deadline: "2026-11-05T19:00:00Z", customerId: "fake" }],
+    ["POST", "/v1/pilot/groups", { storeId: "store", lines: [], idempotencyKey: "create", customerId: "fake" }],
     ["POST", "/v1/pilot/groups/group-one/close", { revision: 1, host: true }],
     ["POST", "/v1/pilot/groups/group-one/remove-participant", { participantId: "person", revision: 1, actor: "alice" }],
     ["POST", "/v1/pilot/groups/group-one/quote", { revision: 1, fulfillment: { mode: "pickup", slotId: null, notes: "", totalCents: 1 } }],
@@ -92,7 +105,7 @@ describe("group HTTP strict boundary", () => {
 
   it("inherits proxy, canonical Origin and demo protection before group service", async () => {
     const { app, groups } = setup();
-    const payload = { inviteToken: "invite", name: "Marco" };
+    const payload = { inviteToken: "invite" };
     for (const invalidHeaders of [{ ...headers, "x-trusted-proxy": "no" }, { ...headers, origin: "https://attacker.example.test" }, { ...headers, "x-demo": "yes" }]) {
       const response = await app.inject({ method: "POST", url: "/v1/pilot/groups/group-one/join", headers: invalidHeaders, payload });
       expect(response.statusCode).toBe(403);
@@ -106,6 +119,16 @@ describe("group HTTP strict boundary", () => {
     vi.mocked(groups.close).mockRejectedValueOnce(Object.assign(new Error("Ricarica il gruppo"), { code: "revision_conflict", statusCode: 409 }));
     const response = await app.inject({ method: "POST", url: "/v1/pilot/groups/group-one/close", headers: { ...headers, "x-test-account": "alice" }, payload: { revision: 1 } });
     expect(response.statusCode).toBe(409); expect(response.json()).toEqual({ code: "revision_conflict", message: "Ricarica il gruppo", requestId: response.headers["x-request-id"] });
-    expect(groups.close).toHaveBeenCalledWith({ actor }, "group-one", { revision: 1 });
+    expect(groups.close).toHaveBeenCalledWith(expect.objectContaining({ actor, capability: expect.any(String) }), "group-one", { revision: 1 });
   });
+  it("passes only validated opaque network keys to the service for shared antiabuse limits", async () => {
+    const { app, groups } = setup();
+    const networkKey = "a".repeat(64);
+    await app.inject({ method: "GET", url: "/v1/pilot/groups/context?storeId=store", headers: { ...headers, "x-pizzaos-client-network": networkKey } });
+    expect(groups.context).toHaveBeenLastCalledWith(expect.objectContaining({ networkKey }), "store");
+    await app.inject({ method: "GET", url: "/v1/pilot/groups/context?storeId=store", headers: { ...headers, "x-pizzaos-client-network": "raw-address-or-malformed" } });
+    expect(groups.context).toHaveBeenLastCalledWith(expect.objectContaining({ networkKey: expect.stringMatching(/^[a-f0-9]{64}$/) }), "store");
+    expect(vi.mocked(groups.context).mock.calls.at(-1)?.[0].networkKey).not.toBe("raw-address-or-malformed");
+  });
+
 });

@@ -1,6 +1,6 @@
 # Email operative
 
-Fonte D68-D69. Al cliente che invia l'ordine, nel gruppo soltanto all'organizzatore pagante: ricevuto dopo submission, accettato, pronto al ritiro oppure in consegna, annullato ed esiti effettivi del rimborso. Nessun messaggio raccolta/invitati, marketing, push o SMS; WhatsApp resta manuale e lo stato è sempre nell'app.
+Fonte D68-D69, aggiornata per il [carrello condiviso](group-ordering.md) il 27 novembre 2026. Il creatore riceve le notifiche dell'ordine completo: ricevuto dopo submission, accettato, pronto al ritiro oppure in consegna, annullato. Ogni pagante riceve separatamente la conferma della propria quota e gli esiti dei propri rimborsi, senza dati o note degli altri. Nessuna ricevuta ordine anticipata al primo pagamento. Marketing, push e SMS esclusi; WhatsApp manuale, stato sempre nell'app.
 
 L'outbox è persistente e atomica con il lifecycle canonico. Invio separato, retry automatici e stato/errori sanitizzati nell'admin della sede; email guasta non blocca ordine o pagamento. Per ogni ordine l'invio conserva l'ordine degli eventi, senza bloccare altri ordini. Message-ID stabile e deduplica applicativa; un ACK SMTP perso può ancora causare duplicati esterni, senza promessa exactly-once.
 
@@ -17,7 +17,7 @@ Con D73 il dispatch registra errori tecnici sanitizzati correlati a email/ordine
 - SMTP non raggiungibile o lento: ordine e pagamento continuano, il worker riprova e l'admin espone stato/errore sanitizzato.
 - Un invio fallisce: conserva l'ordine degli eventi di quell'ordine, senza bloccare ordini diversi.
 - ACK SMTP perso dopo l'invio: un retry può duplicare la consegna esterna; non si promette exactly-once.
-- Ordine di gruppo: riceve soltanto l'organizzatore pagante, senza notifiche agli invitati.
+- Ordine di gruppo: lifecycle al creatore, incassi/rimborsi al finanziatore effettivo con contenuto limitato alla quota. Il blocco di un destinatario non ferma un altro pagante dello stesso gruppo.
 - Rimborso pending/fallito/eseguito: si comunica l'esito effettivo, senza anticipare un accredito non confermato.
 
 Requisiti completi: [outbox](../../design/2026-11-05-operational-emails/email-outbox/REQUIREMENTS.md) e [admin](../../design/2026-11-05-operational-emails/email-admin/REQUIREMENTS.md). Verifiche: [worker](../../../services/checkout-api/src/operational-emails/emails-worker.test.ts), [SMTP](../../../services/checkout-api/src/operational-emails/emails-smtp.test.ts), [browser](../../../tests/e2e/operational-emails.spec.ts). Evidenze locali: [riesame](../../design/2026-11-05-operational-emails/REVIEW.md); restano distinte dalla prova online sopra citata.

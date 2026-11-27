@@ -74,6 +74,12 @@ export function writeIndividualDraft(storage: Pick<Storage, "setItem">, cart: In
   storage.setItem(KEY, JSON.stringify(draft));
 }
 
+/** Clear only the composition acknowledged by a server transfer; keep concurrent edits. */
+export function acknowledgeIndividualDraft(storage: Pick<Storage, "getItem" | "removeItem">, transferred: IndividualCart): void {
+  const current = readIndividualDraft(storage);
+  if (current && JSON.stringify(copyIndividualCart(current)) === JSON.stringify(copyIndividualCart(transferred))) storage.removeItem(KEY);
+}
+
 export function copyIndividualCart(cart: IndividualCart): IndividualCart {
   if (cart.benefits !== undefined && !isSelection(cart.benefits)) throw new Error("Selezione promozioni non valida.");
   return {

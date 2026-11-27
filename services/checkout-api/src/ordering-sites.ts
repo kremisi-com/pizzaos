@@ -44,6 +44,7 @@ const orderRoutes = new Set([
   `PATCH ${pilot}/orders/:id/notes`, `POST ${pilot}/orders/:id/additions/quote`, `POST ${pilot}/orders/:id/additions`
 ]);
 const groupRoutes = new Set([
+  `POST ${pilot}/groups/:id/name`, `POST ${pilot}/groups/:id/pay-share`, `POST ${pilot}/groups/:id/payments/:paymentId/reconcile`, `POST ${pilot}/groups/:id/refund-share`,
   `GET ${pilot}/groups/:id`, `POST ${pilot}/groups/:id/join`, `PUT ${pilot}/groups/:id/lines`,
   `POST ${pilot}/groups/:id/remove-participant`, `POST ${pilot}/groups/:id/close`,
   `POST ${pilot}/groups/:id/quote`, `POST ${pilot}/groups/:id/checkout`, `POST ${pilot}/groups/:id/recover`
@@ -58,6 +59,11 @@ export async function authorizeOrderingSiteRoute(
   if (customerRoutes.has(route)) {
     const query = request.query as { storeId?: unknown };
     if (query.storeId !== undefined) throw unavailable();
+    return;
+  }
+  if (route === `GET ${pilot}/groups/context` || route === `POST ${pilot}/groups/context`) {
+    const value = (request.method === "GET" ? request.query : request.body) as { storeId?: unknown };
+    if (value.storeId !== site.storeId) throw unavailable();
     return;
   }
   const { id } = (request.params ?? {}) as { id?: string };

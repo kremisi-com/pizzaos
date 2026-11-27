@@ -299,7 +299,7 @@ describe("catalogo pizza autorevole via HTTP", () => {
     const product = saved.json<MenuWorkspace>().drafts[0].products[0];
     const individual = await f.quote(product);
     expect(individual.statusCode, individual.body).toBe(200);
-    const created = await f.request("POST", "/v1/pilot/groups", { storeId: "roma", name: "Andrea", deadline: "2030-01-01T12:30:00.000Z" }, "customer");
+    const created = await f.request("POST", "/v1/pilot/groups", { storeId: "roma", lines: [], idempotencyKey: "pizza-catalog-group" }, "customer");
     expect(created.statusCode, created.body).toBe(200);
     const group = created.json<GroupSnapshot>();
     const path = `/v1/pilot/groups/${group.id}`;

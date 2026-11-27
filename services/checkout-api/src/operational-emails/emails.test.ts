@@ -229,10 +229,12 @@ describe('email operative: rider', () => {
 
 describe('email operative: raccolta gruppo', () => {
   it('nessun invio durante raccolta, submission unica e destinatario solo host canonico', async () => {
-    const f = await fixture(); const groups = createGroupOrderingService({ repository: f.repository, ordering: f.service, now: f.options.now, id: f.options.id });
-    let group = await groups.create(buyer, { storeId: store.id, name: 'Host', deadline: '2026-11-05T18:20:00.000Z' });
-    const hostAccess = { actor: buyer }; const joined = await groups.join({ actor: null }, group.id, { inviteToken: group.inviteToken!, name: 'guest@external.test' });
-    group = await groups.replaceLines({ actor: null, capability: joined.capability }, group.id, { participantId: joined.group.participantId!, revision: joined.group.revision, lines: cart().lines });
+    const f = await fixture(); const groups = createGroupOrderingService({ repository: f.repository, ordering: f.service, payments: f.options.payments, now: f.options.now, id: f.options.id });
+    const hostAccess = { actor: buyer };
+    const guestAccess = { actor: null, capability: 'email-test-guest-capability' };
+    let group = await groups.create(hostAccess, { storeId: store.id, lines: [], idempotencyKey: 'email-group-create' });
+    const joined = await groups.join(guestAccess, group.id, { inviteToken: group.inviteToken!, lines: cart().lines, idempotencyKey: 'email-group-join' });
+    group = await groups.read(hostAccess, joined.id);
     expect((await f.emails.list(root, store.id)).messages).toEqual([]);
     group = await groups.close(hostAccess, group.id, { revision: group.revision }); const fulfillment = { mode: 'pickup' as const, slotId: 'slot', notes: 'Gruppo test' };
     const quote = await groups.quote(hostAccess, group.id, { revision: group.revision, fulfillment });
