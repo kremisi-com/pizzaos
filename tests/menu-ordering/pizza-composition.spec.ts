@@ -90,6 +90,13 @@ test("gusti e formule usano la scheda PoC, il prezzo server e l'ordine cucina", 
     await editor.getByRole("button", { name: /^Extra.*Per ancora più gusto!/ }).click();
     await expect(editor.getByText(/opzioni disponibili/)).toHaveCount(0);
     await expect(editor.getByRole("button", { name: "Olive escluso", exact: true })).toBeVisible();
+    await editor.getByRole("button", { name: "Olive escluso", exact: true }).click();
+    await expect(editor.getByRole("button", { name: "Olive incluso", exact: true })).toBeVisible();
+    await expect(editor.getByRole("button", { name: "Aggiungi Olive", exact: true })).toHaveCount(0);
+    await expect(editor.getByRole("button", { name: "Togli Olive", exact: true })).toHaveCount(0);
+    await expect(editor.getByLabel("Quantità Olive", { exact: true })).toHaveCount(0);
+    await editor.getByRole("button", { name: "Olive incluso", exact: true }).click();
+    await editor.getByRole("button", { name: "Olive escluso", exact: true }).click();
     await editor.getByRole("button", { name: /Impasto/ }).click();
     await editor.getByText("Integrale", { exact: true }).click();
     await expect(editor.getByRole("radio", { name: /Integrale/ })).toBeChecked();
@@ -100,7 +107,9 @@ test("gusti e formule usano la scheda PoC, il prezzo server e l'ordine cucina", 
     await page.getByRole("button", { name: "Verifica disponibilità e totale", exact: true }).click();
     const response = await quoting;
     expect(response.ok(), await response.text()).toBe(true);
-    expect((await response.json() as IndividualQuote).totalCents).toBe(720);
+    const quote = await response.json() as IndividualQuote;
+    expect(quote.totalCents).toBe(780);
+    expect(quote.lines[0].composition?.choices).toContainEqual(expect.objectContaining({ name: "Olive", quantity: 1 }));
     await page.getByLabel(/Telefono per l.ordine/).fill("3331234567");
     await page.getByLabel("Come paghi?").selectOption("cash");
     const confirming = page.waitForResponse(response => response.url().endsWith("/v1/pilot/checkouts") && response.request().method() === "POST");
@@ -108,7 +117,8 @@ test("gusti e formule usano la scheda PoC, il prezzo server e l'ordine cucina", 
     const confirmed = await confirming;
     expect(confirmed.ok(), await confirmed.text()).toBe(true);
     const { order } = await confirmed.json() as IndividualCheckoutResult;
-    expect(order.quote.lines[0].unitCents).toBe(720);
+    expect(order.quote.lines[0].unitCents).toBe(780);
+    expect(order.quote.lines[0].composition?.choices).toContainEqual(expect.objectContaining({ name: "Olive", quantity: 1 }));
     expect(order.quote.lines[0].composition?.choices.map(choice => choice.name)).toContain("Integrale");
     await admin.goto(`${adminOrigin}/operazioni/ordini`);
     await admin.getByRole("button", { name: `Apri ordine ${order.id} di Alice`, exact: true }).click();

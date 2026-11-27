@@ -267,3 +267,5 @@ Andrea richiede di distanziare il pulsante Carrello dall’ultima categoria e di
 ## Salvataggio automatico della configurazione sede
 
 Andrea richiede il 27 novembre 2026 di rimuovere **Salva configurazione** da **Configurazione della sede**, salvando automaticamente ogni modifica come Menu e Magazzino. Il Profilo salva testi e numeri all'uscita dal campo, selezioni e azioni subito; conserva la conferma dell'indirizzo, le validazioni e le protezioni dai conflitti. Aggiorna la precedente esclusione del Profilo dall'autosalvataggio; la creazione sede resta esplicita. [Flusso corrente](flows/store-configuration.md#salvataggi-concorrenti).
+
+Andrea richiede che ogni extra sia selezionabile al massimo una volta per prodotto, rimuovendo il contatore dal dettaglio Pizza e Panino e mantenendo Incluso/Escluso. La scelta aggiorna la precedente possibilitÃ  di ripetere gli extra; quantitÃ  delle righe e gruppi Box restano quelle previste. [Flusso corrente](flows/menu-ordering.md#gusti-e-formule-di-composizione).

@@ -609,7 +609,8 @@ describe("classificazione ed extra comuni: contratto HTTP indipendente", () => {
     const pizza = (await publicStore(f)).products.find(item => item.id === "margherita")!;
     const topping = pizza.options.find(option => option.pizza?.kind === "topping" && option.ingredientIds?.includes("crusca"))!;
     expect(topping).toMatchObject({ available: true, priceCents: 120 });
-    const selections = [...pizza.pizza!.defaultSelections, { optionId: topping.id, quantity: 2 }];
+    expect((await f.quote(pizza, [...pizza.pizza!.defaultSelections, { optionId: topping.id, quantity: 2 }])).statusCode).toBe(409);
+    const selections = [...pizza.pizza!.defaultSelections, { optionId: topping.id, quantity: 1 }];
     expect((await f.quote(pizza, selections)).statusCode).toBe(200);
     const cart = { storeId: "roma", mode: "pickup", slotId: "pranzo", notes: "", lines: [
       { productId: pizza.id, quantity: 1, optionIds: [], selections, notes: "" }
@@ -647,15 +648,16 @@ describe("classificazione ed extra comuni: contratto HTTP indipendente", () => {
     const pizza = (await f.workspace()).published!.products.find((product) => product.pizza?.sourceId === "margherita")!;
     const extra = pizza.options.find((option) => option.pizza?.kind === "topping" && option.ingredients.latte === 2);
     expect(extra).toMatchObject({ priceCents: 150, ingredients: { latte: 2 } });
-    const selections = [...pizza.pizza!.defaultSelections, { optionId: extra!.id, quantity: 2 }];
+    expect((await f.quote(pizza, [...pizza.pizza!.defaultSelections, { optionId: extra!.id, quantity: 2 }])).statusCode).toBe(409);
+    const selections = [...pizza.pizza!.defaultSelections, { optionId: extra!.id, quantity: 1 }];
     const quote = await f.quote(pizza, selections);
     expect(quote.statusCode, quote.body).toBe(200);
-    expect(quote.json<IndividualQuote>().lines[0].unitCents).toBe(900);
+    expect(quote.json<IndividualQuote>().lines[0].unitCents).toBe(750);
 
-    await configureLatte(f, { enabled: true, priceCents: 150, dose: 2 }, 4);
+    await configureLatte(f, { enabled: true, priceCents: 150, dose: 2 }, 2);
     const insufficient = await f.quote(pizza, selections);
     expect(insufficient.statusCode, insufficient.body).toBe(409);
-    await configureLatte(f, { enabled: true, priceCents: 150, dose: 2 }, 5);
+    await configureLatte(f, { enabled: true, priceCents: 150, dose: 2 }, 3);
     expect((await f.quote(pizza, selections)).statusCode).toBe(200);
 
     await configureLatte(f, { enabled: false, priceCents: 150, dose: 2 }, 1);

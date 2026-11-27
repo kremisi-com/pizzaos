@@ -129,7 +129,7 @@ function projectPizza(catalog: PizzaCatalog, entry: PizzaTaste | PizzaFormula, k
       available: topping.available, pizza: { kind: "topping", sourceId: topping.id, category: topping.category } });
   }
   const extraIds = options.filter(option => option.pizza?.kind === "topping").map(option => option.id);
-  if (extraIds.length) groups.push({ id: "extras", name: "Extra", kind: "extras", min: 0, max: 100, allowRepeat: true, optionIds: extraIds });
+  if (extraIds.length) groups.push({ id: "extras", name: "Extra", kind: "extras", min: 0, max: extraIds.length, allowRepeat: false, optionIds: extraIds });
   const taste = kind === "taste" ? entry as PizzaTaste : undefined;
   const customizations = taste?.customizations;
   if (customizations) {

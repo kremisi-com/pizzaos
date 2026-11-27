@@ -69,6 +69,18 @@ function selections(product: IndividualProduct, ...changes: { kind: string; sour
 }
 
 describe("contratto pubblico del catalogo pizza", () => {
+  it.each(["margherita", "simple"])("limita ogni extra a una unità per %s anche con gruppi precedenti ripetibili", id => {
+    const product = pizza(catalog(), id);
+    const extra = option(product, "topping", "mozzarella");
+    const group = product.groups!.find(group => group.kind === "extras")!;
+    expect(group).toMatchObject({ allowRepeat: false, max: group.optionIds.length });
+    expect(resolveMenuComposition(product, [...selections(product), extra]).valid).toBe(true);
+    expect(resolveMenuComposition(product, [...selections(product), { ...extra, quantity: 2 }]).valid).toBe(false);
+    expect(resolveMenuComposition(product, [...selections(product), extra, extra]).valid).toBe(false);
+    group.allowRepeat = true;
+    expect(resolveMenuComposition(product, [...selections(product), { ...extra, quantity: 2 }]).valid).toBe(false);
+  });
+
   it("applica standard condivisi e tutte le alternative preservando prezzi e sorgente", () => {
     const source = catalog();
     source.defaults = { doughId: "integrale", baseId: "bianca", formatId: "maxi" };
@@ -108,7 +120,6 @@ describe("contratto pubblico del catalogo pizza", () => {
 
   it.each([
     { quota: 2, percent: 40, quantities: [1, 1, 1], expected: 1300 },
-    { quota: 2, percent: 40, quantities: [3, 0, 0], expected: 1560 },
     { quota: 0, percent: 40, quantities: [1, 1, 1], expected: 1500 },
     { quota: 2, percent: 0, quantities: [1, 1, 1], expected: 1500 },
     { quota: 100, percent: 100, quantities: [1, 1, 1], expected: 900 },
@@ -122,7 +133,6 @@ describe("contratto pubblico del catalogo pizza", () => {
     const result = resolveMenuComposition(product, [...selections(product), ...extras]);
     expect(result).toMatchObject({ valid: true, unitCents: expected });
     expect(product.extraOffer).toEqual({ quota, percent });
-    if (quantities[0] === 3) expect(result.recipe["ingrediente-0"]).toBe(6);
     expect(result.recipe).not.toHaveProperty("latte");
   });
 

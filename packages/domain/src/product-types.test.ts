@@ -84,6 +84,17 @@ describe("materializeSandwich", () => {
     { id: "salsa", name: "Salsa", stock: null, extra: { enabled: false, priceCents: 50, dose: 1 } }
   ];
 
+  it("limita ogni extra a una unità anche con gruppi precedenti ripetibili", () => {
+    const sandwich = materializeSandwich(products[0]!, ingredients);
+    const group = sandwich.groups!.find(group => group.kind === "extras")!;
+    const extra = { optionId: group.optionIds[0], quantity: 1 };
+    expect(group).toMatchObject({ allowRepeat: false, max: group.optionIds.length });
+    expect(resolveMenuComposition(sandwich, [extra]).valid).toBe(true);
+    expect(resolveMenuComposition(sandwich, [{ ...extra, quantity: 2 }]).valid).toBe(false);
+    group.allowRepeat = true;
+    expect(resolveMenuComposition(sandwich, [{ ...extra, quantity: 2 }]).valid).toBe(false);
+  });
+
   it("genera rimozioni incluse ed extra comuni abilitati, senza impasti o formati", () => {
     const source = { ...pizza(), productType: "sandwich" as const, ingredients: { pane: 1, formaggio: 2 } };
     const snapshot = structuredClone(source);

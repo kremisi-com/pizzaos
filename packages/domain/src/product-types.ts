@@ -38,7 +38,7 @@ export function materializeSandwich(product: IndividualProduct, ingredients: rea
   const groups: MenuOptionGroup[] = [
       { id: "sandwich-ingredients", name: "Ingredienti", kind: "ingredients", min: 0, max: removals.length,
         optionIds: removals.map(item => item.id) },
-      { id: "sandwich-extras", name: "Extra", kind: "extras", min: 0, max: 100, allowRepeat: true,
+      { id: "sandwich-extras", name: "Extra", kind: "extras", min: 0, max: extras.length, allowRepeat: false,
         optionIds: extras.map(item => item.id) }
     ];
   return { ...product, productType: "sandwich", pizza: undefined, pizzaRecipeSources: undefined,

@@ -242,11 +242,6 @@ export function LivePizzaEditor({ store, product, line, quantity = 1, disabled, 
                     {option.available === false && <p className={live.status}>Esaurito</p>}
                   </div>
                   <div className={live.ingredientActions}>
-                  {group?.allowRepeat && count > 0 && <div className={live.stepper}>
-                    <button type="button" aria-label={`Togli ${option.name}`} disabled={disabled || count === 0} onClick={() => choose(option, count - 1, group)}>−</button>
-                    <output aria-label={`Quantità ${option.name}`}>{count}</output>
-                    <button type="button" aria-label={`Aggiungi ${option.name}`} disabled={disabled || option.available === false || Boolean(atLimit)} onClick={() => choose(option, count + 1, group)}>+</button>
-                  </div>}
                   <button type="button" className={`${styles.ingredientToggle} ${count ? styles.ingredientToggleActive : ""}`}
                     aria-pressed={count > 0} aria-label={`${option.name} ${count ? "incluso" : "escluso"}`}
                     disabled={disabled || count === 0 && (option.available === false || Boolean(atLimit))}

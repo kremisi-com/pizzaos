@@ -300,7 +300,7 @@ describe("persistent pizza editor using the PoC presentation", () => {
     expect(basilico.closest("[inert]")).toBeNull();
   });
 
-  it("starts a formula without taste and discounts repeated extra units", () => {
+  it("starts a formula without taste and discounts distinct extras without quantity controls", () => {
     const { store, formula } = fixture();
     const save = vi.fn();
     renderDom(<LivePizzaEditor store={store} product={formula} disabled={false} avoid={[]} onClose={vi.fn()} onSave={save} />);
@@ -308,11 +308,31 @@ describe("persistent pizza editor using the PoC presentation", () => {
     expect(domScreen.getByText("Nessun ingrediente del gusto predefinito.")).toBeTruthy();
     domFireEvent.click(domScreen.getByRole("heading", { name: "Extra" }).closest("button") as HTMLButtonElement);
     domFireEvent.click(domScreen.getByRole("button", { name: "Mozzarella escluso" }));
-    domFireEvent.click(domScreen.getByRole("button", { name: "Aggiungi Mozzarella" }));
-    expect(domScreen.getByTestId("customization-total-value").textContent).toContain("8,40");
+    expect(domScreen.queryByRole("button", { name: "Aggiungi Mozzarella" })).toBeNull();
+    expect(domScreen.queryByRole("button", { name: "Togli Mozzarella" })).toBeNull();
+    expect(domScreen.queryByLabelText("Quantità Mozzarella")).toBeNull();
+    domFireEvent.click(domScreen.getByRole("button", { name: "Basilico escluso" }));
+    expect(domScreen.getByTestId("customization-total-value").textContent).toContain("7,80");
     domFireEvent.click(domScreen.getByRole("button", { name: /Aggiungi al carrello/ }));
     expect(save).toHaveBeenCalledWith(expect.objectContaining({ kind: "pizza_formula",
-      selections: expect.arrayContaining([{ optionId: "extra:mozzarella", quantity: 2 }]) }));
+      selections: expect.arrayContaining([{ optionId: "extra:mozzarella", quantity: 1 }, { optionId: "extra:basilico", quantity: 1 }]) }));
+  });
+
+  it("requires an explicit toggle to correct a saved repeated extra without changing the original line", () => {
+    const { store, formula } = fixture();
+    const line = { productId: formula.id, quantity: 2, optionIds: [], notes: "Ben cotta",
+      selections: [...formula.pizza!.defaultSelections, { optionId: "extra:mozzarella", quantity: 2 }] };
+    const original = structuredClone(line);
+    const save = vi.fn();
+    renderDom(<LivePizzaEditor store={store} product={formula} line={line} disabled={false} avoid={[]} onClose={vi.fn()} onSave={save} />);
+    expect((domScreen.getByRole("button", { name: /Aggiorna scelta/ }) as HTMLButtonElement).disabled).toBe(true);
+    domFireEvent.click(domScreen.getByRole("button", { name: /^Extra/ }));
+    domFireEvent.click(domScreen.getByRole("button", { name: "Mozzarella incluso" }));
+    domFireEvent.click(domScreen.getByRole("button", { name: "Mozzarella escluso" }));
+    domFireEvent.click(domScreen.getByRole("button", { name: /Aggiorna scelta/ }));
+    expect(save).toHaveBeenCalledWith(expect.objectContaining({ quantity: 2, notes: "Ben cotta",
+      selections: expect.arrayContaining([{ optionId: "extra:mozzarella", quantity: 1 }]) }));
+    expect(line).toEqual(original);
   });
 
   it("keeps distinct extra toppings with the same ingredient and different doses selected together", () => {

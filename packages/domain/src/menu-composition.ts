@@ -24,7 +24,8 @@ export function resolveMenuComposition(product: IndividualProduct, selections: r
       continue;
     }
     seen.add(choice.optionId);
-    if (option.available === false || (product.groups && !group) || (choice.quantity > 1 && !group?.allowRepeat)) valid = false;
+    if (option.available === false || (product.groups && !group)
+      || (choice.quantity > 1 && (!group?.allowRepeat || group.kind === "extras"))) valid = false;
     if (group) counts.set(group.id, (counts.get(group.id) ?? 0) + choice.quantity);
     selected.push({ option, quantity: choice.quantity, discounted: group?.kind === "extras" });
   }
