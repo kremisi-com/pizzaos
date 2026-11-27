@@ -42,11 +42,11 @@ describe("recupero personalizzazioni nei flussi persistenti", () => {
     const catalog = { ...store, products: [main, drink, meal] };
     const view = renderDom(<MenuLineEditor store={catalog} product={meal} line={line} avoid={[]} onSave={save} />);
     domFireEvent.click(domScreen.getByRole("button", { name: "Modifica Menu pranzo" }));
-    domFireEvent.click(domScreen.getByRole("button", { name: "Scelta Successiva" }));
-    expect(domScreen.getByRole("group", { name: "Seconda fase" })).toBeTruthy();
+    domFireEvent.click(domScreen.getByRole("button", { name: /^Seconda fase/ }));
+    expect(domScreen.getByRole("radiogroup", { name: "Seconda fase" })).toBeTruthy();
     const current: IndividualProduct = { ...meal, meal: { steps: [meal.meal!.steps[0]] } };
     view.rerender(<MenuLineEditor store={{ ...catalog, products: [main, drink, current] }} product={current} line={line} avoid={[]} onSave={save} />);
-    expect(domScreen.getByRole("group", { name: "Prima fase" })).toBeTruthy();
+    expect(domScreen.getByRole("radiogroup", { name: "Prima fase" })).toBeTruthy();
     expect((domScreen.getByRole("radio", { name: /Portata/ }) as HTMLInputElement).checked).toBe(true);
     const notices = [...domScreen.queryAllByRole("alert"), ...domScreen.queryAllByRole("status")];
     expect(notices.some(node => /rimo|eliminat|cambiat/i.test(node.textContent ?? ""))).toBe(true);

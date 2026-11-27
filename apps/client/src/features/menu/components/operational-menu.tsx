@@ -4,10 +4,9 @@ import { productType, resolveMealComposition, resolveMenuComposition } from "@pi
 import type { IndividualLine, IndividualProduct, IndividualStore, MenuOptionGroup, MenuSelection } from "@pizzaos/domain";
 import Image from "next/image";
 import { useEffect, useId, useRef, useState } from "react";
-import { LivePizzaEditor, ProductPairings, pizzaInitialSelections, pizzaPreview, useSelectionRecovery } from "../../customization";
+import { LivePizzaEditor, MealConfigurationDialog, ProductPairings, pizzaInitialSelections, pizzaPreview, useSelectionRecovery } from "../../customization";
 import { lineChoiceLabels, lineIssue, menuMoney, menuSelections } from "../live-menu-model";
 import { MenuFoodSummary, type MenuPreferences } from "./operational-food";
-import { MealConfigurationDialog } from "./meal-configuration-dialog";
 import { MealCompositionDetails } from "./meal-composition-details";
 import styles from "./operational-menu.module.css";
 

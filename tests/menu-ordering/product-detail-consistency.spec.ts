@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { materializePizzaMenu, type IndividualProduct, type IndividualStore, type MenuDraft, type MenuWorkspace, type PizzaComponent } from "@pizzaos/domain";
+import { materializePizzaMenu, type IndividualQuote, type IndividualProduct, type IndividualStore, type MenuDraft, type MenuWorkspace, type PizzaComponent } from "@pizzaos/domain";
 
 const clientOrigin = process.env.PIZZAOS_E2E_CLIENT_URL ?? "http://127.0.0.1:3731";
 const adminOrigin = process.env.PIZZAOS_E2E_ADMIN_URL ?? "http://127.0.0.1:3732";
@@ -20,7 +20,7 @@ test("schede coerenti, abbinamenti interni e personalizzazione delle fasi second
       priceCents: 900, pairingProductIds: [drink.id] };
     const component = (id: string, name: string): PizzaComponent => ({ id, name, description: "", priceCents: 0, available: true, ingredients: {} });
     const draft: MenuDraft = materializePizzaMenu({ id: "detail-consistency", name: "Menu", products: [drink, sandwich,
-      { ...drink, id: "detail-meal", name: "Menu completo", productType: "meal", ingredients: {}, priceCents: 1200,
+      { ...drink, id: "detail-meal", name: "Menu completo", productType: "meal", ingredients: {}, priceCents: 1200, pairingProductIds: [drink.id],
         meal: { steps: [{ id: "portata", name: "Portata", alternatives: [{ productId: "detail-pizza", priceCents: 0 }] },
           { id: "bibita", name: "Bibita", alternatives: [{ productId: drink.id, priceCents: 0 }] }] } }
     ], sections: [{ id: "proposte", name: "Proposte", productIds: ["detail-pizza", sandwich.id, drink.id, "detail-meal"] }],
@@ -49,9 +49,9 @@ test("schede coerenti, abbinamenti interni e personalizzazione delle fasi second
       const extras = dialog.getByRole("button", { name: /^Extra/ });
       await expect(extras).toHaveAttribute("aria-expanded", "false");
       await extras.click();
-      await dialog.getByRole("button", { name: "Formaggio escluso", exact: true }).click();
-      await dialog.getByRole("button", { name: "Aggiungi Formaggio", exact: true }).click();
-      await expect(dialog.getByLabel("Quantità Formaggio")).toHaveText("2");
+      const extraPanel = dialog.locator(`[id="${await extras.getAttribute("aria-controls")}"]`);
+      await extraPanel.getByRole("button", { name: "Formaggio escluso", exact: true }).click();
+      await expect(extraPanel.getByRole("button", { name: "Formaggio incluso", exact: true })).toHaveAttribute("aria-pressed", "true");
       const pairing = dialog.getByRole("region", { name: "Abbinamenti consigliati" });
       const headings = await dialog.locator("h2").allTextContents();
       expect(headings.indexOf("Abbinamenti consigliati")).toBeGreaterThan(headings.indexOf("Extra"));
@@ -67,26 +67,55 @@ test("schede coerenti, abbinamenti interni e personalizzazione delle fasi second
     }
     await page.getByRole("button", { name: "Aggiungi Menu completo", exact: true }).click();
     const meal = page.getByRole("dialog", { name: "Menu completo", exact: true });
-    await meal.getByRole("radio", { name: /^Pizza/ }).check();
-    const customize = meal.getByRole("button", { name: "Personalizza Scelta", exact: true });
-    const next = meal.getByRole("button", { name: "Scelta Successiva", exact: true });
-    for (const button of [customize, next]) {
-      const width = await button.evaluate(element => element.getBoundingClientRect().width);
-      const containerWidth = await meal.locator('form > div').evaluate(element => element.clientWidth - 36);
-      expect(Math.abs(width - containerWidth)).toBeLessThan(2);
-    }
-    await expect(next).toHaveCSS("background-color", "rgb(255, 255, 255)");
-    expect(await next.evaluate(element => getComputedStyle(element).color)).not.toBe("rgb(255, 255, 255)");
-    await customize.click();
-    await expect(meal.getByText("Ingredienti inclusi", { exact: true })).toBeVisible();
-    await meal.screenshot({ path: testInfo.outputPath("menu-personalizza.png") });
-    await next.click();
-    await meal.getByRole("radio", { name: /^Bibita/ }).check();
-    await meal.getByRole("button", { name: "Personalizza Bibita" }).click();
-    await expect(meal.getByText("Ingredienti inclusi", { exact: true })).toHaveCount(0);
-    await expect(meal.getByRole("checkbox")).toHaveCount(0);
-    await meal.getByLabel("Note per la cucina").fill("Fredda");
-    await meal.getByRole("button", { name: "Aggiungi", exact: true }).click();
+    const main = meal.getByRole("button", { name: /^Portata/ });
+    const beverage = meal.getByRole("button", { name: /^Bibita / });
+    const add = meal.getByRole("button", { name: /[0-9].*Aggiungi al carrello/ });
+    await expect(meal).toHaveCSS("height", "844px");
+    await expect(add).toBeDisabled();
+    await expect(main).toHaveAttribute("aria-expanded", "true");
+    await meal.getByRole("radio", { name: /^Pizza/ }).locator("..").click();
+    await expect(main).toHaveAttribute("aria-expanded", "false");
+    await expect(main).toContainText("Pizza");
+    await expect(beverage).toHaveAttribute("aria-expanded", "true");
+    const mainPanel = meal.locator(`[id="${await main.getAttribute("aria-controls")}"]`);
+    const beveragePanel = meal.locator(`[id="${await beverage.getAttribute("aria-controls")}"]`);
+    await expect(mainPanel).toHaveAttribute("inert", "");
+    await meal.getByRole("radio", { name: /^Bibita/ }).locator("..").click();
+    await expect(beveragePanel.getByRole("button", { name: /incluso|escluso/ })).toHaveCount(0);
+    await beveragePanel.getByRole("textbox", { name: "Note per la cucina", exact: true }).fill("Fredda");
+    await meal.screenshot({ path: testInfo.outputPath("menu-fase-aperta-mobile.png"), animations: "disabled" });
+    await expect(add).toBeEnabled();
+    await main.click();
+    await expect(meal.getByRole("radio", { name: /^Pizza/ })).toBeChecked();
+    await beverage.click();
+    await expect(beveragePanel.getByRole("textbox", { name: "Note per la cucina", exact: true })).toHaveValue("Fredda");
+    await beverage.click();
+    const finalNotes = meal.getByLabel("Messaggio opzionale");
+    await finalNotes.fill("Da dividere");
+    const pairings = meal.getByRole("region", { name: "Abbinamenti consigliati" });
+    const headings = await meal.locator("h2").allTextContents();
+    expect(headings.indexOf("Abbinamenti consigliati")).toBeGreaterThan(headings.indexOf("Bibita"));
+    expect(headings.indexOf("Abbinamenti consigliati")).toBeLessThan(headings.indexOf("Note per la cucina"));
+    await expect(pairings.getByRole("button")).toHaveCount(1);
+    await pairings.getByRole("button", { name: "Aggiungi Bibita al carrello" }).click();
+    await expect(finalNotes).toHaveValue("Da dividere");
+    await expect(beverage).toContainText("Bibita");
+    await expect(meal.getByRole("button", { name: "Scelta Successiva" })).toHaveCount(0);
+    await pairings.scrollIntoViewIfNeeded();
+    await meal.screenshot({ path: testInfo.outputPath("menu-completo-mobile.png"), animations: "disabled" });
+    await add.click();
     await expect(meal).toHaveCount(0);
+    await page.getByRole("link", { name: /^Carrello/ }).click();
+    await page.getByRole("link", { name: /Vai al checkout/ }).click();
+    const quoting = page.waitForResponse(response => response.url().endsWith("/v1/pilot/quote") && response.request().method() === "POST");
+    await page.getByRole("button", { name: "Verifica disponibilità e totale", exact: true }).click();
+    const quoted = await quoting;
+    expect(quoted.ok(), await quoted.text()).toBe(true);
+    const quote = await quoted.json() as IndividualQuote;
+    expect(quote.lines.find(line => line.productId === "detail-meal")).toMatchObject({ unitCents: 1200,
+      composition: { mealSteps: [ { stepId: "portata", productId: "detail-pizza", removedIngredientIds: [] },
+        { stepId: "bibita", productId: "detail-drink", notes: "Fredda", removedIngredientIds: [] } ] } });
+    const request = quoted.request().postDataJSON() as { cart: { lines: { productId: string; notes: string }[] } };
+    expect(request.cart.lines.find(line => line.productId === "detail-meal")?.notes).toBe("Da dividere");
   } finally { await operator.close(); }
 });

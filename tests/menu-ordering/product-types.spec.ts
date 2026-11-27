@@ -47,14 +47,14 @@ test("cinque tipi espliciti in bozza e Menu pubblicato con sole rimozioni e note
     await admin.goto(`${adminOrigin}/operazioni/menu`);
     await expect(async () => {
       await admin.getByLabel("Menu da modificare").selectOption(seed.id);
-      await expect(admin.getByRole("combobox", { name: "Aggiungi prodotto", exact: true })).toBeVisible({ timeout: 2000 });
+      await expect(admin.getByRole("combobox", { name: "Aggiungi prodotto", exact: true }).first()).toBeVisible({ timeout: 2000 });
     }).toPass({ timeout: 60_000 });
 
     for (const [type, name] of [
       ["pizza", "Pizza prova"], ["sandwich", "Panino prova"], ["product", "Acqua prova"],
       ["box", "Box prova"], ["meal", "Menu prova"]
     ] as const) {
-      await admin.getByRole("combobox", { name: "Aggiungi prodotto", exact: true }).selectOption(type);
+      await admin.getByRole("combobox", { name: "Aggiungi prodotto", exact: true }).first().selectOption(type);
       const nameInput = type === "pizza" ? admin.getByLabel("Nome pizza", { exact: true }) : admin.getByLabel(/^Nome prodotto/).last();
       await nameInput.fill(name);
       await admin.getByLabel(type === "pizza" ? "Prezzo in euro" : "Prezzo base in euro", { exact: true }).last().fill(type === "meal" ? "12" : "8");
@@ -140,26 +140,27 @@ test("cinque tipi espliciti in bozza e Menu pubblicato con sole rimozioni e note
     await page.goto(`${clientOrigin}/ordina`);
     await page.getByRole("button", { name: "Aggiungi Menu prova", exact: true }).click();
     const editor = page.getByRole("dialog", { name: "Menu prova", exact: true });
+    const portataHeader = editor.getByRole("button", { name: /^Portata / });
+    const portataPanel = editor.locator(`[id="${await portataHeader.getAttribute("aria-controls")}"]`);
     await expect(editor.getByRole("radio", { name: /Panino prova/ })).not.toBeChecked();
-    await editor.getByRole("radio", { name: /Panino prova/ }).check();
-    await editor.getByRole("button", { name: "Personalizza Panino prova", exact: true }).click();
-    await expect(editor.getByRole("checkbox", { name: "Formaggio prova", exact: true })).toBeChecked();
-    await editor.getByRole("checkbox", { name: "Formaggio prova", exact: true }).uncheck();
-    await editor.getByRole("textbox", { name: "Note per la cucina", exact: true }).fill("Ben caldo");
+    await editor.getByRole("radio", { name: /Panino prova/ }).locator("..").click();
+    await editor.getByRole("button", { name: /^Portata / }).click();
+    await expect(editor.getByRole("button", { name: "Formaggio prova incluso", exact: true })).toHaveAttribute("aria-pressed", "true");
+    await editor.getByRole("button", { name: "Formaggio prova incluso", exact: true }).click();
+    await portataPanel.getByRole("textbox", { name: "Note per la cucina", exact: true }).fill("Ben caldo");
     for (const name of ["Impasto", "Formato", "Extra", "Abbinamenti"]) {
       await expect(editor.getByRole("heading", { name, exact: true })).toHaveCount(0);
     }
-    await editor.getByRole("button", { name: "Scelta Successiva", exact: true }).click();
+    await editor.getByRole("button", { name: /^Bibita / }).click();
     await expect(editor.getByRole("radio", { name: /Acqua prova/ })).not.toBeChecked();
-    await editor.getByRole("radio", { name: /Acqua prova/ }).check();
-    await editor.getByRole("button", { name: "Indietro", exact: true }).click();
+    await editor.getByRole("radio", { name: /Acqua prova/ }).locator("..").click();
+    await editor.getByRole("button", { name: /^Portata / }).click();
     await expect(editor.getByRole("radio", { name: /Panino prova/ })).toBeChecked();
-    await editor.getByRole("button", { name: "Personalizza Panino prova", exact: true }).click();
-    await expect(editor.getByRole("checkbox", { name: "Formaggio prova", exact: true })).not.toBeChecked();
-    await expect(editor.getByRole("textbox", { name: "Note per la cucina", exact: true })).toHaveValue("Ben caldo");
-    await editor.getByRole("button", { name: "Scelta Successiva", exact: true }).click();
+    await expect(editor.getByRole("button", { name: "Formaggio prova escluso", exact: true })).toHaveAttribute("aria-pressed", "false");
+    await expect(portataPanel.getByRole("textbox", { name: "Note per la cucina", exact: true })).toHaveValue("Ben caldo");
+    await editor.getByRole("button", { name: /^Bibita / }).click();
     await editor.screenshot({ path: testInfo.outputPath("menu-cliente-mobile.png") });
-    await editor.getByRole("button", { name: "Aggiungi", exact: true }).click();
+    await editor.getByRole("button", { name: /[0-9].*Aggiungi al carrello/ }).click();
     const quoting = page.waitForResponse(response => response.url().endsWith("/v1/pilot/quote") && response.request().method() === "POST");
     await page.getByRole("link", { name: /^Carrello/ }).click();
     await page.getByRole("link", { name: /Vai al checkout/ }).click();

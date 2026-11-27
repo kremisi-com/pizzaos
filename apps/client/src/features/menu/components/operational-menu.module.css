@@ -357,36 +357,6 @@
   font-size: 1.15rem;
 }
 
-.dialog .mealCustomize, .dialog .mealNext {
-  display: block;
-  width: 100%;
-  min-height: 48px;
-  border: 1px solid var(--pizzaos-color-primary);
-  border-radius: 12px;
-  font: inherit;
-  font-weight: 700;
-  text-align: center;
-  cursor: pointer;
-}
-
-.dialog .mealCustomize {
-  background: var(--pizzaos-color-primary);
-  color: var(--pizzaos-color-primary-foreground);
-}
-
-.mealNavigation { display: grid; gap: 10px; margin-top: 12px; }
-.mealNavigation .textButton { justify-self: start; }
-
-.dialog .mealNext {
-  background: var(--pizzaos-color-background-accent);
-  color: var(--pizzaos-color-primary) !important;
-}
-
-.dialog .mealCustomize:focus-visible, .dialog .mealNext:focus-visible {
-  outline: 2px solid var(--pizzaos-color-primary);
-  outline-offset: 3px;
-}
-
 @media (max-width: 480px) {
   .item { padding: 11px; gap: 10px; }
   .itemActions { flex-wrap: wrap; }
