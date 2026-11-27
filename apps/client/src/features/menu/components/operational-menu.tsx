@@ -145,13 +145,13 @@ function GenericConfigurationDialog({ store, product, line, disabled, avoid, onC
   </dialog>;
 }
 
-export function MenuLineEditor({ store, product, line, quantity, disabled = false, avoid, onSave }: {
+export function MenuLineEditor({ store, product, line, quantity, disabled = false, avoid, onSave, className }: {
   store: IndividualStore; product: IndividualProduct; line?: IndividualLine;
-  disabled?: boolean; quantity?: number; avoid: string[]; onSave: (next: IndividualLine) => void;
+  disabled?: boolean; quantity?: number; avoid: string[]; onSave: (next: IndividualLine) => void; className?: string;
 }) {
   const [open, setOpen] = useState(false);
   return <>
-    <button className={styles.textButton} type="button" disabled={disabled || !product.available} onClick={() => setOpen(true)}>
+    <button className={className ?? styles.textButton} type="button" disabled={disabled || !product.available} onClick={() => setOpen(true)}>
       {line ? `Modifica ${product.name}` : `Personalizza ${product.name}`}
     </button>
     {open && <ConfigurationDialog store={store} product={product} line={line} quantity={quantity} disabled={disabled} avoid={avoid} onClose={() => setOpen(false)} onSave={onSave} edit={Boolean(line)} />}

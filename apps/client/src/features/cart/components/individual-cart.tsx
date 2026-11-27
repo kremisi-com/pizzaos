@@ -53,7 +53,7 @@ export function IndividualCartScreen({ cart, store, avoid, disabled, onChange }:
               <span className={styles.quantityValue} aria-live="polite">{line.quantity}</span>
               <button className={styles.quantityButton} type="button" disabled={disabled || line.quantity >= 100} aria-label={`Aumenta quantità ${name}`} onClick={() => quantity(index, line.quantity + 1)}>+</button>
             </div><button className={styles.removeButton} type="button" disabled={disabled} onClick={() => remove(index)}>Rimuovi</button></div>
-            {store && product && (product.options.length > 0 || product.meal || line.optionIds.length > 0 || Boolean(line.selections?.length)) && <MenuLineEditor store={store} product={product} line={line} avoid={avoid} disabled={disabled}
+            {store && product && (product.options.length > 0 || product.meal || line.optionIds.length > 0 || Boolean(line.selections?.length)) && <MenuLineEditor className={styles.removeButton} store={store} product={product} line={line} avoid={avoid} disabled={disabled}
               onSave={next => onChange({ ...cart, lines: cart.lines.map((item, i) => i === index ? next : item) })} />}
             <label>Note per {name}<input maxLength={500} disabled={disabled} value={line.notes} onChange={event => onChange({ ...cart, lines: cart.lines.map((item, i) => i === index ? { ...item, notes: event.target.value } : item) })} /></label>
           </article>;
