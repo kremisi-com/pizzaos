@@ -16,6 +16,10 @@ Una task è sbloccata quando tutte le decisioni obbligatorie sono `DECISO` o `NO
 
 Stati ammessi: `DECISO`, `APERTO`, `DA VALIDARE`, `RINVIATO`, `NON APPLICABILE`.
 
+## Sfondi del carrello
+
+Andrea richiede un fondo del carrello a tutta larghezza, la rimozione del rettangolo decorativo vuoto in fondo alla pagina e delle sfumature superflue. La pulizia visiva conserva il checkout fisso e lo spazio necessario a leggere i contenuti senza sovrapposizioni. [Flusso corrente](flows/customer-ordering-and-payment.md#persistenza-e-autorità-dei-dati).
+
 ## Decisioni confermate
 
 | ID | Decisione | Stato | Fonte |

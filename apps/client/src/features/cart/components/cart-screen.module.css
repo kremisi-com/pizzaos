@@ -7,9 +7,6 @@
   max-width: 520px;
   width: 100%;
   background: var(--pizzaos-color-background);
-  background-image:
-    radial-gradient(circle at top right, rgba(var(--pizzaos-color-primary-rgb), 0.06), transparent 40%),
-    radial-gradient(circle at bottom left, color-mix(in srgb, var(--pizzaos-brand-sand) 50%, transparent), transparent 50%);
   overflow-x: hidden;
 }
 
@@ -264,11 +261,6 @@
 {
   margin-top: 18px;
   padding: 26px 20px calc(24px + env(safe-area-inset-bottom, 0px));
-  background:
-    linear-gradient(180deg, color-mix(in srgb, var(--pizzaos-color-background-accent) 18%, transparent), color-mix(in srgb, var(--pizzaos-color-background-accent) 96%, transparent) 20%, var(--pizzaos-color-background-accent) 100%),
-    radial-gradient(circle at top right, rgba(var(--pizzaos-color-primary-rgb), 0.12), transparent 42%);
-  box-shadow: 0 -18px 32px color-mix(in srgb, var(--pizzaos-brand-navy) 8%, transparent);
-  backdrop-filter: blur(16px);
 }
 
 .summaryTitle
@@ -288,8 +280,6 @@
   gap: 12px 16px;
   padding: 16px 18px;
   margin-bottom: 16px;
-  background: color-mix(in srgb, var(--pizzaos-color-background-accent) 72%, transparent);
-  border-radius: 18px;
 }
 
 .summaryGrid p
@@ -358,7 +348,6 @@
   font-weight: 800;
   letter-spacing: -0.01em;
   cursor: pointer;
-  box-shadow: 0 4px 20px rgba(var(--pizzaos-color-primary-rgb), 0.3);
   transition:
     transform 0.15s cubic-bezier(0.4, 0, 0.2, 1),
     filter 0.2s ease,

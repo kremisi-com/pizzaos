@@ -67,7 +67,6 @@ export function IndividualCartScreen({ cart, store, avoid, disabled, onChange }:
           <button className={styles.clearCartButton} type="button" disabled={disabled} onClick={() => onChange({ ...cart, lines: [], notes: "", benefits: undefined })}>Svuota carrello</button>
         </div>
       </section>
-      {/* Keep the fixed dock outside the summary's backdrop-filter containing block. */}
       <div className={liveStyles.checkoutDock}>
         <div className={styles.summaryTotalRow}><span className={styles.summaryTotalLabel}>Totale stimato</span><strong className={styles.summaryTotalValue}>{subtotal === null ? "—" : money(subtotal)}</strong></div>
         <a className={styles.checkoutLink} href="/ordina/checkout" data-testid="cart-checkout-link">Vai al checkout →</a>

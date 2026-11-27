@@ -56,7 +56,7 @@
 .confirmation { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; padding: 18px; margin: 16px 0; border: 1px solid color-mix(in srgb, var(--pizzaos-color-success) 30%, transparent); border-radius: 17px; background: var(--pizzaos-color-success-soft); }
 .confirmation h2, .confirmation p { margin: 0; }
 .mobileCart { display: none; }
-.cartPage { max-width: 560px; margin: 0 auto; padding: 0 16px; }
+.cartPage { width: 100%; background: var(--pizzaos-color-background); }
 .cartPage label { display: grid; gap: 7px; margin-top: 12px; font-size: .9rem; }
 .cartPage input { width: 100%; box-sizing: border-box; padding: 11px 12px; border: 1px solid var(--pizzaos-color-border); border-radius: 10px; font: inherit; color: var(--pizzaos-color-foreground); background: var(--pizzaos-color-background-accent); }
 .cartPage input:focus-visible, .cartPage button:focus-visible, .cartPage a:focus-visible { outline: 3px solid var(--pizzaos-color-focus); outline-offset: 3px; }
