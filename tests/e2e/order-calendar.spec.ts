@@ -42,10 +42,13 @@ test("la settimana tipo del Profilo governa entrambi i checkout", async ({ brows
     await calendar.getByRole("button", { name: "Applica", exact: true }).click();
     await expect(calendar.getByRole("spinbutton", { name: "Massimo ordini, Lunedì 22:00–22:30" })).toHaveValue("5");
     await merged.fill("1");
+    const saved = operations.waitForResponse(response => {
+      if (!response.url().endsWith(storeApi) || response.request().method() !== "PUT") return false;
+      const submitted = response.request().postDataJSON() as IndividualStore;
+      return submitted.orderSchedule?.days.every(day => day.windows[0]?.capacity === 1) === true;
+    });
     await calendar.getByRole("button", { name: "Applica a tutta la settimana" }).click();
     await expect(calendar.getByRole("spinbutton", { name: "Massimo ordini, Domenica 11:00–13:00" })).toHaveValue("1");
-    const saved = operations.waitForResponse(response => response.url().endsWith(storeApi) && response.request().method() === "PUT");
-    await operations.getByRole("button", { name: "Salva configurazione" }).click();
     expect((await saved).ok()).toBe(true);
     const screenshot = testInfo.outputPath("settimana-tipo.png");
     await calendar.screenshot({ path: screenshot });
@@ -115,7 +118,7 @@ test("il Profilo conserva la bozza se una modifica arriva fra rilettura e salvat
       await route.fulfill({ response });
     });
     const rejected = page.waitForResponse(response => response.url().endsWith(storeApi) && response.request().method() === "PUT");
-    await page.getByRole("button", { name: "Salva configurazione", exact: true }).click();
+    await name.blur();
     expect((await rejected).status()).toBe(409);
     await expect(page.getByText("La configurazione è cambiata. Ricarica la sede e ripeti la modifica.", { exact: true })).toBeVisible();
     await expect(name).toHaveValue("Bozza concorrente");
@@ -125,7 +128,7 @@ test("il Profilo conserva la bozza se una modifica arriva fra rilettura e salvat
     await page.reload();
     await name.fill("Nome dopo rilettura");
     const saved = page.waitForResponse(response => response.url().endsWith(storeApi) && response.request().method() === "PUT");
-    await page.getByRole("button", { name: "Salva configurazione", exact: true }).click();
+    await name.blur();
     expect((await saved).ok()).toBe(true);
     await expect(page.getByText("Configurazione salvata.", { exact: true })).toBeVisible();
     expect(await (await operator.request.get(`${adminOrigin}${storeApi}`)).json()).toMatchObject({ name: "Nome dopo rilettura", contactPhone: "0612345678" });

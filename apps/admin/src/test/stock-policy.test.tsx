@@ -15,7 +15,7 @@ const store: IndividualStore = {
 };
 
 describe("configurazione e avvisi delle scorte", () => {
-  it("il Profilo usa disable come default e applica la scelta soltanto al salvataggio", async () => {
+  it("il Profilo usa disable come default e salva automaticamente la scelta", async () => {
     const onSave = vi.fn(async () => true);
     const onSearchAddress = vi.fn(async () => []);
     render(<StoreConfiguration store={store} isNew={false} section="profile" busy={false} onSearchAddress={onSearchAddress} onSave={onSave} />);
@@ -25,8 +25,6 @@ describe("configurazione e avvisi delle scorte", () => {
     expect(screen.getByRole("option", { name: "Visibili con Esaurito" })).toBeDefined();
     expect(screen.getByRole("option", { name: "Nascosti" })).toBeDefined();
     fireEvent.change(selector, { target: { value: "allow" } });
-    expect(onSave).not.toHaveBeenCalled();
-    fireEvent.click(screen.getByRole("button", { name: "Salva configurazione" }));
     await waitFor(() => expect(onSave).toHaveBeenCalledWith(expect.objectContaining({ outOfStockBehavior: "allow" }), expect.anything(), undefined));
     expect(onSearchAddress).not.toHaveBeenCalled();
   });

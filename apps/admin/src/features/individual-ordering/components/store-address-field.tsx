@@ -68,7 +68,7 @@ export function StoreAddressField({ storeId, address, savedAddress, needsConfirm
         <button type="button" className={styles.secondary} onClick={() => {
           setMatches(null);
           onConfirm(candidate);
-          showToast("Indirizzo confermato. Salva per applicarlo alla sede.", "success");
+          showToast("Indirizzo confermato.", "success");
         }}>Conferma {candidate.address}</button>
       </li>)}</ul>
     </fieldset>}

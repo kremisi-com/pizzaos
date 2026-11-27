@@ -58,11 +58,16 @@ describe("salvataggio configurazione dalla bozza operatore", () => {
     const name = await domScreen.findByLabelText("Nome sede");
     domFireEvent.change(name, { target: { value: "Roma Centro" } });
     f.change({ configurationRevision: "remote", contactPhone: "0612345" });
-    domFireEvent.click(domScreen.getByRole("button", { name: "Salva configurazione" }));
+    domFireEvent.blur(name);
     await domWaitFor(() => expect(f.saveStore).toHaveBeenCalledWith(expect.objectContaining({
       name: "Roma Centro", contactPhone: "0612345", configurationRevision: "remote"
     }), undefined));
     await domScreen.findByText("Configurazione salvata.");
+    domFireEvent.change(name, { target: { value: "Roma Centro aggiornata" } });
+    domFireEvent.blur(name);
+    await domWaitFor(() => expect(f.saveStore).toHaveBeenCalledTimes(2));
+    expect(f.saveStore.mock.lastCall?.[0]).toMatchObject({ name: "Roma Centro aggiornata", contactPhone: "0612345" });
+    expect(domScreen.getByLabelText("Nome sede")).toBe(name);
   });
 
   it("mantiene la bozza quando il servizio rileva una modifica dopo la rilettura, senza ritentare", async () => {
@@ -70,7 +75,7 @@ describe("salvataggio configurazione dalla bozza operatore", () => {
     const name = await domScreen.findByLabelText<HTMLInputElement>("Nome sede");
     domFireEvent.change(name, { target: { value: "Bozza locale" } });
     f.saveStore.mockRejectedValueOnce(Object.assign(new Error("La configurazione è cambiata. Ricarica la sede e ripeti la modifica."), { code: "revision_conflict" }));
-    domFireEvent.click(domScreen.getByRole("button", { name: "Salva configurazione" }));
+    domFireEvent.blur(name);
     await domScreen.findByText("La configurazione è cambiata. Ricarica la sede e ripeti la modifica.");
     expect(name.value).toBe("Bozza locale");
     expect(f.saveStore).toHaveBeenCalledTimes(1);

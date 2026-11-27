@@ -32,7 +32,7 @@ test("il superadmin pubblica Roma e il link apre menu e gruppo della stessa sede
   await page.getByLabel("Negozio Attivo", { exact: true }).selectOption({ label: "Roma" });
   await page.getByRole("navigation", { name: "Navigazione admin" }).getByRole("link", { name: "Profilo", exact: true }).click();
   await page.getByRole("textbox", { name: /^Sottodominio ordini/ }).fill("lapizzaspeciale");
-  await page.getByRole("button", { name: "Salva configurazione" }).click();
+  await page.getByRole("textbox", { name: /^Sottodominio ordini/ }).blur();
 
   const link = page.getByRole("link", { name: "lapizzaspeciale.pizzaos.app" });
   await expect(link).toHaveAttribute("href", assigned);
@@ -91,7 +91,7 @@ test("Bella Napoli conserva il pilota fino all’assegnazione e poi apre solo la
   await page.getByLabel("Negozio Attivo", { exact: true }).selectOption({ label: "Napoli" });
   await page.getByRole("navigation", { name: "Navigazione admin" }).getByRole("link", { name: "Profilo", exact: true }).click();
   await page.getByRole("textbox", { name: /^Sottodominio ordini/ }).fill("bella-napoli");
-  await page.getByRole("button", { name: "Salva configurazione" }).click();
+  await page.getByRole("textbox", { name: /^Sottodominio ordini/ }).blur();
   const link = page.getByRole("link", { name: "bella-napoli.pizzaos.app" });
   await expect(link).toHaveAttribute("href", legacy);
   await link.click();

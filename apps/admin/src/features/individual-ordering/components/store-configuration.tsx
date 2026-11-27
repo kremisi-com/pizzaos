@@ -10,6 +10,18 @@ import styles from "./individual-operations.module.css";
 
 export type StoreConfigurationSection = "inventory" | "profile";
 
+function rebaseSavedStore(local: IndividualStore, submitted: IndividualStore, saved: IndividualStore): IndividualStore {
+  const next = { ...local };
+  function apply<K extends keyof IndividualStore>(key: K) {
+    if (JSON.stringify(local[key]) === JSON.stringify(submitted[key])) next[key] = saved[key];
+  }
+  (Object.keys({ ...local, ...saved }) as (keyof IndividualStore)[]).forEach(apply);
+  if (next.orderSchedule && saved.orderSchedule) {
+    next.orderSchedule = { ...next.orderSchedule, revision: saved.orderSchedule.revision };
+  }
+  return next;
+}
+
 export function StoreConfiguration({ store, isNew, section, busy, orderingDomain, canPublish, onSearchAddress, onSave }: {
   store: IndividualStore;
   isNew: boolean;
@@ -18,45 +30,52 @@ export function StoreConfiguration({ store, isNew, section, busy, orderingDomain
   orderingDomain?: string;
   canPublish?: boolean;
   onSearchAddress: StoreAddressApi["searchStoreAddresses"];
-  onSave: (draft: IndividualStore, original: IndividualStore, addressConfirmation?: string) => Promise<boolean | void>;
+  onSave: (draft: IndividualStore, original: IndividualStore, addressConfirmation?: string) => Promise<IndividualStore | boolean | void>;
 }) {
   const [original] = useState(store);
   const [draft, setDraft] = useState(() => isNew || section === "inventory" ? {
     ...store,
     ingredients: store.ingredients.map(ingredient => ({ ...ingredient, food: ingredient.food ?? { contains: [], mayContain: [] } }))
   } : store);
-  const automatic = !isNew && section === "inventory";
+  const automatic = !isNew;
+  const [confirmedAddress, setConfirmedAddress] = useState<StoreAddressCandidate | null>(null);
   const baseline = useRef(store);
+  const savedAddressConfirmation = useRef<string | undefined>(undefined);
   const form = useRef<HTMLFormElement>(null);
   const editingText = useRef(false);
   const inFlight = useRef(false);
-  const [queued, setQueued] = useState<IndividualStore | null>(null);
+  const [queued, setQueued] = useState<{ draft: IndividualStore; addressConfirmation?: string } | null>(null);
   const [saving, setSaving] = useState(false);
   const [failed, setFailed] = useState(false);
 
   useEffect(() => {
     if (!automatic || !queued || failed || inFlight.current || !form.current?.checkValidity()) return;
-    if (JSON.stringify(queued.ingredients) === JSON.stringify(baseline.current.ingredients)) return;
+    const addressConfirmation = queued.addressConfirmation !== savedAddressConfirmation.current ? queued.addressConfirmation : undefined;
+    if (JSON.stringify(queued.draft) === JSON.stringify(baseline.current) && !addressConfirmation) return;
     const submitted = queued;
     inFlight.current = true;
     setSaving(true);
-    void onSave(submitted, baseline.current).then(result => {
+    void onSave(submitted.draft, baseline.current, addressConfirmation).then(result => {
       if (result === false) { setFailed(true); return; }
-      baseline.current = submitted;
-      setQueued(current => current === submitted ? null : current);
+      const saved = typeof result === "object" ? result : submitted.draft;
+      baseline.current = saved;
+      if (addressConfirmation) savedAddressConfirmation.current = addressConfirmation;
+      setDraft(current => rebaseSavedStore(current, submitted.draft, saved));
+      setQueued(current => current === submitted || !current ? null : {
+        ...current, draft: rebaseSavedStore(current.draft, submitted.draft, saved)
+      });
     }).catch(() => setFailed(true)).finally(() => {
       inFlight.current = false;
       setSaving(false);
     });
   }, [automatic, queued, failed, saving, onSave]);
 
-  function queueSave(next: IndividualStore) {
+  function queueSave(next: IndividualStore, addressConfirmation = confirmedAddress?.confirmation) {
     setFailed(false);
-    setQueued(next);
+    setQueued({ draft: next, addressConfirmation });
   }
   const [address, setAddress] = useState(store.address ?? "");
-  const [confirmedAddress, setConfirmedAddress] = useState<StoreAddressCandidate | null>(null);
-  const needsConfirmation = (isNew || address.trim() !== (original.address ?? "")) && !confirmedAddress;
+  const needsConfirmation = (isNew || address.trim() !== (store.address ?? "")) && !confirmedAddress;
   const update = <K extends keyof IndividualStore>(key: K, value: IndividualStore[K]) => {
     const next = { ...draft, [key]: value };
     setDraft(next);
@@ -81,15 +100,15 @@ export function StoreConfiguration({ store, isNew, section, busy, orderingDomain
     if (!busy && !needsConfirmation) void onSave(draft, original, confirmedAddress?.confirmation);
   }}>
     <h2>{isNew ? "Crea una sede" : section === "inventory" ? "Magazzino ingredienti" : "Configurazione della sede"}</h2><p>{!automatic && "Le modifiche vengono applicate quando salvi. "}Le risorse già impegnate dagli ordini devono restare disponibili.</p>
-    {(isNew || section === "profile") && <fieldset disabled={busy}><legend>Identità e contatti</legend><div className={styles.formGrid}>
+    {(isNew || section === "profile") && <fieldset disabled={busy && !automatic}><legend>Identità e contatti</legend><div className={styles.formGrid}>
       <label>Identificativo sede<input required value={draft.id} disabled={!isNew} pattern="[a-zA-Z0-9_-]+" onChange={event => {
         update("id", event.target.value);
         setConfirmedAddress(null);
       }} /></label>
       <label>Nome sede<input required maxLength={150} value={draft.name} onChange={event => update("name", event.target.value)} /></label>
-      {orderingDomain && (original.orderingSubdomain ? <div>
+      {orderingDomain && (store.orderingSubdomain ? <div>
         <p>Sito ordini</p>
-        <a href={`https://${original.orderingSubdomain}.${orderingDomain}`}>{original.orderingSubdomain}.{orderingDomain}</a>
+        <a href={`https://${store.orderingSubdomain}.${orderingDomain}`}>{store.orderingSubdomain}.{orderingDomain}</a>
       </div> : canPublish && <label>Sottodominio ordini
         <input value={draft.orderingSubdomain ?? ""} maxLength={63} placeholder="lapizzaspeciale"
           pattern={String.raw`[a-z0-9](?:[a-z0-9\-]{0,61}[a-z0-9])?`}
@@ -100,13 +119,21 @@ export function StoreConfiguration({ store, isNew, section, busy, orderingDomain
       <label>Email del ristorante<input type="email" value={draft.contactEmail ?? ""} onChange={event => update("contactEmail", event.target.value)} /></label>
       <label>WhatsApp del ristorante<input type="tel" placeholder="+39…" value={draft.contactPhone ?? ""} onChange={event => update("contactPhone", event.target.value)} /></label>
     </div>
-    <StoreAddressField key={draft.id} storeId={draft.id} address={address} savedAddress={original.address}
+    <StoreAddressField key={draft.id} storeId={draft.id} address={address} savedAddress={store.address}
       needsConfirmation={needsConfirmation} onSearch={onSearchAddress}
       onEdit={value => { setAddress(value); setConfirmedAddress(null); }}
-      onConfirm={candidate => { setAddress(candidate.address); setConfirmedAddress(candidate); }} />
+      onConfirm={candidate => {
+        setAddress(candidate.address);
+        setConfirmedAddress(candidate);
+        if (automatic) {
+          const next = { ...draft, address: candidate.address };
+          setDraft(next);
+          queueSave(next, candidate.confirmation);
+        }
+      }} />
     <label className={styles.check}><input type="checkbox" checked={draft.acceptingOrders} onChange={event => update("acceptingOrders", event.target.checked)} />Accetta nuovi ordini</label></fieldset>}
 
-    {(isNew || section === "profile") && <fieldset disabled={busy}><legend>Disponibilità dei prodotti</legend>
+    {(isNew || section === "profile") && <fieldset disabled={busy && !automatic}><legend>Disponibilità dei prodotti</legend>
       <label>Prodotti con ingredienti esauriti<select value={draft.outOfStockBehavior ?? "disable"} onChange={event => {
         const value = event.target.value;
         if (value === "allow" || value === "disable" || value === "hide") update("outOfStockBehavior", value);
@@ -147,7 +174,7 @@ export function StoreConfiguration({ store, isNew, section, busy, orderingDomain
       </div>)}<button className={styles.secondary} type="button" onClick={() => update("ingredients", [...draft.ingredients, { id: crypto.randomUUID(), name: "", stock: 0, food: { contains: [], mayContain: [] } }])}>Aggiungi ingrediente</button>
     </fieldset>}
 
-    {isNew && <fieldset disabled={busy}><legend>Menu e prodotti</legend>
+    {isNew && <fieldset disabled={busy && !automatic}><legend>Menu e prodotti</legend>
       {draft.products.map((product, index) => <article className={styles.productEditor} key={product.id}><h3>{product.name || `Nuovo prodotto ${index + 1}`}</h3><div className={styles.formGrid}>
         <label>Nome prodotto {index + 1}<input required value={product.name} onChange={event => productChange(index, { name: event.target.value })} /></label>
         <label>Prezzo prodotto {index + 1} in centesimi<input required type="number" min="0" step="1" value={product.priceCents} onChange={event => productChange(index, { priceCents: Number(event.target.value) })} /></label>
@@ -166,13 +193,13 @@ export function StoreConfiguration({ store, isNew, section, busy, orderingDomain
       <button className={styles.secondary} type="button" onClick={() => update("products", [...draft.products, { id: crypto.randomUUID(), name: "", description: "", priceCents: 0, available: true, allergens: [], ingredients: {}, options: [] }])}>Aggiungi prodotto</button>
     </fieldset>}
 
-    {(isNew || section === "profile") && <fieldset disabled={busy}><legend>Fasce orarie e capacità</legend>
+    {(isNew || section === "profile") && <fieldset disabled={busy && !automatic}><legend>Fasce orarie e capacità</legend>
       <WeeklyOrderCalendar schedule={draft.orderSchedule ?? createDefaultWeeklyOrderSchedule()}
         protectedDates={store.protectedOrderDates ?? []} timeZone={draft.timeZone ?? "Europe/Rome"}
         onChange={schedule => update("orderSchedule", schedule)} />
     </fieldset>}
 
-    {(isNew || section === "profile") && <fieldset disabled={busy}><legend>Zone di consegna</legend><p>Il raggio è calcolato dalla sede. Il minimo riguarda i prodotti, prima del costo di consegna.</p>
+    {(isNew || section === "profile") && <fieldset disabled={busy && !automatic}><legend>Zone di consegna</legend><p>Il raggio è calcolato dalla sede. Il minimo riguarda i prodotti, prima del costo di consegna.</p>
       {draft.deliveryBands.map((band, index) => <div className={styles.repeatRow} key={index}>
         <label>Raggio massimo fascia {index + 1} in km<input required type="number" min="0.1" step="0.1" value={band.upToKm} onChange={event => update("deliveryBands", draft.deliveryBands.map((item, i) => i === index ? { ...item, upToKm: Number(event.target.value) } : item))} /></label>
         <label>Costo consegna fascia {index + 1} in centesimi<input required type="number" min="0" step="1" value={band.feeCents} onChange={event => update("deliveryBands", draft.deliveryBands.map((item, i) => i === index ? { ...item, feeCents: Number(event.target.value) } : item))} /></label>

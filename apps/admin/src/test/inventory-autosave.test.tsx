@@ -85,13 +85,12 @@ describe("salvataggio automatico del magazzino", () => {
     expect(onSave.mock.lastCall?.[0].ingredients).toHaveLength(1);
   });
 
-  it("mantiene il salvataggio manuale del Profilo", async () => {
+  it("salva automaticamente anche il Profilo", async () => {
     const { onSave } = setup("profile");
     const name = screen.getByLabelText("Nome sede");
     fireEvent.change(name, { target: { value: "Roma centro" } });
     fireEvent.blur(name);
-    expect(onSave).not.toHaveBeenCalled();
-    fireEvent.click(screen.getByRole("button", { name: "Salva configurazione" }));
+    expect(screen.queryByRole("button", { name: "Salva configurazione" })).toBeNull();
     await waitFor(() => expect(onSave).toHaveBeenCalledTimes(1));
   });
 });

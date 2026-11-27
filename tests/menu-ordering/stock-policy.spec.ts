@@ -44,9 +44,8 @@ test("il Profilo governa prodotti con scorte zero, le scorte vuote consentono pu
 
     async function choose(behavior: OutOfStockBehavior) {
       await page.goto(`${adminOrigin}/operazioni/profilo`);
-      await page.getByRole("combobox", { name: "Prodotti con ingredienti esauriti" }).selectOption(behavior);
       const saving = page.waitForResponse(response => response.url().endsWith(storePath) && response.request().method() === "PUT");
-      await page.getByRole("button", { name: "Salva configurazione", exact: true }).click();
+      await page.getByRole("combobox", { name: "Prodotti con ingredienti esauriti" }).selectOption(behavior);
       const response = await saving;
       expect(response.ok(), await response.text()).toBe(true);
       expect((await response.json()).outOfStockBehavior).toBe(behavior);

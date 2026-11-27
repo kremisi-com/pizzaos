@@ -78,7 +78,7 @@ describe("multiselect allergeni del Magazzino", () => {
     await waitFor(() => expect(onSave).toHaveBeenLastCalledWith(expect.objectContaining({ ingredients: [
       { ...store.ingredients[0], food: { contains: ["Senape"], mayContain: ["Voce importata", "Uova"] } },
       { ...store.ingredients[1], food: { contains: ["Latte"], mayContain: [] } }
-    ] }), expect.objectContaining({ id: store.id })));
+    ] }), expect.objectContaining({ id: store.id }), undefined));
   });
 
   it("salva liste vuote verificate di default anche senza aprire la sezione", async () => {

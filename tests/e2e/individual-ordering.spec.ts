@@ -262,7 +262,7 @@ test("the live admin sidebar switches tools and restricts store management to su
     await expect(storeName).toHaveValue(store.name);
     const updatedName = `${store.name} aggiornata`;
     await storeName.fill(updatedName);
-    await page.getByRole("button", { name: "Salva configurazione", exact: true }).click();
+    await storeName.blur();
     await expect(page.getByText("Configurazione salvata.", { exact: true })).toBeVisible();
     await navigation.getByRole("link", { name: "Dashboard", exact: true }).click();
     await profile.click();
@@ -330,7 +330,7 @@ test("admin discards address results for an edited search and can still save a l
   const save = page.getByRole("button", { name: "Salva configurazione", exact: true });
   const endpoint = "**/v1/pilot/stores/roma/address-search";
   await expect(address).toHaveValue("");
-  await expect(save).toBeEnabled();
+  await expect(save).toHaveCount(0);
 
   let releaseResponse = () => {};
   const waitForEdit = new Promise<void>(resolve => { releaseResponse = resolve; });
@@ -345,7 +345,7 @@ test("admin discards address results for an edited search and can still save a l
     await search.click();
     await request;
     await address.fill("Località inesistente");
-    await expect(save).toBeDisabled();
+    await expect(save).toHaveCount(0);
   } finally {
     releaseResponse();
   }
@@ -354,11 +354,13 @@ test("admin discards address results for an edited search and can still save a l
   await search.click();
   expect(await (await noMatches).json()).toEqual([]);
   await expect(page.getByRole("button", { name: /^Conferma Via Verdi/ })).toHaveCount(0);
-  await expect(save).toBeDisabled();
+  await expect(save).toHaveCount(0);
 
   await address.clear();
-  await expect(save).toBeEnabled();
-  await save.click();
+  await expect(save).toHaveCount(0);
+  const name = page.getByLabel("Nome sede", { exact: true });
+  await name.fill("Roma aggiornata");
+  await name.blur();
   await expect(page.getByText("Configurazione salvata.", { exact: true })).toBeVisible();
   const saved = await context.request.get(`${adminOrigin}/api/pilot/v1/pilot/stores/roma`);
   expect(saved.ok()).toBe(true);
